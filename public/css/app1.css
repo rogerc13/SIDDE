@@ -1,0 +1,203 @@
+.table-center > thead > tr > th, .table-center > thead > tr > td, .table-center > tbody > tr > td {
+    text-align: center;
+}
+
+.subtitulos-ficha {
+    font-size: 17px;
+    color: #373e4a;
+    font-weight: bold;
+}
+
+.titulo-ficha > *{
+    font-weight: bold;
+}
+
+.ficha-contenido{
+	    font-size: 17px;
+    color: #373e4a;
+
+}
+
+
+.login-headbar {
+    background-color: white;
+}
+
+.login-page footer {
+    background: white;
+    margin-top: 0px;
+    color: black;
+}
+
+.login-page .login-header {
+    background: none;
+}
+
+body .login-container .login-header {
+    background: none;
+        padding-bottom: 20px;
+}
+
+.login-container {
+    background: url(/assets/images/pdvsa-fondo-3.jpg) no-repeat;
+    background-size: cover;
+    /*height: 90%;*/
+
+}
+
+.login-page .description{
+    color: white;
+    font-weight: bold;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #00a651;
+  border-color: #00a651;
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: #008541;
+    border-color: #008541;
+}
+
+
+/* Sidebar colors*/
+
+/*    .sidebar-menu-inner .logo-env {
+        background: #084b9a;
+    }
+
+    .sidebar-user-info {
+        background: #0779a9;
+    }
+
+    body .page-container .sidebar-menu {
+        background: #0779a9;
+    }
+
+    body .page-container .sidebar-menu #main-menu li {
+        border-color: #8fbff7;
+    }
+
+
+
+body .page-container .sidebar-menu {
+    background: #00a651;
+    color: #009549;
+}
+*/
+
+    body .page-container .sidebar-menu .sidebar-user-info {
+        border-bottom: 1px solid #454a54;
+    }
+
+    body .page-container .sidebar-menu #main-menu li.active > a {
+        background: #165636;
+    }
+
+    .page-container .sidebar-menu #main-menu li a:hover {
+        background-color: rgba(27, 72, 49, 0.45);
+        color: #fff;
+    }
+/*END SIDEBAR COLORS*/
+
+/*LOGIN ICON COLOR*/
+    body .input-group-addon {
+        color: #7aab8b;
+    }
+/*END LOGIN ICON COLORS*/
+
+.select2-drop {
+      z-index: 10002 !important;
+}
+
+.select2-drop-mask{
+    z-index: 10002 !important;
+}
+
+.sidebar-collapsed .sidebar-selector .select2-container.select2 {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar-selector .select2-container {
+    display: none;
+}
+
+.sidebar-collapsed .sidebar-selector .title.buscar {
+    display: none !important;
+}
+
+#sidebar-busqueda > a:before {
+    display: none !important;
+}
+
+.login-form2{
+    position: relative;
+    /*padding-top: 60px;*/
+    top: 0;
+}
+
+body.login-page {
+    background: #ffffff;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.login-form2 .login-content{
+    padding-bottom: 60px !important;
+}
+
+.login-page .login-header .login-content {
+    width: 320px;
+}
+
+
+
+/*.page-container .sidebar-menu .logo-env {
+    padding-left: 20px;
+}*/
+
+.panel {
+    box-shadow: 9px 13px 20px 0px rgba(1, 49, 25, 0.29);
+}
+
+.panel > .panel-body.with-table.table-responsive {
+
+    margin: 1px !important;
+
+}
+
+
+.fileinput-filename{
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: middle;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    padding-left: 30px !important;;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.filtros .form-control{
+    height: 42px ;
+}
+
+.control-label {
+    padding-top: 7px;
+}
+
+
+.datepicker.datepicker-dropdown {
+    z-index: 10002 !important;
+}
+
+.nicehide {
+    display: block !important;
+    position: absolute; /*Keep the object's original position*/
+    width: 0 !important; /*It should be 0 width. Otherwise the object seems underneath of the editor */
+    z-index: -1; /*Send the object to the bottom layer*/
+}
+
