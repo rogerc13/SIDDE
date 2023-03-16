@@ -19,9 +19,8 @@
                 $('#dirigido').val(data.dirigido);
                 $('#min').val(data.min);
                 $('#max').val(data.max);
-                //$('#objetivo').val(data.objetivo);
-                $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
-
+                $('#objetivo').val(data.objetivo);
+                // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
                 $('#contenido').val(data.contenido);
                 if (data.manual_f) {
                     $('#l_manual_f').text(data.manual_f);
