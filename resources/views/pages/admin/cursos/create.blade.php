@@ -1,7 +1,7 @@
 @push('JS')
     <script src="{{url('assets/js/fileinput.js')}}"></script>
-    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>
-    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>
+{{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
+{{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
 
 
 <script>
@@ -95,7 +95,7 @@
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('objetivo', 'Objetivo',array('class' => 'control-label')) }}
-                            {{ Form::textarea('objetivo', null , array('class' => 'form-control wysihtml5 ','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required')) }}
+                            {{ Form::textarea('objetivo', null , array('class' => 'form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required')) }}
 
                         </div>
                     </div>

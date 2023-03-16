@@ -13,8 +13,8 @@
         $("#docs").addClass("hidden");
         $("#accion-aceptar").addClass("hidden");
 
-        $('#objetivo').data('wysihtml5').editor.toolbar.hide();
-        $('#objetivo').data('wysihtml5').editor.composer.disable();
+        // $('#objetivo').data('wysihtml5').editor.toolbar.hide();
+        // $('#objetivo').data('wysihtml5').editor.composer.disable();
 
 
 
@@ -27,8 +27,8 @@
                 $('#dirigido').val(data.dirigido);
                 $('#min').val(data.min);
                 $('#max').val(data.max);
-                //$('#objetivo').val(data.objetivo);
-                $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
+                $('#objetivo').val(data.objetivo);
+                // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
                 $('#contenido').val(data.contenido);
                 $(".loader").addClass("hidden");
                 $("#accion-form").removeClass("hidden");
@@ -41,8 +41,8 @@
             $( "#accion-form select" ).prop('disabled', false);
             $("#accion-aceptar").removeClass("hidden");
             $("#docs").removeClass("hidden");
-            $('#objetivo').data('wysihtml5').editor.toolbar.show();
-            $('#objetivo').data('wysihtml5').editor.composer.enable();
+            // $('#objetivo').data('wysihtml5').editor.toolbar.show();
+            // $('#objetivo').data('wysihtml5').editor.composer.enable();
        });
     }
 </script>
