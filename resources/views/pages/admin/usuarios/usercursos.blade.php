@@ -57,7 +57,7 @@
 		      	<div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="fechas" class="control-label">Por mes</label>
 		          <div class="input-group">
-		          	<input type='text' class='form-control dat' name='fechas' data-format="yyyy-mm" id='fechas' placeholder='Fechas' value='{{$fechas}}' />
+		          	<input type='text' class='form-control dat' autocomplete="off" name='fechas' data-format="yyyy-mm" id='fechas' placeholder='Fechas' value='{{$fechas}}' />
 		          	<span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
 		          </div>
 		        </div>
