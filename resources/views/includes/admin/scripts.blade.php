@@ -34,9 +34,10 @@
 	<script src="{{url('assets/js/neon-demo.js')}}"></script>
 
 	<script>
-	    function redireccion(){       
+		
+	    /*function redireccion(){  //Never used       
 	    	console.log("asd");
-    	}
+    	}*/ 
 
     	$( document ).ready(function() {
     		$('#selectbusqueda').on("change", function(e) {     
@@ -48,7 +49,7 @@
         	})
 		});
 
-		$("#siderbar-buscar").on("click", function (ev) {
+		$("#siderbar-buscar").on("click", function (ev) { //sidebar-buscar refers to search icon, this on-click event collapses the sidebar
 
 			ev.preventDefault();
 

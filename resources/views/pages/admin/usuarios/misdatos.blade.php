@@ -59,7 +59,7 @@
                 <label for="ci" class="col-sm-3 control-label">C.I</label>
                 
                 <div class="col-sm-5">
-                  <input type="number" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->ci}}" maxlength="45" required="true">
+                  <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->ci}}" maxlength="45" required="true">
                 </div>
               </div>
 
