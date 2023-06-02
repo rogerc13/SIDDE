@@ -36,7 +36,8 @@ class CursoController extends Controller
                         ->with("alert", Funciones::getAlert("danger","Error","La acción de formación no pudo ser encontrada"));
         }
 
-        return view('pages.public.ficha')->with('curso',$curso);
+        //return view('pages.public.ficha')->with('curso',$curso);
+        return view('pages.public.ficha_tecnica')->with('curso',$curso);
     }
 
     public function descargarDoc($id, $d)

@@ -16,7 +16,6 @@
 	<link rel="stylesheet" href="{{url('assets/css/neon-core.css')}}">
 	<link rel="stylesheet" href="{{url('assets/css/neon-theme.css')}}">
 	<link rel="stylesheet" href="{{url('assets/css/neon-forms.css')}}">
-	<link rel="stylesheet" href="{{url('assets/css/custom.css')}}">
 	<link rel="stylesheet" href="{{url('assets/css/font-icons/font-awesome/css/font-awesome.min.css')}}">
 	<link rel="stylesheet" href="{{url('assets/js/zurb-responsive-tables/responsive-tables.css')}}">
 		<!-- <link rel="stylesheet" href="{{url('assets/css/skins/green.css')}}"> -->
@@ -28,8 +27,9 @@
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2-bootstrap.css')}}">
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2.css')}}">
 
-            <link rel="stylesheet" href="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
-
+	<link rel="stylesheet" href="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
+	
+	<link rel="stylesheet" href="{{url('assets/css/custom.css')}}">
 	<!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

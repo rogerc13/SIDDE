@@ -4,6 +4,102 @@
  *
 */
 
-body {
-	
+/*Ficha Tecnica CSS*/
+
+.ficha-tecnica {
+    width: 210mm;
+    height: 297mm;
+    margin-left: 25mm !important;
+    margin-right: 25mm !important;
+}
+
+.ficha-tecnica tr{
+    display: table-row !important;
+    vertical-align: inherit !important;
+    border-color: inherit !important;
+
+    height: 0pt !important;
+}
+
+/*.ficha-table,td,th{
+    border-collapse: collapse !important;
+    border: none !important;
+}*/
+
+.ficha-red-line{
+    border: 1px solid red;
+}
+
+.ficha-course-title{
+    font: bold 14pt Arial, Sans-serif;
+    color: #000000;
+}
+
+.ficha-course-code{
+    font: bold 16pt Arial, Sans-serif;
+    color: #000000;
+}
+
+.ficha-course-subtitle{ /*p tag texto subtitulo*/
+    font-family: "Arial Narrow", sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 11pt !important;
+    text-decoration: none !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    color: #000000;
+
+    padding-top: 6pt;
+    padding-bottom: 6pt;
+    line-height: 1.0;
+    orphans: 2 !important;
+    widows: 2 !important;
+    text-align: left;
+    margin-right: 2.9pt;
+}
+
+.ficha-subtitle-td{/*td tag contenedor del subtitulo*/
+    border-right-style: solid;
+    padding: 0pt 3.5pt 0pt 3.5pt !important;
+    border-bottom-color: #000000;
+    border-top-width: 0pt !important;
+    border-right-width: 0pt !important;
+    border-left-color: #000000;
+    vertical-align: top !important;
+    border-right-color: #000000;
+    border-left-width: 0pt !important;
+    border-top-style: solid !important;
+    border-left-style: solid;
+    border-bottom-width: 0pt !important;
+    width: 92.2pt;
+    border-top-color: #000000 !important;
+    border-bottom-style: solid;
+}
+
+.ficha-subtitle-name-td{ /*td tag contenedor*/
+    border-right-style: solid;
+    padding: 0pt 3.5pt 0pt 3.5pt !important;
+    border-bottom-color: #c0c0c0;
+    border-top-width: 1pt !important;
+    border-right-width: 0pt;
+    border-left-color: #000000;
+    vertical-align: top !important;
+    border-right-color: #000000;
+    border-left-width: 0pt !important;
+    border-top-style: solid !important;
+    border-left-style: solid;
+    border-bottom-width: 1pt !important;
+    width: 368.5pt;
+    border-top-color: #c0c0c0 !important;
+    border-bottom-style: solid;
+}
+
+.ficha-course-categoria-name{ /*p tag nombre de categoria*/
+    color: #000000;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+    vertical-align: baseline !important;
+    font-size: 12pt;
+    font-family: "Arial Narrow",sans-serif;
+    font-style: normal !important;
 }
