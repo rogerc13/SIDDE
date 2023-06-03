@@ -4,6 +4,12 @@
  *
 */
 
+@media print { /*hides elements from print*/
+    .hide-print {
+        display: none !important;
+    }
+}
+
 /*Ficha Tecnica CSS*/
 
 .ficha-tecnica {
@@ -78,7 +84,7 @@
 
 .ficha-subtitle-name-td{ /*td tag contenedor*/
     border-right-style: solid;
-    padding: 0pt 3.5pt 0pt 3.5pt !important;
+    
     border-bottom-color: #c0c0c0;
     border-top-width: 1pt !important;
     border-right-width: 0pt;
@@ -102,4 +108,169 @@
     font-size: 12pt;
     font-family: "Arial Narrow",sans-serif;
     font-style: normal !important;
+}
+
+.ficha-course-objective{ /*p tag*/
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: justify;
+    color: #000000;
+    font-size: 11pt;
+    vertical-align: baseline;
+}
+
+.ficha-course-duration{ /*p tag*/
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: justify;
+    margin: 0;
+    color: #000000;
+    font-family: "Arial Narrow",sans-serif;
+    font-weight: 400;
+    text-decoration: none;
+    vertical-align: baseline;
+    font-size: 11pt;
+    font-style: normal;
+}
+
+.ficha-course-participant{/*p tag*/
+    padding-top: 3pt;   
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: left;
+    margin: 0;
+    color: #000000;
+    font-weight: 400;
+    text-decoration: none;
+    vertical-align: baseline;
+    font-size: 11pt;
+    font-family: "Arial Narrow",sans-serif;
+    font-style: normal;
+}
+
+.ficha-course-requirement{
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: left;
+    margin: 0;
+    color: #000000;
+    font-size: 12pt;
+    font-family: "Arial Narrow",sans-serif;
+    font-weight: 400;
+    text-decoration: none;
+    vertical-align: baseline;
+    font-style: normal;
+}
+
+.ficha-course-participant-capacity-subtitle-td{ /*td tag*/
+    border-right-style: solid;
+    padding: 0pt 3.5pt 0pt 3.5pt;
+    border-bottom-color: #000000;
+    border-top-width: 0pt;
+    border-right-width: 1pt;
+    border-left-color: #000000;
+    vertical-align: middle;
+    border-right-color: #bfbfbf;
+    border-left-width: 0pt;
+    border-top-style: solid;
+    border-left-style: solid;
+    border-bottom-width: 0pt;
+    width: 92.2pt;
+    border-top-color: #000000;
+    border-bottom-style: solid;
+}
+
+.ficha-course-participant-capacity-subtitle-td p{ /*p tag*/
+    padding-top: 3pt;
+    text-indent: 1.7pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: left;
+    margin: 0;
+    color: #000000;
+    font-family: "Arial Narrow",sans-serif;
+    font-size: 11pt;
+    vertical-align: baseline;
+    font-weight: 700;
+}
+
+.ficha-course-participant-capacity-minimum-td{
+    border-right-style: solid;
+    padding: 0pt 3.5pt 0pt 3.5pt;
+    border-bottom-color: #bfbfbf;
+    border-top-width: 1pt;
+    border-right-width: 1pt;
+    border-left-color: #bfbfbf;
+    vertical-align: top;
+    border-right-color: #bfbfbf;
+    border-left-width: 1pt;
+    border-top-style: solid;
+    border-left-style: solid;
+    border-bottom-width: 1pt;
+    width: 92.1pt;
+    border-top-color: #bfbfbf;
+    border-bottom-style: solid;
+}
+
+.ficha-course-capacity{ /*p tag MIN MAX*/
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: left;
+    margin: 0;
+    color: #000000;
+    font-size: 12pt;
+    font-family: "Arial Narrow",sans-serif;
+    vertical-align: baseline;
+    font-weight: 700;
+}
+
+.ficha-course-participant-capacity-minimum-td ~ td{
+    border-right-style: solid;
+    padding: 0pt 3.5pt 0pt 3.5pt;
+    border-bottom-color: #bfbfbf;
+    border-top-width: 1pt;
+    border-right-width: 1pt;
+    border-left-color: #bfbfbf;
+    vertical-align: top;
+    border-right-color: #bfbfbf;
+    border-left-width: 1pt;
+    border-top-style: solid;
+    border-left-style: solid;
+    border-bottom-width: 1pt;
+    width: 92.2pt;
+    border-top-color: #bfbfbf;
+    border-bottom-style: solid;
+}
+
+.ficha-course-capacity-content{
+    padding-top: 3pt;
+    padding-bottom: 3pt;
+    line-height: 1.0;
+    orphans: 2;
+    widows: 2;
+    text-align: center;
+    margin: 0;
+    color: #000000;
+    font-size: 12pt;
+    font-family: "Arial Narrow",sans-serif;
+    font-weight: 400;
+    text-decoration: none;
+    vertical-align: baseline;
+    font-style: normal;
 }

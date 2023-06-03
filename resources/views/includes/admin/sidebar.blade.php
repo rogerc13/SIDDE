@@ -8,7 +8,7 @@
 });
 	</script>
 @endpush
-	<div class="sidebar-menu fixed">
+	<div class="sidebar-menu fixed hide-print">
 
 		<div class="sidebar-menu-inner">
 
