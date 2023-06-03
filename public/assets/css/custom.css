@@ -190,12 +190,12 @@
 
 .ficha-course-participant-capacity-subtitle-td{ /*td tag*/
     border-right-style: solid;
-    padding: 0pt 3.5pt 0pt 3.5pt;
+    padding: 0pt 3.5pt 0pt 3.5pt !important;
     border-bottom-color: #000000;
-    border-top-width: 0pt;
+    border-top-width: 0pt !important;
     border-right-width: 1pt;
     border-left-color: #000000;
-    vertical-align: middle;
+    vertical-align: middle !important;
     border-right-color: #bfbfbf;
     border-left-width: 0pt;
     border-top-style: solid;
@@ -224,19 +224,19 @@
 
 .ficha-course-participant-capacity-minimum-td{
     border-right-style: solid;
-    padding: 0pt 3.5pt 0pt 3.5pt;
+    /*padding: 0pt 3.5pt 0pt 3.5pt !important; */
     border-bottom-color: #bfbfbf;
-    border-top-width: 1pt;
+    border-top-width: 1pt !important;
     border-right-width: 1pt;
     border-left-color: #bfbfbf;
-    vertical-align: top;
+    vertical-align: top !important;
     border-right-color: #bfbfbf;
     border-left-width: 1pt;
-    border-top-style: solid;
+    border-top-style: solid !important;
     border-left-style: solid;
     border-bottom-width: 1pt;
     width: 92.1pt;
-    border-top-color: #bfbfbf;
+    border-top-color: #bfbfbf !important;
     border-bottom-style: solid;
 }
 
@@ -262,14 +262,14 @@
     border-top-width: 1pt;
     border-right-width: 1pt;
     border-left-color: #bfbfbf;
-    vertical-align: top;
+    vertical-align: top !important;
     border-right-color: #bfbfbf;
     border-left-width: 1pt;
-    border-top-style: solid;
+    border-top-style: solid !important;
     border-left-style: solid;
     border-bottom-width: 1pt;
     width: 92.2pt;
-    border-top-color: #bfbfbf;
+    border-top-color: #bfbfbf !important;
     border-bottom-style: solid;
 }
 
