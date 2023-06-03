@@ -11,7 +11,7 @@
 		@include('includes.admin.sidebar')
 		<div class="main-content">
 
-			<div class="row">
+			<div class="row hide-print">
 				@if (session('alert'))
 					<div class="col-md-12">
 						<div class="alert alert-dismissable alert-{{session('alert')["tipo"]}} fade in">
@@ -43,9 +43,13 @@
 			@include('includes.admin.footer')
 		</div>
 	</div>
+	
 	@include('includes.admin.scripts')
-
-	@yield('modals')
+	
+	<div class="hide-print">
+		@yield('modals')
+	</div>
+	
 
 
 </body>

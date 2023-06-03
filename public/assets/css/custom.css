@@ -4,10 +4,25 @@
  *
 */
 
+
+/*print rules*/
+
+/*
+.to-print{
+    display:none;
+}
+*/
+
 @media print { /*hides elements from print*/
     .hide-print {
         display: none !important;
     }
+/*
+    .to-print{
+        display: block !important;
+    }
+
+    */
 }
 
 /*Ficha Tecnica CSS*/
@@ -272,5 +287,33 @@
     font-weight: 400;
     text-decoration: none;
     vertical-align: baseline;
+    font-style: normal;
+}
+
+.ficha-course-content{ /*td tag*/
+    border-right-style: solid;
+        padding: 0pt 3.5pt 0pt 3.5pt;
+        border-bottom-color: #c0c0c0;
+        border-top-width: 1pt;
+        border-right-width: 0pt;
+        border-left-color: #000000;
+        vertical-align: middle;
+        border-right-color: #000000;
+        border-left-width: 0pt;
+        border-top-style: solid;
+        border-left-style: solid;
+        border-bottom-width: 1pt;
+        width: 368.5pt;
+        border-top-color: #c0c0c0;
+        border-bottom-style: solid;
+}
+
+.ficha-course-content-list-text{ /*span tag*/
+    color: #000000;
+    font-weight: 400;
+    text-decoration: none;
+    vertical-align: baseline;
+    font-size: 11pt;
+    font-family: "Arial Narrow", sans-serif;
     font-style: normal;
 }

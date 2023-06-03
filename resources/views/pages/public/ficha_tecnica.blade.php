@@ -36,7 +36,10 @@
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Contenido</p></td>
-                <td colspan="4" rowspan="1">{{$curso->contenido}}</td>
+                <td colspan="4" rowspan="1" class="ficha-course-content">
+                    {{--should be a list--}}
+                    <span class="ficha-course-content-list-text">{{$curso->contenido}}</span>
+                </td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Duración</p></td>
