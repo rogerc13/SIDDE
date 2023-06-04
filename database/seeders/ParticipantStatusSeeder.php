@@ -14,6 +14,6 @@ class ParticipantStatusSeeder extends Seeder
      */
     public function run()
     {
-        //
+        
     }
 }
