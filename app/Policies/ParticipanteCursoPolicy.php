@@ -36,7 +36,7 @@ class ParticipanteCursoPolicy
     
     public function update(User $user)
     {
-      return $user->isAdministrador() || $user->isProgramador();
+      return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
     }
     
     public function delete(User $user)
