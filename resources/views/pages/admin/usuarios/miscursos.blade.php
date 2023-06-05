@@ -107,14 +107,14 @@
 								<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
 								<td>{{date("d-m-Y", strtotime($cursop->fecha_f))}}</td>
 								<td>
-								
+								@if($logeado->isFacilitador())
 								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>
-								
-								  <a  title="Más Información" href="{{url("acciones_formacion/".$cursop->curso->id)}}" class="btn btn-info btn-xs">
-								      <i class="entypo-search"></i>
-								  </a>
+								@endif
+								<a  title="Ver Ficha Técnica" href="{{url("acciones_formacion/".$cursop->curso->id)}}" class="btn btn-info btn-xs">
+									<i class="entypo-search"></i>
+								</a>
 								</td>
 			            </tr>
 			        	@endforeach		
