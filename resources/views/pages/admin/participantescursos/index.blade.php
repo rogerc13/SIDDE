@@ -48,11 +48,11 @@
                             <td>{{$participante->participante->ci}}</td>
                             <td>{{$participante->getEstado()}}</td>
                             <td>
-                                <a  title="Área de Conocimiento" href="javascript:editarEstado('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
+                                <a  title="Editar Estado" href="javascript:editarEstado('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
                                     <i class="entypo-pencil"></i>
                                 </a>
 
-                                <a  title="Eliminar Área de Conocimiento" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">
+                                <a  title="Eliminar Participante" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">
                                     <i class="entypo-trash"></i>
                                 </a>
                             </td>
