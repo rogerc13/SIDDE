@@ -1,18 +1,22 @@
 @push('JS')
 <script>
     function editarEstado(url){
-
         $(".loader").removeClass("hidden");
         $("#estado-form").addClass("hidden");
         $("[name=_method]").val("PUT");
         $("#estado-label").html("Editar estado del participante");
-        $("#estado-form").attr("action", url);
-
+        $("#estado-form").attr("action", url); 
+        
+        
+        //console.log(url)      
+        //let participanteId = (url.split("/").pop());
+        //console.log(participanteId);
 
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
                 $('#estado').val(data.estado);
+                //console.log(data);
                 $(".loader").addClass("hidden");
                 $("#estado-form").removeClass("hidden");
                 
@@ -42,7 +46,7 @@
                 
 
                 <div class="modal-body">                        
-
+                    
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3" >
                                 {{ Form::label('estado', 'Estado') }}

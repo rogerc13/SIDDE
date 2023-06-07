@@ -40,15 +40,22 @@
                           <tr>
                               <td colspan="7">No se han encontrado resultados...</td>
                           </tr>
-                      @endif
+                      @endif                  
+                          @php
+                            //var_dump($estados);
+                            //print_r($participantes);
+                          @endphp
                       @foreach($participantes as $participante)
+                            @php
+                              //var_dump($participante->estado);
+                            @endphp
                         <tr>
                             <td>{{$participante->participante->nombre}}</td>
                             <td>{{$participante->participante->apellido}}</td>
                             <td>{{$participante->participante->ci}}</td>
                             <td>{{$participante->getEstado()}}</td>
                             <td>
-                                <a  title="Editar Estado" href="javascript:editarEstado('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
+                                <a  title="Editar Estado del Participante" href="javascript:editarEstado('{{url('u/af_programadas/estado-participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
                                     <i class="entypo-pencil"></i>
                                 </a>
 

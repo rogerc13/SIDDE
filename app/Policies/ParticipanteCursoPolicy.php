@@ -11,7 +11,7 @@ class ParticipanteCursoPolicy
     
     public function get(User $user)
     {
-       return $user->isAdministrador() || $user->isProgramador();
+       return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
     }
     
     public function getAll(User $user)

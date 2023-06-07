@@ -15,16 +15,18 @@ use Illuminate\Support\Facades\Auth;
 
 class ParticipanteCursoController extends Controller
 {
-    public function get($id)
+    public function get($participanteId)
     {
 
         $user = Auth::user();
-        $participantecurso = ParticipanteCurso::find($id);
+        $participantecurso = ParticipanteCurso::find($participanteId);
         if(!$participantecurso || $user->cannot('get', ParticipanteCurso::class))
         {
+            //$data = $participanteId;
+            //$data = "not found";
+            //return json_encode($user);
             return json_encode([]);
         }
-        
         return json_encode($participantecurso);
     }
     

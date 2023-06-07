@@ -27,7 +27,7 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
-
+//Route::get('/{id}', 'App\Http\Controllers\ParticipanteCursoController@get'); //TEST change participant status in a course
 
 Route::group(['middleware' => 'auth'], function ()
 {
@@ -100,10 +100,11 @@ Route::group(['middleware' => 'auth'], function ()
 
                 Route::get('/{id}/participantes', 'App\Http\Controllers\ParticipanteCursoController@getAllPorCurso');
                // Route::get('/count', 'ParticipanteCursoController@count');
-                Route::get('/{id}/participantes/{id2}', 'App\Http\Controllers\ParticipanteCursoController@get');
+                Route::get('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@get');
                 Route::post('/{id}/participantes', 'App\Http\Controllers\ParticipanteCursoController@store');
                 Route::post('/{id}/asignarParticipante', 'App\Http\Controllers\ParticipanteCursoController@asignarParticipante');
-                Route::put('/{id}/participantes/{id2}', 'App\Http\Controllers\ParticipanteCursoController@update');
+                //Route::put('/{id}/participantes/{participanteId}', 'App\Http\Controllers\ParticipanteCursoController@update');
+                Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
 
         });
