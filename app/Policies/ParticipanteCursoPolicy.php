@@ -41,6 +41,6 @@ class ParticipanteCursoPolicy
     
     public function delete(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador();
+        return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
     }
 }
