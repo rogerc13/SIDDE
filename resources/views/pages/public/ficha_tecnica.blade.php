@@ -12,11 +12,11 @@
         <hr class = "ficha-red-line">
         <tbody>
             <tr>
-                <th scope="row"><p class="ficha-course-code">Código:<p></th>
-                <td colspan="4"><p class="ficha-course-code">{{$curso->codigo}}</p></td>
+                <th scope="row" class="no-border-top"><p class="ficha-course-code">Código:<p></th>
+                <td colspan="4" class="no-border-top"><p class="ficha-course-code">{{$curso->codigo}}</p></td>
             </tr>
             <tr>
-                <th scope="row" colspan="5"><p class="ficha-course-title">{{$curso->titulo}}</p></th>
+                <th scope="row" colspan="5" class="no-border-top"><p class="ficha-course-title">{{$curso->titulo}}</p></th>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Área de conocimiento</p></td>
