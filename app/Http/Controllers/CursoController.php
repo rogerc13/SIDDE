@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoForm;
 use Illuminate\Support\Facades\Auth;
 
+
+use Illuminate\Support\Facades\DB;
+
+
 class CursoController extends Controller
 {
     public function get($id)
@@ -153,7 +157,7 @@ class CursoController extends Controller
                 ->with('busqueda_area',$id_areas);
     }
 
-
+/*
     public function store(CursoForm $request)
     {
 
@@ -258,6 +262,43 @@ class CursoController extends Controller
 
 
 
+    }
+    */
+
+    public function setCourse(Request $request){
+        
+        
+        /*
+            $user = Auth::user();
+            if ($user->can('store', Curso::class)) {
+                $data = array(
+                    'codigo' => 9377747,
+                    'titulo' => $request->titulo,
+                    'categoria_id' => $request->categoria_id,
+                    'modalidad' => $request->modalidad,
+                    'objetivo'=> $request->objetivo,
+                    //'contenido'  => $request->contenido,
+                    'duracion' => $request->duracion,
+                    'dirigido' => $request->dirigido,
+                    'max'=> $request->max,
+                    'min'=> $request->min,
+                    'created_at'   => date('Y-m-d H:i:s'),
+                    'updated_at'  => date('Y-m-d H:i:s')
+                );
+
+                
+                $courseContent = array(
+                    
+                )
+
+                $response = DB::table('course_content')->insert($courseContent)
+
+                $response = DB::table('curso')->insert($data);
+                return Redirect::back()->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
+            }
+            return Redirect::back()->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
+
+            */
     }
 
     public function count()

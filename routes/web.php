@@ -80,7 +80,8 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('/', 'App\Http\Controllers\CursoController@getAll')->name("acciones");
                 Route::get('/count', 'App\Http\Controllers\CursoController@count');
                 Route::get('/{id}', 'App\Http\Controllers\CursoController@get');
-                Route::post('/', 'App\Http\Controllers\CursoController@store');
+                //Route::post('/', 'App\Http\Controllers\CursoController@store');
+                Route::post('/', 'App\Http\Controllers\CursoController@setCourse');
                 Route::put('/{id}', 'App\Http\Controllers\CursoController@update');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoController@delete');
         });
