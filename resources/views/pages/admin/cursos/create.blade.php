@@ -99,11 +99,11 @@
 
                         </div>
                     </div>
-
+                    <ul class="content-list"></ul>
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
-                            {{ Form::textarea('contenido', null , array('class' => 'form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required')) }}
+                            {{ Form::textarea('contenido', null , array('class' => 'form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required')) }}
                         </div>
                     </div>
 
