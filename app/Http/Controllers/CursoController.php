@@ -267,7 +267,7 @@ class CursoController extends Controller
 
     public function setCourse(Request $request){
         
-        
+        dd($request);
         /*
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {

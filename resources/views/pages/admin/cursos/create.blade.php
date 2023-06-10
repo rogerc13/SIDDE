@@ -14,6 +14,9 @@
         $("[name=_method]").val("POST");
         $("#accion-label").html("Nueva acción de formación");
         $("#accion-form").attr("action", url);
+
+        //console.log(url);
+
         //$('#objetivo').data('wysihtml5').editor.composer.clear();
         $("#accion-modal").modal();
 

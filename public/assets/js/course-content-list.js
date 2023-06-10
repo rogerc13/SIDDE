@@ -6,7 +6,7 @@ $(document).ready(function (){
     const content = document.querySelector('.course-content');
     const contentList = document.querySelector('.content-list');
     let counter = 0;
-    console.log("element: "+content);
+    //console.log("element: "+content);
     content.addEventListener("keyup",(event) =>{
         if((event.key === "Enter") || (event.key === ".")){
             
@@ -40,5 +40,12 @@ $(document).ready(function (){
 
             //console.log(contentData);   
         }  
+    });
+
+
+    $("#accion-modal").on("hidden.bs.modal", function(){
+        $(".content-list").children().remove();
+        counter = 0;
+        console.log("modal closed");
     });
 });
