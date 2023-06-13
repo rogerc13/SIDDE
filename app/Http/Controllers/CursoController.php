@@ -158,8 +158,7 @@ class CursoController extends Controller
     }
 
 
-    public function store(CursoForm $request)
-  {
+    public function store(CursoForm $request){
 
         $user=Auth::user();
 
@@ -260,7 +259,7 @@ class CursoController extends Controller
 
 
 
-    }
+    }//end store course
     
 
     public function setCourse(CursoForm $request){
@@ -292,14 +291,12 @@ class CursoController extends Controller
            return "error";
     }
 
-    public function count()
-    {
+    public function count(){
 
 
     }
 
-    public function update(CursoForm $request, $id)
-    {
+    public function update(CursoForm $request, $id){
 
         $user=Auth::user();
 
@@ -497,6 +494,25 @@ class CursoController extends Controller
 
         return Redirect::back()
             ->with("alert",Funciones::getAlert("danger", "Error al Intentar Editar", "No tienes permisos para realizar esta accion."));
+
+    }
+
+    public function downloadCourseDocuments($request){
+        $user = Auth::user();
+        if(){ //if user can't download
+
+        }
+        $course = Curso::find($request);
+
+        if($course->document_id){
+            $files = Storage::files('/public/uploads/courses/'+$course->codigo);
+            
+        }else{ //if course doesn't exist
+
+        }
+
+        
+
 
     }
 }

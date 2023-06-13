@@ -36,7 +36,9 @@ public function cursoProgramado()
 }
     //
 
-
+public function courseFile(){
+  return $this->hasMany(CourseFile::class);
+}
 
 }
 
