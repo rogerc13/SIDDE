@@ -157,11 +157,9 @@ class CursoController extends Controller
                 ->with('busqueda_area',$id_areas);
     }
 
-/*
+
     public function store(CursoForm $request)
-    {
-
-
+  {
 
         $user=Auth::user();
 
@@ -263,42 +261,35 @@ class CursoController extends Controller
 
 
     }
-    */
+    
 
-    public function setCourse(Request $request){
+    public function setCourse(CursoForm $request){
+        $json = $request->formData;
         
-        dd($request);
-        /*
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {
                 $data = array(
-                    'codigo' => 9377747,
-                    'titulo' => $request->titulo,
-                    'categoria_id' => $request->categoria_id,
-                    'modalidad' => $request->modalidad,
-                    'objetivo'=> $request->objetivo,
-                    //'contenido'  => $request->contenido,
-                    'duracion' => $request->duracion,
-                    'dirigido' => $request->dirigido,
-                    'max'=> $request->max,
-                    'min'=> $request->min,
+                    'codigo' => 1013,
+                    'titulo' => $json[2]['value'],
+                    'categoria_id' => $json[3]['value'],
+                    'modalidad' => $json[4]['value'],
+                    'objetivo'=> $json[9]['value'],
+                    'contenido'  => $json[10]['value'],
+                    'duracion' => $json[5]['value'],
+                    'dirigido' => $json[6]['value'],
+                    'max'=> $json[8]['value'],
+                    'min'=> $json[7]['value'],
                     'created_at'   => date('Y-m-d H:i:s'),
                     'updated_at'  => date('Y-m-d H:i:s')
                 );
 
-                
-                $courseContent = array(
-                    
-                )
-
-                $response = DB::table('course_content')->insert($courseContent)
-
                 $response = DB::table('curso')->insert($data);
-                return Redirect::back()->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
+                
+                session()->flash("success", "Ingresado Exitosamente", "Operacion Exitosa.");
+                return null;
+                
             }
-            return Redirect::back()->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
-
-            */
+           return "error";
     }
 
     public function count()

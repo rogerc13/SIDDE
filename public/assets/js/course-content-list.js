@@ -1,12 +1,43 @@
+function setCourse(){
+                    console.log($('meta[name="csrf-token"]').attr('content'));
+                    let formData = $('#accion-form').serializeArray();
+                    Object.assign(formData,{name:'contentData',value:contentData});
+                    console.log(typeof formData);
+                    console.log(formData);
+                    $.ajax({       
+                        type:"POST",
+                        url: "acciones_formacion/",
+                        data:{'formData':formData},
+                        //contentType: "application/json",
+                        dataType: "json",
+                        success: function (response){
+                            console.log(response);
+                            window.location.reload();
+                        },
+                        error: function (response){
+                            console.log(response);
+                        }
+                    });
+                
+            }
+
 $(document).ready(function (){
+    
+
+    $.ajaxSetup({
+            headers:{
+                'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+    
 
 
-    let contentData = [];
+    contentData = [];
 
     const content = document.querySelector('.course-content');
     const contentList = document.querySelector('.content-list');
     let counter = 0;
-    //console.log("element: "+content);
     content.addEventListener("keyup",(event) =>{
         if((event.key === "Enter") || (event.key === ".")){
             
@@ -38,14 +69,13 @@ $(document).ready(function (){
             content.value = "";
             counter++;
 
-            //console.log(contentData);   
+            return contentData; 
         }  
     });
 
 
     $("#accion-modal").on("hidden.bs.modal", function(){
-        $(".content-list").children().remove();
-        counter = 0;
-        console.log("modal closed");
+        $(".content-list").children().remove();// deletes list items to avoid incorrect list values when modal re opens
+        counter = 0; //sets global list value to 0
     });
 });

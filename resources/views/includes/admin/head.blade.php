@@ -5,6 +5,11 @@
 	<meta name="description" content="Sistema de Acciones de Formación" />
 	<meta name="author" content="" />
 
+
+	 <meta name="csrf-token" content="{{ Session::token() }}">
+
+	 
+
 	<link rel="icon" href="{{url('assets/images/logo_negro(1).ico')}}">
 
 	<title>SIDDE</title>
@@ -30,7 +35,7 @@
 	<link rel="stylesheet" href="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
 	
 	<link rel="stylesheet" href="{{url('assets/css/custom.css')}}">
-	<script src="{{url('assets/js/course-content-list.js')}}"></script>
+	
 	<!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -39,4 +44,6 @@
 		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
 
+
+	
     @stack('CSS')

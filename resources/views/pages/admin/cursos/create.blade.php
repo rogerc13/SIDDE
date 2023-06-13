@@ -1,27 +1,30 @@
 @push('JS')
     <script src="{{url('assets/js/fileinput.js')}}"></script>
+    <script src="{{asset('assets/js/course-content-list.js')}}"></script>
+    
 {{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
 {{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
 
 
 <script>
     function crearAccion(url){
+        //var contentData = [];
+        //console.log(contentData);
         document.getElementById("accion-form").reset();
         $('#categoria_id').trigger("change");
         $(".fileinput-filename").empty();
         $(".loader").addClass("hidden");
         $("#accion-form").removeClass("hidden");
-        $("[name=_method]").val("POST");
+        //$("[name=_method]").val("POST");
         $("#accion-label").html("Nueva acción de formación");
-        $("#accion-form").attr("action", url);
+        //$("#accion-form").attr("action", url);
 
-        //console.log(url);
 
         //$('#objetivo').data('wysihtml5').editor.composer.clear();
-        $("#accion-modal").modal();
-
+        $("#accion-modal").modal();    
     }
 </script>
+
 
 
 
@@ -38,7 +41,7 @@
                 <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                 <span class="sr-only">Cargando...</span>
             </div>
-            <form class="form-horizontal hidden" method="POST" id='accion-form'  enctype="multipart/form-data">
+            <form class="form-horizontal hidden" action="javascript:setCourse()" method="POST" id='accion-form'  enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
 
