@@ -40,6 +40,10 @@ public function courseFile(){
   return $this->hasMany(CourseFile::class);
 }
 
+public function courseContent(){
+  return $this->hasMany(CourseContent::class);
+}
+
 }
 
 

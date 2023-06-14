@@ -1,7 +1,7 @@
 function setCourse(){
                     console.log($('meta[name="csrf-token"]').attr('content'));
                     let formData = $('#accion-form').serializeArray();
-                    Object.assign(formData,{name:'contentData',value:contentData});
+                    formData.push({name:'contentData',value:contentData});
                     console.log(typeof formData);
                     console.log(formData);
                     $.ajax({       
@@ -12,7 +12,7 @@ function setCourse(){
                         dataType: "json",
                         success: function (response){
                             console.log(response);
-                            window.location.reload();
+                            //window.location.reload();
                         },
                         error: function (response){
                             console.log(response);

@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Models\Curso;
 use App\Models\Categoria;
 use App\Models\Funciones;
+use App\Models\CourseContent;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoForm;
 use App\Models\CourseFile;
@@ -265,11 +266,11 @@ class CursoController extends Controller
 
     public function setCourse(CursoForm $request){
         $json = $request->formData;
-        
+
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {
                 $data = array(
-                    'codigo' => 1013,
+                    'codigo' => 1025,
                     'titulo' => $json[2]['value'],
                     'categoria_id' => $json[3]['value'],
                     'modalidad' => $json[4]['value'],
@@ -283,13 +284,26 @@ class CursoController extends Controller
                     'updated_at'  => date('Y-m-d H:i:s')
                 );
 
-                $response = DB::table('curso')->insert($data);
-                
-                session()->flash("success", "Ingresado Exitosamente", "Operacion Exitosa.");
-                return null;
+
+
+                foreach ($request->formData[12]['value'] as $content) {
+                if(! empty($content)){
+                    $contendData[] = [
+                        'text' => $content
+                    ];
+                }
+                }
+
+                $response = Curso::create($data);
+
+                $response->CourseContent()->createMany($contendData);
+
+                return json_encode($response);
                 
             }
-           return "error";
+
+             
+           return json_encode("error");
     }
 
     public function count(){
@@ -499,32 +513,25 @@ class CursoController extends Controller
     }
 
     public function downloadAllFiles($id){
-        //phpinfo();
+        
         $courseFiles = CourseFile::where('course_id',$id)->get();
-        //return Redirect::back()->with("alert",Funciones::getAlert("alert","".$courseFiles."","nothing"));
+        
         $files = [];
         foreach($courseFiles as $count => $courseFile){
             $files[$courseFile->id] = base_path()."/public/uploads/documentos/".Curso::find($id)->codigo."/".$courseFile->file_path;
         }
-
-        //$folderName = Curso::find($id)->codigo;
         $zip = new ZipArchive;
-        $zipFile = base_path()."/public/uploads/zip/".Curso::find($id)->codigo.".zip";
 
+        //saves file to public/uploads/zip/course_code
+        $zipFile = base_path()."/public/uploads/zip/".Curso::find($id)->codigo.".zip"; //change to pc's download folder?
 
-
-        if($zip->open($zipFile,ZipArchive::CREATE) == TRUE){
+        if($zip->open($zipFile,ZipArchive::CREATE) == TRUE){ //opens file stream, creates zip file
             foreach ($files as $key => $value) {
                 $relativeName = str_replace($courseFile->id,$key,basename($value));
-                //dd($relativeName);
                 $zip->addFile($value,$relativeName);
-                //dd($value);
             }
-
-            $zip->close();
+            $zip->close(); //closes the stream
         }
-
-        return response()->download($zipFile);
-        
+        return response()->download($zipFile);        
     }
 }
