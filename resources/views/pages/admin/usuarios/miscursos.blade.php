@@ -111,7 +111,7 @@
 								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>
-								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->id.'/documents')}}" class="btn btn-info btn-xs">
+								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->curso_id.'/documents')}}" class="btn btn-info btn-xs">
 									<i class="entypo-download"></i>
 								</a>
 								@endif

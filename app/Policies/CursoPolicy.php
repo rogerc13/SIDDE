@@ -47,4 +47,8 @@ class CursoPolicy
     {
         return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador();
     }
+
+    public function downloadAllFiles(User $user){
+        return $user->isFacilitador();
+    }
 }

@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('course_files', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('file_path'); //file names should be courseCode_fileType.extention
+            $table->foreignId('course_id')->references('id')->on('curso'); //relationship
         });
     }
 

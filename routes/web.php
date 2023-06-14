@@ -108,6 +108,8 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
 
+                Route::get('/{id}/documents', 'App\Http\Controllers\CursoController@downloadAllFiles');
+
         });
 
 

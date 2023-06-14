@@ -9,11 +9,12 @@ use App\Models\Categoria;
 use App\Models\Funciones;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoForm;
+use App\Models\CourseFile;
 use Illuminate\Support\Facades\Auth;
 
 
 use Illuminate\Support\Facades\DB;
-
+use ZipArchive;
 
 class CursoController extends Controller
 {
@@ -190,7 +191,7 @@ class CursoController extends Controller
                 unlink($arhcivotemporal_1);
 
                 $curso->manual_p = $docTempName_1;
-
+                
             }
             if($request->file('manual_f')){
 
@@ -497,22 +498,33 @@ class CursoController extends Controller
 
     }
 
-    public function downloadCourseDocuments($request){
-        $user = Auth::user();
-        if(){ //if user can't download
-
-        }
-        $course = Curso::find($request);
-
-        if($course->document_id){
-            $files = Storage::files('/public/uploads/courses/'+$course->codigo);
-            
-        }else{ //if course doesn't exist
-
+    public function downloadAllFiles($id){
+        //phpinfo();
+        $courseFiles = CourseFile::where('course_id',$id)->get();
+        //return Redirect::back()->with("alert",Funciones::getAlert("alert","".$courseFiles."","nothing"));
+        $files = [];
+        foreach($courseFiles as $count => $courseFile){
+            $files[$courseFile->id] = base_path()."/public/uploads/documentos/".Curso::find($id)->codigo."/".$courseFile->file_path;
         }
 
+        //$folderName = Curso::find($id)->codigo;
+        $zip = new ZipArchive;
+        $zipFile = base_path()."/public/uploads/zip/".Curso::find($id)->codigo.".zip";
+
+
+
+        if($zip->open($zipFile,ZipArchive::CREATE) == TRUE){
+            foreach ($files as $key => $value) {
+                $relativeName = str_replace($courseFile->id,$key,basename($value));
+                //dd($relativeName);
+                $zip->addFile($value,$relativeName);
+                //dd($value);
+            }
+
+            $zip->close();
+        }
+
+        return response()->download($zipFile);
         
-
-
     }
 }
