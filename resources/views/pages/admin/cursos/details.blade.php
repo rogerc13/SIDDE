@@ -1,6 +1,7 @@
 @push('JS')
 <script>
     function detallesAccion(url){
+        
         $(".loader").removeClass("hidden");
         $("#accion-form").addClass("hidden");
         $("[name=_method]").val("PUT");
@@ -19,17 +20,33 @@
 
 
         $.get(url,function(data,status){
+            
+                
                 data=JSON.parse(data);
-                $('#titulo').val(data.titulo);
-                $('#categoria_id').val(data.categoria_id).trigger("change");
-                $('#modalidad').val(data.modalidad);
-                $('#duracion').val(data.duracion);
-                $('#dirigido').val(data.dirigido);
-                $('#min').val(data.min);
-                $('#max').val(data.max);
-                $('#objetivo').val(data.objetivo);
+                
+                $('#codigo').val(data[0].codigo);
+                $('#titulo').val(data[0].titulo);
+                $('#categoria_id').val(data[0].categoria_id).trigger("change");
+                $('#modalidad').val(data[0].modalidad);
+                $('#duracion').val(data[0].duracion);
+                $('#dirigido').val(data[0].dirigido);
+                $('#min').val(data[0].min);
+                $('#max').val(data[0].max);
+                $('#objetivo').val(data[0].objetivo);
                 // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
-                $('#contenido').val(data.contenido);
+                $('#contenido').val(data[0].contenido);
+                if(typeof data[0].course_file !== 'undefined'){
+                    if(data[0].course_file.length > 0){
+                        //console.log(data[0].course_file.length);
+                        $('.read-only-docs').show();    
+                        $('.facilitator_manual').val(data[0].course_file[0].file_path);
+                        $('.participant_manual').val(data[0].course_file[1].file_path);
+                        $('.course_guide').val(data[0].course_file[2].file_path);
+                        $('.course_presentation').val(data[0].course_file[3].file_path);
+                    }else{
+                        $('.read-only-docs').hide();    
+                    }
+                }                
                 $(".loader").addClass("hidden");
                 $("#accion-form").removeClass("hidden");
 
@@ -37,6 +54,8 @@
         $("#accion-modal").modal();
 
         $("#accion-modal").on("hidden.bs.modal", function () {
+            $('.course-code').parent().removeClass('has-error');
+            $('.create-course-form')[0].reset(); //resets input fields at closing
             $("#accion-form :input").prop('readonly', false);
             $( "#accion-form select" ).prop('disabled', false);
             $("#accion-aceptar").removeClass("hidden");

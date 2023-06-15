@@ -564,4 +564,17 @@ class CursoController extends Controller
 
         
     }
+
+    public function courseDetails($id)
+    {
+        $user = Auth::user();
+        $curso = Curso::with('CourseFile')->where('id', $id)->get();
+        
+        if(!$curso || $user->cannot('get', Curso::class))
+        {
+            return json_encode([]);
+        } 
+
+        return json_encode($curso);
+    }
 }

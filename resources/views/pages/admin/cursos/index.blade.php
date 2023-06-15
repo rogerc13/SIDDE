@@ -76,7 +76,7 @@
 								<td>{{$curso->categoria->nombre}}</td>
 								<td>{{$curso->duracion}}</td>
 								<td>
-								  <a  title="Más Información" href="javascript:detallesAccion('{{url('u/acciones_formacion/'.$curso->id)}}')" class="btn btn-info btn-xs">
+								  <a  title="Más Información" href="javascript:detallesAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a>
 

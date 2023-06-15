@@ -11,6 +11,9 @@
     function crearAccion(url){
         //var contentData = [];
         //console.log(contentData);
+        $('.course-code').parent().removeClass('has-error');
+        $('.code-error-text').hide();
+        $('.read-only-docs').hide();
         document.getElementById("accion-form").reset();
         $('#categoria_id').trigger("change");
         $(".fileinput-filename").empty();
@@ -198,7 +201,28 @@
                             </div>
                         </div>
                     </div>
-
+                
+                    <div class="read-only-docs">
+                        <div class="form-group" >
+                            <div class="col-lg-6" >
+                                {{ Form::label('facilitator_manual', 'Manual del Facilitador', array('class' => 'control-label'))}}
+                                {{ Form::text('facilitator_manual', null , array('class' => 'form-control facilitator_manual','disabled'))}}
+                            </div>
+                            <div class="col-lg-6" >
+                                {{ Form::label('participant_manual', 'Manual del Participante', array('class' => 'control-label'))}}
+                                {{ Form::text('participant_manual', null , array('class' => 'form-control participant_manual','disabled'))}}
+                            </div>
+                            <div class="col-lg-6" >
+                                {{ Form::label('course_guide', 'Guia', array('class' => 'control-label'))}}
+                                {{ Form::text('course_guide', null , array('class' => 'form-control course_guide','disabled'))}}
+                            </div>
+                            <div class="col-lg-6" >
+                                {{ Form::label('course_presentation', 'Presentación', array('class' => 'control-label'))}}
+                                {{ Form::text('course_presentation', null , array('class' => 'form-control course_presentation','disabled'))}}
+                            </div>
+                        </div>
+                    </div>
+                
 
 
                 </div>
