@@ -271,7 +271,7 @@ class CursoController extends Controller
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {
                 $data = array(
-                    'codigo' => 1050,
+                    'codigo' => $request->codigo,
                     'titulo' => $request->titulo,
                     'categoria_id' => $request->categoria_id,
                     'modalidad' => $request->modalidad,
@@ -297,16 +297,16 @@ class CursoController extends Controller
         
                 $path = [];
                 if(null != ($request->file('manual_f'))){
-                    $path[0]  = ['file_path' => $request->file('manual_f')->storeAs("1050","Manual del Facilitador ".$request->titulo.".".$request->file('manual_f')->getClientOriginalExtension())];
+                    $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo,"Manual del Facilitador ".$request->titulo.".".$request->file('manual_f')->getClientOriginalExtension())];
                 }
                 if(null != ($request->file('manual_p'))){
-                    $path[1] = ['file_path' => $request->file('manual_p')->storeAs("1050","Manual del Participante ".$request-> titulo . "." . $request->file('manual_p')->getClientOriginalExtension())];
+                    $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo,"Manual del Participante ".$request-> titulo . "." . $request->file('manual_p')->getClientOriginalExtension())];
                 }
                 if(null != ($request->file('guia'))){
-                    $path[2] = ['file_path' => $request->file('guia')->storeAs("1050", "Guia del Curso ".$request-> titulo . "." . $request->file('guia')->getClientOriginalExtension())];
+                    $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso ".$request-> titulo . "." . $request->file('guia')->getClientOriginalExtension())];
                 }
                 if(null != ($request->file('presentacion'))){
-                    $path[3] = ['file_path' => $request->file('presentacion')->storeAs("1050","Presentacion ".$request-> titulo . "." . $request->file('presentacion')->getClientOriginalExtension())];
+                    $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo,"Presentacion ".$request-> titulo . "." . $request->file('presentacion')->getClientOriginalExtension())];
                 }
                 
                 

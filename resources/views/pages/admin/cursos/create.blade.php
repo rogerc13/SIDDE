@@ -49,6 +49,10 @@
                 <div class="modal-body">
                     <div class="form-group" >
                         <div class="col-lg-6 col-md-6" >
+                            {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
+                            {{ Form::text('codigo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}
+                        </div>
+                        <div class="col-lg-6 col-md-6" >
                             {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
                             {{ Form::text('titulo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}
                         </div>
