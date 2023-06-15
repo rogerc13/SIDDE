@@ -311,7 +311,9 @@ class CursoController extends Controller
                 
                 
                 $response = Curso::create($data); //inserts into course table
-                $response->CourseFile()->createMany($path); //inserts path into course_files
+                if(isset($path)){
+                    $response->CourseFile()->createMany($path); //inserts path into course_files
+                }
                 $response->CourseContent()->createMany($contentData); //inserts intro course_contents table with course's id given relationship
                 
             }
@@ -527,11 +529,11 @@ class CursoController extends Controller
 
     public function downloadAllFiles($id){
         
-        $courseFiles = CourseFile::where('course_id',$id)->get();
+        $courseFiles = CourseFile::where('curso_id',$id)->get();
         
         $files = [];
         foreach($courseFiles as $count => $courseFile){
-            $files[$courseFile->id] = base_path()."/public/uploads/documentos/".Curso::find($id)->codigo."/".$courseFile->file_path;
+            $files[$courseFile->id] = base_path()."/storage/app/".$courseFile->file_path;
         }
         $zip = new ZipArchive;
 
