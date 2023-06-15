@@ -1,6 +1,7 @@
 @push('JS')
     <script src="{{url('assets/js/fileinput.js')}}"></script>
     <script src="{{asset('assets/js/course-content-list.js')}}"></script>
+    <script src="{{asset('assets/js/course-code-validation.js')}}"></script>
     
 {{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
 {{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
@@ -41,17 +42,20 @@
                 <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                 <span class="sr-only">Cargando...</span>
             </div>
-            <form class="form-horizontal hidden" action="javascript:setCourse()" method="POST" id='accion-form'  enctype="multipart/form-data">
+            <form class="form-horizontal hidden create-course-form" action="javascript:setCourse()" method="POST" id='accion-form'  enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
 
 
                 <div class="modal-body">
-                    <div class="form-group" >
+                    <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
-                            {{ Form::text('codigo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}
+                            {{ Form::text('codigo', null , array('class' => 'form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock")) }}
+                            <span id="helpBlock" class="has-error help-block code-error-text">El codigo ya existe.</span>
                         </div>
+                    </div>
+                    <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
                             {{ Form::text('titulo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}

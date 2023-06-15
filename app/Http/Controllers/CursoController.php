@@ -548,5 +548,20 @@ class CursoController extends Controller
             $zip->close(); //closes the stream
         }
         return response()->download($zipFile);        
+    }//end downloadAllFiles
+
+    public function codeCheck(Request $request){
+        
+        if(null != $request->codeValue){
+            $response = Curso::where('codigo',$request->codeValue)->get();
+            if(sizeof($response) > 0){
+                return json_encode(true);
+            }
+            return json_encode(sizeof($response));
+        }else{
+            return json_encode("Code not set");
+        }
+
+        
     }
 }

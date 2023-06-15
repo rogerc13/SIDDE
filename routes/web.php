@@ -27,12 +27,12 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
-//Route::get('/{id}', 'App\Http\Controllers\ParticipanteCursoController@get'); //TEST change participant status in a course
 
 Route::group(['middleware' => 'auth'], function ()
 {
     Route::group(['prefix' => 'u'], function()
     {
+        Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
         Route::group(['prefix' => 'usuarios'], function()
         {
                 Route::get('/', 'App\Http\Controllers\UserController@getAll')->name("usuarios");
@@ -109,6 +109,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
 
                 Route::get('/{id}/documents', 'App\Http\Controllers\CursoController@downloadAllFiles');
+                
 
         });
 
