@@ -13,6 +13,8 @@ use App\Http\Requests\CursoForm;
 use App\Models\CourseFile;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Storage;
+
 
 use Illuminate\Support\Facades\DB;
 use ZipArchive;
@@ -265,46 +267,57 @@ class CursoController extends Controller
     
 
     public function setCourse(CursoForm $request){
-        $json = $request->formData;
 
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {
                 $data = array(
-                    'codigo' => 1025,
-                    'titulo' => $json[2]['value'],
-                    'categoria_id' => $json[3]['value'],
-                    'modalidad' => $json[4]['value'],
-                    'objetivo'=> $json[9]['value'],
-                    'contenido'  => $json[10]['value'],
-                    'duracion' => $json[5]['value'],
-                    'dirigido' => $json[6]['value'],
-                    'max'=> $json[8]['value'],
-                    'min'=> $json[7]['value'],
+                    'codigo' => 1050,
+                    'titulo' => $request->titulo,
+                    'categoria_id' => $request->categoria_id,
+                    'modalidad' => $request->modalidad,
+                    'objetivo'=> $request->objetivo,
+                    'contenido'  => $request->contenido,
+                    'duracion' => $request->duracion,
+                    'dirigido' => $request->dirigido,
+                    'max'=> $request->max,
+                    'min'=> $request->min,
                     'created_at'   => date('Y-m-d H:i:s'),
                     'updated_at'  => date('Y-m-d H:i:s')
                 );
-
-
-
-                foreach ($request->formData[12]['value'] as $content) {
+                
+                $contentList = explode(",",$request->content_data);  //turns string of content into an array
+                
+                foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
                 if(! empty($content)){
-                    $contendData[] = [
-                        'text' => $content
-                    ];
+                        $contentData[] = [ //array to be stored
+                            'text' => $content
+                        ];
+                    }
                 }
+        
+                $path = [];
+                if(null != ($request->file('manual_f'))){
+                    $path[0]  = ['file_path' => $request->file('manual_f')->storeAs("1050","Manual del Facilitador ".$request->titulo.".".$request->file('manual_f')->getClientOriginalExtension())];
                 }
-
-                $response = Curso::create($data);
-
-                $response->CourseContent()->createMany($contendData);
-
-                return json_encode($response);
+                if(null != ($request->file('manual_p'))){
+                    $path[1] = ['file_path' => $request->file('manual_p')->storeAs("1050","Manual del Participante ".$request-> titulo . "." . $request->file('manual_p')->getClientOriginalExtension())];
+                }
+                if(null != ($request->file('guia'))){
+                    $path[2] = ['file_path' => $request->file('guia')->storeAs("1050", "Guia del Curso ".$request-> titulo . "." . $request->file('guia')->getClientOriginalExtension())];
+                }
+                if(null != ($request->file('presentacion'))){
+                    $path[3] = ['file_path' => $request->file('presentacion')->storeAs("1050","Presentacion ".$request-> titulo . "." . $request->file('presentacion')->getClientOriginalExtension())];
+                }
+                
+                
+                $response = Curso::create($data); //inserts into course table
+                $response->CourseFile()->createMany($path); //inserts path into course_files
+                $response->CourseContent()->createMany($contentData); //inserts intro course_contents table with course's id given relationship
                 
             }
 
-             
-           return json_encode("error");
-    }
+           return json_encode($path);
+    }//end setCourse()
 
     public function count(){
 

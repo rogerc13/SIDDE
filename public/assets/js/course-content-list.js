@@ -1,15 +1,21 @@
 function setCourse(){
-                    console.log($('meta[name="csrf-token"]').attr('content'));
-                    let formData = $('#accion-form').serializeArray();
-                    formData.push({name:'contentData',value:contentData});
-                    console.log(typeof formData);
+                    //console.log($('meta[name="csrf-token"]').attr('content'));
+                    //let formData = $('#accion-form').serializeArray();
+                    //formData.push({name:'contentData',value:contentData});
+                    //console.log(typeof formData);
+                    //console.log(formData);
+                    let formData = new FormData ($('#accion-form').get(0));
+                    formData.append('content_data',contentData);
                     console.log(formData);
                     $.ajax({       
+                        data:formData,
+                        //data: new FormData($('#accion-form').get(0).append('contentData',contentData)),
                         type:"POST",
                         url: "acciones_formacion/",
-                        data:{'formData':formData},
-                        //contentType: "application/json",
+                        
                         dataType: "json",
+                        contentType: false,
+                        processData: false,
                         success: function (response){
                             console.log(response);
                             //window.location.reload();

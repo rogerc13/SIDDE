@@ -10,5 +10,5 @@ class CourseFile extends Model
     use HasFactory;
 
 
-    
+    protected $fillable = ['file_path'];
 }
