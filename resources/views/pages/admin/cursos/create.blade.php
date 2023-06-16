@@ -54,14 +54,14 @@
                     <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
-                            {{ Form::text('codigo', null , array('class' => 'form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock")) }}
+                            {{ Form::text('codigo', null , array('class' => 'form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock",'placeholder'=>'Ingrese el Código del Curso')) }}
                             <span id="helpBlock" class="has-error help-block code-error-text">El codigo ya existe.</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
-                            {{ Form::text('titulo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}
+                            {{ Form::text('titulo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese el Título del Curso')) }}
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('categoria_id', 'Área de conocimiento',array('class' => 'control-label')) }}
@@ -98,13 +98,13 @@
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('duracion', 'Duración (Horas)',array('class' => 'control-label')) }}
-                            {{ Form::number('duracion', null , array('class' => 'form-control', 'min' => '1', 'required')) }}
+                            {{ Form::number('duracion', null , array('class' => 'form-control', 'min' => '1', 'required','placeholder'=>'Ingrese la duración del Curso')) }}
                         </div>
                     </div>
                     <div class="form-group" >
                         <div class="col-lg-12" >
                             {{ Form::label('dirigido', 'Dirigido a',array('class' => 'control-label')) }}
-                            {{ Form::text('dirigido', null , array('class' => 'form-control', 'maxlength'=>300 ,'required')) }}
+                            {{ Form::text('dirigido', null , array('class' => 'form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese a quien va dirigido el Curso')) }}
                         </div>
                     </div>
 
@@ -112,18 +112,18 @@
                     <div class="form-group" >
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('min', 'Mínimo',array('class' => 'control-label')) }}
-                            {{ Form::number('min', null , array('class' => 'form-control', 'min' => '1', 'required')) }}
+                            {{ Form::number('min', null , array('class' => 'form-control', 'min' => '1', 'required','placeholder'=>'Ingrese el número mínimo de participantes')) }}
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('max', 'Máximo',array('class' => 'control-label')) }}
-                            {{ Form::number('max', null , array('class' => 'form-control', 'min' => '1', 'required')) }}
+                            {{ Form::number('max', null , array('class' => 'form-control', 'min' => '1', 'required','placeholder'=>'Ingrese el número máximo de participantes')) }}
                         </div>
                     </div>
 
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('objetivo', 'Objetivo',array('class' => 'control-label')) }}
-                            {{ Form::textarea('objetivo', null , array('class' => 'form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required')) }}
+                            {{ Form::textarea('objetivo', null , array('class' => 'form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required','placeholder'=>'Ingrese el objetivo del Curso')) }}
 
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
-                            {{ Form::textarea('contenido', null , array('class' => 'form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required')) }}
+                            {{ Form::textarea('contenido', null , array('class' => 'form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required','placeholder'=>'Ingrese los contenidos del Curso')) }}
                         </div>
                     </div>
 
