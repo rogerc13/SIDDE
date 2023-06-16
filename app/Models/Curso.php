@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 class Curso extends Model
@@ -20,7 +21,7 @@ class Curso extends Model
 
   protected $table = 'curso';
   protected $fillable = [
-    'codigo', 'titulo' , 'categoria_id', 'modalidad', 'objetivo' , 'contenido', 'duracion'
+    'codigo', 'titulo' , 'categoria_id', 'modality_id', 'objetivo' , 'contenido', 'duracion'
     , 'dirigido', 'max', 'min', 'manual_f' , 'manual_p', 'guia' , 'presentacion',
   ];
   protected $dates = [ 'deleted_at', ];
@@ -42,6 +43,10 @@ public function courseFile(){
 
 public function courseContent(){
   return $this->hasMany(CourseContent::class);
+}
+
+public function modality(){
+  return $this->belongsTo(Modality::class);
 }
 
 }

@@ -7,6 +7,8 @@ use App\Http\Requests;
 use App\Models\Curso;
 use App\Models\Categoria;
 use App\Models\Funciones;
+
+use App\Models\Modality;
 use App\Models\CourseContent;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoForm;
@@ -46,6 +48,7 @@ class CursoController extends Controller
 
         //return view('pages.public.ficha')->with('curso',$curso);
         return view('pages.public.ficha_tecnica')->with('curso',$curso);
+        //dd($curso);
     }
 
     public function descargarDoc($id, $d)
@@ -143,7 +146,9 @@ class CursoController extends Controller
 
         $lista = $categorias = Categoria::orderBy("nombre","asc");
         $categorias = $lista->pluck('nombre','id');
-
+        
+        $modalities = Modality::orderBy('name','asc')->get();
+        
 
         $cursos = Curso::orderBy("titulo","asc")->with('categoria');
 
@@ -158,7 +163,8 @@ class CursoController extends Controller
                 ->with('categorias',$lista->get())
                 //->with('categorias',$categorias)
                 ->with('titulos',$titulos)
-                ->with('busqueda_area',$id_areas);
+                ->with('busqueda_area',$id_areas)
+                ->with('modalities',$modalities);
     }
 
 
@@ -173,7 +179,7 @@ class CursoController extends Controller
             $curso->codigo = rand(1000,9999);
             $curso->titulo = $request->titulo;
             $curso->categoria_id = $request->categoria_id;
-            $curso->modalidad = $request->modalidad;
+            $curso->modalidad_id = $request->modalidad_id;
             $curso->duracion = $request->duracion;
             $curso->dirigido = $request->dirigido;
             $curso->min = $request->min;
@@ -274,7 +280,7 @@ class CursoController extends Controller
                     'codigo' => $request->codigo,
                     'titulo' => $request->titulo,
                     'categoria_id' => $request->categoria_id,
-                    'modalidad' => $request->modalidad,
+                    'modalidad' => $request->modalidad_id,
                     'objetivo'=> $request->objetivo,
                     'contenido'  => $request->contenido,
                     'duracion' => $request->duracion,
@@ -345,7 +351,7 @@ class CursoController extends Controller
 
         $curso->titulo = $request->titulo;
         $curso->categoria_id = $request->categoria_id;
-        $curso->modalidad = $request->modalidad;
+        $curso->modalidad_id = $request->modalidad_id;
         $curso->duracion = $request->duracion;
         $curso->dirigido = $request->dirigido;
         $curso->min = $request->min;

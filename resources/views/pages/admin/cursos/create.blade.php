@@ -82,8 +82,19 @@
 
                     <div class="form-group" >
                         <div class="col-lg-6 col-md-6" >
-                            {{ Form::label('modalidad', 'Modalidad',array('class' => 'control-label')) }}
-                            {{ Form::text('modalidad', null , array('class' => 'form-control', 'maxlength'=>45 ,'required')) }}
+                            {{ Form::label('modalidad_id', 'Modalidad',array('class' => 'control-label')) }}
+                            {{-- Form::text('modalidad', null , array('class' => 'form-control', 'maxlength'=>45 ,'required')) --}}
+                            <select name="modalidad_id" class="select2 " id="modalidad_id" data-allow-clear="true" required="true">
+                                <option></option>
+
+                                @foreach($modalities as $modality)
+                                    @if(old('modalidad_id') == $modality->id)
+                                        <option value="{{$modality->id}}" selected>{{$modality->name}}</option>
+                                    @else
+                                        <option value="{{$modality->id}}">{{$modality->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('duracion', 'Duración (Horas)',array('class' => 'control-label')) }}

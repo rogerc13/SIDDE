@@ -27,7 +27,7 @@
                 $('#codigo').val(data[0].codigo);
                 $('#titulo').val(data[0].titulo);
                 $('#categoria_id').val(data[0].categoria_id).trigger("change");
-                $('#modalidad').val(data[0].modalidad);
+                $('#modalidad_id').val(data[0].modality_id).trigger("change");
                 $('#duracion').val(data[0].duracion);
                 $('#dirigido').val(data[0].dirigido);
                 $('#min').val(data[0].min);
@@ -55,7 +55,8 @@
 
         $("#accion-modal").on("hidden.bs.modal", function () {
             $('.course-code').parent().removeClass('has-error');
-            $('.create-course-form')[0].reset(); //resets input fields at closing
+            $('.code-error-text').hide();
+            //$('.create-course-form')[0].reset(); //resets input fields at closing
             $("#accion-form :input").prop('readonly', false);
             $( "#accion-form select" ).prop('disabled', false);
             $("#accion-aceptar").removeClass("hidden");
