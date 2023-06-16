@@ -1,7 +1,18 @@
+
+
 @extends('layouts.admin')
+
+
 
 @section('content')
 
+<div class="row buttons hide-print">
+    <div class="col-md-12">
+        <a class="btn btn-default" href="{{url("u/mis_acciones")}}" role="button">Volver</a>
+        <a class="btn btn-default" href="" role="button">Descargar Documentos</a>
+        <a class="btn btn-default save-ficha" href="" role="button">Descargar Ficha</a>
+    </div>
+</div>
 <div class="ficha-tecnica">    
     <table class="table ficha-table">
         <thead>

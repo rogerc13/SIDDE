@@ -45,5 +45,5 @@
 	<![endif]-->
 
 
-	
+	<script src="{{asset('assets/js/ficha-tecnica.js')}}"></script>
     @stack('CSS')
