@@ -581,4 +581,18 @@ class CursoController extends Controller
 
         return json_encode($curso);
     }
+
+    public function onCourseSubmitAlert($request){ //redirects on course form submit
+        
+        //dd($request);
+        
+        
+        if($request == true){
+            return redirect()->route('acciones')->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
+        }else{
+            return redirect()->route('acciones')->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
+        }
+            
+        //return Redirect::back()->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
+    }//end onCourseSubmitAlert
 }

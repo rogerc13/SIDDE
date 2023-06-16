@@ -33,6 +33,8 @@ Route::group(['middleware' => 'auth'], function ()
     Route::group(['prefix' => 'u'], function()
     {
         Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
+        
+        
         Route::group(['prefix' => 'usuarios'], function()
         {
                 Route::get('/', 'App\Http\Controllers\UserController@getAll')->name("usuarios");
@@ -86,6 +88,8 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::post('/', 'App\Http\Controllers\CursoController@setCourse');
                 Route::put('/{id}', 'App\Http\Controllers\CursoController@update');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoController@delete');
+
+                Route::get('/onSubmitAlert/{request}', 'App\Http\Controllers\CursoController@onCourseSubmitAlert');
         });
 
 

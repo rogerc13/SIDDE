@@ -18,10 +18,14 @@ function setCourse(){
                         processData: false,
                         success: function (response){
                             console.log(response);
-                            //window.location.reload();
+                            success = true;
+                            window.location = "acciones_formacion/onSubmitAlert/"+success;
                         },
                         error: function (response){
+
+                            success = false;
                             console.log(response);
+                            window.location = "acciones_formacion/onSubmitAlert/"+success;
                         }
                     });
                 
