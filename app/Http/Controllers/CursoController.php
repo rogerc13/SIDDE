@@ -39,13 +39,11 @@ class CursoController extends Controller
     {
         $user = Auth::user();
         $curso = Curso::find($id);
-
         if($curso==null)
         {
             return Redirect::back()
                         ->with("alert", Funciones::getAlert("danger","Error","La acción de formación no pudo ser encontrada"));
         }
-
         //return view('pages.public.ficha')->with('curso',$curso);
         return view('pages.public.ficha_tecnica')->with('curso',$curso);
         //dd($curso);
