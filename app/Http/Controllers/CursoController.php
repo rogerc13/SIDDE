@@ -278,7 +278,7 @@ class CursoController extends Controller
                     'codigo' => $request->codigo,
                     'titulo' => $request->titulo,
                     'categoria_id' => $request->categoria_id,
-                    'modalidad' => $request->modalidad_id,
+                    'modality_id' => $request->modalidad_id,
                     'objetivo'=> $request->objetivo,
                     'contenido'  => $request->contenido,
                     'duracion' => $request->duracion,

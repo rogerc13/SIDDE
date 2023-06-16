@@ -5,7 +5,7 @@
 
 
 @section('content')
-
+{{--needs style--}}
 <div class="row buttons hide-print">
     <div class="col-md-12">
         <a class="btn btn-default" href="{{url("u/mis_acciones")}}" role="button">Volver</a>
