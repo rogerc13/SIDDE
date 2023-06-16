@@ -12,9 +12,10 @@
         $.get(url,function(data,status){
                 data=JSON.parse(data);
 
+                $('.course-code').val(data.codigo);
                 $('#titulo').val(data.titulo);
                 $('#categoria_id').val(data.categoria_id).trigger("change");
-                $('#modalidad').val(data.modalidad);
+                $('#modalidad_id').val(data.modality_id).trigger("change");
                 $('#duracion').val(data.duracion);
                 $('#dirigido').val(data.dirigido);
                 $('#min').val(data.min);
