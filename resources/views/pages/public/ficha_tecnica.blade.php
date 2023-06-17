@@ -7,10 +7,14 @@
 @section('content')
 {{--needs style--}}
 <div class="row buttons hide-print">
-    <div class="col-md-12">
-        <a class="btn btn-default" href="{{url("u/mis_acciones")}}" role="button">Volver</a>
-        <a class="btn btn-default" href="" role="button">Descargar Documentos</a>
-        <a class="btn btn-default save-ficha" href="" role="button">Descargar Ficha</a>
+    <div class="col-md-8">
+        <a class="btn btn-blue" href="{{url("u/mis_acciones")}}" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-default" href="" role="button"><i class="entypo-download"></i>Descargar Documentos</a>
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-success save-ficha" href="" role="button"><i class="entypo-doc"></i>Descargar Ficha</a>
     </div>
 </div>
 <div class="ficha-tecnica">    
