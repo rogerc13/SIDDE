@@ -415,7 +415,7 @@ class CursoController extends Controller
 
         }
         $updateCurso = $curso->save();
-        return json_encode($updateCurso);
+        //return json_encode($updateCurso);
         if(!$updateCurso)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
