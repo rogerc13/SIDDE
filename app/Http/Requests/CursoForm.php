@@ -40,7 +40,7 @@ class CursoForm extends FormRequest
                         'max' => 'required|integer|min:'.$this->min,
                         
                        ]; 
-                       */
+                       
             case 'PUT':
                 return [
                         'titulo' => 'required|string|max:'.Curso::MAX_LENGTH_TITULO,
@@ -53,6 +53,7 @@ class CursoForm extends FormRequest
                         'min' => 'required|integer|min:1|max:'.$this->max,
                         'max' => 'required|integer|min:'.$this->min,
                        ];
+            */
             default:return[];
         }
     }

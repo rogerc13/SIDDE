@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
 Route::get('/', function () {
     return redirect()->route("home");
 });
@@ -87,6 +89,7 @@ Route::group(['middleware' => 'auth'], function ()
                 //Route::post('/', 'App\Http\Controllers\CursoController@store');
                 Route::post('/', 'App\Http\Controllers\CursoController@setCourse');
                 Route::put('/{id}', 'App\Http\Controllers\CursoController@update');
+                //Route::put('/{id}', 'App\Http\Controllers\CursoController@test');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoController@delete');
 
                 Route::get('/onSubmitAlert/{request}', 'App\Http\Controllers\CursoController@onCourseSubmitAlert');

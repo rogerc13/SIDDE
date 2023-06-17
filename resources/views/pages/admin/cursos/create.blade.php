@@ -19,7 +19,7 @@
         $(".fileinput-filename").empty();
         $(".loader").addClass("hidden");
         $("#accion-form").removeClass("hidden");
-        //$("[name=_method]").val("POST");
+        $("[name=_method]").val("POST");
         $("#accion-label").html("Nueva acción de formación");
         //$("#accion-form").attr("action", url);
 
@@ -48,6 +48,7 @@
             <form class="form-horizontal hidden create-course-form" action="javascript:setCourse()" method="POST" id='accion-form'  enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
+                <input type="hidden" name="course-id" class="course-id">
 
 
                 <div class="modal-body">

@@ -4,8 +4,8 @@
         
         $(".loader").removeClass("hidden");
         $("#accion-form").addClass("hidden");
-        $("[name=_method]").val("PUT");
-        $("#accion-form").attr("action", url);
+        $("[name=_method]").val("GET");
+        //$("#accion-form").attr("action", url);
         $("#accion-label").html("Detalles acción de formación");
         $("#aceptar").addClass("hidden");
 

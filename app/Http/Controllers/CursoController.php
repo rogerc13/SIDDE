@@ -271,7 +271,7 @@ class CursoController extends Controller
     
 
     public function setCourse(CursoForm $request){
-
+            //dd($request);
             $user = Auth::user();
             if ($user->can('store', Curso::class)) {
                 $data = array(
@@ -331,9 +331,8 @@ class CursoController extends Controller
     }
 
     public function update(CursoForm $request, $id){
-
         $user=Auth::user();
-
+        //return json_encode($request->codigo);
         $curso = Curso::find($id);
 
         if (!$curso)
@@ -346,10 +345,10 @@ class CursoController extends Controller
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
 
-
+        $curso->codigo = $request->codigo;
         $curso->titulo = $request->titulo;
         $curso->categoria_id = $request->categoria_id;
-        $curso->modalidad_id = $request->modalidad_id;
+        $curso->modality_id = $request->modalidad_id;
         $curso->duracion = $request->duracion;
         $curso->dirigido = $request->dirigido;
         $curso->min = $request->min;
@@ -415,9 +414,9 @@ class CursoController extends Controller
             $curso->presentacion = $docTempName_4;
 
         }
-
-
-        if(!$curso->save())
+        $updateCurso = $curso->save();
+        return json_encode($updateCurso);
+        if(!$updateCurso)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
 
@@ -583,16 +582,20 @@ class CursoController extends Controller
     }
 
     public function onCourseSubmitAlert($request){ //redirects on course form submit
-        
-        //dd($request);
-        
+        //return json_encode($request);
         
         if($request == true){
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
         }else{
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
         }
-            
+          
+
         //return Redirect::back()->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
     }//end onCourseSubmitAlert
+
+    public function test(Request $request,$id){
+        //return json_encode("update ");
+        return json_encode($request->codigo);
+    }
 }

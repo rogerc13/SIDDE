@@ -4,27 +4,37 @@ function setCourse(){
                     //formData.push({name:'contentData',value:contentData});
                     //console.log(typeof formData);
                     //console.log(formData);
+                    //console.log("hello");
                     let formData = new FormData ($('#accion-form').get(0));
                     formData.append('content_data',contentData);
+                    method = formData.get('_method');
+                    //console.log(formData.get('id'));
+                    if(method == 'PUT'){
+                        console.log("method put");
+                        newUrl = "acciones_formacion/"+formData.get('course-id');
+                    }else{
+                        console.log("method POST");
+                        newUrl = "acciones_formacion/";
+                    }
                     console.log(formData);
                     $.ajax({       
                         data:formData,
                         //data: new FormData($('#accion-form').get(0).append('contentData',contentData)),
                         type:"POST",
-                        url: "acciones_formacion/",
-                        
+                        url: newUrl,
                         dataType: "json",
                         contentType: false,
                         processData: false,
                         success: function (response){
                             console.log(response);
                             success = true;
+                            method = '';
                             window.location = "acciones_formacion/onSubmitAlert/"+success;
                         },
                         error: function (response){
-
                             success = false;
                             console.log(response);
+                            method = '';
                             window.location = "acciones_formacion/onSubmitAlert/"+success;
                         }
                     });
@@ -32,17 +42,11 @@ function setCourse(){
             }
 
 $(document).ready(function (){
-    
-
     $.ajaxSetup({
             headers:{
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
-
-    
-
-
     contentData = [];
 
     const content = document.querySelector('.course-content');

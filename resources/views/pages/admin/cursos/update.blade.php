@@ -2,16 +2,20 @@
 <script>
     function editarAccion(url){
         $(".loader").removeClass("hidden");
-        $("#accion-form").addClass("hidden");
+        //$("#accion-form").addClass("hidden");
+        $('.course-code').parent().removeClass('has-error');
+        $('.code-error-text').hide();
+        $('.read-only-docs').hide();
         $("[name=_method]").val("PUT");
-        $("#accion-form").attr("action", url);
+        //$("#accion-form").attr("action", url);
         $("#accion-label").html("Editar acción de formación");
 
         $(".fileinput-filename").empty();
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-
+                console.log(data);
+                $('.course-id').val(data.id);
                 $('.course-code').val(data.codigo);
                 $('#titulo').val(data.titulo);
                 $('#categoria_id').val(data.categoria_id).trigger("change");
