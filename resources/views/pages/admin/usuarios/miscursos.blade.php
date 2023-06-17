@@ -87,6 +87,7 @@
 							 @endif
 							<th title="Fecha de Inicio">Fecha I.</th>
 							<th title="Fecha de Culminación">Fecha C.</th>				
+							<th>Registrados</th>				
 							<th><i class="fa fa-cogs"></i></th>
 						</tr>
 					</thead>
@@ -106,6 +107,14 @@
 								@endif
 								<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
 								<td>{{date("d-m-Y", strtotime($cursop->fecha_f))}}</td>
+								<td>
+									<span class="badge badge-success">
+										{{count($cursop->participantesCurso)}}
+									</span>
+									<!--	{{count($cursop->participantesCurso)}}/{{$cursop->curso->max}}
+									</span>
+									-->
+								</td>
 								<td>
 								@if($logeado->isFacilitador())
 								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
