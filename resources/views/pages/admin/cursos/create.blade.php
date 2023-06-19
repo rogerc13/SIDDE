@@ -33,7 +33,6 @@
 
 
 @endpush
-
 <div class="modal fade" id="accion-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -128,10 +127,11 @@
 
                         </div>
                     </div>
-                    <ul class="content-list"></ul>
+                    
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
+                            <ul class="content-list list-style list-group"></ul>
                             {{ Form::textarea('contenido', null , array('class' => 'form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required','placeholder'=>'Ingrese los contenidos del Curso')) }}
                         </div>
                     </div>

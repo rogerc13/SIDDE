@@ -321,3 +321,8 @@
 .no-border-top{
     border-top: none !important;
 }
+
+.list-group-item::before { /*adds bullets to the list*/
+    content: "●";
+    margin-right: 0.75rem;
+}
