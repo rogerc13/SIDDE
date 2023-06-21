@@ -126,14 +126,9 @@
 }
 
 .ficha-course-objective{ /*p tag*/
-    padding-top: 3pt;
-    padding-bottom: 3pt;
-    line-height: 1.0;
-    orphans: 2;
-    widows: 2;
     text-align: justify;
     color: #000000;
-    font-size: 11pt;
+    font-size: 12pt;
     vertical-align: baseline;
 }
 
@@ -150,7 +145,7 @@
     font-weight: 400;
     text-decoration: none;
     vertical-align: baseline;
-    font-size: 11pt;
+    font-size: 12pt;
     font-style: normal;
 }
 
@@ -166,7 +161,7 @@
     font-weight: 400;
     text-decoration: none;
     vertical-align: baseline;
-    font-size: 11pt;
+    font-size: 12pt;
     font-family: "Arial Narrow",sans-serif;
     font-style: normal;
 }
@@ -325,4 +320,12 @@
 .list-group-item::before { /*adds bullets to the list*/
     content: "●";
     margin-right: 0.75rem;
+}
+
+
+.list-content-span{
+    font-family: "Arial Narrow", sans-serif;
+    font-style: normal;
+    font-size:11pt;
+    color: #000000;
 }

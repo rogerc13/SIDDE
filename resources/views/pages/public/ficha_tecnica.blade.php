@@ -17,8 +17,9 @@
         <a class="btn btn-success save-ficha" href="" role="button"><i class="entypo-doc"></i>Descargar Ficha</a>
     </div>
 </div>
-<div class="ficha-tecnica">    
-    <table class="table ficha-table">
+<div class="row ">
+    <div class="col-md-12">
+        <table class="table ficha-table">
         <thead>
             <tr scope="row" colspan="4">
                 <img src="{{asset('assets/images/PDV_S.A._logo.svg')}}" alt="">
@@ -56,7 +57,7 @@
                     <ul>
                         @foreach ($curso->courseContent as $content)
                             <li>
-                                <span>{{$content->text}}</span>
+                                <span class="list-content-span">{{$content->text}}</span>
                             </li>    
                         @endforeach
                     </ul>
@@ -95,6 +96,7 @@
             
         </tbody>
     </table>
+    </div>  
 </div>
 
 @stop
