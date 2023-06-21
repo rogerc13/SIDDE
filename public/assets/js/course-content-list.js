@@ -63,6 +63,7 @@ $(document).ready(function (){
             listElement.classList.add("list-element");
             listElement.classList.add("list-group-item");
             listElement.appendChild(document.createTextNode(content.value));
+            $(listElement).append('<i class="fa fa-remove " style="float:right"></i>')
             
             
             listElement.addEventListener('click',(e) =>{ //removes the selected content from the list and array
