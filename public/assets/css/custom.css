@@ -322,6 +322,9 @@
     margin-right: 0.75rem;
 }
 
+.list-element{
+    cursor:pointer;
+}
 
 .list-content-span{
     font-family: "Arial Narrow", sans-serif;
