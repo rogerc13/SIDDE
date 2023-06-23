@@ -63,7 +63,7 @@ $(document).ready(function (){
             listElement.classList.add("list-element");
             listElement.classList.add("list-group-item");
             listElement.appendChild(document.createTextNode(content.value));
-            console.log(contentData.length);
+            console.log("contentData length: "+contentData.length);
             $(listElement).append('<i class="fa fa-remove " style="float:right"></i>')
             $(listElement).val(contentData.length - 1); //sets list value according to contentData array length
             
@@ -94,5 +94,6 @@ $(document).ready(function (){
     $("#accion-modal").on("hidden.bs.modal", function(){
         $(".content-list").children().remove();// deletes list items to avoid incorrect list values when modal re opens
         counter = 0; //sets global list value to 0
+        contentData = [];
     });
 });
