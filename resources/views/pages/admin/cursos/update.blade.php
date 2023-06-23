@@ -1,4 +1,5 @@
 @push('JS')
+
 <script>
     function editarAccion(url){
         $(".loader").removeClass("hidden");
@@ -29,12 +30,24 @@
                 $('#contenido').val(data[0].contenido);
                
                 //console.log(data[1]);
-               
+                contentData = []
                 i = 0;
                 data[1].forEach(element => {
+                    contentData[i] = element.text;
                     $('.content-list').append(`<li value="${i++}" class="list-element list-group-item">${element.text}<i class="fa fa-remove " style="float:right"></i></li>`);
                    //console.log(i++ +' '+element.text);
                 });
+
+                $('.list-element').on('click',function(e) { //removes the selected content from the list and array
+                    contentData.splice(e.target.value,1);
+                    let siblings = $(e.target).siblings();
+                    for(let prop in siblings){ //lowers the value of next siblings by 1
+                        if(siblings[prop].value > e.target.value){
+                            siblings[prop].value --;
+                        }
+                    }
+                    e.target.remove();
+	            });
 
                 if (data.manual_f) {
                     $('#l_manual_f').text(data.manual_f);
@@ -53,6 +66,11 @@
 
             });
         $("#accion-modal").modal();
-    }
+
+        
+}
+
+
 </script>
+
 @endpush
