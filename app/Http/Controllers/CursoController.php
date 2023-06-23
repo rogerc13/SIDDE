@@ -32,7 +32,7 @@ class CursoController extends Controller
             return json_encode([]);
         }
        
-        return json_encode([$curso,$curso->courseContent]);
+        return json_encode([$curso,$curso->courseContent, $curso->courseFile]);
     }
 
     public function getAccionFormacion($id)

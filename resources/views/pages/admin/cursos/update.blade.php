@@ -48,19 +48,15 @@
                     }
                     e.target.remove();
 	            });
+                //console.log(data[2].length)
+                
+                if(data[2].length > 0){
+                    $('#l_manual_f').text(data[2][0].file_path);
+                    $('#l_manual_p').text(data[2][1].file_path);
+                    $('#l_guia').text(data[2][2].file_path);
+                    $('#l_presentacion').text(data[2][3].file_path);
+                }
 
-                if (data.manual_f) {
-                    $('#l_manual_f').text(data.manual_f);
-                }
-                if (data.manual_p) {
-                    $('#l_manual_p').text(data.manual_p);
-                }
-                if (data.guia) {
-                    $('#l_guia').text(data.guia);
-                }
-                if (data.presentacion) {
-                    $('#l_presentacion').text(data.presentacion);
-                }
                 $(".loader").addClass("hidden");
                 $("#accion-form").removeClass("hidden");
 
