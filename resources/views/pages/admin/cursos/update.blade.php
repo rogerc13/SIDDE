@@ -30,7 +30,7 @@
                 $('#contenido').val(data[0].contenido);
                
                 //console.log(data[1]);
-                contentData = []
+                contentData = [];
                 i = 0;
                 data[1].forEach(element => {
                     contentData[i] = element.text;
@@ -48,13 +48,16 @@
                     }
                     e.target.remove();
 	            });
-                //console.log(data[2].length)
-                
+                //console.log(data[2][1].file_path)
+
                 if(data[2].length > 0){
+                    $('.fileinput').addClass('fileinput-exists').removeClass('fileinput-new');
                     $('#l_manual_f').text(data[2][0].file_path);
                     $('#l_manual_p').text(data[2][1].file_path);
                     $('#l_guia').text(data[2][2].file_path);
                     $('#l_presentacion').text(data[2][3].file_path);
+                }else{
+                    $('.fileinput').addClass('fileinput-new').removeClass('fileinput-exists');
                 }
 
                 $(".loader").addClass("hidden");

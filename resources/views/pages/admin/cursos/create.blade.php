@@ -1,5 +1,5 @@
 @push('JS')
-    <script src="{{url('assets/js/fileinput.js')}}"></script>
+    <script src="{{asset('assets/js/fileinput.js')}}"></script>
     <script src="{{asset('assets/js/course-content-list.js')}}"></script>
     <script src="{{asset('assets/js/course-code-validation.js')}}"></script>
     
