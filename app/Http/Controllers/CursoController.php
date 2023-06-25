@@ -332,9 +332,9 @@ class CursoController extends Controller
 
     public function update(CursoForm $request, $id){
         $user=Auth::user();
-        //return json_encode($request->codigo);
+        
         $curso = Curso::find($id);
-
+/* 
         if (!$curso)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso ingresada no existe."));
@@ -344,7 +344,7 @@ class CursoController extends Controller
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
-
+ */
         $curso->codigo = $request->codigo;
         $curso->titulo = $request->titulo;
         $curso->categoria_id = $request->categoria_id;
@@ -356,115 +356,50 @@ class CursoController extends Controller
         $curso->objetivo = $request->objetivo;
         $curso->contenido = $request->contenido;
 
+        //delete all contents of the course if they exist on the content list table
+        $curso->courseContent()->delete();
 
-        $path = base_path() . '/public/uploads/documentos';
-
-        if($request->file('manual_p')){
-            $archivoAnterior_1=$curso->manual_p;
-
-            $arhcivotemporal_1=tempnam($path, "");
-            $infotemporal_1= pathinfo($arhcivotemporal_1);
-            $nombertemporal_1= $infotemporal_1['filename'];
-            $info_1 = pathinfo($request->file('manual_p')->getClientOriginalName());
-            $extension_1 = $info_1['extension'];
-            $docTempName_1='m_p'.$nombertemporal_1.".".$extension_1;
-            unlink($arhcivotemporal_1);
-
-            $curso->manual_p = $docTempName_1;
-
+        $contentList = explode(",", $request->content_data);  //turns string of content into an array
+        foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
+            if (!empty($content)) {
+                $contentData[] = [ //array to be stored
+                    'text' => $content
+                ];
+            }
         }
-        if($request->file('manual_f')){
-            $archivoAnterior_2=$curso->manual_f;
 
-            $arhcivotemporal_2=tempnam($path, "");
-            $infotemporal_2= pathinfo($arhcivotemporal_2);
-            $nombertemporal_2= $infotemporal_2['filename'];
-            $info_2 = pathinfo($request->file('manual_f')->getClientOriginalName());
-            $extension_2 = $info_2['extension'];
-            $docTempName_2='m_f'.$nombertemporal_2.".".$extension_2;
-            unlink($arhcivotemporal_2);
-
-            $curso->manual_f = $docTempName_2;
+        //if files are sent via form
+        //need to check if files exist in storage or DB
+        /*
+        $path = [];
+        if($request('manual_f')->isValid()){
+            $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')->getClientOriginalExtension())];
         }
-        if($request->file('guia')){
-            $archivoAnterior_3=$curso->guia;
-
-            $arhcivotemporal_3=tempnam($path, "");
-            $infotemporal_3= pathinfo($arhcivotemporal_3);
-            $nombertemporal_3= $infotemporal_3['filename'];
-            $info_3 = pathinfo($request->file('guia')->getClientOriginalName());
-            $extension_3 = $info_3['extension'];
-            $docTempName_3='g_'.$nombertemporal_3.".".$extension_3;
-            unlink($arhcivotemporal_3);
-
-            $curso->guia = $docTempName_3;
-
+        if ($request('manual_p')->isValid()) {
+            $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')->getClientOriginalExtension())];
         }
-        if($request->file('presentacion')){
-            $archivoAnterior_4=$curso->presentacion;
-
-            $arhcivotemporal_4=tempnam($path, "");
-            $infotemporal_4= pathinfo($arhcivotemporal_4);
-            $nombertemporal_4= $infotemporal_4['filename'];
-            $info_4 = pathinfo($request->file('presentacion')->getClientOriginalName());
-            $extension_4 = $info_4['extension'];
-            $docTempName_4='p_'.$nombertemporal_4.".".$extension_4;
-            unlink($arhcivotemporal_4);
-
-            $curso->presentacion = $docTempName_4;
-
+        if ($request('guia')->isValid()) {
+            $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')->getClientOriginalExtension())];
         }
-        $updateCurso = $curso->save();
-        //return json_encode($updateCurso);
-        if(!$updateCurso)
+        if ($request('presentacion')->isValid()) {
+            $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')->getClientOriginalExtension())];
+        }
+        */
+
+        $curso->save();
+        $curso->courseContent()->createMany($contentData);
+        //$curso->courseFile()->createMany($path);
+        
+        /* 
+        return json_encode($updateCurso);
+        if(!$updateCurso) //if update errors out return session flash alert
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
-
-        if($request->file('manual_p')){
-            if($archivoAnterior_1){
-                $path2 = base_path() .'/public/uploads/documentos/'.$archivoAnterior_1;
-                if(file_exists($path2))
-                {
-                    unlink($path2);
-                }
-            }
-            $request->file('manual_p')->move($path, $docTempName_1);
-        }
-        if($request->file('manual_f')){
-            if($archivoAnterior_2){
-                $path2 = base_path() .'/public/uploads/documentos/'.$archivoAnterior_2;
-                if(file_exists($path2))
-                {
-                    unlink($path2);
-                }
-            }
-            $request->file('manual_f')->move($path, $docTempName_2);
-        }
-        if($request->file('guia')){
-            if($archivoAnterior_3){
-                $path2 = base_path() .'/public/uploads/documentos/'.$archivoAnterior_3;
-                if(file_exists($path2))
-                {
-                    unlink($path2);
-                }
-            }
-            $request->file('guia')->move($path, $docTempName_3);
-        }
-        if($request->file('presentacion')){
-            if($archivoAnterior_4){
-                $path2 = base_path() .'/public/uploads/documentos/'.$archivoAnterior_4;
-                if(file_exists($path2))
-                {
-                    unlink($path2);
-                }
-            }
-            $request->file('presentacion')->move($path, $docTempName_4);
-        }
-
-
+         */
+        /* 
         return Redirect::back()
             ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
-
+        */
     }
 
     public function delete($id)
