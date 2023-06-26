@@ -51,6 +51,22 @@
                         @endforeach
 		            </select>
 		       	</div>
+		        <div class="col-md-4 col-sm-6 col-xs-12">
+		          	<label for="id_estado" class="control-label">Por Estado</label>
+
+		            <select name="id_estado" class="select2 " id="id_estado" data-allow-clear="true" required="true">
+	                                <option value='0'>Todos</option>
+
+						@foreach($estados as $estado)
+
+                            @if($id_estado == $estado->id)
+                                <option value="{{$estado->id}}" selected>{{$estado->nombre}}</option>
+                            @else
+                                <option value="{{$estado->id}}">{{$estado->nombre}}</option>
+                            @endif
+                        @endforeach
+		            </select>
+		       	</div>
 
 		      	<div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="fechas" class="control-label">Por mes</label>

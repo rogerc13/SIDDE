@@ -53,6 +53,7 @@ class CursoProgramadoController extends Controller
 
         $titulos = filter_input(INPUT_GET,'titulos',FILTER_SANITIZE_STRING);
         $id_facilitador = filter_input(INPUT_GET,'id_facilitador',FILTER_SANITIZE_NUMBER_INT);
+        $id_estado = filter_input(INPUT_GET, 'id_estado',FILTER_SANITIZE_NUMBER_INT);
         $date = filter_input(INPUT_GET,'fechas',FILTER_SANITIZE_NUMBER_INT);
 
         $fecha = $date;
@@ -72,6 +73,7 @@ class CursoProgramadoController extends Controller
 
 
         $cursos = CursoProgramado::orderBy("fecha_i","desc")->with('curso')->with('facilitador')->with('cpStatus');
+        $estados = CPStatus::orderBy('nombre','asc')->get();
 
         if($titulos){
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
@@ -80,6 +82,9 @@ class CursoProgramadoController extends Controller
         }
         if($id_facilitador)
            $cursos=$cursos->where('user_id','=',$id_facilitador);
+        if($id_estado){
+            $cursos= $cursos->where('status_id',$id_estado);
+        }
         if($date){
             $fecha= new Carbon('01-'.$date);
            $cursos = $cursos->whereMonth('fecha_i',$fecha->month)
@@ -95,7 +100,7 @@ class CursoProgramadoController extends Controller
                 ->with('participantes',$participantes)
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
-                ->with('fechas',$fecha);
+                ->with('fechas',$fecha)->with('estados',$estados)->with('id_estado',$id_estado);
     }
 
     public function store(CursoProgramadoForm $request)
