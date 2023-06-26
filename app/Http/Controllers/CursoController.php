@@ -335,13 +335,17 @@ class CursoController extends Controller
         $user=Auth::user();
         
         $curso = Curso::find($id);
-/* 
-        if (!$curso)
-            return Redirect::back()
+
+        if (!$curso){ //Course doesn't exists
+            /* return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso ingresada no existe."));
-
-
-        if ($user->cannot('update', Curso::class))
+             */          
+            return json_encode($response = false);
+        }
+        if ($user->cannot('update', Curso::class)){ //User has no clearance
+            return json_encode($response = false);
+        }
+/*
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
@@ -371,8 +375,6 @@ class CursoController extends Controller
         $fileCollection = collect($curso->courseFile);
     
         $path = [];
-        
-
            foreach ($fileCollection as $file) {
                 if(($file->type_id == 1) && ($request->file('manual_f'))){
                     $file->delete();
@@ -423,40 +425,45 @@ class CursoController extends Controller
             $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')->getClientOriginalExtension()), 'type_id' => 1];
         }
         if (
-            null != ($request->file('manual_p'))
-        ) {
+            null != ($request->file('manual_p'))) {
             $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')->getClientOriginalExtension()), 'type_id' => 2];
         }
         if (
-            null != ($request->file('guia'))
-        ) {
+            null != ($request->file('guia'))) {
             $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')->getClientOriginalExtension()), 'type_id' => 3];
         }
         if (
-            null != ($request->file('presentacion'))
-        ) {
+            null != ($request->file('presentacion'))) {
             $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')->getClientOriginalExtension()), 'type_id' => 4];
         }
         
         $response[] = $curso->save();
-        $response[] = $curso->courseContent()->createMany($contentData);
+        if(count($contentData) > 0){
+            $response[] = $curso->courseContent()->createMany($contentData);
+        }
+        
         $response[] = $curso->courseFile()->createMany($path);
-        $response[] = $result;
+        if(isset($result)){
+            $response[] = $result;
+        }
         $response[] = $path;
-        return json_encode($response);
 
+        return json_encode($success = true);
 
-        /* 
-        return json_encode($updateCurso);
-        if(!$updateCurso) //if update errors out return session flash alert
+ 
+        //if update errors out return session flash alert
+            
+        
+        /*
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
          */
-        /* 
+        /*
+        // 
         return Redirect::back()
             ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
         */
-    }
+    }//end update
 
     public function delete($id)
     {
@@ -575,7 +582,7 @@ class CursoController extends Controller
     public function onCourseSubmitAlert($request){ //redirects on course form submit
         //return json_encode($request);
         
-        if($request == true){
+        if($request == 'true'){
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
         }else{
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));

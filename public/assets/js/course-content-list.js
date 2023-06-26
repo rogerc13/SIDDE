@@ -1,14 +1,8 @@
 function setCourse(){
-                    //console.log($('meta[name="csrf-token"]').attr('content'));
-                    //let formData = $('#accion-form').serializeArray();
-                    //formData.push({name:'contentData',value:contentData});
-                    //console.log(typeof formData);
-                    //console.log(formData);
-                    //console.log("hello");
                     let formData = new FormData ($('#accion-form').get(0));
                     formData.append('content_data',contentData);
                     method = formData.get('_method');
-                    //console.log(formData.get('id'));
+                    
                     if(method == 'PUT'){
                         console.log("method put");
                         newUrl = "acciones_formacion/"+formData.get('course-id');
@@ -19,7 +13,6 @@ function setCourse(){
                     console.log(formData);
                     $.ajax({       
                         data:formData,
-                        //data: new FormData($('#accion-form').get(0).append('contentData',contentData)),
                         type:"POST",
                         url: newUrl,
                         dataType: "json",
