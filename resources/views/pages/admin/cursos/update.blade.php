@@ -34,20 +34,37 @@
                 i = 0;
                 data[1].forEach(element => {
                     contentData[i] = element.text;
-                    $('.content-list').append(`<li value="${i++}" class="list-element list-group-item">${element.text}<i class="fa fa-remove " style="float:right"></i></li>`);
+                    $('.content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span><i class="fa fa-remove " style="float:right"></i></li>`);
                    //console.log(i++ +' '+element.text);
                 });
 
-                $('.list-element').on('click',function(e) { //removes the selected content from the list and array
-                    contentData.splice(e.target.value,1);
-                    let siblings = $(e.target).siblings();
+                $('.list-element i').on('click',function(e) { //removes the selected content from the list and array
+                    contentData.splice($(this).parent().val(),1);
+                    console.log(contentData);
+                    let siblings = $(this).parent().siblings();
                     for(let prop in siblings){ //lowers the value of next siblings by 1
-                        if(siblings[prop].value > e.target.value){
+                        if(siblings[prop].value > $(this).parent().val()){
                             siblings[prop].value --;
                         }
                     }
-                    e.target.remove();
+                    $(this).parent().remove();
 	            });
+
+                $('.list-element').on('click',function(e){ //adds a textarea into the list element to edit it's content
+                    if(e.target !== e.currentTarget) return; //prevents event from triggering when clicking on any of the children
+                    $(this).children('.list-text').addClass('hidden'); //hides the span element that contains the old text value
+                    $(this).append(`<textarea type="text" id="list-textarea-${$(this).val()}" class="form-control" value="${$(this).text()}"/>`); //adds the textarea
+                    $('#list-'+$(this).val()).focus(); //focuses the cursor on the new textarea
+                    
+                    $('#list-textarea-'+$(this).val()).on('keyup',function(event){ //substitues the data in the list and contentData array
+                        if((event.key === "Enter") || (event.key === ".")){ 
+                            $(this).siblings('.list-text').removeClass('hidden').text(`${$(this).val()}`);
+                            contentData[$(this).parent().val()] = $(this).val();
+                            $(this).remove(); //removes the textarea element from the dom
+                        }
+                    });
+                });
+
                 //console.log(data[2][1].file_path)
 
                 if(data[2].length > 0){
