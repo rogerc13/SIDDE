@@ -10,5 +10,9 @@ class CourseFile extends Model
     use HasFactory;
 
 
-    protected $fillable = ['file_path'];
+    protected $fillable = ['file_path','type_id'];
+
+    public function type(){
+        return $this->belongsTo(Type::class);
+    }
 }

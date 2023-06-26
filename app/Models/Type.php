@@ -11,7 +11,7 @@ class Type extends Model
     protected $fillable = ['name'];
 
     public function file(){
-        $this->hasMany(CourseFile::class);
+        return $this->hasMany(CourseFile::class);
     }
 
 }
