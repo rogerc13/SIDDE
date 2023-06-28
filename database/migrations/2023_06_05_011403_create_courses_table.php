@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('title');
             //$table->integer('modality_id')->unsigned();
-            $table->string('objective');
+            $table->string('objective',3000);
             $table->integer('duration');
             $table->string('addressed');
             $table->timestamps();
