@@ -6,7 +6,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Rol;
+use App\Models\Role;
+use App\Models\Person;
 
 class User extends Authenticatable
 {
@@ -42,29 +43,33 @@ class User extends Authenticatable
 
 
     public function isAdministrador(){
-        return $this->rol_id==Rol::ADMINISTRADOR;
+        return $this->role_id==Rol::ADMINISTRADOR;
     }
 
     public function isTecEducativa(){
-        return $this->rol_id==Rol::TECNOLOGIA_EDUCATIVA;
+        return $this->role_id==Rol::TECNOLOGIA_EDUCATIVA;
     }
 
     public function isProgramador(){
-        return $this->rol_id==Rol::PROGRAMADOR;
+        return $this->role_id==Rol::PROGRAMADOR;
     }
 
     public function isFacilitador(){
-        return $this->rol_id==Rol::FACILITADOR;
+        return $this->role_id==Rol::FACILITADOR;
     }
 
     public function isParticipante(){
-        return $this->rol_id==Rol::PARTICIPANTE;
+        return $this->role_id==Rol::PARTICIPANTE;
     }
 
 
-    public function rol()
+    public function role()
     {
-      return $this->belongsTo(Rol::class);
+      return $this->belongsTo(Role::class);
+    }
+
+    public function person(){
+      return $this->belongsTo(Person::class);
     }
 
     public function cursoFacilitador() // cursos de un facilitador

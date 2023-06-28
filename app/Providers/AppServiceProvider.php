@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-use App\User;
+use App\Models\User;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;

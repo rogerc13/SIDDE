@@ -42,15 +42,14 @@
 
 				<div class="sui-normal">
 					<a href="#" class="user-link">
-
-					@if(!$logeado->imagen)
+					@if(!$logeado->person->avatar_path)
                     	<img src="{{url('assets/images/photo.jpg')}}" width="55" alt="" class="img-circle">
                   	@else
-                  		<img src="{{url('uploads/perfiles/'.$logeado->imagen)}}" width="55" alt="" class="img-circle">
+                  		<img src="{{url('uploads/perfiles/'.$logeado->person->avatar_path)}}" width="55" alt="" class="img-circle">
                   	@endif
 
-						<strong style="text-transform: capitalize;">{{$logeado->nombre}} {{$logeado->apellido}}</strong>
-						<span>{{$logeado->rol->nombre}} </span>
+						<strong style="text-transform: capitalize;">{{$logeado->person->name}} {{$logeado->person->last_name}}</strong>
+						<span>{{$logeado->role->name}} </span>
 
 					</a>
 				</div>
@@ -129,7 +128,7 @@
 					</ul>
 				</li> --}}
 
-			@can('getAll','App\Categoria')
+			@can('getAll','App\Category')
 				<li class="{{ Request::is('u/areas') ? 'active' : '' }} " title="Gestión de Áreas de Conocimiento">
 					<a href="{{url("u/areas")}}">
 						<i class="entypo-tag"></i>

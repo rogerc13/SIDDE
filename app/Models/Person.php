@@ -15,6 +15,7 @@ class Person extends Model
         'id_number',
         'phone',
         'sex',
+        'avatar_path',
     ];
 
     public function user(){
