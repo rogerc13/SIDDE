@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+            $table->softDeletes();
             //$table->integer('role_id')->unsigned();
             //$table->integer('person_id')->unsigned();
             $table->string('email')->unique();
