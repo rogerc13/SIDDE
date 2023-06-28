@@ -5,26 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Categoria extends Model
+class Category extends Model
 {
   use SoftDeletes;
 
       const MAX_LENGTH_NOMBRE = 60;
 
-  protected $table = 'categoria';
+  protected $table = 'categories';
   protected $fillable = [
-    'nombre',
+    'name',
   ];
   protected $dates = [ 'deleted_at', ];
 
 public function cursos()
 {
-  return $this->hasMany(Curso::class);
+  return $this->hasMany(Course::class);
 }
 
 public static function categoriasCursos()
 {
-        $categoriasYCursos = Categoria::with('cursos')->get();
+        $categoriasYCursos = Category::with('courses')->get();
         //$categoriasYCursos = Categoria::all();
         return $categoriasYCursos;
 }
