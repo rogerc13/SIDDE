@@ -30,6 +30,7 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
 
+
 Route::group(['middleware' => 'auth'], function ()
 {
     Route::group(['prefix' => 'u'], function()
@@ -139,5 +140,9 @@ Route::group(['middleware' => 'auth'], function ()
 
 
     });
+        
+    Route::get('reports', 'App\Http\Controllers\ReportController@test')->name('reports');
+
+    
 });
 
