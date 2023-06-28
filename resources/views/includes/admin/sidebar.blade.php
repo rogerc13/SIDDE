@@ -82,7 +82,7 @@
 
 				<!-- <li class="opened active has-sub root-level"> -->
 
-                @can('getAccionFormacion','App/Curso')
+                @can('getAccionFormacion','App/Course')
                     <li class="sidebar-selector " title="" id="sidebar-busqueda">
                         <a>
                             <i class="entypo-search" id="siderbar-buscar"></i>
@@ -136,7 +136,7 @@
 					</a>
 				</li>
 			@endcan
-			@can('getAll','App\Curso')
+			@can('getAll','App\Course')
 				<li class="{{ Request::is('u/acciones_formacion') ? 'active' : '' }}  " title="Gestión de Acciones de Formación">
 					<a href="{{url("u/acciones_formacion")}}">
 						<i class="entypo-book-open"></i>

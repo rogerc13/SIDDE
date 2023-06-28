@@ -18,9 +18,9 @@ class User extends Authenticatable
   
     const MAX_LENGTH_EMAIL = 60;
     const MAX_LENGTH_PASSWORD = 100;
-    const MAX_LENGTH_NOMBRE = 45;
-    const MAX_LENGTH_APELLIDO = 45;  
-    const MAX_LENGTH_CI = 45; 
+//    const MAX_LENGTH_NAME = 45;
+//    const MAX_LENGTH_LAST_NAME = 45;  
+//    const MAX_LENGTH_ID_NUMBER = 45; 
     /**
      * The attributes that are mass assignable.
      *
@@ -28,7 +28,7 @@ class User extends Authenticatable
      */
     protected $table = 'users';
     protected $fillable = [
-      'nombre', 'apellido' , 'ci', 'rol_id', 'email' , 'password', 'imagen',
+      'role_id', 'person_id','email','password',
     ];
     protected $dates = [ 'deleted_at', ];
 
@@ -43,23 +43,23 @@ class User extends Authenticatable
 
 
     public function isAdministrador(){
-        return $this->role_id==Rol::ADMINISTRADOR;
+        return $this->role_id==Role::ADMINISTRADOR;
     }
 
     public function isTecEducativa(){
-        return $this->role_id==Rol::TECNOLOGIA_EDUCATIVA;
+        return $this->role_id==Role::TECNOLOGIA_EDUCATIVA;
     }
 
     public function isProgramador(){
-        return $this->role_id==Rol::PROGRAMADOR;
+        return $this->role_id==Role::PROGRAMADOR;
     }
 
     public function isFacilitador(){
-        return $this->role_id==Rol::FACILITADOR;
+        return $this->role_id==Role::FACILITADOR;
     }
 
     public function isParticipante(){
-        return $this->role_id==Rol::PARTICIPANTE;
+        return $this->role_id==Role::PARTICIPANTE;
     }
 
 

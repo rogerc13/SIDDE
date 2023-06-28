@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Models\Course;
-use App\Models\Categoria;
+use App\Models\Category;
 use App\Models\Funciones;
 
 use App\Models\Modality;
@@ -131,8 +131,8 @@ class CursoController extends Controller
     {
 
         $user = Auth::user();
-
-        if($user->cannot('getAll', Curso::class))
+        //return json_encode($user->cannot('getAll', Course::class));
+        if($user->cannot('getAll', Course::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
@@ -143,19 +143,19 @@ class CursoController extends Controller
         $id_areas = filter_input(INPUT_GET,'id_areas',FILTER_SANITIZE_NUMBER_INT);
 
 
-        $lista = $categorias = Categoria::orderBy("nombre","asc");
-        $categorias = $lista->pluck('nombre','id');
+        $lista = $categorias = Category::orderBy("name","asc");
+        $categorias = $lista->pluck('name','id');
         
         $modalities = Modality::orderBy('name','asc')->get();
         
 
-        $cursos = Curso::orderBy("titulo","asc")->with('categoria');
+        $cursos = Course::orderBy("title","asc")->with('category');
 
         if($titulos)
-           $cursos=$cursos->where('titulo','LIKE',"%$titulos%");
+           $cursos=$cursos->where('title','LIKE',"%$titulos%");
 
         if($id_areas)
-           $cursos=$cursos->where('categoria_id','=',$id_areas);
+           $cursos=$cursos->where('category_id','=',$id_areas);
 
         return view('pages.admin.cursos.index')
                 ->with('cursos',$cursos->paginate(10))

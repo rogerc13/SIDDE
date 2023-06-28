@@ -28,7 +28,7 @@ class CategoriaController extends Controller
     public function getAll()
     {
         $user = Auth::user();
-        
+        //dd($user->cannot('getAll', Category::class));
         if($user->cannot('getAll', Category::class))
         {
             return Redirect::back()
