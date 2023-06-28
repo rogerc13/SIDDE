@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('duration');
             $table->string('addressed');
             $table->timestamps();
+            $table->softDeletes();
             //$table->integer('category_id')->unsigned();
 
             //relationships

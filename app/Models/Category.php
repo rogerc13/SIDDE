@@ -17,7 +17,7 @@ class Category extends Model
   ];
   protected $dates = [ 'deleted_at', ];
 
-public function cursos()
+public function courses()
 {
   return $this->hasMany(Course::class);
 }

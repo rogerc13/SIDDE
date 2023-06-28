@@ -7,28 +7,26 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
-class Curso extends Model
+class Course extends Model
 {
   use SoftDeletes;
 
-    const MAX_LENGTH_TITULO = 300;
-    const MAX_LENGTH_MODALIDAD = 45;
-    const MAX_LENGTH_CONTENIDO = 3000;
-    const MAX_LENGTH_OBJETIVO = 3000;
-    const MAX_LENGTH_DIRIGIDO = 300;
+    const MAX_LENGTH_TITLE = 300;
+    const MAX_LENGTH_OBJECTIVE = 3000;
+    const MAX_LENGTH_ADDRESSED = 300;
 
 
 
-  protected $table = 'curso';
+  protected $table = 'courses';
   protected $fillable = [
-    'codigo', 'titulo' , 'categoria_id', 'modality_id', 'objetivo' , 'contenido', 'duracion'
-    , 'dirigido', 'max', 'min', 'manual_f' , 'manual_p', 'guia' , 'presentacion',
+    'code', 'title' , 'category_id', 'modality_id', 'objective' , 'duration'
+    , 'addressed',
   ];
   protected $dates = [ 'deleted_at', ];
 
-public function categoria()
+public function category()
 {
-    return $this->belongsTo(Categoria::class);
+    return $this->belongsTo(Category::class);
 }
 
 public function cursoProgramado()

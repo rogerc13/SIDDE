@@ -91,8 +91,8 @@
                             <label for="selectbusqueda"></label><select id="selectbusqueda" data-allow-clear="true">
                                     <option></option>
                                     @foreach($categoriasAcciones as $categ)
-                                        <optgroup label="{{$categ->nombre}}">
-                                        @foreach($categ->cursos as $af)
+                                        <optgroup label="{{$categ->name}}">
+                                        @foreach($categ->courses as $af)
                                             <option value="{{url("acciones_formacion/$af->id")}}">{{$af->titulo}}</option>
                                         @endforeach
                                         </optgroup>
