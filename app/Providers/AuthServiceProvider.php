@@ -12,7 +12,7 @@ use App\CursoProgramado;
 use App\ParticipanteCurso;
 
 use App\Policies\UserPolicy;
-use App\Policies\CategoriaPolicy;
+use App\Policies\CategoryPolicy;
 use App\Policies\CursoPolicy;
 use App\Policies\CursoProgramadoPolicy;
 use App\Policies\ParticipanteCursoPolicy;
@@ -27,8 +27,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         'App\Model' => 'App\Policies\ModelPolicy',
         User::class => UserPolicy::class,
-        Categoria::class => CategoriaPolicy::class,
-        Curso::class => CursoPolicy::class,
+        Category::class => CategoryPolicy::class,
+        Course::class => CoursesPolicy::class,
         CursoProgramado::class => CursoProgramadoPolicy::class,
         ParticipanteCurso::class => ParticipanteCursoPolicy::class,
     ];
