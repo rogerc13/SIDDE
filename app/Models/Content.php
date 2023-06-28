@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 
-class CourseContent extends Model
+class Content extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['text','curso_id'];
+    protected $fillable = ['text','course_id'];
 
 
     public function curso(){

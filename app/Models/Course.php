@@ -35,12 +35,12 @@ public function cursoProgramado()
 }
     //
 
-public function courseFile(){
-  return $this->hasMany(CourseFile::class);
+public function file(){
+  return $this->hasMany(File::class);
 }
 
-public function courseContent(){
-  return $this->hasMany(CourseContent::class);
+public function content(){
+  return $this->hasMany(ontent::class);
 }
 
 public function modality(){

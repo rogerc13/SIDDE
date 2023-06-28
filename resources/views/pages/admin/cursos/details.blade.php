@@ -23,26 +23,26 @@
             
                 
                 data=JSON.parse(data);
-                
-                $('#codigo').val(data[0].codigo);
-                $('#titulo').val(data[0].titulo);
-                $('#categoria_id').val(data[0].categoria_id).trigger("change");
+                console.log(data);
+                $('#codigo').val(data[0].code);
+                $('#titulo').val(data[0].title);
+                $('#categoria_id').val(data[0].category_id).trigger("change");
                 $('#modalidad_id').val(data[0].modality_id).trigger("change");
-                $('#duracion').val(data[0].duracion);
-                $('#dirigido').val(data[0].dirigido);
+                $('#duracion').val(data[0].duration);
+                $('#dirigido').val(data[0].addressed);
                 $('#min').val(data[0].min);
                 $('#max').val(data[0].max);
                 $('#objetivo').val(data[0].objetivo);
                 // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
-                $('#contenido').val(data[0].contenido);
-                if(typeof data[0].course_file !== 'undefined'){
-                    if(data[0].course_file.length > 0){
-                        //console.log(data[0].course_file.length);
+                //$('#contenido').val(data[0].contenido);
+                if(typeof data[0].file !== 'undefined'){
+                    if(data[0].file.length > 0){
+                        //console.log(data[0].file.length);
                         $('.read-only-docs').show();    
-                        $('.facilitator_manual').val(data[0].course_file[0].file_path);
-                        $('.participant_manual').val(data[0].course_file[1].file_path);
-                        $('.course_guide').val(data[0].course_file[2].file_path);
-                        $('.course_presentation').val(data[0].course_file[3].file_path);
+                        $('.facilitator_manual').val(data[0].file[0].file_path);
+                        $('.participant_manual').val(data[0].file[1].file_path);
+                        $('.guide').val(data[0].file[2].file_path);
+                        $('.presentation').val(data[0].file[3].file_path);
                     }else{
                         $('.read-only-docs').hide();    
                     }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('path'); //file names should be courseCode_fileType.extention
             $table->foreignId('course_id')->references('id')->on('courses'); //relationship
+            $table->foreignId('type_id')->references('id')->on('types'); //relationship
         });
     }
 

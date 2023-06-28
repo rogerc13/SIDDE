@@ -20,9 +20,9 @@
 
 		                @foreach($categorias as $categ)                                    
 		                    @if($categ->id == $busqueda_area)
-		                        <option value="{{$categ->id}}" selected>{{$categ->nombre}}</option>
+		                        <option value="{{$categ->id}}" selected>{{$categ->name}}</option>
 		                    @else                                                
-		                        <option value="{{$categ->id}}">{{$categ->nombre}}</option>
+		                        <option value="{{$categ->id}}">{{$categ->name}}</option>
 		                    @endif
 		                @endforeach
 		            </select>  
@@ -72,9 +72,9 @@
 			         @foreach($cursos as $curso)
 			            <tr>
 
-								<td>{{$curso->titulo}}</td>
-								<td>{{$curso->categoria->nombre}}</td>
-								<td>{{$curso->duracion}}</td>
+								<td>{{$curso->title}}</td>
+								<td>{{$curso->category->name}}</td>
+								<td>{{$curso->duration}}</td>
 								<td>
 								  <a  title="Más Información" href="javascript:detallesAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>

@@ -71,9 +71,9 @@
 
                                 @foreach($categorias as $categ)
                                     @if(old('categoria_id') == $categ->id)
-                                        <option value="{{$categ->id}}" selected>{{$categ->nombre}}</option>
+                                        <option value="{{$categ->id}}" selected>{{$categ->name}}</option>
                                     @else
-                                        <option value="{{$categ->id}}">{{$categ->nombre}}</option>
+                                        <option value="{{$categ->id}}">{{$categ->name}}</option>
                                     @endif
                                 @endforeach
                             </select>

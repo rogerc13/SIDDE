@@ -33,7 +33,7 @@ class CursoController extends Controller
             return json_encode([]);
         }
        
-        return json_encode([$curso,$curso->courseContent, $curso->courseFile]);
+        return json_encode([$curso,$curso->content, $curso->file]);
     }
 
     public function getAccionFormacion($id)
@@ -569,9 +569,9 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Curso::with('CourseFile')->where('id', $id)->get();
+        $curso = Course::with('File')->where('id', $id)->get();
         
-        if(!$curso || $user->cannot('get', Curso::class))
+        if(!$curso || $user->cannot('get', Course::class))
         {
             return json_encode([]);
         } 
