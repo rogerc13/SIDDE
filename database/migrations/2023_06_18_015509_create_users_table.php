@@ -23,7 +23,7 @@ return new class extends Migration
             $table->rememberToken();
 
 
-            $table->foreignId('role_id')->references('id')->on('role')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
 
 
