@@ -40,7 +40,10 @@ public function file(){
 }
 
 public function content(){
-  return $this->hasMany(ontent::class);
+  return $this->hasMany(Content::class);
+}
+public function capacity(){
+  return $this->hasMany(Capacity::class);
 }
 
 public function modality(){
