@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\Models\Curso;
+use App\Models\Course;
 use App\Models\Categoria;
 use App\Models\Funciones;
 
@@ -27,8 +27,8 @@ class CursoController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        $curso = Curso::find($id);
-        if(!$curso || $user->cannot('get', Curso::class))
+        $curso = Course::find($id);
+        if(!$curso || $user->cannot('get', Course::class))
         {
             return json_encode([]);
         }
@@ -39,7 +39,7 @@ class CursoController extends Controller
     public function getAccionFormacion($id)
     {
         $user = Auth::user();
-        $curso = Curso::find($id);
+        $curso = Course::find($id);
         if($curso==null)
         {
             return Redirect::back()

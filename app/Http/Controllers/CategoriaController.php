@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Funciones as AppFunciones;
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\Models\Categoria;
+use App\Models\Category;
 use App\Models\Funciones;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CategoriaForm;
@@ -16,8 +16,8 @@ class CategoriaController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        $categoria = Categoria::find($id);
-        if(!$categoria || $user->cannot('get', Categoria::class))
+        $categoria = Category::find($id);
+        if(!$categoria || $user->cannot('get', Category::class))
         {
             return json_encode([]);
         }
@@ -29,14 +29,14 @@ class CategoriaController extends Controller
     {
         $user = Auth::user();
         
-        if($user->cannot('getAll', Categoria::class))
+        if($user->cannot('getAll', Category::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
             
         }
         
-        $categorias = Categoria::orderBy("nombre","asc")->paginate(10);
+        $categorias = Category::orderBy("name","asc")->paginate(10);
         return view('pages.admin.categorias.index')->with('categorias',$categorias);
     }
 
@@ -47,11 +47,11 @@ class CategoriaController extends Controller
 
         $user=Auth::user();    
        
-        if ($user->can('store', Categoria::class)){              
+        if ($user->can('store', Category::class)){              
             
             
-            $categoria = new Categoria();
-            $categoria->nombre = $request->nombre;            
+            $categoria = new Category();
+            $categoria->name = $request->nombre;            
 
             if($categoria->save()){            
                 return Redirect::back()
@@ -80,13 +80,13 @@ class CategoriaController extends Controller
         
         $user=Auth::user();
 
-        $categoria = Categoria::find($id);
+        $categoria = Category::find($id);
         
         if (!$categoria)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El área seleccionada no pudo ser encontrada."));
         
-        if ($user->cannot('update',Categoria::class))
+        if ($user->cannot('update',Category::class))
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
         
@@ -107,9 +107,9 @@ class CategoriaController extends Controller
     {
         $user=Auth::user();
         
-        if ($user->can('delete', Categoria::class)) 
+        if ($user->can('delete', Category::class)) 
         {   
-            $categoria = Categoria::find($id);
+            $categoria = Category::find($id);
             if($categoria==null)
             {
                 return Redirect::back()
@@ -118,7 +118,7 @@ class CategoriaController extends Controller
             }
 
 
-            if($categoria->cursos->count() > 0){
+            if($categoria->course->count() > 0){
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Esta categoria no puede ser eliminada, poseé cursos asignados."));
             }
            
