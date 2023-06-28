@@ -14,11 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('facilitators', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('person_id')->unsigned();
+            $table->id();
+            //$table->integer('person_id')->unsigned();
             $table->timestamps();
             
-            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignID('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

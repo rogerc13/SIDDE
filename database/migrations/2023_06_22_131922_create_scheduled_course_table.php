@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('scheduled_course', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('course_id')->references('id')->on('course');
-            $table->foreignId('facilitator_id')->references('id')->on('facilitator');
+            $table->foreignId('course_id')->references('id')->on('courses');
+            $table->foreignId('facilitator_id')->references('id')->on('facilitators');
             $table->date('start_time');
             $table->date('end_time');
         });

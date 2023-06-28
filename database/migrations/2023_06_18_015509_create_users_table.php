@@ -16,15 +16,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->integer('role_id')->unsigned();
-            $table->integer('person_id')->unsigned();
+            //$table->integer('role_id')->unsigned();
+            //$table->integer('person_id')->unsigned();
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();
 
 
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('role_id')->references('id')->on('role')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
 
 
         });

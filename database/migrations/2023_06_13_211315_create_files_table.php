@@ -13,19 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('apellido');
-            $table->string('ci');
-            $table->string('email')->unique();
-            $table->binary('imagen');
-            $table->integer('rol_id');
-            $table->string('password');
-            $table->rememberToken();
             $table->timestamps();
+            $table->string('path'); //file names should be courseCode_fileType.extention
+            $table->foreignId('course_id')->references('id')->on('courses'); //relationship
         });
-
     }
 
     /**
@@ -35,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('course_files');
     }
 };

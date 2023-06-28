@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->integer('min');
             $table->integer('max');
-            $table->foreignId('course_id')->references('id')->on('course');
+            $table->foreignId('course_id')->references('id')->on('courses');
         });
     }
 
