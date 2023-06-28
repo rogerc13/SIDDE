@@ -34,7 +34,7 @@
                     @endif
                     @foreach($categorias as $categoria)
                       <tr>
-                          <td>{{$categoria->nombre}}</td>
+                          <td>{{$categoria->name}}</td>
                           <td>
                         <!--<a  title="Más Información" href="javascript:detallesCategoria('{{url('u/areas/'.$categoria->id)}}')" class="btn btn-info btn-xs">
                                   <i class="entypo-search"></i>

@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Categoria;
+use App\Models\Category;
 
 class CategoriaForm extends FormRequest
 {
@@ -29,12 +29,12 @@ class CategoriaForm extends FormRequest
             
             case 'POST':
                 return [                        
-                        'nombre'=>'required|string|max:'.Categoria::MAX_LENGTH_NOMBRE,
+                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME,
                        ]; 
                 
             case 'PUT':
                 return [
-                        'nombre'=>'required|string|max:'.Categoria::MAX_LENGTH_NOMBRE,
+                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME,
                        
                        ];
             default:return[];

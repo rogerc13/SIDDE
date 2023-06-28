@@ -14,7 +14,7 @@
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                $('#nombre').val(data.nombre);              
+                $('#nombre').val(data.name);              
                 $(".loader").addClass("hidden");
                 $("#categoria-form").removeClass("hidden");
                 

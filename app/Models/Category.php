@@ -9,7 +9,7 @@ class Category extends Model
 {
   use SoftDeletes;
 
-      const MAX_LENGTH_NOMBRE = 60;
+      const MAX_LENGTH_NAME = 60;
 
   protected $table = 'categories';
   protected $fillable = [

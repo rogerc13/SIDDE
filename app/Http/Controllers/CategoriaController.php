@@ -92,7 +92,7 @@ class CategoriaController extends Controller
         
 
         
-        $categoria->nombre = $request->nombre;
+        $categoria->name = $request->nombre;
         
         if(!$categoria->save())
             return Redirect::back()
@@ -118,7 +118,7 @@ class CategoriaController extends Controller
             }
 
 
-            if($categoria->course->count() > 0){
+            if($categoria->courses->count() > 0){
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Esta categoria no puede ser eliminada, poseé cursos asignados."));
             }
            
