@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function($view){
 
             $view->with('logeado', Auth::user());
-            View::share('categoriasAcciones', (\App\Models\Categoria::categoriasCursos()));
+            View::share('categoriasAcciones', (\App\Models\Category::categoriasCursos()));
         });
 
 
