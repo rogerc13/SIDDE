@@ -592,11 +592,6 @@ class CursoController extends Controller
         //return Redirect::back()->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
     }//end onCourseSubmitAlert
 
-    public function test(Request $request,$id){
-        //return json_encode("update ");
-        return json_encode($request->codigo);
-    }
-
     private function updateFile($course, $file, $type){ 
         $filePaths = [];
         $fileType = [
