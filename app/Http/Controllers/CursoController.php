@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Models\Course;
 use App\Models\Category;
+use App\Models\Capacity;
+use App\Models\Content;
 use App\Models\Funciones;
 use App\Models\Modality;
 use App\Models\Scheduled;
@@ -281,19 +283,15 @@ class CursoController extends Controller
                     'objective'=> $request->objetivo,
                     'duration' => $request->duracion,
                     'addressed' => $request->dirigido,
-                    'max'=> $request->max,
-                    'min'=> $request->min,
-                    'created_at'   => date('Y-m-d H:i:s'),
-                    'updated_at'  => date('Y-m-d H:i:s')
                 );
                 
                 $contentList = explode(",",$request->content_data);  //turns string of content into an array
                 
                 foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
                 if(! empty($content)){
-                        $contentData[] = [ //array to be stored
+                        $contentData[] = new Content([ //array to be stored
                             'text' => $content
-                        ];
+                        ]);
                     }
                 }
         
@@ -317,10 +315,10 @@ class CursoController extends Controller
                     $response->file()->createMany($path); //inserts path into course_files
                 }
 
-                $capacity = [];
+                $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
 
-                $response->capacity->createMany();
-                $response->content()->createMany($contentData); //inserts intro course_contents table with course's id given relationship
+                $response->capacity()->save($capacity);
+                $response->content()->saveMany($contentData); //inserts intro course_contents table with course's id given relationship
                 
             }
 
@@ -363,7 +361,7 @@ class CursoController extends Controller
         //$curso->contenido = $request->contenido;
 
         //delete all contents of the course if they exist on the content list table
-        $curso->courseContent()->delete();
+        $curso->content()->delete();
 
         $contentList = explode(",", $request->content_data);  //turns string of content into an array
         foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
