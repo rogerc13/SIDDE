@@ -40,7 +40,7 @@ class CursoController extends Controller
     public function getAccionFormacion($id)
     {
         $user = Auth::user();
-        $curso = Course::find($id);
+        $curso = Course::with('capacity')->with('modality')->with('content')->with('category')->where('id',$id)->first();
         if($curso==null)
         {
             return Redirect::back()
@@ -48,7 +48,7 @@ class CursoController extends Controller
         }
         //return view('pages.public.ficha')->with('curso',$curso);
         return view('pages.public.ficha_tecnica')->with('curso',$curso);
-        //dd($curso);
+        //dd($curso->capacity[0]->min);
     }
 
     public function descargarDoc($id, $d)

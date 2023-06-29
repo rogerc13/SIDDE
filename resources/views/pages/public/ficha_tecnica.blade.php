@@ -29,18 +29,18 @@
         <tbody>
             <tr>
                 <th scope="row" class="no-border-top"><p class="ficha-course-code">Código:<p></th>
-                <td colspan="4" class="no-border-top"><p class="ficha-course-code">{{$curso->codigo}}</p></td>
+                <td colspan="4" class="no-border-top"><p class="ficha-course-code">{{$curso->code}}</p></td>
             </tr>
             <tr>
-                <th scope="row" colspan="5" class="no-border-top"><p class="ficha-course-title">{{$curso->titulo}}</p></th>
+                <th scope="row" colspan="5" class="no-border-top"><p class="ficha-course-title">{{$curso->title}}</p></th>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Área de conocimiento</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-categoria-name">{{$curso->categoria->nombre}}</p></td>
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-categoria-name">{{$curso->category->name}}</p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Sub-área de conocimiento</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-sub-area ficha-course-categoria-name">{{$curso->categoria->nombre}}</p></td>
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-sub-area ficha-course-categoria-name">{{$curso->category->name}}</p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Modalidad</p></td>
@@ -48,14 +48,14 @@
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Objetivo</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-objective">{{$curso->objetivo}}</p></td>
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-objective">{{$curso->objective}}</p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Contenido</p></td>
                 <td colspan="4" rowspan="1" class="ficha-course-content">
                     {{--needs style--}}
                     <ul>
-                        @foreach ($curso->courseContent as $content)
+                        @foreach ($curso->content as $content)
                             <li>
                                 <span class="list-content-span">{{$content->text}}</span>
                             </li>    
@@ -65,12 +65,12 @@
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Duración</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-duration">{{$curso->duracion}} @if($curso->duracion > 1)Horas @else Hora @endif
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-duration">{{$curso->duration}} @if($curso->duracion > 1)Horas @else Hora @endif
                 </p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Dirigido a</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-participant">{{$curso->dirigido}}</p></td>
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-participant">{{$curso->addressed}}</p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Acciones de formación previa</p></td>
@@ -84,13 +84,13 @@
                     <p class="ficha-course-capacity">Mínimo</p>
                 </td>
                 <td colspan="1" rowspan="1">
-                    <p class="ficha-course-capacity-content">{{$curso->min}}</p>
+                    <p class="ficha-course-capacity-content">{{$curso->capacity[0]->min}}</p>
                 </td>
                 <td colspan="1" rowspan="1">
                     <p class="ficha-course-capacity">Máximo</p>
                 </td>
                 <td colspan="1" rowspan="1">
-                    <p class="ficha-course-capacity-content">{{$curso->max}}</p>
+                    <p class="ficha-course-capacity-content">{{$curso->capacity[0]->max}}</p>
                 </td>
             </tr>
             
