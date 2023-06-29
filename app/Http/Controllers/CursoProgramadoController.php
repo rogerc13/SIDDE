@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\CPStatus;
-use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Models\CursoProgramado;
-use App\Models\Curso;
-use App\Models\Categoria;
+use App\Models\Scheduled;
+use App\Models\Course;
+use App\Models\Category;
 use App\Models\User;
 use App\Models\Funciones;
+
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoProgramadoForm;
 use Carbon\Carbon;
@@ -28,8 +27,8 @@ class CursoProgramadoController extends Controller
         // dd($user->misCursos[0]->curso);
 
         $user = Auth::user();
-        $cursop = CursoProgramado::find($id);
-        if(!$cursop || $user->cannot('get', CursoProgramado::class))
+        $cursop = Scheduled::find($id);
+        if(!$cursop || $user->cannot('get', Scheduled::class))
         {
             return json_encode([]);
         }
@@ -44,7 +43,7 @@ class CursoProgramadoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('getAll', CursoProgramado::class))
+        if($user->cannot('getAll', Scheduled::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
@@ -72,7 +71,7 @@ class CursoProgramadoController extends Controller
                     ->get();
 
 
-        $cursos = CursoProgramado::orderBy("fecha_i","desc")->with('curso')->with('facilitador')->with('cpStatus');
+        $cursos = Scheduled::orderBy("fecha_i","desc")->with('curso')->with('facilitador')->with('cpStatus');
         $estados = CPStatus::orderBy('nombre','asc')->get();
 
         if($titulos){
@@ -107,10 +106,10 @@ class CursoProgramadoController extends Controller
     {
         $user=Auth::user();
 
-        if ($user->can('store', CursoProgramado::class)){
+        if ($user->can('store', Scheduled::class)){
 
 
-            $cursoprogramado = new CursoProgramado();
+            $cursoprogramado = new Scheduled();
             $cursoprogramado->curso_id = $request->titulo;
             $cursoprogramado->user_id = $request->facilitador;
             $cursoprogramado->fecha_i = date("Y-m-d", strtotime($request->fecha_i));
@@ -149,14 +148,14 @@ class CursoProgramadoController extends Controller
         $user=Auth::user();
 
 
-        $cursoProg = CursoProgramado::find($id);
+        $cursoProg = Scheduled::find($id);
 
 
         if (!$cursoProg)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso seleccionado no existe."));
 
-        if ($user->cannot('update',CursoProgramado::class))
+        if ($user->cannot('update',Scheduled::class))
             return Redirect()::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
@@ -177,9 +176,9 @@ class CursoProgramadoController extends Controller
     {
         $user=Auth::user();
 
-        if ($user->can('delete', CursoProgramado::class))
+        if ($user->can('delete', Scheduled::class))
         {
-                $cursoProg = CursoProgramado::find($id);
+                $cursoProg = Scheduled::find($id);
                 if($cursoProg==null)
                {
                     return Redirect::back()
@@ -205,7 +204,7 @@ class CursoProgramadoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('misCursos', CursoProgramado::class))
+        if($user->cannot('misCursos', Scheduled::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
@@ -219,14 +218,14 @@ class CursoProgramadoController extends Controller
 
         $fecha = $date;
 
-        $lista = $categorias = Categoria::orderBy("nombre","asc");
+        $lista = $categorias = Category::orderBy("nombre","asc");
         $categorias = $lista->pluck('nombre','id');
 
         $facilitadores = User::where('rol_id','4')
                     ->orderBy("nombre","asc")
                     ->get();
 
-        $cursos = CursoProgramado::orderBy("id","asc");
+        $cursos = Scheduled::orderBy("id","asc");
 
         $cursos= $user->cursoFacilitador();
 
@@ -237,7 +236,7 @@ class CursoProgramadoController extends Controller
 
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('curso', function($q) use($titulos){
-                    $q->where('titulo', 'like', '%'.$titulos.'%');});
+                    $q->where('title', 'like', '%'.$titulos.'%');});
         }
         if($id_facilitador)
            $cursos=$cursos->where('curso_programado.user_id','=',$id_facilitador);
@@ -265,7 +264,7 @@ class CursoProgramadoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('userCursos', CursoProgramado::class))
+        if($user->cannot('userCursos', Scheduled::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
@@ -292,14 +291,14 @@ class CursoProgramadoController extends Controller
 
         $fecha = $date;
 
-        $lista = $categorias = Categoria::orderBy("nombre","asc");
-        $categorias = $lista->pluck('nombre','id');
+        $lista = $categorias = Category::orderBy("name","asc");
+        $categorias = $lista->pluck('name','id');
 
-        $facilitadores = User::where('rol_id','4')
-                    ->orderBy("nombre","asc")
+        $facilitadores = User::where('role_id','4')
+                    ->orderBy("name","asc")
                     ->get();
 
-        $cursos = CursoProgramado::orderBy("id","asc");
+        $cursos = Scheduled::orderBy("id","asc");
 
         $cursos= $usuario->cursoFacilitador();
 
@@ -310,7 +309,7 @@ class CursoProgramadoController extends Controller
 
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('curso', function($q) use($titulos){
-                    $q->where('titulo', 'like', '%'.$titulos.'%');});
+                    $q->where('title', 'like', '%'.$titulos.'%');});
         }
 
         if($id_facilitador)

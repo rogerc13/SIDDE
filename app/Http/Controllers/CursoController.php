@@ -555,7 +555,7 @@ class CursoController extends Controller
     public function codeCheck(Request $request){
         
         if(null != $request->codeValue){
-            $response = Course::where('codigo',$request->codeValue)->get();
+            $response = Course::where('code',$request->codeValue)->get();
             if(sizeof($response) > 0){
                 return json_encode(true);
             }
