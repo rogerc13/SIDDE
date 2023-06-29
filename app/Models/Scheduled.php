@@ -6,22 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
-class CursoProgramado extends Model
+class Scheduled extends Model
 {
   use SoftDeletes;
 
-  protected $table = 'curso_programado';
+  protected $table = 'scheduled_course';
   protected $fillable = [
-    'fecha_i', 'fecha_f' , 'curso_id', 'user_id', 'status_id',
+    'course_id', 'course_status_id' , 'facilitator_id', 'start_date', 'end_date',
   ];
   protected $dates = [ 'deleted_at', ];
 
-  public function curso()
+  public function course()
   {
-    return $this->belongsTo(Curso::class);
+    return $this->belongsTo(Course::class);
   }
 
-  public function facilitador()
+  public function facilitator()
   {
     return $this->belongsTo(User::class,'user_id','id');
   }

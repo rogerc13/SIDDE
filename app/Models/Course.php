@@ -29,9 +29,9 @@ public function category()
     return $this->belongsTo(Category::class);
 }
 
-public function cursoProgramado()
+public function scheduled()
 {
-  return $this->hasMany(CursoProgramado::class);
+  return $this->hasMany(Scheduled::class);
 }
     //
 

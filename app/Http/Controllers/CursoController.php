@@ -3,23 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
+
 use App\Models\Course;
 use App\Models\Category;
 use App\Models\Funciones;
-
 use App\Models\Modality;
-use App\Models\CourseContent;
-use Illuminate\Support\Facades\Redirect;
-use App\Http\Requests\CursoForm;
-use App\Models\CourseFile;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Scheduled;
 
+use App\Http\Requests\CursoForm;
+
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
-
-use Illuminate\Support\Facades\DB;
 use ZipArchive;
 
 class CursoController extends Controller
@@ -172,12 +169,12 @@ class CursoController extends Controller
 
         $user=Auth::user();
 
-        if ($user->can('store', Curso::class)){
+        if ($user->can('store', Course::class)){
 
 
-            $curso = new Curso();
+            $curso = new Course();
             $curso->codigo = rand(1000,9999);
-            $curso->titulo = $request->titulo;
+            $curso->titulo = $request->title;
             $curso->categoria_id = $request->categoria_id;
             $curso->modalidad_id = $request->modalidad_id;
             $curso->duracion = $request->duracion;
@@ -275,16 +272,15 @@ class CursoController extends Controller
     public function setCourse(CursoForm $request){
             //dd($request);
             $user = Auth::user();
-            if ($user->can('store', Curso::class)) {
+            if ($user->can('store', Course::class)) {
                 $data = array(
-                    'codigo' => $request->codigo,
-                    'titulo' => $request->titulo,
-                    'categoria_id' => $request->categoria_id,
+                    'code' => $request->codigo,
+                    'title' => $request->titulo,
+                    'category_id' => $request->categoria_id,
                     'modality_id' => $request->modalidad_id,
-                    'objetivo'=> $request->objetivo,
-                    'contenido'  => $request->contenido,
-                    'duracion' => $request->duracion,
-                    'dirigido' => $request->dirigido,
+                    'objective'=> $request->objetivo,
+                    'duration' => $request->duracion,
+                    'addressed' => $request->dirigido,
                     'max'=> $request->max,
                     'min'=> $request->min,
                     'created_at'   => date('Y-m-d H:i:s'),
@@ -316,11 +312,15 @@ class CursoController extends Controller
                 }
                 
                 
-                $response = Curso::create($data); //inserts into course table
+                $response = Course::create($data); //inserts into course table
                 if(isset($path)){
-                    $response->CourseFile()->createMany($path); //inserts path into course_files
+                    $response->file()->createMany($path); //inserts path into course_files
                 }
-                $response->CourseContent()->createMany($contentData); //inserts intro course_contents table with course's id given relationship
+
+                $capacity = [];
+
+                $response->capacity->createMany();
+                $response->content()->createMany($contentData); //inserts intro course_contents table with course's id given relationship
                 
             }
 
@@ -335,7 +335,7 @@ class CursoController extends Controller
     public function update(CursoForm $request, $id){
         $user=Auth::user();
         
-        $curso = Curso::find($id);
+        $curso = Course::find($id);
 
         if (!$curso){ //Course doesn't exists
             /* return Redirect::back()
@@ -343,7 +343,7 @@ class CursoController extends Controller
              */          
             return json_encode($response = false);
         }
-        if ($user->cannot('update', Curso::class)){ //User has no clearance
+        if ($user->cannot('update', Course::class)){ //User has no clearance
             return json_encode($response = false);
         }
 /*
@@ -351,16 +351,16 @@ class CursoController extends Controller
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
  */
-        $curso->codigo = $request->codigo;
-        $curso->titulo = $request->titulo;
-        $curso->categoria_id = $request->categoria_id;
+        $curso->code = $request->codigo;
+        $curso->title = $request->titulo;
+        $curso->category_id = $request->categoria_id;
         $curso->modality_id = $request->modalidad_id;
-        $curso->duracion = $request->duracion;
-        $curso->dirigido = $request->dirigido;
+        $curso->duration = $request->duracion;
+        $curso->addressed = $request->dirigido;
         $curso->min = $request->min;
         $curso->max = $request->max;
-        $curso->objetivo = $request->objetivo;
-        $curso->contenido = $request->contenido;
+        $curso->objective = $request->objetivo;
+        //$curso->contenido = $request->contenido;
 
         //delete all contents of the course if they exist on the content list table
         $curso->courseContent()->delete();
@@ -470,9 +470,9 @@ class CursoController extends Controller
     {
         $user=Auth::user();
 
-        if ($user->can('delete', Curso::class))
+        if ($user->can('delete', Course::class))
         {
-            $curso = Curso::find($id);
+            $curso = Course::find($id);
             if($curso==null)
             {
                 return Redirect::back()
@@ -481,7 +481,7 @@ class CursoController extends Controller
             }
 
 
-            if($curso->cursoProgramado->count() > 0){
+            if($curso->scheduled->count() > 0){
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Esta acción de formación no puede ser eliminada, forma parte de cursos programados."));
             }
 

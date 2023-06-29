@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('facilitator_id')->references('id')->on('facilitators');
             $table->date('start_time');
             $table->date('end_time');
+            $table->softDeletes();
         });
     }
 
