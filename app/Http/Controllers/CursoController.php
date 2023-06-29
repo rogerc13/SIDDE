@@ -569,8 +569,9 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Course::with('File')->where('id', $id)
-        ->with('Capacity')->where('id',$id)
+        $curso = Course::with('File')
+        ->with('Capacity')
+        ->with('Content')->where('id',$id)
         ->get();
         
         if(!$curso || $user->cannot('get', Course::class))

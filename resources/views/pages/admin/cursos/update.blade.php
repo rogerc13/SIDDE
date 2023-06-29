@@ -21,11 +21,11 @@
                 $('#titulo').val(data[0].titulo);
                 $('#categoria_id').val(data[0].categoria_id).trigger("change");
                 $('#modalidad_id').val(data[0].modality_id).trigger("change");
-                $('#duracion').val(data[0].duracion);
-                $('#dirigido').val(data[0].dirigido);
-                $('#min').val(data[0].min);
-                $('#max').val(data[0].max);
-                $('#objetivo').val(data[0].objetivo);
+                $('#duracion').val(data[0].duration);
+                $('#dirigido').val(data[0].addressed);
+                $('#min').val(data[0].capacity[0].min);
+                $('#max').val(data[0].capacity[0].max);
+                $('#objetivo').val(data[0].objective);
                 // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
                 $('#contenido').val(data[0].contenido);
                

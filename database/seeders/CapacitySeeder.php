@@ -20,5 +20,10 @@ class CapacitySeeder extends Seeder
             'max' => 30,
             'course_id' => 1,
         ]);
+        Capacity::create([
+            'min' => 16,
+            'max' => 30,
+            'course_id' => 2,
+        ]);
     }
 }

@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ModalitySeeder::class);
         $this->call(CourseSeeder::class);
         $this->call(CapacitySeeder::class);
+        $this->call(ContentSeeder::class);
     }
 }

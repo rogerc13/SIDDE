@@ -13,7 +13,7 @@ class Content extends Model
     protected $fillable = ['text','course_id'];
 
 
-    public function curso(){
-        $this->belongsTo(Curso::class);
+    public function course(){
+        $this->belongsTo(Course::class);
     }
 }

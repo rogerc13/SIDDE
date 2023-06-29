@@ -15,4 +15,8 @@ class File extends Model
     public function type(){
         return $this->belongsTo(Type::class);
     }
+
+    public function course(){
+        return $this->belongsTo(Course::class);
+    }
 }
