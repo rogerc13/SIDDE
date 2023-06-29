@@ -27,13 +27,14 @@ class CursoController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        $curso = Course::find($id);
+        //$curso = Course::find($id);
+        $curso = Course::with('Content')->with('File')->with('Capacity')->where('id',$id)->get();
         if(!$curso || $user->cannot('get', Course::class))
         {
             return json_encode([]);
         }
        
-        return json_encode([$curso,$curso->content, $curso->file]);
+        return json_encode($curso);
     }
 
     public function getAccionFormacion($id)
