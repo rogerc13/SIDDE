@@ -48,10 +48,10 @@
                     if(data[0].file.length > 0){
                         //console.log(data[0].file.length);
                         $('.read-only-docs').show();    
-                        $('.facilitator_manual').val(data[0].file[0].file_path);
-                        $('.participant_manual').val(data[0].file[1].file_path);
-                        $('.guide').val(data[0].file[2].file_path);
-                        $('.presentation').val(data[0].file[3].file_path);
+                        $('.facilitator_manual').val(data[0].file[0].path);
+                        $('.participant_manual').val(data[0].file[1].path);
+                        $('.course_guide').val(data[0].file[2].path);
+                        $('.course_presentation').val(data[0].file[3].path);
                     }else{
                         $('.read-only-docs').hide();    
                     }

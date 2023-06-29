@@ -65,14 +65,27 @@
                     });
                 });
 
-                //console.log(data[2][1].file_path)
+                //console.log(data[0].file.length);
 
-                if(data[0].length > 0){
+                if(data[0].file.length > 0){
                     $('.fileinput').addClass('fileinput-exists').removeClass('fileinput-new');
-                    $('#l_manual_f').text(data[2][0].file_path);
-                    $('#l_manual_p').text(data[2][1].file_path);
-                    $('#l_guia').text(data[2][2].file_path);
-                    $('#l_presentacion').text(data[2][3].file_path);
+                    f = 0;
+                    data[0].file.forEach(element => {
+                        if(element.type_id == 1){
+                            $('#l_manual_f').text(element.path);
+                        }
+                        if(element.type_id == 2){
+                            $('#l_manual_p').text(element.path);
+                        }
+                        if(element.type_id == 3){
+                            $('#l_guia').text(element.path);
+                        }
+                        if(element.type_id == 4){
+                            $('#l_presentacion').text(element.path);
+                        }
+                        
+                        f++;
+                    });
                 }else{
                     $('.fileinput').addClass('fileinput-new').removeClass('fileinput-exists');
                 }

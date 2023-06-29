@@ -342,6 +342,7 @@ class CursoController extends Controller
     }
 
     public function update(CursoForm $request, $id){
+        $response = array();
         $user=Auth::user();
         
         $curso = Course::find($id);
@@ -366,8 +367,6 @@ class CursoController extends Controller
         $curso->modality_id = $request->modalidad_id;
         $curso->duration = $request->duracion;
         $curso->addressed = $request->dirigido;
-        $curso->min = $request->min;
-        $curso->max = $request->max;
         $curso->objective = $request->objetivo;
         //$curso->contenido = $request->contenido;
 
@@ -377,18 +376,18 @@ class CursoController extends Controller
         $contentList = explode(",", $request->content_data);  //turns string of content into an array
         foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
             if (!empty($content)) {
-                $contentData[] = [ //array to be stored
+                $contentData[] = new Content([ //array to be stored
                     'text' => $content
-                ];
+                ]);
             }
         }
-        $fileCollection = collect($curso->courseFile);
+        $fileCollection = collect($curso->file);
     
         $path = [];
            foreach ($fileCollection as $file) {
                 if(($file->type_id == 1) && ($request->file('manual_f'))){
                     $file->delete();
-                    $result[] = Storage::delete($file->file_path);
+                    $result[] = Storage::delete($file->path);
                     $path[0]  = ['file_path' => $request->
                             file('manual_f')->
                             storeAs($request->
@@ -399,7 +398,7 @@ class CursoController extends Controller
                 }
                 if(($file->type_id == 2) && ($request->file('manual_p'))){
                     $file->delete();
-                    $result[] = Storage::delete($file->file_path);
+                    $result[] = Storage::delete($file->path);
                     $path[1] = ['file_path' => $request->
                             file('manual_p')->
                             storeAs($request->
@@ -409,7 +408,7 @@ class CursoController extends Controller
                 }
                 if(($file->type_id == 3) && ($request->file('guia'))){
                     $file->delete();
-                    $result[] = Storage::delete($file->file_path);
+                    $result[] = Storage::delete($file->path);
                     $path[2] = ['file_path' => $request->
                             file('guia')->
                             storeAs($request->
@@ -419,7 +418,7 @@ class CursoController extends Controller
                 }
                 if(($file->type_id == 4) && ($request->file('presentacion'))){
                     $file->delete();
-                    $result[] = Storage::delete($file->file_path);
+                    $result[] = Storage::delete($file->path);
                     $path[3] = ['file_path' => $request->
                                 file('presentacion')->
                                 storeAs($request->
@@ -432,34 +431,45 @@ class CursoController extends Controller
         }
 
         if (null != ($request->file('manual_f'))) {
-            $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')->getClientOriginalExtension()), 'type_id' => 1];
+            $path[0]  = new File(['path' => $request->file('manual_f')
+            ->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')
+            ->getClientOriginalExtension()), 'type_id' => 1]);
         }
         if (
             null != ($request->file('manual_p'))) {
-            $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')->getClientOriginalExtension()), 'type_id' => 2];
+            $path[1] = new File(['path' => $request->file('manual_p')
+            ->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')
+            ->getClientOriginalExtension()), 'type_id' => 2]);
         }
         if (
             null != ($request->file('guia'))) {
-            $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')->getClientOriginalExtension()), 'type_id' => 3];
+            $path[2] = new File(['path' => $request->file('guia')
+            ->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')
+            ->getClientOriginalExtension()), 'type_id' => 3]);
         }
         if (
             null != ($request->file('presentacion'))) {
-            $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')->getClientOriginalExtension()), 'type_id' => 4];
+            $path[3] = new File(['path' => $request->file('presentacion')
+            ->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')
+            ->getClientOriginalExtension()), 'type_id' => 4]);
         }
         
         $response[] = $curso->save();
         if(count($contentData) > 0){
-            $response[] = $curso->courseContent()->createMany($contentData);
+            $response[] = $curso->content()->saveMany($contentData);
+            
         }
         
-        $response[] = $curso->courseFile()->createMany($path);
+        $response[] = $curso->file()->saveMany($path);
         if(isset($result)){
             $response[] = $result;
         }
-        $response[] = $path;
+        $response = $curso->capacity()->update(['min' => $request->min , 'max' => $request->max]);
+
+        //$response[] = $path;
 
         return json_encode($success = true);
-
+        
  
         //if update errors out return session flash alert
             
