@@ -530,7 +530,7 @@ class CursoController extends Controller
 
     public function downloadAllFiles($id){
         
-        $courseFiles = CourseFile::where('curso_id',$id)->get();
+        $courseFiles = File::where('course_id',$id)->get();
         
         $files = [];
         foreach($courseFiles as $count => $courseFile){
@@ -539,7 +539,7 @@ class CursoController extends Controller
         $zip = new ZipArchive;
 
         //saves file to public/uploads/zip/course_code
-        $zipFile = base_path()."/public/uploads/zip/".Curso::find($id)->codigo.".zip"; //change to pc's download folder?
+        $zipFile = base_path()."/public/uploads/zip/".Course::find($id)->codigo.".zip"; //change to pc's download folder?
 
         if($zip->open($zipFile,ZipArchive::CREATE) == TRUE){ //opens file stream, creates zip file
             foreach ($files as $key => $value) {
@@ -554,7 +554,7 @@ class CursoController extends Controller
     public function codeCheck(Request $request){
         
         if(null != $request->codeValue){
-            $response = Curso::where('codigo',$request->codeValue)->get();
+            $response = Course::where('codigo',$request->codeValue)->get();
             if(sizeof($response) > 0){
                 return json_encode(true);
             }
@@ -569,7 +569,9 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Course::with('File')->where('id', $id)->get();
+        $curso = Course::with('File')->where('id', $id)
+        ->with('Capacity')->where('id',$id)
+        ->get();
         
         if(!$curso || $user->cannot('get', Course::class))
         {
