@@ -11,13 +11,14 @@ use App\Models\Content;
 use App\Models\Funciones;
 use App\Models\Modality;
 use App\Models\Scheduled;
+use App\Models\File;
 
 use App\Http\Requests\CursoForm;
 
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
+use \Illuminate\Support\Facades\File as IlluminateFile;
 
 use ZipArchive;
 
@@ -55,13 +56,13 @@ class CursoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('descargarDoc', Curso::class))
+        if($user->cannot('descargarDoc', Course::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
-        $curso = Curso::find($id);
+        $curso = Course::find($id);
 
         if($curso==null)
         {
@@ -297,24 +298,34 @@ class CursoController extends Controller
         
                 $path = [];
                 if(null != ($request->file('manual_f'))){
-                    $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo,"Manual del Facilitador ".$request->titulo.".".$request->file('manual_f')->getClientOriginalExtension())];
+                    $path[0]  = new File(['path' => $request->file('manual_f')
+                    ->storeAs($request->codigo,"Manual del Facilitador ".$request->titulo.".".$request->file('manual_f')
+                    ->getClientOriginalExtension()) ,
+                    'type_id' => 1]);
                 }
+            
                 if(null != ($request->file('manual_p'))){
-                    $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo,"Manual del Participante ".$request-> titulo . "." . $request->file('manual_p')->getClientOriginalExtension())];
+                    $path[1] = new File(['path' => $request->file('manual_p')
+                    ->storeAs($request->codigo,"Manual del Participante ".$request-> titulo . "." . $request->file('manual_p')
+                    ->getClientOriginalExtension()) ,'type_id' => 2]);
                 }
                 if(null != ($request->file('guia'))){
-                    $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso ".$request-> titulo . "." . $request->file('guia')->getClientOriginalExtension())];
+                    $path[2] = new File(['path' => $request->file('guia')
+                    ->storeAs($request->codigo, "Guia del Curso ".$request-> titulo . "." . $request->file('guia')
+                    ->getClientOriginalExtension()) , 'type_id' => 3]);
                 }
                 if(null != ($request->file('presentacion'))){
-                    $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo,"Presentacion ".$request-> titulo . "." . $request->file('presentacion')->getClientOriginalExtension())];
+                    $path[3] = new File(['path' => $request->file('presentacion')
+                    ->storeAs($request->codigo,"Presentacion ".$request-> titulo . "." . $request->file('presentacion')
+                    ->getClientOriginalExtension()) , 'type_id' => 4]);
                 }
-                
-                
+                      
                 $response = Course::create($data); //inserts into course table
+                
                 if(isset($path)){
-                    $response->file()->createMany($path); //inserts path into course_files
+                     $response->file()->saveMany($path); //inserts path into course_files      
                 }
-
+                
                 $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
 
                 $response->capacity()->save($capacity);
@@ -322,7 +333,7 @@ class CursoController extends Controller
                 
             }
 
-           return json_encode($path);
+           return json_encode($response);
     }//end setCourse()
 
     public function count(){
