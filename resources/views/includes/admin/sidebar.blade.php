@@ -93,7 +93,7 @@
                                     @foreach($categoriasAcciones as $categ)
                                         <optgroup label="{{$categ->name}}">
                                         @foreach($categ->courses as $af)
-                                            <option value="{{url("acciones_formacion/$af->id")}}">{{$af->titulo}}</option>
+                                            <option value="{{url("acciones_formacion/$af->id")}}">{{$af->title}}</option>
                                         @endforeach
                                         </optgroup>
                                     @endforeach --}}
