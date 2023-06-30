@@ -18,7 +18,6 @@
 
 
 @endpush
-
 	<h3>Acciones de Formación Programadas</h3>
 	@can('store','App\Scheduled')
 		<a href="javascript:programarAccion('{{url('u/af_programadas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
@@ -44,9 +43,9 @@
 						@foreach($facilitadores as $facilitador)
 
                             @if($id_facilitador == $facilitador->id)
-                                <option value="{{$facilitador->id}}" selected>{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+                                <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
                             @else
-                                <option value="{{$facilitador->id}}">{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+                                <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
                             @endif
                         @endforeach
 		            </select>
@@ -117,7 +116,7 @@
 			            <tr>
 
 								<td>{{$cursop->curso->titulo}}</td>
-								<td>{{$cursop->facilitador->nombre}} {{$cursop->facilitador->apellido}}</td>
+								<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@if($cursop->fecha_i)
 									<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
 								@else
