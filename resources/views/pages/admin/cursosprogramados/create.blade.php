@@ -54,10 +54,12 @@
 {{--                            <select name="titulo" class="select2 " id="titulo" data-allow-clear="true" required>--}}
                             <select name="titulo" id="titulo" data-allow-clear="true" required>
                                 <option></option>
-
-                                @foreach($categoriasAcciones as $categ)
-                                    <optgroup label="{{$categ->nombre}}">
-                                            @foreach($categ->cursos as $af)
+                                @php
+                                    echo $categoriasAcciones;
+                                @endphp
+                                {{-- @foreach($categoriasAcciones as $categ)
+                                    <optgroup label="{{$categ->name}}">
+                                            @foreach($categ->course as $af)
 
                                                 @if(old('titulo') == $af->id)
                                                     <option value="{{$af->id}}" selected>{{$af->titulo}}</option>
@@ -67,7 +69,7 @@
 
                                             @endforeach
                                     </optgroup>
-                                @endforeach
+                                @endforeach --}}
                             </select>
                         </div>
 

@@ -20,7 +20,7 @@
 @endpush
 
 	<h3>Acciones de Formación Programadas</h3>
-	@can('store','App\CursoProgramado')
+	@can('store','App\Scheduled')
 		<a href="javascript:programarAccion('{{url('u/af_programadas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
 		<br>
 		<br>
@@ -60,9 +60,9 @@
 						@foreach($estados as $estado)
 
                             @if($id_estado == $estado->id)
-                                <option value="{{$estado->id}}" selected>{{$estado->nombre}}</option>
+                                <option value="{{$estado->id}}" selected>{{$estado->name}}</option>
                             @else
-                                <option value="{{$estado->id}}">{{$estado->nombre}}</option>
+                                <option value="{{$estado->id}}">{{$estado->name}}</option>
                             @endif
                         @endforeach
 		            </select>
@@ -157,7 +157,7 @@
 {{--										</span>--}}
 {{--									@endif--}}
                                     <span class="badge badge-{{$cursop->badgeStatus()}}">
-                                        {{$cursop->cpStatus->nombre}}
+                                        {{$cursop->status->name}}
                                     </span>
 								</td>
 								<td>

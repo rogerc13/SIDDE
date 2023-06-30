@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CPStatus extends Model
+class CourseStatus extends Model
 {
     const POR_DICTAR = 1;
     const EN_CURSO = 2;
@@ -19,15 +19,15 @@ class CPStatus extends Model
         self::CANCELADO => 'Cancelado',
     ];
 
-    protected $table = 'cp_status';
+    protected $table = 'course_status';
     protected $fillable = [
-        'nombre',
+        'name',
     ];
     protected $dates = [ ];
 
-    public function cursoProgramado()
+    public function scheduled()
     {
-        return $this->hasMany(CursoProgramado::class);
+        return $this->hasMany(Scheduled::class);
     }
 
 

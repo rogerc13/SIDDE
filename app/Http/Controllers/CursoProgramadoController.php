@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CPStatus;
+use App\Models\CourseStatus;
 use App\Models\Scheduled;
 use App\Models\Course;
 use App\Models\Category;
@@ -18,13 +18,6 @@ class CursoProgramadoController extends Controller
 {
     public function get($id)
     {
-        // $user = Auth::user();
-
-        // $curso = Curso::first();
-        // $cat = Curso::categoriasCursos();
-        // dd($cat[0]->cursos->count());
-        // $user = User::find('3');
-        // dd($user->misCursos[0]->curso);
 
         $user = Auth::user();
         $cursop = Scheduled::find($id);
@@ -39,7 +32,6 @@ class CursoProgramadoController extends Controller
 
     public function getAll()
     {
-
 
         $user = Auth::user();
 
@@ -57,32 +49,25 @@ class CursoProgramadoController extends Controller
 
         $fecha = $date;
 
-
-       // $lista = $categorias = Categoria::orderBy("nombre","asc");
-       // $categorias = $lista->pluck('nombre','id');
-
-
-        $facilitadores = User::where('rol_id','4')
-                    ->orderBy("nombre","asc")
+        $facilitadores = User::where('role_id','4')
                     ->get();
 
-        $participantes = User::where('rol_id','5')
-                    ->orderBy("nombre","asc")
+        $participantes = User::where('role_id','5')
                     ->get();
 
 
-        $cursos = Scheduled::orderBy("fecha_i","desc")->with('curso')->with('facilitador')->with('cpStatus');
-        $estados = CPStatus::orderBy('nombre','asc')->get();
+        $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('course_status');
+        $estados = CourseStatus::orderBy('name','asc')->get();
 
         if($titulos){
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('curso', function($q) use($titulos){
-                    $q->where('titulo', 'like', '%'.$titulos.'%');});
+                    $q->where('title', 'like', '%'.$titulos.'%');});
         }
         if($id_facilitador)
-           $cursos=$cursos->where('user_id','=',$id_facilitador);
+           $cursos=$cursos->where('facilitator_id','=',$id_facilitador);
         if($id_estado){
-            $cursos= $cursos->where('status_id',$id_estado);
+            $cursos= $cursos->where('course_status_id',$id_estado);
         }
         if($date){
             $fecha= new Carbon('01-'.$date);
@@ -218,8 +203,8 @@ class CursoProgramadoController extends Controller
 
         $fecha = $date;
 
-        $lista = $categorias = Category::orderBy("nombre","asc");
-        $categorias = $lista->pluck('nombre','id');
+        $lista = $categorias = Category::orderBy("name","asc");
+        $categorias = $lista->pluck('name','id');
 
         $facilitadores = User::where('rol_id','4')
                     ->orderBy("nombre","asc")

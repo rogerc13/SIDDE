@@ -36,20 +36,20 @@ class Scheduled extends Model
     return $this->belongsToMany(User::class,'participante_curso','curso_programado_id','user_id')->withPivot('id');
   }
 
-  public function cpStatus(){
-      return $this->belongsTo(CPStatus::class,'status_id','id');
+  public function courseStatus(){
+      return $this->belongsTo(CourseStatus::class,'course_status_id','id');
   }
   public function isPorDictar(){
-        return $this->status_id==CPStatus::POR_DICTAR;
+        return $this->course_status_id==CourseStatus::POR_DICTAR;
   }
   public function isEnCurso(){
-        return $this->status_id==CPStatus::EN_CURSO;
+        return $this->course_status_id==CourseStatus::EN_CURSO;
   }
   public function isCulminado(){
-    return $this->status_id==CPStatus::CULMINADO;
+    return $this->course_status_id==CourseStatus::CULMINADO;
   }
   public function isCancelado(){
-      return $this->status_id==CPStatus::CANCELADO;
+      return $this->course_status_id==CourseStatus::CANCELADO;
   }
 
   public function badgeStatus(){
