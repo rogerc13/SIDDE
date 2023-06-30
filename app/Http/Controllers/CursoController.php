@@ -491,7 +491,7 @@ class CursoController extends Controller
 
         if ($user->can('delete', Course::class))
         {
-            $curso = Course::find($id);
+            $curso = Course::findOrFail($id);
             if($curso==null)
             {
                 return Redirect::back()

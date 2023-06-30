@@ -144,7 +144,7 @@
 					</a>
 				</li>
 			@endcan
-			@can('getAll','App\CursoProgramado')
+			@can('getAll','App\Scheduled')
 				<li class="@if(Request::is('u/af_programadas') || Request::is('u/af_programadas/*')) active @endif" title="Acciones de Formación Programadas">
 					<a href="{{url("u/af_programadas")}}">
 						<i class="entypo-calendar"></i>
@@ -177,7 +177,7 @@
 				</li>
 			@endcan
 
-			@can('misCursos','App\CursoProgramado')
+			@can('misCursos','App\Scheduled')
 				<li class="{{ Request::is('u/mis_acciones') ? 'active' : '' }} " title="Mis acciones de formación">
 					<a href="{{url("u/mis_acciones")}}">
 						<i class="entypo-list"></i>
