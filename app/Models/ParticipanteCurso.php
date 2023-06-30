@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ParticipanteCurso extends Model
+class Participant extends Model
 {
   use SoftDeletes;
 
@@ -20,20 +20,20 @@ class ParticipanteCurso extends Model
       self::APROBADO => "Aprobado",
   ];
 
-  protected $table = 'participante_curso';
+  protected $table = 'participants';
   protected $fillable = [
-    'estado', 'user_id', 'curso_programado_id',
+    'person_id', 'status_id', 'scheduled_id',
   ];
   protected $dates = [ 'deleted_at', ];
 
-  public function participante()
+  public function participant()
   {
-    return $this->belongsTo(User::class,'user_id','id');
+    return $this->belongsTo(Person::class);
   }
 
-  public function cursoProgramado()
+  public function scheduled()
   {
-    return $this->belongsTo(CursoProgramado::class);
+    return $this->belongsTo(Scheduled::class);
   }
 
   public function curso()
