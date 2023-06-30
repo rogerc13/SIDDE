@@ -114,28 +114,29 @@
 				      @endif
 			         @foreach($cursos as $cursop)
 			            <tr>
-
-								<td>{{$cursop->curso->titulo}}</td>
+							
+								<td>{{$cursop->course->title}}</td>
 								<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
-								@if($cursop->fecha_i)
-									<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
+								@if($cursop->start_date)
+									<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
 								@else
 									<td title="Sin fecha"><span class="badge badge-danger">S.F</span></td>
 								@endif
 
-								@if($cursop->fecha_i)
-									<td>{{date("d-m-Y", strtotime($cursop->fecha_f))}}</td>
+								@if($cursop->start_date)
+									<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
 								@else
 									<td title="Sin fecha"><span class="badge badge-danger">S.F</span></td>
 								@endif
 
 								<td>
 									<span class="badge badge-success">
-										{{count($cursop->participantesCurso)}}
+										{{count($cursop->participants)}}
 									</span>
-									<!--	{{count($cursop->participantesCurso)}}/{{$cursop->curso->max}}
+
+									{{-- <!--	{{count($cursop->participants)}}/{{$cursop->course->capacity->max}}
 									</span>
-									-->
+									--> --}}
 								</td>
 								<td>
 {{--									@if ($cursop->isPorDictar())--}}
@@ -156,7 +157,7 @@
 {{--										</span>--}}
 {{--									@endif--}}
                                     <span class="badge badge-{{$cursop->badgeStatus()}}">
-                                        {{$cursop->status->name}}
+                                        {{$cursop->courseStatus->name}}
                                     </span>
 								</td>
 								<td>

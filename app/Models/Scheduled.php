@@ -23,12 +23,17 @@ class Scheduled extends Model
 
   public function facilitator()
   {
-    return $this->belongsTo(User::class,'user_id','id');
+    return $this->belongsTo(Facilitator::class);
   }
 
-  public function participantesCurso() //directo a la tabla pivote
+  public function courseStatus()
   {
-    return $this->hasMany(ParticipanteCurso::class);
+    return $this->belongsTo(CourseStatus::class);
+  }
+
+  public function participants() //directo a la tabla pivote
+  {
+    return $this->hasMany(Participant::class);
   }
     //
 
@@ -36,9 +41,7 @@ class Scheduled extends Model
     return $this->belongsToMany(User::class,'participante_curso','curso_programado_id','user_id')->withPivot('id');
   }
 
-  public function courseStatus(){
-      return $this->belongsTo(CourseStatus::class,'course_status_id','id');
-  }
+  
   public function isPorDictar(){
         return $this->course_status_id==CourseStatus::POR_DICTAR;
   }

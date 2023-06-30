@@ -15,4 +15,8 @@ class Facilitator extends Model
     public function scheduled(){
         return $this->hasMany(Scheduled::class);
     }
+
+    public function person(){
+        return $this->belongsTo(Person::class);
+    }
 }

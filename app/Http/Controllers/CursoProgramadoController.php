@@ -56,13 +56,15 @@ class CursoProgramadoController extends Controller
                     ->get();
 
 
-        $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('course_status');
+        $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
         $estados = CourseStatus::orderBy('name','asc')->get();
+        //dd($cursos->paginate(10));
 
         if($titulos){
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
-           $cursos=$cursos->whereHas('curso', function($q) use($titulos){
+           $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
+            
         }
         if($id_facilitador)
            $cursos=$cursos->where('facilitator_id','=',$id_facilitador);
@@ -71,12 +73,12 @@ class CursoProgramadoController extends Controller
         }
         if($date){
             $fecha= new Carbon('01-'.$date);
-           $cursos = $cursos->whereMonth('fecha_i',$fecha->month)
-                            ->whereYear('fecha_i',$fecha->year);
+           $cursos = $cursos->whereMonth('start_date',$fecha->month)
+                            ->whereYear('end_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
         }
 
-
+        
         return view('pages.admin.cursosprogramados.index')
                 ->with('cursos',$cursos->paginate(10))
               //  ->with('categorias',$categorias)
@@ -89,22 +91,24 @@ class CursoProgramadoController extends Controller
 
     public function store(CursoProgramadoForm $request)
     {
+        //dd($request);
         $user=Auth::user();
 
         if ($user->can('store', Scheduled::class)){
 
-
             $cursoprogramado = new Scheduled();
-            $cursoprogramado->curso_id = $request->titulo;
-            $cursoprogramado->user_id = $request->facilitador;
-            $cursoprogramado->fecha_i = date("Y-m-d", strtotime($request->fecha_i));
-            $cursoprogramado->fecha_f = date("Y-m-d", strtotime($request->fecha_f));
 
-            if (today()<$cursoprogramado->fecha_i)
-                $cursoprogramado->status_id=CPStatus::POR_DICTAR;
-            else if (today()<=$cursoprogramado->fecha_f)
-                $cursoprogramado->status_id=CPStatus::EN_CURSO;
+            $cursoprogramado->course_id = $request->titulo;
+            $cursoprogramado->facilitator_id = $request->facilitador;
+            $cursoprogramado->start_date = date("Y-m-d", strtotime($request->fecha_i));
+            $cursoprogramado->end_date = date("Y-m-d", strtotime($request->fecha_f));
 
+            if (today() < $cursoprogramado->start_date)
+                $cursoprogramado->course_status_id=CourseStatus::POR_DICTAR;
+            else if (today() <= $cursoprogramado->end_date)
+                $cursoprogramado->course_status_id=CourseStatus::EN_CURSO;
+            //dd($cursoprogramado);
+            
             if($cursoprogramado->save()){
                 return Redirect::back()
                         ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));

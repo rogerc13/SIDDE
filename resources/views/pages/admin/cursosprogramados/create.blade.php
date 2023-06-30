@@ -84,9 +84,9 @@
                                 @foreach($facilitadores as $facilitador)
 
                                     @if(old('facilitador') == $facilitador->id)
-                                        <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+                                        <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
                                     @else
-                                        <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+                                        <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
                                     @endif
                                 @endforeach
                             </select>

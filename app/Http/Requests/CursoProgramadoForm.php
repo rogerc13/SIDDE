@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\CursoProgramado;
+use App\Models\Scheduled;
 
 class CursoProgramadoForm extends FormRequest
 {
@@ -30,7 +30,7 @@ class CursoProgramadoForm extends FormRequest
             case 'POST':
                 return [
                         'facilitador' => 'required|integer|exists:users,id',
-                        'titulo' => 'required|integer|exists:curso,id',
+                        'titulo' => 'required|integer|exists:courses,id',
                         'fecha_i' => 'required|date|after_or_equal: today',
                         'fecha_f' => 'required|date|after:fecha_i',
 

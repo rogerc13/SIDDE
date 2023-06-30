@@ -18,8 +18,9 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('course_id')->references('id')->on('courses');
             $table->foreignId('facilitator_id')->references('id')->on('facilitators');
-            $table->date('start_time');
-            $table->date('end_time');
+            $table->foreignId('course_status_id')->references('id')->on('course_status');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->softDeletes();
         });
     }
