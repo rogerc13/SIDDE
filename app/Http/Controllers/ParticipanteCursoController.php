@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Models\CursoProgramado;
-use App\Models\Curso;
+
+use App\Models\Scheduled;
+use App\Models\Course;
 use App\Models\User;
-use App\Models\ParticipanteCurso;
+use App\Models\Participant;
 use App\Models\Funciones;
+
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +20,8 @@ class ParticipanteCursoController extends Controller
     {
 
         $user = Auth::user();
-        $participantecurso = ParticipanteCurso::find($participanteId);
-        if(!$participantecurso || $user->cannot('get', ParticipanteCurso::class))
+        $participantecurso = Participant::find($participanteId);
+        if(!$participantecurso || $user->cannot('get', Participant::class))
         {
             //$data = $participanteId;
             //$data = "not found";
@@ -35,7 +36,7 @@ class ParticipanteCursoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('getAll',ParticipanteCurso::class))
+        if($user->cannot('getAll',Participant::class))
         {
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
@@ -52,20 +53,20 @@ class ParticipanteCursoController extends Controller
 
         $user = Auth::user();
 
-        if($user->cannot('getAllPorCurso',ParticipanteCurso::class))
+        if($user->cannot('getAllPorCurso',Participant::class))
         {
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
 
         }
 
-        $cursoprogramado = CursoProgramado::find($id);
+        $cursoprogramado = Scheduled::find($id);
 
         if (!$cursoprogramado)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
 
-        $participantes = ParticipanteCurso::with('participante')->where('curso_programado_id',$id);
+        $participantes = Participant::with('participante')->where('curso_programado_id',$id);
         $pts = $participantes->pluck('user_id');        
 
 
@@ -80,7 +81,7 @@ class ParticipanteCursoController extends Controller
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
                 ->with('participantes2',$participantes2)
-                ->with('estados', ParticipanteCurso::$estados);
+                ->with('estados', Participant::$estados);
 
     }
     
@@ -89,14 +90,14 @@ class ParticipanteCursoController extends Controller
 
       
         $user = Auth::user();
-        if($user->cannot('store',ParticipanteCurso::class))
+        if($user->cannot('store',Participant::class))
         {
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
 
-        $cursoprogramado = CursoProgramado::find($id);
+        $cursoprogramado = Scheduled::find($id);
         if (!$cursoprogramado)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
@@ -117,7 +118,7 @@ class ParticipanteCursoController extends Controller
         }
 
 
-        $participantecurso = new ParticipanteCurso();
+        $participantecurso = new Participant();
         $participantecurso->estado=1;
         $participantecurso->curso_programado_id=$id;
         $participantecurso->user_id=$usuario->id;
@@ -145,13 +146,13 @@ class ParticipanteCursoController extends Controller
 
 
         $user = Auth::user();
-        if($user->cannot('store',ParticipanteCurso::class))
+        if($user->cannot('store',Participant::class))
         {
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
-        $validacion= ParticipanteCurso::where('curso_programado_id',$request->curso_p_id)
+        $validacion= Participant::where('curso_programado_id',$request->curso_p_id)
                                         ->where('user_id',$request->participante)
                                         ->count();
        
@@ -163,7 +164,7 @@ class ParticipanteCursoController extends Controller
    
 
      
-        $participantecurso = new ParticipanteCurso();
+        $participantecurso = new Participant();
         $participantecurso->estado=1;
         $participantecurso->curso_programado_id=$request->curso_p_id;
         $participantecurso->user_id=$request->participante;
@@ -189,14 +190,14 @@ class ParticipanteCursoController extends Controller
 
         $user=Auth::user();
 
-        $participantecurso = ParticipanteCurso::find($id);
+        $participantecurso = Participant::find($id);
         
         if (!$participantecurso)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El participante seleccionado no existe."));
  
         
-        if ($user->cannot('update', ParticipanteCurso::class))
+        if ($user->cannot('update', Participant::class))
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
         
@@ -216,14 +217,14 @@ class ParticipanteCursoController extends Controller
     {
 
         $user = Auth::user();
-        if($user->cannot('delete',ParticipanteCurso::class))
+        if($user->cannot('delete',Participant::class))
         {
             return Redirect::back()
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
 
         }
 
-        $particpantecurso = ParticipanteCurso::find($id);
+        $particpantecurso = Participant::find($id);
 
     
         if($particpantecurso==null)

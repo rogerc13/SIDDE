@@ -164,7 +164,7 @@
 								  <!-- <a  title="Más Información" href="javascript:detallesAccion('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a> -->
-								  @can('getAllPorCurso','App\ParticipanteCurso')
+								  @can('getAllPorCurso','App\Participant')
 									  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									      <i class="entypo-users"></i>
 									  </a>
