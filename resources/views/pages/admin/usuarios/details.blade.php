@@ -16,11 +16,12 @@
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                $('#nombre').val(data.nombre);  
-                $('#apellido').val(data.apellido); 
+                console.log(data);
+                $('#nombre').val(data.person.name);  
+                $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);
-                $('#ci').val(data.ci); 
-                $('#rol').val(data.rol_id);                
+                $('#ci').val(data.person.id_number); 
+                $('#rol').val(data.role_id);                
                 $(".loader").addClass("hidden");
                 $("#usuario-form").removeClass("hidden");
                 

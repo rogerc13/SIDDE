@@ -19,7 +19,7 @@ class UserController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        $usuario = User::find($id);
+        $usuario = User::with('person')->find($id);
         if(!$usuario || $user->cannot('get', User::class))
         {
             return json_encode([]);
@@ -85,7 +85,7 @@ class UserController extends Controller
 
         }
 
-        $usuario = new User([
+        $usuario     = new User([
             'role_id' => $request->rol,
             'email' => $request->email,
             'password' => bcrypt($request->password)
