@@ -13,11 +13,12 @@
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                $('#titulo').val(data.curso_id).trigger("change");
-                $('#facilitador').val(data.user_id).trigger("change");  
+                console.log(data);
+                $('#titulo').val(data.course_id).trigger("change");
+                $('#facilitador').val(data.facilitator_id).trigger("change");  
                 
-                var myDate = new Date(data.fecha_i);
-                 var myDate2 = new Date(data.fecha_f);
+                var myDate = new Date(data.start_date);
+                 var myDate2 = new Date(data.end_date);
                 $('#fecha_i').val((myDate.getDate() + 1) + "-" + (myDate.getMonth()+1) + "-" + myDate.getFullYear()); 
                 $('#fecha_f').val((myDate2.getDate() + 1) + "-" + (myDate2.getMonth()+1) + "-" + myDate2.getFullYear()); 
                 $(".loader").addClass("hidden");
