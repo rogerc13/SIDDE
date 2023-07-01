@@ -8,6 +8,8 @@ use App\Models\Course;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Funciones;
+use App\Models\Participant;
+use App\Models\Person;
 
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoProgramadoForm;
@@ -52,8 +54,11 @@ class CursoProgramadoController extends Controller
         $facilitadores = User::where('role_id','4')
                     ->get();
 
-        $participantes = User::where('role_id','5')
-                    ->get();
+        $participantes4 = Participant::all();
+        $pts = $participantes4->pluck('person_id');
+
+        $participantes = User::whereNotIn('person_id', $pts)->where('role_id',5)
+        ->get();
 
 
         $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
