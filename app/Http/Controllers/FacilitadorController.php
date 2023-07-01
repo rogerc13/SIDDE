@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Person;
 use App\Models\Funciones;
 
 use Illuminate\Support\Facades\Auth;
@@ -69,15 +70,20 @@ class FacilitadorController extends Controller
 
         }
 
-        $usuario = new User();
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
-        $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-        $usuario->rol_id = 4;
-        $usuario->password = bcrypt($request->password);
+        $usuario = new User([
+            'role_id' => 4,
+            'email' => $request->email,
+            'password' => bcrypt($request->password) 
+        ]);
+        $personData = array(
+            'name' => $request->nombre,
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci,
+        );
+        $person = Person::create($personData);
 
-        if($usuario->save()){
+        if($person){
+            $person->user()->save($usuario);
             return Redirect::back()
                     ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
             
