@@ -43,8 +43,7 @@ class ParticipanteController extends Controller
 
 
 
-        $users = User::where('rol_id','5')
-        			->orderBy("nombre","asc");
+        $users = User::where('role_id','5');
 
         if($nombres)
            $users=$users->where('nombre','LIKE',"%$nombres%");
