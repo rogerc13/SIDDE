@@ -45,10 +45,7 @@ class UserController extends Controller
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);
         $busqueda_rol = filter_input(INPUT_GET,'busqueda_rol',FILTER_SANITIZE_NUMBER_INT);
 
-
-       // $users = User::where('rol_id','>','0')
-       // 			->orderBy("id","asc");
-        $users = User::with('rol')
+        $users = User::with('role')
        			->orderBy("id","asc");
 
         if($nombres)
@@ -58,9 +55,9 @@ class UserController extends Controller
         if($cis)
            $users=$users->where('ci','=',$cis);
         if($busqueda_rol)
-           $users=$users->where('rol_id','=',$busqueda_rol);
+           $users=$users->where('role_id','=',$busqueda_rol);
 
-       	$roles = Rol::$roles;
+       	$roles = Role::$roles;
 
 
         return view('pages.admin.usuarios.index')

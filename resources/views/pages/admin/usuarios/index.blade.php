@@ -82,11 +82,11 @@
                     @endif
                     @foreach($users as $user)
                       <tr>
-                          <td>{{$user->nombre}}</td>
-                          <td>{{$user->apellido}}</td>
-                          <td>{{$user->ci}}</td>
+                          <td>{{$user->person->name}}</td>
+                          <td>{{$user->person->last_name}}</td>
+                          <td>{{$user->person->id_number}}</td>
                           <td>{{$user->email}}</td>
-                          <td>{{$user->rol->nombre}}</td>
+                          <td>{{$user->role->name}}</td>
                           <td>
                               <a  title="Más Información" href="javascript:detallesUsuario('{{url('u/usuarios/'.$user->id)}}')" class="btn btn-info btn-xs">
                                   <i class="entypo-search"></i>
