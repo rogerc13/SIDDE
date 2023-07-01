@@ -2,7 +2,7 @@
 
 @section('content')	
 
-	<h2><strong>{{$cursoprogramado->curso->titulo}}</strong></h2>
+	<h2><strong>{{$cursoprogramado->course->title}}</strong></h2>
   
   <br>
 
@@ -50,9 +50,9 @@
                               //var_dump($participante->estado);
                             @endphp
                         <tr>
-                            <td>{{$participante->participante->nombre}}</td>
-                            <td>{{$participante->participante->apellido}}</td>
-                            <td>{{$participante->participante->ci}}</td>
+                            <td>{{$participante->person->name}}</td>
+                            <td>{{$participante->person->last_name}}</td>
+                            <td>{{$participante->person->id_number}}</td>
                             <td>{{$participante->getEstado()}}</td>
                             <td>
                                 <a  title="Editar Estado del Participante" href="javascript:editarEstado('{{url('u/af_programadas/estado-participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">

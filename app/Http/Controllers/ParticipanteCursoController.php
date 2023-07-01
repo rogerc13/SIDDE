@@ -66,17 +66,16 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
 
-        $participantes = Participant::with('participante')->where('curso_programado_id',$id);
-        $pts = $participantes->pluck('user_id');        
+        $participantes = Participant::with('person')->where('scheduled_id',$id);
+        $pts = $participantes->pluck('person_id');        
 
 
-        $participantes2 = User::where('rol_id','5')
+        $participantes2 = User::where('role_id','5')
                     ->whereNotIn('id',$pts)
-                    ->orderBy("nombre","asc")
                     ->get();
 
 
-                
+        //dd($participantes);
         return view('pages.admin.participantescursos.index')
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
@@ -141,7 +140,7 @@ class ParticipanteCursoController extends Controller
 
         $this->validate($request, [
             'participante' => 'required|integer|exists:users,id',
-            'curso_p_id' => 'required|integer|exists:curso_programado,id',
+            'curso_p_id' => 'required|integer|exists:scheduled_course,id',
         ]);
 
 
@@ -152,8 +151,8 @@ class ParticipanteCursoController extends Controller
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
-        $validacion= Participant::where('curso_programado_id',$request->curso_p_id)
-                                        ->where('user_id',$request->participante)
+        $validacion= Participant::where('scheduled_id',$request->curso_p_id)
+                                        ->where('person_id',$request->participante)
                                         ->count();
        
         if($validacion > 0)
@@ -165,9 +164,9 @@ class ParticipanteCursoController extends Controller
 
      
         $participantecurso = new Participant();
-        $participantecurso->estado=1;
-        $participantecurso->curso_programado_id=$request->curso_p_id;
-        $participantecurso->user_id=$request->participante;
+        $participantecurso->participant_status_id=1;
+        $participantecurso->scheduled_id=$request->curso_p_id;
+        $participantecurso->person_id=$request->participante;
 
         if(!$participantecurso->save()){
             return Redirect::back()

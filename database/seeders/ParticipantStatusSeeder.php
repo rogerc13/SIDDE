@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\ParticipantStatus;
 
 class ParticipantStatusSeeder extends Seeder
 {
@@ -14,6 +15,14 @@ class ParticipantStatusSeeder extends Seeder
      */
     public function run()
     {
-        
+        ParticipantStatus::create([
+            'name' => 'En Curso'
+        ]);
+        ParticipantStatus::create([
+            'name' => 'Suspendido/Reprobado'
+        ]);
+        ParticipantStatus::create([
+            'name' => 'Aprobado'
+        ]);
     }
 }

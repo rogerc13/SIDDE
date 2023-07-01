@@ -26,4 +26,8 @@ class Person extends Model
         return $this->hasOne(Facilitator::class);
     }
 
+    public function participant(){
+        return $this->hasOne(Participant::class);
+    }
+
 }

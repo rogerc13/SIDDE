@@ -26,7 +26,7 @@ class Participant extends Model
   ];
   protected $dates = [ 'deleted_at', ];
 
-  public function participant()
+  public function person()
   {
     return $this->belongsTo(Person::class);
   }
@@ -43,11 +43,11 @@ class Participant extends Model
 
   public function getEstado()
   {
-        if($this->estado==1)
+        if($this->participant_status_id==1)
             return "En Curso";
-        else if($this->estado==2)
+        else if($this->participant_status_id==2)
             return "Suspendido/Reprobado";
-        else if($this->estado==3)
+        else if($this->participant_status_id==3)
             return "Aprobado";
   }
 
