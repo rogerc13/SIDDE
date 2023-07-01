@@ -136,11 +136,18 @@ class UserController extends Controller
 
 
 
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
+        
+        
+
         $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-        $usuario->rol_id = $request->rol;
+        $usuario->role_id = $request->rol;
+        $usuario->save();
+
+        $usuario->person()->update([
+            'name' => $request->nombre,
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci
+        ]);
 
         if($request->password!='')
             $usuario->password = bcrypt($request->password);
