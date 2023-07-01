@@ -16,7 +16,7 @@ class ParticipanteController extends Controller
     {
 
         $user = Auth::user();
-        $usuario = User::find($id);
+        $usuario = User::with('person')->find($id);
         if(!$usuario || $user->cannot('getParticipante', User::class))
         {
             return json_encode([]);
