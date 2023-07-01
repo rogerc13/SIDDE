@@ -85,22 +85,21 @@ class UserController extends Controller
 
         }
 
-        $usuario     = new User([
+        $usuario = new User([
             'role_id' => $request->rol,
             'email' => $request->email,
             'password' => bcrypt($request->password)
-
         ]);
-        $person = new Person([
+
+        $personData = array(
             'name' => $request->nombre,
-            'last_name'=> $request->apellido,
-            'id_number' => $request->ci
-        ]);
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci,
+        );
+        $person = Person::create($personData);
 
-        $success = $person->save();
-
-        if($success){
-            $success->user()->save($usuario);
+        if($person){
+            $person->user()->save($usuario);
             return Redirect::back()
                     ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
 
