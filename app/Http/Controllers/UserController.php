@@ -45,20 +45,24 @@ class UserController extends Controller
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);
         $busqueda_rol = filter_input(INPUT_GET,'busqueda_rol',FILTER_SANITIZE_NUMBER_INT);
 
-        $users = User::with('role')
-       			->orderBy("id","asc");
-
+        $users = User::with('role')->with('person')->orderBy("id","asc");
+        
         if($nombres)
-           $users=$users->where('nombre','LIKE',"%$nombres%");
+           $users = User::whereHas('person',function($query) use($nombres){
+                return $query->where('name','LIKE',"%$nombres%");
+           });
         if($apellidos)
-           $users=$users->where('apellido','LIKE',"%$apellidos%");
+            $users = User::whereHas('person', function ($query) use ($apellidos) {
+                return $query->where('last_name', 'LIKE', "%$apellidos%");
+            });
         if($cis)
-           $users=$users->where('ci','=',$cis);
+            $users = User::whereHas('person', function ($query) use ($cis) {
+                return $query->where('id_number', '=', $cis);
+            });
         if($busqueda_rol)
            $users=$users->where('role_id','=',$busqueda_rol);
 
        	$roles = Role::$roles;
-
 
         return view('pages.admin.usuarios.index')
                 ->with('users',$users->paginate(10))
