@@ -43,11 +43,17 @@ class FacilitadorController extends Controller
         $users = User::with('role')->with('person')->where('role_id','4');
         
         if($nombres)
-           $users=$users->where('nombre','LIKE',"%$nombres%");
+           $users=$users->whereHas('person',function($query) use($nombres){
+                $query->where('name','LIKE',"%$nombres%");
+           });
         if($apellidos)
-           $users=$users->where('apellido','LIKE',"%$apellidos%");        
+        $users = $users->whereHas('person', function ($query) use ($apellidos) {
+            $query->where('last_name', 'LIKE', "%$apellidos%");
+        });
         if($cis)
-           $users=$users->where('ci','=',$cis);
+        $users = $users->whereHas('person', function ($query) use ($cis) {
+            $query->where('id_number', '=' , $cis);
+        });
 
 
         
