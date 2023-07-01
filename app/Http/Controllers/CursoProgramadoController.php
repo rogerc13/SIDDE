@@ -266,7 +266,7 @@ class CursoProgramadoController extends Controller
         }
 
 
-        $usuario = User::find($id);
+        $usuario = User::with('person')->find($id);
 
         if (!$usuario){
             return Redirect::back()
@@ -289,7 +289,6 @@ class CursoProgramadoController extends Controller
         $categorias = $lista->pluck('name','id');
 
         $facilitadores = User::where('role_id','4')
-                    ->orderBy("name","asc")
                     ->get();
 
         $cursos = Scheduled::orderBy("id","asc");
@@ -300,9 +299,7 @@ class CursoProgramadoController extends Controller
             $cursos= $usuario->misCursos();
 
         if($titulos){
-
-           // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
-           $cursos=$cursos->whereHas('curso', function($q) use($titulos){
+           $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
 
@@ -311,13 +308,13 @@ class CursoProgramadoController extends Controller
         if($date){
             $fecha= new Carbon('01-'.$date);
 
-           $cursos = $cursos->whereMonth('curso_programado.fecha_i',$fecha->month)
-                            ->whereYear('curso_programado.fecha_i',$fecha->year);
+           $cursos = $cursos->whereMonth('scheduled_course.start_date',$fecha->month)
+                            ->whereYear('scheduled_course.start_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
         }
 
-        $cursos = $cursos->orderBy("fecha_i","asc");
-
+        $cursos = $cursos->orderBy("start_date","asc");
+        
         return view('pages.admin.usuarios.usercursos')
                 ->with('cursos',$cursos->paginate(10))
                 ->with('categorias',$categorias)

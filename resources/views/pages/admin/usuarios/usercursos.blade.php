@@ -20,7 +20,7 @@
 @endpush
 
 <h2>Acciones de formación de:</h2>
-<h3>{{$usuario->nombre}} {{$usuario->apellido}} - {{$usuario->rol->nombre}}</h3>
+<h3>{{$usuario->person->name}} {{$usuario->person->last_name}} - {{$usuario->role->name}}</h3>
 
 
 
@@ -102,14 +102,14 @@
 			         @foreach($cursos as $cursop)
 			            <tr>
 								
-								<td>{{$cursop->curso->titulo}}</td>
+								<td>{{$cursop->course->title}}</td>
 								@if($usuario->isParticipante())
 									<td>{{$cursop->facilitador->nombre}} {{$cursop->facilitador->apellido}}</td>
 								@endif
-								<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
-								<td>{{date("d-m-Y", strtotime($cursop->fecha_f))}}</td>
+								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
+								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
 								<td>
-								  <a  title="Más Información" href="{{url("acciones_formacion/".$cursop->curso->id)}}" class="btn btn-info btn-xs">
+								  <a  title="Más Información" href="{{url("acciones_formacion/".$cursop->course->id)}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a>
 								</td>
