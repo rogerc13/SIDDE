@@ -151,7 +151,7 @@ class FacilitadorController extends Controller
         }
 
         $usuario = User::where('id',$id)
-                        ->where('rol_id','4')
+                        ->where('role_id','4')
                         ->first();
     
         if($usuario==null)
