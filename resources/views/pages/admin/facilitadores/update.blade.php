@@ -13,10 +13,10 @@
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                $('#nombre').val(data.nombre);  
-                $('#apellido').val(data.apellido); 
+                $('#nombre').val(data.person.name);  
+                $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);
-                $('#ci').val(data.ci);      
+                $('#ci').val(data.person.id_number);      
                 $('#user_id').val(data.id);           
                 $(".loader").addClass("hidden");
                 $("#facilitador-form").removeClass("hidden");

@@ -109,12 +109,18 @@ class FacilitadorController extends Controller
         if ($user->cannot('updateFacilitador', User::class))
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
-        
 
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
+
         $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
+        $usuario->save();
+        $usuario->person()->update([
+            'name' => $request->nombre,
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci
+        ]);
+
+        
+        
 
         if($request->password!='')
             $usuario->password = bcrypt($request->password);       
