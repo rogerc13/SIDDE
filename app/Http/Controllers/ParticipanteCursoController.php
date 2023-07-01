@@ -201,7 +201,7 @@ class ParticipanteCursoController extends Controller
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
         
 
-        $participantecurso->estado = $request->estado;
+        $participantecurso->participant_status_id = $request->estado;
 
              
         if(!$participantecurso->save())

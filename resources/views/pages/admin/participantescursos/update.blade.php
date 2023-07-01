@@ -15,7 +15,7 @@
 
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                $('#estado').val(data.estado);
+                $('#estado').val(data.participant_status_id);
                 //console.log(data);
                 $(".loader").addClass("hidden");
                 $("#estado-form").removeClass("hidden");
