@@ -179,7 +179,7 @@ class CursoProgramadoController extends Controller
                         ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "Curso no encontrado."));
                }
                 if($cursoProg->delete()){
-                    $cursoProg->participantesCurso()->delete(); //deletes record of users in a course
+                    $cursoProg->participants()->delete(); //deletes record of users in a course
                     return Redirect::back()
                             ->with("alert",Funciones::getAlert("success", "Elimiando Exitosamente", "Operacion Exitosa."));
                 }
