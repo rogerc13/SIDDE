@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests;
 use App\Models\User;
 use App\Models\Funciones;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
@@ -15,7 +14,7 @@ class FacilitadorController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        $usuario = User::find($id);
+        $usuario = User::with('person')->find($id);
         if(!$usuario || $user->cannot('getFacilitador', User::class))
         {
             return json_encode([]);
@@ -40,16 +39,8 @@ class FacilitadorController extends Controller
         $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);        
 
-
-        // $users = User::where('rol_id','>','0')
-        //             ->orderBy("nombre","asc");
-
-
- 
+        $users = User::with('role')->with('person')->where('role_id','4');
         
-        $users = User::where('rol_id','4')
-        			->orderBy("nombre","asc");
-
         if($nombres)
            $users=$users->where('nombre','LIKE',"%$nombres%");
         if($apellidos)
