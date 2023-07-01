@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
+
+use App\Models\Person;
 use App\Models\User;
-use App\Models\Rol;
+use App\Models\Role;
 use App\Models\Funciones;
+
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
 use Illuminate\Support\Facades\Auth;
@@ -81,15 +84,22 @@ class UserController extends Controller
 
         }
 
-        $usuario = new User();
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
-        $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-        $usuario->rol_id = $request->rol;
-        $usuario->password = bcrypt($request->password);
+        $usuario = new User([
+            'role_id' => $request->rol,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
 
-        if($usuario->save()){
+        ]);
+        $person = new Person([
+            'name' => $request->nombre,
+            'last_name'=> $request->apellido,
+            'id_number' => $request->ci
+        ]);
+
+        $success = $person->save();
+
+        if($success){
+            $success->user()->save($usuario);
             return Redirect::back()
                     ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
 

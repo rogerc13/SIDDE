@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('last_name');
             $table->string('id_number');
-            $table->string('phone');
-            $table->string('sex');
+            $table->string('phone')->nullable();
+            $table->string('sex')->nullable();
             $table->string('avatar_path')->nullable();
         });
     }

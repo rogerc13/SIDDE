@@ -29,10 +29,10 @@ class UserForm extends FormRequest
             
             case 'POST':
                 return [                        
-                        'nombre' => 'required|string|max:'.User::MAX_LENGTH_NOMBRE,
-                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_APELLIDO, 
-                        'ci' => 'required|string|max:'.User::MAX_LENGTH_CI,
-                        'rol' => 'sometimes|required|integer|exists:rol,id',                        
+                        'nombre' => 'required|string|max:'.User::MAX_LENGTH_NAME,
+                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME, 
+                        'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
+                        'rol' => 'sometimes|required|integer|exists:role,id',                        
                         'email' => 'required|email:rfc,filter|unique:users,email|max:'.User::MAX_LENGTH_EMAIL,
                         'password' => 'required|confirmed',
                         'password_confirmation' => 'required',
@@ -41,10 +41,10 @@ class UserForm extends FormRequest
                        ]; 
             case 'PUT':
                 return [
-                        'nombre' => 'required|string|max:'.User::MAX_LENGTH_NOMBRE,
-                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_APELLIDO, 
-                        'ci' => 'required|string|max:'.User::MAX_LENGTH_CI,
-                        'rol' => 'sometimes|required|integer|exists:rol,id',                        
+                        'nombre' => 'required|string|max:'.User::MAX_LENGTH_NAME,
+                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME, 
+                        'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
+                        'rol' => 'sometimes|required|integer|exists:role,id',                        
                         'email' => 'required|email:rfc,filter|unique:users,email,'.$this->user_id.'|max:'.User::MAX_LENGTH_EMAIL,
                         'password' => 'sometimes|confirmed',
                         'password_confirmation' => 'required_with:password',

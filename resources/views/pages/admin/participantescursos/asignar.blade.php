@@ -41,7 +41,7 @@
                                     <option></option>
 
                                     @foreach($participantes2 as $participante) 
-                                            <option value="{{$participante->id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I:{{$participante->person->id_number}}</option>
+                                            <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I:{{$participante->person->id_number}}</option>
                                     @endforeach
                                 </select>                      
                             </div>                 

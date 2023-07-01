@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Scheduled;
 use App\Models\Course;
+use App\Models\Person;
 use App\Models\User;
 use App\Models\Participant;
 use App\Models\Funciones;
@@ -71,11 +72,11 @@ class ParticipanteCursoController extends Controller
 
 
         $participantes2 = User::where('role_id','5')
-                    ->whereNotIn('id',$pts)
+                    ->whereNotIn('person_id',$pts)
                     ->get();
 
 
-        //dd($participantes);
+        //dd($participantes2);
         return view('pages.admin.participantescursos.index')
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
@@ -101,28 +102,34 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
 
+        $usuario = new User([
+            'role_id' => 5,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
+        ]);
 
-        $usuario = new User();
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
-        $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-        $usuario->rol_id = 5;
-        $usuario->password = bcrypt($request->password);
-
-
-        if(!$usuario->save()){
+        $personData = array(
+            'name' => $request->nombre,
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci,
+        );
+        $person = Person::create($personData);
+        //$success = $person->save();
+        //dd($person);
+        if(!$person){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "No se pudo crear el participante"));
         }
+        $person->user()->save($usuario);
 
+        $participant = new Participant([
+            'participant_status_id' => 1,
+            'scheduled_id' => $id
+        ]);
 
-        $participantecurso = new Participant();
-        $participantecurso->estado=1;
-        $participantecurso->curso_programado_id=$id;
-        $participantecurso->user_id=$usuario->id;
+        $response = $person->participant()->save($participant);
 
-        if(!$participantecurso->save()){
+        if(!$response){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El participante ha sido creado exitosamente, pero ha ocurrido un error al intentar registrarlo en la acción de formación. Intente asignarlo a través de la opción asignar participante"));
         }
@@ -139,7 +146,7 @@ class ParticipanteCursoController extends Controller
 
 
         $this->validate($request, [
-            'participante' => 'required|integer|exists:users,id',
+            'participante' => 'required|integer|exists:people,id',
             'curso_p_id' => 'required|integer|exists:scheduled_course,id',
         ]);
 
@@ -150,7 +157,7 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
-
+        //dd($request);
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();
@@ -167,6 +174,7 @@ class ParticipanteCursoController extends Controller
         $participantecurso->participant_status_id=1;
         $participantecurso->scheduled_id=$request->curso_p_id;
         $participantecurso->person_id=$request->participante;
+        //dd($participantecurso);
 
         if(!$participantecurso->save()){
             return Redirect::back()
