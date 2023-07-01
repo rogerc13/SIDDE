@@ -153,9 +153,9 @@ class CursoProgramadoController extends Controller
             return Redirect()::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
-            $cursoProg->user_id = $request->facilitador;
-            $cursoProg->fecha_i = date("Y-m-d", strtotime($request->fecha_i));
-            $cursoProg->fecha_f = date("Y-m-d", strtotime($request->fecha_f));
+            $cursoProg->facilitator_id = $request->facilitador;
+            $cursoProg->start_date = date("Y-m-d", strtotime($request->fecha_i));
+            $cursoProg->end_date = date("Y-m-d", strtotime($request->fecha_f));
 
         if(!$cursoProg->save())
             return Redirect::back()
