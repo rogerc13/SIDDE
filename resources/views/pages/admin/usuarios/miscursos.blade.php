@@ -43,9 +43,9 @@
 							@foreach($facilitadores as $facilitador)
 
 	                            @if($id_facilitador == $facilitador->id)
-	                                <option value="{{$facilitador->id}}" selected>{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+	                                <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->ci}}</option>
 	                            @else 
-	                                <option value="{{$facilitador->id}}">{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+	                                <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
 	                            @endif
 	                        @endforeach		                
 			            </select>  
@@ -101,19 +101,19 @@
 			         @foreach($cursos as $cursop)
 			            <tr>
 								
-								<td>{{$cursop->curso->titulo}}</td>
+								<td>{{$cursop->course->title}}</td>
 								@if($logeado->isParticipante())
-									<td>{{$cursop->facilitador->nombre}} {{$cursop->facilitador->apellido}}</td>
+									<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@endif
-								<td>{{date("d-m-Y", strtotime($cursop->fecha_i))}}</td>
-								<td>{{date("d-m-Y", strtotime($cursop->fecha_f))}}</td>
+								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
+								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
 								<td>
 									<span class="badge badge-success">
-										{{count($cursop->participantesCurso)}}
+										{{-- {{count($cursop->cursosParticipante)}} --}}
 									</span>
-									<!--	{{count($cursop->participantesCurso)}}/{{$cursop->curso->max}}
+									{{-- <!-- {{count($cursop->participantesCurso)}}/{{$cursop->course->capacity->mas}}
 									</span>
-									-->
+									--> --}}
 								</td>
 								<td>
 								@if($logeado->isFacilitador())
@@ -124,7 +124,7 @@
 									<i class="entypo-download"></i>
 								</a>
 								@endif
-								<a  title="Ver Ficha Técnica" href="{{url("acciones_formacion/".$cursop->curso->id)}}" class="btn btn-info btn-xs">
+								<a  title="Ver Ficha Técnica" href="{{url("acciones_formacion/".$cursop->course->id)}}" class="btn btn-info btn-xs">
 									<i class="entypo-search"></i>
 								</a>
 								</td>

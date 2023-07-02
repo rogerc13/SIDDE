@@ -45,9 +45,9 @@
 							@foreach($facilitadores as $facilitador)
 
 	                            @if($id_facilitador == $facilitador->id)
-	                                <option value="{{$facilitador->id}}" selected>{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+	                                <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
 	                            @else 
-	                                <option value="{{$facilitador->id}}">{{$facilitador->nombre}} {{$facilitador->apellido}} C.I:{{$facilitador->ci}}</option>
+	                                <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
 	                            @endif
 	                        @endforeach		                
 			            </select>  
@@ -104,7 +104,7 @@
 								
 								<td>{{$cursop->course->title}}</td>
 								@if($usuario->isParticipante())
-									<td>{{$cursop->facilitador->nombre}} {{$cursop->facilitador->apellido}}</td>
+									<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@endif
 								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
 								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
