@@ -140,9 +140,14 @@ Route::group(['middleware' => 'auth'], function ()
 
 
     });
-        
-    Route::get('reports', 'App\Http\Controllers\ReportController@test')->name('reports');
 
-    
+    Route::group(['prefix' => 'reports'], function(){
+        Route::get('/date', 'App\Http\Controllers\ReportController@byDate');
+        Route::get('/category', 'App\Http\Controllers\ReportController@byCategory');
+        Route::get('/status', 'App\Http\Controllers\ReportController@byStatus');
+        Route::get('/time', 'App\Http\Controllers\ReportController@byCourseTotalTime');
+        Route::get('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
+        Route::get('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
+    });   
 });
 
