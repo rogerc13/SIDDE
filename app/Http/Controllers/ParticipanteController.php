@@ -135,7 +135,7 @@ class ParticipanteController extends Controller
     
     public function delete($id)
     {
-
+        
         $user = Auth::user();
         if($user->cannot('deleteParticipante',User::class))
         {
@@ -145,9 +145,9 @@ class ParticipanteController extends Controller
         }
 
         $usuario = User::where('id',$id)
-                        ->where('rol_id','5')
+                        ->where('role_id','5')
                         ->first();
-    
+        
         if($usuario==null)
         {
             return Redirect::back()

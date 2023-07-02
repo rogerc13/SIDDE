@@ -36,10 +36,10 @@ class Participant extends Model
     return $this->belongsTo(Scheduled::class);
   }
 
-  public function curso()
+  /* public function participantCourse()
   {
-    return $this->cursoProgramado->belongsTo(Curso::class);
-  }
+    return $this->belongsToMany(Course::class);
+  }  */
 
   public function getEstado()
   {

@@ -84,6 +84,7 @@ class User extends Authenticatable
 
     public function misCursos() //  Cursos Programados a los que esta registrado un Participante
     {
-        return $this->belongsToMany(CursoProgramado::class,'participante_curso','user_id','curso_programado_id')->withPivot('id');
+        return $this->hasManyThrough(Scheduled::class,Participant::class,'id','scheduled_id');
     }
+
 }
