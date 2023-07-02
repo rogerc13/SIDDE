@@ -222,7 +222,7 @@ class ParticipanteCursoController extends Controller
     
     public function delete($id)
     {
-
+        
         $user = Auth::user();
         if($user->cannot('delete',Participant::class))
         {
