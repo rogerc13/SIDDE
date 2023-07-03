@@ -52,7 +52,7 @@ class FacilitadorController extends Controller
         });
         if($cis)
         $users = $users->whereHas('person', function ($query) use ($cis) {
-            $query->where('id_number', '=' , $cis);
+            $query->where('id_number', 'LIKE' , "%$cis%");
         });
 
 

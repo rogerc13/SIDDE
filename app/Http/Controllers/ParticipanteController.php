@@ -46,14 +46,22 @@ class ParticipanteController extends Controller
 
         $users = User::where('role_id','5');
 
-        if($nombres)
-           $users=$users->where('nombre','LIKE',"%$nombres%");
-        if($apellidos)
-           $users=$users->where('apellido','LIKE',"%$apellidos%");        
-        if($cis)
-           $users=$users->where('ci','=',$cis);
-
-
+        if($nombres){
+            $users = $users->whereHas('person', function ($query) use ($nombres) {
+                $query->where('name', 'LIKE', "%$nombres%");
+            });
+        }
+        
+        if($apellidos){
+            $users = $users->whereHas('person', function ($query) use ($apellidos) {
+                $query->where('last_name', 'LIKE', "%$apellidos%");
+            });
+        }
+        if($cis){
+            $users = $users->whereHas('person', function ($query) use ($cis) {
+                        $query->where('id_number', 'LIKE', "%$cis%");
+                });
+            }
         
         return view('pages.admin.participantes.index')
                 ->with('users',$users->paginate(10))
