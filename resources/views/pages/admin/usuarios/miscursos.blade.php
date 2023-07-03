@@ -111,7 +111,7 @@
 									<span class="badge badge-success">
 										{{-- {{count($cursop->cursosParticipante)}} --}}
 									</span>
-									{{-- <!-- {{count($cursop->participantesCurso)}}/{{$cursop->course->capacity->mas}}
+									{{-- <!-- {{count($cursop->participantesCurso)}}/{{$cursop->course->capacity->max}}
 									</span>
 									--> --}}
 								</td>

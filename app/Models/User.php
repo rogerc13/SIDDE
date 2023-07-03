@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Role;
 use App\Models\Person;
 
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -71,6 +72,10 @@ class User extends Authenticatable
     public function person(){
       return $this->belongsTo(Person::class);
     }
+    public function participant(){
+
+      return $this->hasManyThrough(Participant::class,Person::class);
+    }
 
     public function cursoFacilitador() // cursos de un facilitador
     {
@@ -82,9 +87,11 @@ class User extends Authenticatable
       return $this->hasManyThrough(Participant::class, Person::class,'id','person_id');
     }
 
-    public function misCursos() //  Cursos Programados a los que esta registrado un Participante
+    public function misCursos($user_id) //  Cursos Programados a los que esta registrado un Participante
     {
-        return $this->hasManyThrough(Scheduled::class,Participant::class,'id','scheduled_id');
+        return DB::table('courses')->raw('select * from courses where id in (
+select course_id from scheduled_course WHERE id in (select scheduled_id from participants where person_id = (5))
+)');
     }
 
 }

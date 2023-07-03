@@ -28,6 +28,8 @@
 	<link href="{{url('css/app1.css')}}" rel="stylesheet" />
 
 	<script src="{{url('assets/js/jquery-1.11.3.min.js')}}"></script>
+	<script src="{{url('assets/js/morris.min.js')}}"></script>
+	<script src="{{url('assets/js/raphael-min.js')}}"></script>
 
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2-bootstrap.css')}}">
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2.css')}}">

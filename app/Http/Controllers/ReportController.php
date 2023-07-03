@@ -12,8 +12,18 @@ class ReportController extends Controller
     public function byDate()
     {
         //By date
+
+        //take date data as input
+        //need date start and date end
+
         $scheduledCourse = Scheduled::where('start_date',$request->start_date)
         ->where('end_date',$request->end_date)->get();    
+        
+        //need a date range
+        //separate dates by steps
+            //grouping dates
+        //count of courses by each step
+        //make array data to send to js script
 
         return $scheduledCourse;
         /* 

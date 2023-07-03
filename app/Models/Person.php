@@ -30,4 +30,8 @@ class Person extends Model
         return $this->hasOne(Participant::class);
     }
 
+    public function scheduled(){
+        return $this->hasManyThrough(Scheduled::class,Participant::class);
+    }
+
 }

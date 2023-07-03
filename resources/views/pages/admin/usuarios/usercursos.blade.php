@@ -119,11 +119,11 @@
 				</table>
 			</div>
 		</div>
-		@if($usuario->isParticipante())
+		{{-- @if($usuario->isParticipante())
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'id_facilitador' => $id_facilitador, 'fechas' => $fechas])->links() !!}</div>
 		@else
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'fechas' => $fechas])->links() !!}</div>
-		@endif					
+		@endif	 --}}				
 	</div>
 	@if($usuario->isParticipante())
 		<a href="{{url("u/participantes")}}">	

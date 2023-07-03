@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoProgramadoForm;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CursoProgramadoController extends Controller
 {
@@ -221,8 +222,12 @@ class CursoProgramadoController extends Controller
         $cursos= $user->cursoFacilitador();
 
         if($user->isParticipante()){
-            /* $cursos = Scheduled::with('course')
-            ->find($user->cursosParticipante()->first()->scheduled_id); */
+           /* return DB::table('courses')->where(DB::raw('
+select course_id from scheduled_course WHERE id in (select scheduled_id from participants where person_id = (5))
+)')); */
+            //$cursos = $user->misCursos();
+            /*  $cursos = Scheduled::with('course')
+             ->find($user->cursosParticipante()->first()->scheduled_id); */
         }
 
         if($titulos){
@@ -288,16 +293,15 @@ class CursoProgramadoController extends Controller
 
         $cursos = Scheduled::orderBy("id","asc");
 
-        //$cursos= $usuario->cursoFacilitador();
-
+        $cursos= $usuario->cursoFacilitador();
+        if($usuario->isFacilitador()){
+            $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id)->get();    
+        }
         if($usuario->isParticipante()){
-            //return $usuario->person->participant->participantCourse()->count();
-            $cursos = Scheduled::with('course')->find($usuario->cursosParticipante()->first()->scheduled_id);
-            //return Scheduled::with('course')->find($usuario->cursosParticipante()->first()->scheduled_id);
-            //dd($cursos);
+            $cursos =  Scheduled::with('facilitator')->with('course')->where('id',$usuario->person->participant->scheduled_id)->get();
         }
 
-        if($titulos){
+       if($titulos){
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
@@ -310,12 +314,12 @@ class CursoProgramadoController extends Controller
            $cursos = $cursos->whereMonth('scheduled_course.start_date',$fecha->month)
                             ->whereYear('scheduled_course.start_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
-        }
+        } 
 
         //$cursos = $cursos->orderBy("start_date","asc");
-        //dd($cursos);
+
         return view('pages.admin.usuarios.usercursos')
-                ->with('cursos',$cursos->paginate(10))
+                ->with('cursos',$cursos)
                 ->with('categorias',$categorias)
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)

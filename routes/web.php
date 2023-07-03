@@ -142,6 +142,9 @@ Route::group(['middleware' => 'auth'], function ()
     });
 
     Route::group(['prefix' => 'reports'], function(){
+        Route::get('/', function(){
+                return view('pages.admin.usuarios.reports');
+        });
         Route::get('/date', 'App\Http\Controllers\ReportController@byDate');
         Route::get('/category', 'App\Http\Controllers\ReportController@byCategory');
         Route::get('/status', 'App\Http\Controllers\ReportController@byStatus');
