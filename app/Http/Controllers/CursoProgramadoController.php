@@ -298,7 +298,11 @@ class CursoProgramadoController extends Controller
             $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id)->get();    
         }
         if($usuario->isParticipante()){
-            $cursos =  Scheduled::with('facilitator')->with('course')->where('id',$usuario->person->participant->scheduled_id)->get();
+            if($usuario->person->participant->count() > 0){
+                $cursos =  Scheduled::with('facilitator')->with('course')->where('id', $usuario->person->participant->scheduled_id)->get();
+            }else{
+                $cursos = [];
+            }   
         }
 
        if($titulos){
@@ -315,7 +319,6 @@ class CursoProgramadoController extends Controller
                             ->whereYear('scheduled_course.start_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
         } 
-
         //$cursos = $cursos->orderBy("start_date","asc");
 
         return view('pages.admin.usuarios.usercursos')
