@@ -87,11 +87,4 @@ class User extends Authenticatable
       return $this->hasManyThrough(Participant::class, Person::class,'id','person_id');
     }
 
-    public function misCursos($user_id) //  Cursos Programados a los que esta registrado un Participante
-    {
-        return DB::table('courses')->raw('select * from courses where id in (
-select course_id from scheduled_course WHERE id in (select scheduled_id from participants where person_id = (5))
-)');
-    }
-
 }

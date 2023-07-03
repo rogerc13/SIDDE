@@ -205,7 +205,7 @@ class CursoProgramadoController extends Controller
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
 
         }
-
+        $usuario = User::with('person')->find($user->person_id);
         $titulos = filter_input(INPUT_GET,'titulos',FILTER_SANITIZE_STRING);
         $id_facilitador = filter_input(INPUT_GET,'id_facilitador',FILTER_SANITIZE_NUMBER_INT);
         $date = filter_input(INPUT_GET,'fechas',FILTER_SANITIZE_NUMBER_INT);
@@ -218,18 +218,18 @@ class CursoProgramadoController extends Controller
         $facilitadores = User::where('role_id','4')->get();
 
         $cursos = Scheduled::orderBy("id","asc");
+        
+        
+        if($user->isFacilitador()){
 
-        $cursos= $user->cursoFacilitador();
-
-        if($user->isParticipante()){
-           /* return DB::table('courses')->where(DB::raw('
-select course_id from scheduled_course WHERE id in (select scheduled_id from participants where person_id = (5))
-)')); */
-            //$cursos = $user->misCursos();
-            /*  $cursos = Scheduled::with('course')
-             ->find($user->cursosParticipante()->first()->scheduled_id); */
         }
 
+        if($user->isParticipante()){
+            //return $person->participant->scheduled_id;
+            $cursos =  Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', $usuario->person->participant->scheduled_id)->get(); 
+            //return gettype($cursos);
+        }
+        
         if($titulos){
            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
@@ -245,10 +245,10 @@ select course_id from scheduled_course WHERE id in (select scheduled_id from par
             $fecha=$fecha->format('m-Y');
         }
 
-        $cursos = $cursos->orderBy("start_date","asc");
-
+        //$cursos = $cursos->orderBy("start_date","asc");
+        
         return view('pages.admin.usuarios.miscursos')
-                ->with('cursos',$cursos->paginate(10))
+                ->with('cursos',$cursos)
                 ->with('categorias',$categorias)
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)

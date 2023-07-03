@@ -76,7 +76,7 @@
 	        	</div>
 	      	</div>
 	            
-	      	<div class="panel-body with-table table-responsive">								
+	      	<div class="panel-body with-table table-responsive">						
 				<table class="table table-striped table-bordered table-center">
 					<thead>
 						<tr>
@@ -94,13 +94,13 @@
 					
 					<tbody>
 				     	@if(count($cursos) == 0)
+						
 			           	<tr>
 			            	<td colspan="7">No se han encontrado resultados...</td>
 			           	</tr>
 				      @endif
 			         @foreach($cursos as $cursop)
 			            <tr>
-								
 								<td>{{$cursop->course->title}}</td>
 								@if($logeado->isParticipante())
 									<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
@@ -117,10 +117,10 @@
 								</td>
 								<td>
 								@if($logeado->isFacilitador())
-								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
+								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->course->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>
-								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->curso_id.'/documents')}}" class="btn btn-info btn-xs">
+								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->course->id.'/documents')}}" class="btn btn-info btn-xs">
 									<i class="entypo-download"></i>
 								</a>
 								@endif
@@ -129,16 +129,16 @@
 								</a>
 								</td>
 			            </tr>
-			        	@endforeach		
+			        @endforeach		
 					</tbody>
 				</table>
 			</div>
 		</div>
-		@if($logeado->isParticipante())
+		{{-- @if($logeado->isParticipante())
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'id_facilitador' => $id_facilitador, 'fechas' => $fechas])->links() !!}</div>
 		@else
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'fechas' => $fechas])->links() !!}</div>
-		@endif					
+		@endif	 --}}				
 	</div>
 			
 </div>
