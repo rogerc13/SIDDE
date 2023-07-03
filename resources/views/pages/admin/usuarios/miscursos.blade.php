@@ -108,8 +108,8 @@
 								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
 								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
 								<td>
-									<span class="badge badge-success">
-										{{-- {{count($cursop->cursosParticipante)}} --}}
+									<sn class="badge badge-success">
+										{{count($cursop->participants)}}
 									</span>
 									{{-- <!-- {{count($cursop->participantesCurso)}}/{{$cursop->course->capacity->max}}
 									</span>
