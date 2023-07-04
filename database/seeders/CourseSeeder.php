@@ -34,5 +34,25 @@ class CourseSeeder extends Seeder
             'category_id' => 5,
             'modality_id' => 1,
         ]);
+
+        Course::create([
+            'code' => 9462,
+            'title' => 'Gestión y Análisis por Proceso',
+            'objective' => 'Lograr que los participantes adquieran los conocimientos y desarrollen las habilidades para la aplicación de una herramienta metodológica práctica para diseñar o mejorar la organización y establecer, implementar y mantener un sistema de gestión, para potenciar su productividad, incrementar su desempeño y alinear sus esfuerzos y recursos con los objetivos corporativos.',
+            'duration' => 40,
+            'addressed' => 'Profesionales en busca de la identificación y gestión sistemática de los procesos que se realizan en la organización, responsables o coordinadores en las áreas de planificación, control y gestión, así como lideres/superintendentes en departamentos de calidad, documentación y procesos.',
+            'category_id' =>6,
+            'modality_id' =>1,
+        ]);
+
+        Course::create([
+            'code' => 9394,
+            'title'=> 'Áreas Clasificadas',
+            'objective'=> 'Proveer y/o reforzar los conocimientos sobre áreas eléctricas clasificadas, métodos de reducción de riesgos y protección e instalaciones eléctricas en áreas clasificadas.',
+            'duration'=>8,
+            'addressed'=> 'Personal de la industria que labore en el área de automatización industrial, instrumentación y electricidad',
+            'category_id'=>4,
+            'modality_id'=>1,
+        ]);
     }
 }

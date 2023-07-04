@@ -20,7 +20,7 @@ return new class extends Migration
             //$table->integer('modality_id')->unsigned();
             $table->string('objective',3000);
             $table->integer('duration');
-            $table->string('addressed');
+            $table->string('addressed',1000);
             $table->timestamps();
             $table->softDeletes();
             //$table->integer('category_id')->unsigned();
