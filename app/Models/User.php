@@ -77,7 +77,7 @@ class User extends Authenticatable
       return $this->hasManyThrough(Participant::class,Person::class);
     }
 
-    public function cursoFacilitador() // cursos de un facilitador
+    /* public function cursoFacilitador() // cursos de un facilitador
     {
       return $this->hasManyThrough(Scheduled::class , Facilitator::class,'person_id');
     }
@@ -85,6 +85,6 @@ class User extends Authenticatable
     public function cursosParticipante() //directo a la tabla pivote (Cursos de un participante)
     {
       return $this->hasManyThrough(Participant::class, Person::class,'id','person_id');
-    }
+    } */
 
 }
