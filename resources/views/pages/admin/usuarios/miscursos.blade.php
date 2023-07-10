@@ -134,11 +134,11 @@
 				</table>
 			</div>
 		</div>
-		{{-- @if($logeado->isParticipante())
+	 @if($logeado->isParticipante())
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'id_facilitador' => $id_facilitador, 'fechas' => $fechas])->links() !!}</div>
 		@else
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'fechas' => $fechas])->links() !!}</div>
-		@endif	 --}}				
+		@endif	 				
 	</div>
 			
 </div>

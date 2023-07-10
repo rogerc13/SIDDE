@@ -221,7 +221,8 @@ class CursoProgramadoController extends Controller
         
         
         if($user->isFacilitador()){
-
+            $cursos =
+            Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id);
         }
 
         if($user->isParticipante()){
@@ -231,7 +232,8 @@ class CursoProgramadoController extends Controller
         }
         
         if($titulos){
-           // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
+           //return $cursos;
+            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
@@ -246,9 +248,9 @@ class CursoProgramadoController extends Controller
         }
 
         //$cursos = $cursos->orderBy("start_date","asc");
-        
+        //return $cursos;
         return view('pages.admin.usuarios.miscursos')
-                ->with('cursos',$cursos)
+                ->with('cursos',$cursos->paginate(10))
                 ->with('categorias',$categorias)
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)
@@ -266,9 +268,7 @@ class CursoProgramadoController extends Controller
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
-        $usuario = User::with('person')->find($id);
-
-        if (!$usuario){
+        $usuario = User::with('person')->find($id);        if (!$usuario){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El usuario seleccionado no existe."));
         }
@@ -293,12 +293,14 @@ class CursoProgramadoController extends Controller
 
         $cursos = Scheduled::orderBy("id","asc");
 
-        $cursos= $usuario->cursoFacilitador();
+        //$cursos= $usuario->cursoFacilitador();
         if($usuario->isFacilitador()){
             $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id)->get();    
+        }else{
+            $cursos = [];
         }
         if($usuario->isParticipante()){
-            if($usuario->person->participant->count() > 0){
+            if((null != ($usuario->person->participant->count())) != 0){
                 $cursos =  Scheduled::with('facilitator')->with('course')->where('id', $usuario->person->participant->scheduled_id)->get();
             }else{
                 $cursos = [];
