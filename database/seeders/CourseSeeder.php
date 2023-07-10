@@ -54,5 +54,15 @@ class CourseSeeder extends Seeder
             'category_id'=>4,
             'modality_id'=>1,
         ]);
+
+        Course::create([
+            'code' => 2547,
+            'title' => 'Inducción al Buen Uso del Computador en PDVSA',
+            'objective' => 'El participante estará en condiciones de manejar adecuadamente las herramientas y aplicaciones en el uso del computador de la corporación, para fines del negocio, de conformidad con las normas y procedimientos relacionados con la Cuenta de Red, Data Departamental, Correo Electrónico, Mantenimiento de PC, Computador Central y los Canales de contacto al Centro de Servicios PDVSA.',
+            'duration'=>8,
+            'addressed'=> 'Personal que requiera manejar adecuadamente las herramientas y aplicaciones del computador en la organizacion',
+            'category_id'=>3,
+            'modality_id'=>1,
+        ]);
     }
 }

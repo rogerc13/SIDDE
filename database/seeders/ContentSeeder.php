@@ -15,6 +15,15 @@ class ContentSeeder extends Seeder
      */
     public function run()
     {
+        function insertContent($content,$course_id){
+            foreach ($content as $key) {
+                content::create([
+                    'course_id' => $course_id,
+                    'text' => $key,
+                ]);
+            }
+        }
+        
         Content::create([
             'course_id' => 2,
             'text' => 'Fuentes de energía en Venezuela.',
@@ -61,12 +70,7 @@ class ContentSeeder extends Seeder
             'Diagrama de proceso.',
             'Ficha de proceso.'
         ];
-        foreach ($content3 as $key) {
-            Content::create([
-                'course_id' => 3,
-                'text' => $key,
-            ]);
-        }
+        insertContent($content3,3);
 
         $content4 = [
             'Definiciones y conceptos.',
@@ -80,11 +84,17 @@ class ContentSeeder extends Seeder
             'Certificaciones.'
         ];
 
-        foreach ($content4 as $key) {
-            Content::create([
-                'course_id' => 4,
-                'text' => $key,
-            ]);
-        }
+        insertContent($content4,4);
+
+        $content5 = [
+            'Básico sobre Cuenta de Red',
+            'Servidor de Archivos y Data Departamental',
+            'Básico sobre Correo Electrónico ',
+            'Mantenimiento de PC (Software)',
+            'Centro de Servicios PDVSA (Canales de Contacto)',
+            'Computador Central (CIBET)'
+        ];
+
+        insertContent($content5,5);
     }
 }
