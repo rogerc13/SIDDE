@@ -268,7 +268,9 @@ class CursoProgramadoController extends Controller
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
 
-        $usuario = User::with('person')->find($id);        if (!$usuario){
+        $usuario = User::with('person')->find($id);        
+        
+        if (!$usuario){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El usuario seleccionado no existe."));
         }
@@ -300,7 +302,7 @@ class CursoProgramadoController extends Controller
             $cursos = [];
         }
         if($usuario->isParticipante()){
-            if((null != ($usuario->person->participant->count())) != 0){
+            if(null != ($usuario->person->participant)){
                 $cursos =  Scheduled::with('facilitator')->with('course')->where('id', $usuario->person->participant->scheduled_id)->get();
             }else{
                 $cursos = [];
