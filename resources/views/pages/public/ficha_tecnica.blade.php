@@ -5,8 +5,9 @@
 
 
 @section('content')
-{{--needs style--}}
-<div class="row buttons hide-print">
+
+<div class="container-fluid">
+    <div class="row buttons hidden-print form-group">
     <div class="col-md-8">
         <a class="btn btn-blue" href="{{url("u/mis_acciones")}}" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
     </div>
@@ -65,7 +66,7 @@
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Duración</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-duration">{{$curso->duration}} @if($curso->duracion > 1)Horas @else Hora @endif
+                <td colspan="4" rowspan="1" class="ficha-subtitle-name-td"><p class="ficha-course-duration">{{$curso->duration}} @if($curso->duration > 1)Horas @else Hora @endif
                 </p></td>
             </tr>
             <tr>
@@ -98,6 +99,8 @@
     </table>
     </div>  
 </div>
+</div>
+
 
 @stop
 
