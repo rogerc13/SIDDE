@@ -221,19 +221,17 @@ class CursoProgramadoController extends Controller
         
         
         if($user->isFacilitador()){
-            $cursos =
-            Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id);
+            $cursos = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id);
         }
 
         if($user->isParticipante()){
-            //return $person->participant->scheduled_id;
-            $cursos =  Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', $usuario->person->participant->scheduled_id)->get(); 
-            //return gettype($cursos);
+            
+            $cursos = Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', $usuario->person->participant->scheduled_id); 
+            
         }
         
         if($titulos){
-           //return $cursos;
-            // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
+           
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
@@ -247,8 +245,8 @@ class CursoProgramadoController extends Controller
             $fecha=$fecha->format('m-Y');
         }
 
-        //$cursos = $cursos->orderBy("start_date","asc");
-        //return $cursos;
+        $cursos = $cursos->orderBy("start_date","asc");
+        
         return view('pages.admin.usuarios.miscursos')
                 ->with('cursos',$cursos->paginate(10))
                 ->with('categorias',$categorias)
