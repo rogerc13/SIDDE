@@ -88,8 +88,10 @@ class FacilitadorController extends Controller
         );
         $person = Person::create($personData);
 
+
         if($person){
             $person->user()->save($usuario);
+            //NEED TO CREATE FACILITATOR
             return Redirect::back()
                     ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
             

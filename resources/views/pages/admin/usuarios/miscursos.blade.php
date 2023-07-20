@@ -117,6 +117,9 @@
 								</td>
 								<td>
 								@if($logeado->isFacilitador())
+								<a  title="Evaluacion" href="{{url('u/af_programadas/'.$cursop->id.'/evaluacion')}}" class="btn btn-info btn-xs">
+									<i class="entypo-check"></i>
+								</a>
 								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>

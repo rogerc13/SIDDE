@@ -185,7 +185,12 @@
 					</a>
 				</li>
 			@endcan
-
+				<li title="Reportes">
+					<a href="{{"/reports"}}">
+						<i class="entypo-list"></i>
+						<span class="title">Reportes</span>
+					</a>
+				</li>
 
 
 			</ul>

@@ -104,11 +104,12 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
                 Route::post('/', 'App\Http\Controllers\CursoProgramadoController@store');
                 Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@update');
-                Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');
+                Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');        
 
 
 
-
+                Route::get('/{id}/evaluacion', 'App\Http\Controllers\ParticipanteCursoController@getAllEvaluation');
+                //Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
                 Route::get('/{id}/participantes', 'App\Http\Controllers\ParticipanteCursoController@getAllPorCurso');
                // Route::get('/count', 'ParticipanteCursoController@count');
                 Route::get('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@get');
@@ -140,17 +141,20 @@ Route::group(['middleware' => 'auth'], function ()
 
 
     });
-
+    
+    Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
     Route::group(['prefix' => 'reports'], function(){
         Route::get('/', function(){
                 return view('pages.admin.usuarios.reports');
         });
-        Route::get('/date', 'App\Http\Controllers\ReportController@byDate');
-        Route::get('/category', 'App\Http\Controllers\ReportController@byCategory');
-        Route::get('/status', 'App\Http\Controllers\ReportController@byStatus');
-        Route::get('/time', 'App\Http\Controllers\ReportController@byCourseTotalTime');
-        Route::get('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
-        Route::get('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
+        Route::post('/date', 'App\Http\Controllers\ReportController@byDate');
+        Route::post('/category', 'App\Http\Controllers\ReportController@byCategory');
+        Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');
+        Route::post('/duration', 'App\Http\Controllers\ReportController@byCourseDuration');
+        Route::post('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
+        Route::post('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
+        Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@participantByQuantity');
+        Route::post('/participant-average','App\Http\Controllers\ReportController@participantAverage');
     });   
 });
 

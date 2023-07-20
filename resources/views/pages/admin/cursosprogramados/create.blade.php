@@ -77,7 +77,7 @@
                     </div>
                     <div class="form-group" >
 
-                        <div class="col-lg-12 col-md-12 facilitador" >
+                        {{-- <div class="col-lg-12 col-md-12 facilitador" >
                             <label for="facilitador">Facilitador</label>
                             <select name="facilitador" class="select2 " id="facilitador" data-allow-clear="true" required>
                                 <option></option>
@@ -90,7 +90,7 @@
                                     @endif
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
 
 

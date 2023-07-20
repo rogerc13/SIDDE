@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Person;
 use App\Models\User;
 use App\Models\Participant;
+use App\Models\ParticipantStatus;
 use App\Models\Funciones;
 
 use Illuminate\Support\Facades\Redirect;
@@ -24,9 +25,6 @@ class ParticipanteCursoController extends Controller
         $participantecurso = Participant::find($participanteId);
         if(!$participantecurso || $user->cannot('get', Participant::class))
         {
-            //$data = $participanteId;
-            //$data = "not found";
-            //return json_encode($user);
             return json_encode([]);
         }
         return json_encode($participantecurso);
@@ -76,15 +74,56 @@ class ParticipanteCursoController extends Controller
                     ->get();
 
 
-        //dd($participantes2);
+        
         return view('pages.admin.participantescursos.index')
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
                 ->with('participantes2',$participantes2)
                 ->with('estados', Participant::$estados);
 
-    }
-    
+    }//getAllPorCurso
+
+    public function getAllEvaluation($id){
+        $user = Auth::user();
+
+        if ($user->cannot('getAllPorCurso', Participant::class)) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
+        }
+
+        $cursoprogramado = Scheduled::find($id);
+
+        if (!$cursoprogramado)
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
+
+        $participants = Participant::with('person')->withTrashed()->where('scheduled_id', $id);
+        $pts = $participants->pluck('person_id');
+
+
+        $participantes2 = User::where('role_id', '5')
+        ->whereNotIn('person_id', $pts)
+        ->get();
+
+        return view('pages.admin.usuarios.evaluation')
+        ->with('participants', $participants->paginate(10))
+            ->with('cursoprogramado', $cursoprogramado)
+            ->with('participantes2', $participantes2)
+            ->with('statuses', ParticipantStatus::all());
+    }//end get evaluation
+
+    public function participantEvaluationStatus(Request $request){
+
+        $participant = Participant::find($request->participantId);
+        $participant->participant_status_id = $request->status;
+
+        if($participant->save()){
+            return json_encode(['success' => true, 'message' => 'Estado del Participante actualizado']);
+        }else{
+            return json_encode(['success' => false, 'message' => 'Error al actualizar estado del Participante']);
+        }
+    }//end participantEvaluationStatus
+
     public function store(UserForm $request,$id)
     {
 
