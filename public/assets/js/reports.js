@@ -12,7 +12,8 @@
         //print report
 $(document).ready(function(){
 
-    $('#date_range option').click(function (e) { 
+    $('#date_range').on('change',function (e) { 
+        console.log('change');
         let optionIndex = $(this).index();
         $('#step').val('1 day').change();
         if(optionIndex != 5){
