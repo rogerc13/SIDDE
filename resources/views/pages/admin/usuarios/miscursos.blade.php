@@ -117,7 +117,7 @@
 								</td>
 								<td>
 								@if($logeado->isFacilitador())
-								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->course->id.'/participantes')}}" class="btn btn-info btn-xs">
+								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>
 								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->course->id.'/documents')}}" class="btn btn-info btn-xs">
