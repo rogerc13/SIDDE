@@ -225,13 +225,15 @@ class CursoProgramadoController extends Controller
         }
 
         if($user->isParticipante()){
-            
-            $cursos = Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', $usuario->person->participant->scheduled_id); 
-            
+            if( null != $usuario->person->participant){
+                $cursos = Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', $usuario->person->participant->scheduled_id); 
+            }
+            else{
+                $cursos = Scheduled::with('facilitator')->with('course')->where('scheduled_course.id', null);
+            }
         }
         
         if($titulos){
-           
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
