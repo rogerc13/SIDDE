@@ -18,6 +18,10 @@ class Person extends Model
         'avatar_path',
     ];
 
+    public function id_format(){ //returns id_number as 10.000.000
+        return number_format($this->id_number, 0, '', '.');
+    }
+
     public function user(){
         return $this->hasOne(User::class);
     }
@@ -26,12 +30,15 @@ class Person extends Model
         return $this->hasOne(Facilitator::class);
     }
 
-    public function participant(){
-        return $this->hasOne(Participant::class);
+     public function participant(){
+        return $this->hasMany(Participant::class);
     }
 
     public function scheduled(){
-        return $this->hasManyThrough(Scheduled::class,Participant::class);
+        return $this->belongsToMany(Scheduled::class, 'participants');
     }
 
-}
+     /* public function scheduled(){
+        return $this->hasManyThrough(Scheduled::class,Participant::class);
+    }  */
+}   
