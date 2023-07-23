@@ -33,7 +33,7 @@
                 <label for="nombre" class="col-sm-3 control-label">Nombre</label>
                 
                 <div class="col-sm-5">
-                  <input type="text" class="form-control" name="nombre" id="nombre"  value="{{Auth::User()->nombre}}" maxlength="45" required="true">
+                  <input type="text" class="form-control" name="nombre" id="nombre"  value="{{Auth::User()->person->name}}" maxlength="45" required="true">
                 </div>
               </div>       
 
@@ -42,7 +42,7 @@
                 <label for="apellido" class="col-sm-3 control-label">Apellido</label>
                 
                 <div class="col-sm-5">
-                  <input type="text" class="form-control" name="apellido" id="apellido" value="{{Auth::User()->apellido}}" maxlength="45" required="true">
+                  <input type="text" class="form-control" name="apellido" id="apellido" value="{{Auth::User()->person->last_name}}" maxlength="45" required="true">
                 </div>
               </div>
 
@@ -59,7 +59,7 @@
                 <label for="ci" class="col-sm-3 control-label">C.I</label>
                 
                 <div class="col-sm-5">
-                  <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->ci}}" maxlength="45" required="true">
+                  <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->person->id_number}}" maxlength="45" required="true">
                 </div>
               </div>
 
