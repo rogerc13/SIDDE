@@ -45,7 +45,7 @@
 					@if(!$logeado->person->avatar_path)
                     	<img src="{{url('assets/images/photo.jpg')}}" width="55" alt="" class="img-circle">
                   	@else
-                  		<img src="{{url('uploads/perfiles/'.$logeado->person->avatar_path)}}" width="55" alt="" class="img-circle">
+                  		<img src="{{url('avatars/'.$logeado->person->avatar_path)}}" width="55" alt="" class="img-circle">
                   	@endif
 
 						<strong style="text-transform: capitalize;">{{$logeado->person->name}} {{$logeado->person->last_name}}</strong>
