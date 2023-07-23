@@ -5,11 +5,12 @@
 	<h2><strong>{{$cursoprogramado->course->title}}</strong></h2>
   
   <br>
-
-
-	<a href="javascript:asignarParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}')" class="btn btn-blue"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
-  <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>
-
+  @if (!Auth::user()->isFacilitador())
+    <a href="javascript:asignarParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}')" class="btn btn-blue"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
+    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>    
+  @else
+    <a href="javascript:evaluation('{{url('')}}')" class="btn btn-success"><i class="fa fa-check" aria-hidden="true"></i> Evaluar Participantes</a>
+  @endif
   <br>
   <br>
 <div class="row">						
@@ -52,13 +53,12 @@
                         <tr>
                             <td>{{$participante->person->name}}</td>
                             <td>{{$participante->person->last_name}}</td>
-                            <td>{{$participante->person->id_number}}</td>
+                            <td>{{$participante->person->id_format()}}</td>
                             <td>{{$participante->getEstado()}}</td>
                             <td>
                                 <a  title="Editar Estado del Participante" href="javascript:editarEstado('{{url('u/af_programadas/estado-participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
                                     <i class="entypo-pencil"></i>
                                 </a>
-
                                 <a  title="Eliminar Participante" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">
                                     <i class="entypo-trash"></i>
                                 </a>
