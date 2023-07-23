@@ -88,10 +88,10 @@
                 <div class="col-sm-5">
                   <div class="fileinput fileinput-new" data-provides="fileinput">
                     <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;" data-trigger="fileinput">
-                      @if(!$logeado->imagen)
+                      @if(!$logeado->person->avatar_path)
                         <img src="{{asset('assets/images/photo.jpg')}}" alt="...">
                       @else
-                        <img src="{{url('uploads/perfiles/'.$logeado->imagen)}}" alt="...">
+                        <img src="{{asset('avatars/'.$logeado->person->avatar_path)}}" alt="...">
                       @endif
                     </div>
                     <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px"></div>
