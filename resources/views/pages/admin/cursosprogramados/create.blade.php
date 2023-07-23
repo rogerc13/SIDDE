@@ -56,7 +56,6 @@
                                 <option></option>
                                 @isset($categoriasAcciones)
                                     @foreach($categoriasAcciones as $category)
-
                                         <optgroup label="{{$category->name}}">
                                                 @foreach($category->courses as $af)
 
@@ -65,24 +64,20 @@
                                                     @else
                                                     <option value="{{$af->id}}">{{$af->title}}</option>
                                                     @endif
-
                                                 @endforeach
                                         </optgroup>
-
                                     @endforeach    
                                 @endisset
                             </select>
                         </div>
-
                     </div>
                     <div class="form-group" >
 
-                        {{-- <div class="col-lg-12 col-md-12 facilitador" >
+                         <div class="col-lg-12 col-md-12 facilitador" >
                             <label for="facilitador">Facilitador</label>
                             <select name="facilitador" class="select2 " id="facilitador" data-allow-clear="true" required>
                                 <option></option>
                                 @foreach($facilitadores as $facilitador)
-
                                     @if(old('facilitador') == $facilitador->id)
                                         <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
                                     @else
@@ -90,18 +85,22 @@
                                     @endif
                                 @endforeach
                             </select>
-                        </div> --}}
+                        </div>
                     </div>
 
 
                     <div class="form-group" id="fechas_form">
-                        <div class="col-lg-6 col-md-6" >
-                            {{ Form::label('fecha_i', 'Fecha de Inicio') }}
-                            {{ Form::text('fecha_i', null, array('class' => 'form-control dat2','required','autocomplete'=>'off')) }}
+                        <div class="col-lg-12 col-md-12" >
+                            {{-- {{ Form::label('fecha_i', 'Fecha de Inicio') }}
+                            {{ Form::text('fecha_i', null, array('class' => 'form-control dat2','required','autocomplete'=>'off')) }} --}}
+                            <label for="fecha_i">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="fecha_i">
                         </div>
-                        <div class="col-lg-6 col-md-6" >
+                    </div>
+                    <div class="form-group" id="fechas_form">
+                        <div class="col-lg-12 col-md-12" >
                             {{ Form::label('fecha_f', 'Fecha de Culminación') }}
-                            {{ Form::text('fecha_f', null, array('class' => 'form-control dat2','required','autocomplete'=>'off')) }}
+                            {{ Form::text('fecha_f', null, array('class' => 'form-control dat2 input-lg','required','autocomplete'=>'off')) }}
                         </div>
                     </div>
                 </div>
