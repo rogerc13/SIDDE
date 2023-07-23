@@ -133,11 +133,6 @@ class UserController extends Controller
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
-
-
-        
-        
-
         $usuario->email = $request->email;
         $usuario->role_id = $request->rol;
         $usuario->save();
@@ -148,8 +143,10 @@ class UserController extends Controller
             'id_number' => $request->ci
         ]);
 
-        if($request->password!='')
+        if($request->password!=''){
             $usuario->password = bcrypt($request->password);
+        }
+            
 
         if(!$usuario->save())
             return Redirect::back()
@@ -178,7 +175,6 @@ class UserController extends Controller
         {
             return Redirect::back()
                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
-
         }
 
         if($usuario->isFacilitador()){
@@ -230,17 +226,22 @@ class UserController extends Controller
            return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Este usuario no existe."));
 
+        $usuario->email = $request->email;
+        $usuario->save();
+
+        $usuario->person()->update([
+            'name' => $request->nombre,
+            'last_name' => $request->apellido,
+            'id_number' => $request->ci
+        ]);
+
+        if($request->password != ''){
+            $usuario->password = bcrypt($request->password);
+        }
 
 
-        $path = base_path() . '/public/uploads/perfiles';
-        // $path = 'App/public/uploads/perfiles';
+        /* $path = base_path() . '/public/uploads/perfiles';
 
-         //^ "/var/www/html/app/Http/Controllers/fejV21"
-        // dd(tempnam($path, ""));
-
-
-
-        /*  */
         if($request->file('imagen')){
             $archivoAnterior=$user->imagen;
 
@@ -253,40 +254,30 @@ class UserController extends Controller
             unlink($arhcivotemporal);
 
             $usuario->imagen = $docTempName;
-        }
+        } */
 
-        $usuario->nombre = $request->nombre;
-        $usuario->apellido = $request->apellido;
-        $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-
-        if($request->password!='')
-            $usuario->password = bcrypt($request->password);
-
-        if(!$usuario->save())
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
-
-
-        if($request->file('imagen')){
-
+        /* if($request->file('imagen')){
             if($archivoAnterior){
-               // $path2 = 'App/public/uploads/perfiles'.$archivoAnterior;
                 $path2 = base_path() .'/public/uploads/perfiles/'.$archivoAnterior;
                 if(file_exists($path2))
                 {
                     unlink($path2);
                 }
             }
-
-
             $request->file('imagen')->move($path, $docTempName);
+        } */
+            
+        if(!$usuario->save()){
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
         }
+            
+
+
+        
 
 
         return Redirect::back()
             ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
-
-
     }
 }
