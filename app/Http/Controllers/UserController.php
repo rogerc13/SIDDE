@@ -229,16 +229,22 @@ class UserController extends Controller
         $usuario->email = $request->email;
         $usuario->save();
 
+        if (null != $request->file('imagen')) {
+            $request->file('imagen')->storeAs('public/avatars', $request->ci . '.' . $request->file('imagen')->getClientOriginalExtension());
+            $avatar_path = $request->ci.'.'.$request->file('imagen')->getClientOriginalExtension();
+            asset($avatar_path);
+        }
+        
         $usuario->person()->update([
             'name' => $request->nombre,
             'last_name' => $request->apellido,
-            'id_number' => $request->ci
+            'id_number' => $request->ci,
+            'avatar_path' => isset($avatar_path) ? $avatar_path : $usuario->person->avatar_path
         ]);
 
         if($request->password != ''){
             $usuario->password = bcrypt($request->password);
         }
-
 
         /* $path = base_path() . '/public/uploads/perfiles';
 
