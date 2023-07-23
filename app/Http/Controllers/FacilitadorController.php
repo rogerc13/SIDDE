@@ -9,6 +9,7 @@ use App\Models\Funciones;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
+use App\Models\Facilitator;
 
 class FacilitadorController extends Controller
 {
@@ -86,11 +87,14 @@ class FacilitadorController extends Controller
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
         );
+        
         $person = Person::create($personData);
 
-
+        $facilitator = new Facilitator([]);
         if($person){
             $person->user()->save($usuario);
+            $person->facilitator()->save($facilitator);
+            
             //NEED TO CREATE FACILITATOR
             return Redirect::back()
                     ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
