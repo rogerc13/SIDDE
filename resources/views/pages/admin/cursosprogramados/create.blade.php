@@ -91,10 +91,10 @@
 
                     <div class="form-group" id="fechas_form">
                         <div class="col-lg-12 col-md-12" >
-                            {{-- {{ Form::label('fecha_i', 'Fecha de Inicio') }}
-                            {{ Form::text('fecha_i', null, array('class' => 'form-control dat2','required','autocomplete'=>'off')) }} --}}
-                            <label for="fecha_i">Fecha de Inicio</label>
-                            <input type="date" class="form-control" name="fecha_i">
+                            {{ Form::label('fecha_i', 'Fecha de Inicio') }}
+                            {{ Form::text('fecha_i', null, array('class' => 'form-control dat2','required','autocomplete'=>'off')) }}
+                            {{-- <label for="fecha_i">Fecha de Inicio</label>
+                            <input type="date" class="form-control" name="fecha_i"> --}}
                         </div>
                     </div>
                     <div class="form-group" id="fechas_form">
