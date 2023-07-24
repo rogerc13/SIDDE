@@ -8,14 +8,14 @@
 
 <div class="container-fluid">
     <div class="row buttons hidden-print form-group">
-    <div class="col-md-8">
-        <a class="btn btn-blue" href="{{url("u/mis_acciones")}}" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
+    <div class="col-md-6 col-sm-12">
+        <a class="btn btn-blue" href="{{url()->previous()}}" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
     </div>
-    <div class="col-md-2">
-        <a class="btn btn-default" href="" role="button"><i class="entypo-download"></i>Descargar Documentos</a>
+    <div class="col-md-3 col-sm-12">
+        <a class="btn btn-default" href="" role="button"><i class="entypo-download"></i>Descargar Documentos del Curso</a>
     </div>
-    <div class="col-md-2">
-        <a class="btn btn-success save-ficha" href="" role="button"><i class="entypo-doc"></i>Descargar Ficha</a>
+    <div class="col-md-3 col-sm-12">
+        <a class="btn btn-success save-ficha" href="" role="button"><i class="entypo-doc"></i>Descargar Ficha Técnica</a>
     </div>
 </div>
 <div class="row ">
