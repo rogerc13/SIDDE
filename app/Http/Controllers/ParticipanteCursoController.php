@@ -183,7 +183,6 @@ class ParticipanteCursoController extends Controller
     public function asignarParticipante(Request $request,$id)
     {
 
-
         $this->validate($request, [
             'participante' => 'required|integer|exists:people,id',
             'curso_p_id' => 'required|integer|exists:scheduled_course,id',
@@ -196,30 +195,26 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
-        //dd($request);
+        
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();
        
-        if($validacion > 0)
+        /* if($validacion > 0)
         {
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al asignar","Este participante seleccionado ya se encuentra asignado."));
-        } 
+        } */ 
    
-
-     
         $participantecurso = new Participant();
         $participantecurso->participant_status_id=1;
         $participantecurso->scheduled_id=$request->curso_p_id;
         $participantecurso->person_id=$request->participante;
-        //dd($participantecurso);
 
         if(!$participantecurso->save()){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El participante no pudo ser asignado. Intente nuevamente"));
         }
-
 
         return Redirect::back()
             ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
