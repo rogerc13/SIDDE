@@ -45,9 +45,9 @@
 							@foreach($facilitadores as $facilitador)
 
 	                            @if($id_facilitador == $facilitador->id)
-	                                <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+	                                <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
 	                            @else 
-	                                <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+	                                <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
 	                            @endif
 	                        @endforeach		                
 			            </select>  
@@ -119,11 +119,11 @@
 				</table>
 			</div>
 		</div>
-		{{-- @if($usuario->isParticipante())
+		@if($usuario->isParticipante())
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'id_facilitador' => $id_facilitador, 'fechas' => $fechas])->links() !!}</div>
 		@else
 			<div align="center">{!! $cursos->appends(['titulos' => $titulos, 'fechas' => $fechas])->links() !!}</div>
-		@endif	 --}}				
+		@endif			
 	</div>
 	@if($usuario->isParticipante())
 		<a href="{{url("u/participantes")}}">	
