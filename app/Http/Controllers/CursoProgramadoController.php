@@ -73,6 +73,7 @@ class CursoProgramadoController extends Controller
             
         }
         if($id_facilitador)
+        
            $cursos=$cursos->where('facilitator_id','=',$id_facilitador);
         if($id_estado){
             $cursos= $cursos->where('course_status_id',$id_estado);

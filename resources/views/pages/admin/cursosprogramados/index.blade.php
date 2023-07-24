@@ -31,8 +31,8 @@
 		        <div class="col-md-4 col-sm-6 col-xs-12 margin-top">
 		            <label for="titulos" class="control-label">Título</label>
 		            <input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
-
 		        </div>
+				
 
 		        <div class="col-md-4 col-sm-6 col-xs-12">
 		          	<label for="id_facilitador" class="control-label">Facilitador</label>
@@ -43,9 +43,9 @@
 						@foreach($facilitadores as $facilitador)
 
                             @if($id_facilitador == $facilitador->id)
-                                <option value="{{$facilitador->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+                                <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
                             @else
-                                <option value="{{$facilitador->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
+                                <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
                             @endif
                         @endforeach
 		            </select>
