@@ -173,17 +173,14 @@ class FacilitadorController extends Controller
 
         }
 
-
-
-        if($usuario->cursoFacilitador->count() > 0){
+        if($usuario->person->facilitator->scheduled->count() > 0){
             return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este facilitador se encuentra asignado a una acción de formación."));
         }
 
 
-        if ($usuario->delete()) {              
-          
+        if ($usuario->delete()) {
+            //needs to also delete on facilitator table              
             return Redirect::back()->with('alert',Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
-
         }
 
 
