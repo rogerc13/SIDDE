@@ -119,7 +119,7 @@ class CategoriaController extends Controller
 
 
             if($categoria->courses->count() > 0){
-                return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Esta categoria no puede ser eliminada, poseé cursos asignados."));
+                return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Esta categoria no puede ser eliminada, posee cursos asignados."));
             }
            
 
