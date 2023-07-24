@@ -169,8 +169,8 @@ class ParticipanteController extends Controller
             return Redirect::back()
                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
         }
-
-        if($usuario->cursosParticipante->count() > 0){
+        //if participant is in a course, the participant cannot be deleted
+        if($usuario->person->participant->count() > 0){
             return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este participante se encuentra registrado en una acción de formación."));
         }
 
