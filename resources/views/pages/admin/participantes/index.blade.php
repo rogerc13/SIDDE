@@ -70,7 +70,7 @@
                       <tr>
                           <td>{{$user->person->name}}</td>
                           <td>{{$user->person->last_name}}</td>
-                          <td>{{$user->person->id_number}}</td>
+                          <td>{{$user->person->id_format()}}</td>
                           <td>{{$user->email}}</td>                      
                           <td>
                               <a  title="Más Información" href="javascript:detallesParticipante('{{url('u/participantes/'.$user->id)}}')" class="btn btn-info btn-xs">
