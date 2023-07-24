@@ -305,11 +305,18 @@ class CursoProgramadoController extends Controller
             $cursos = [];
         }
         if($usuario->isParticipante()){
-            if(null != ($usuario->person->participant)){
-                $cursos =  Scheduled::with('facilitator')->with('course')->where('id', $usuario->person->participant->scheduled_id)->get();
-            }else{
-                $cursos = [];
-            }   
+
+            $courses = $usuario->person->participant; //courses is a Collection
+            
+            foreach ($courses as $course) {
+                $values[] = $course->scheduled_id;
+            }
+
+            if (count($courses) > 0) {
+                $cursos = Scheduled::whereIn('id',$values)->with('facilitator')->with('course');
+            }  else {
+                $cursos = Scheduled::where('id',null)->with('facilitator')->with('course');
+            }  
         }
 
        if($titulos){
@@ -317,6 +324,7 @@ class CursoProgramadoController extends Controller
                     $q->where('title', 'like', '%'.$titulos.'%');});
         }
         if($id_facilitador){
+            
             $cursos = $cursos->where('scheduled_course.facilitator_id', '=', $id_facilitador); 
         }
         if($date){
@@ -326,10 +334,10 @@ class CursoProgramadoController extends Controller
                             ->whereYear('scheduled_course.start_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
         } 
-        //$cursos = $cursos->orderBy("start_date","asc");
+        $cursos = $cursos->orderBy("start_date","asc");
     
         return view('pages.admin.usuarios.usercursos')
-                ->with('cursos',$cursos)
+                ->with('cursos',$cursos->paginate(10))
                 ->with('categorias',$categorias)
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)
