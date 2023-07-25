@@ -79,7 +79,7 @@ class ParticipanteCursoController extends Controller
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
                 ->with('participantes2',$participantes2)
-                ->with('estados', Participant::$estados);
+                ->with('estados', Participant::$estados)->with('statuses',ParticipantStatus::all());
 
     }//getAllPorCurso
 
@@ -110,18 +110,20 @@ class ParticipanteCursoController extends Controller
             ->with('cursoprogramado', $cursoprogramado)
             ->with('participantes2', $participantes2)
             ->with('statuses', ParticipantStatus::all());
-    }//end get evaluation
+    }//end get all evaluation
 
     public function participantEvaluationStatus(Request $request){
+        
+        //return json_encode($request->data[0]['courseid']);
+        //return json_encode(count($request->data));
+        //$i = 0;
+        foreach ($request->data as $key => $value) {
+            $data = array('id' => $request->data[$key]['participant_id'],
+                    'participant_status_id' => $request->data[$key]['status_id']);
 
-        $participant = Participant::find($request->participantId);
-        $participant->participant_status_id = $request->status;
-
-        if($participant->save()){
-            return json_encode(['success' => true, 'message' => 'Estado del Participante actualizado']);
-        }else{
-            return json_encode(['success' => false, 'message' => 'Error al actualizar estado del Participante']);
-        }
+            Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->update($data);
+        } 
+        return json_encode($response = array('success'=>'Evaluacion Completada','error'=>'Error durante la evaluación'));
     }//end participantEvaluationStatus
 
     public function store(UserForm $request,$id)
@@ -199,7 +201,7 @@ class ParticipanteCursoController extends Controller
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();
-       
+       //dd($request->participante);
         /* if($validacion > 0)
         {
             return Redirect::back()
