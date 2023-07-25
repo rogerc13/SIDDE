@@ -62,6 +62,22 @@
                   <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->person->id_number}}" maxlength="45" required="true">
                 </div>
               </div>
+              <div class="form-group">
+                <label for="sex" class="col-sm-3 control-label">Sexo</label>
+                <div class="col-sm-5">
+                  <select name="sex" id="sex" class="form-control">
+                    <option value="Femenino" @if(Auth::User()->person->sex == 'Femenino') selected @endif>Femenino</option>
+                    <option value="Masculino" @if(Auth::User()->person->sex == 'Masculino') selected @endif>Masculino</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="phone" class="col-sm-3 control-label">Teléfono</label>
+                
+                <div class="col-sm-5">
+                  <input type="phone" class="form-control" name="phone" id="phone"  min="0" value="{{Auth::User()->person->phone}}" maxlength="45" required="true">
+                </div>
+              </div>
 
 
               <div class="form-group">

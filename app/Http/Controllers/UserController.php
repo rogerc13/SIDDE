@@ -175,16 +175,16 @@ class UserController extends Controller
         if($usuario==null)
         {
             return Redirect::back()
-               ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
+               ->with("alert",Funciones::getAlert("danger", "Error al eleminar", "Usuario no encontrado."));
         }
 
         if($usuario->isFacilitador()){
-            if($usuario->cursoFacilitador->count() > 0){
+            if ($usuario->person->facilitator->scheduled->count() > 0) {
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este facilitador se encuentra asignado a una acción de formación."));
             }
         }
         else if($usuario->isParticipante()){
-            if($usuario->cursosParticipante->count() > 0){
+            if ($usuario->person->participant->count() > 0) {
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este participante se encuentra registrado en una acción de formación."));
             }
         }
@@ -240,6 +240,8 @@ class UserController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'sex' => $request->sex,
+            'phone' => $request->phone,
             'avatar_path' => isset($avatar_path) ? $avatar_path : $usuario->person->avatar_path
         ]);
 
@@ -247,43 +249,12 @@ class UserController extends Controller
             $usuario->password = bcrypt($request->password);
         }
 
-        /* $path = base_path() . '/public/uploads/perfiles';
-
-        if($request->file('imagen')){
-            $archivoAnterior=$user->imagen;
-
-            $arhcivotemporal=tempnam($path, "");
-            $infotemporal= pathinfo($arhcivotemporal);
-            $nombertemporal= $infotemporal['filename'];
-            $info = pathinfo($request->file('imagen')->getClientOriginalName());
-            $extension = $info['extension'];
-            $docTempName='perfil_'.$nombertemporal.".".$extension;
-            unlink($arhcivotemporal);
-
-            $usuario->imagen = $docTempName;
-        } */
-
-        /* if($request->file('imagen')){
-            if($archivoAnterior){
-                $path2 = base_path() .'/public/uploads/perfiles/'.$archivoAnterior;
-                if(file_exists($path2))
-                {
-                    unlink($path2);
-                }
-            }
-            $request->file('imagen')->move($path, $docTempName);
-        } */
             
         if(!$usuario->save()){
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
         }
-            
-
-
         
-
-
         return Redirect::back()
             ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
     }
