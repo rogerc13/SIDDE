@@ -27,13 +27,16 @@ $(document).ready(function(){
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
-        
         $('.evaluate-button').on('click',function(e){
-            if($('#participant_status').prop('disabled') == true){
+            if($('.participant_status').prop('disabled') == true){
                 $('.evaluate-button span').html(' Finalizar Evaluación');
-                $('#participant_status').prop('disabled', false);
+                $('.participant_status').each(function(){
+                    $('.participant_status').prop('disabled', false);
+                });
             }else{
-                $('#participant_status').prop('disabled', true);
+                $('.participant_status').each(function(){
+                    $(this).prop('disabled', true);
+                });
                 $('.evaluate-button span').html(' Evaluar Participantes');
                 evaluate(data);
             }
@@ -41,7 +44,7 @@ $(document).ready(function(){
         });
         let data = [];
         let b;
-     $('#participant_status option').click(function(e){
+     $('.participant_status option').click(function(e){
         data.push({'scheduled_id':$(this).attr('course_id'),'participant_id':$(this).attr('participant_id'),'status_id':$(this).val()});
     })
 });

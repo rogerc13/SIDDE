@@ -113,16 +113,14 @@ class ParticipanteCursoController extends Controller
     }//end get all evaluation
 
     public function participantEvaluationStatus(Request $request){
-        
-        //return json_encode($request->data[0]['courseid']);
-        //return json_encode(count($request->data));
-        //$i = 0;
-        foreach ($request->data as $key => $value) {
-            $data = array('id' => $request->data[$key]['participant_id'],
-                    'participant_status_id' => $request->data[$key]['status_id']);
 
-            Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->update($data);
+        foreach ($request->data as $key => $value) {
+            $i = $i+1;
+            $data = array('participant_status_id' => $request->data[$key]['status_id']);
+
+             Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->where('id',$request->data[$key]['participant_id'])->update($data);
         } 
+
         return json_encode($response = array('success'=>'Evaluacion Completada','error'=>'Error durante la evaluación'));
     }//end participantEvaluationStatus
 
