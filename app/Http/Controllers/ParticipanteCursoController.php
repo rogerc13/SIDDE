@@ -113,15 +113,18 @@ class ParticipanteCursoController extends Controller
     }//end get all evaluation
 
     public function participantEvaluationStatus(Request $request){
+        if(isset($request->data)){
+    
+            foreach ($request->data as $key => $value) {
+                
+                $data = array('participant_status_id' => $request->data[$key]['status_id']);
 
-        foreach ($request->data as $key => $value) {
-            $i = $i+1;
-            $data = array('participant_status_id' => $request->data[$key]['status_id']);
-
-             Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->where('id',$request->data[$key]['participant_id'])->update($data);
-        } 
-
-        return json_encode($response = array('success'=>'Evaluacion Completada','error'=>'Error durante la evaluación'));
+                Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->where('id',$request->data[$key]['participant_id'])->update($data);
+            } 
+            return json_encode($response = array('success'=>'Evaluacion Completada','error'=>'Error durante la evaluación'));
+        }else{
+            return json_encode($response = array('error'=>'No Se ejecutó la evaluación'));
+        }
     }//end participantEvaluationStatus
 
     public function store(UserForm $request,$id)
