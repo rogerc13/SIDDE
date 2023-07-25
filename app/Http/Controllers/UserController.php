@@ -56,8 +56,9 @@ class UserController extends Controller
                 return $query->where('last_name', 'LIKE', "%$apellidos%");
             });
         if($cis)
+            
             $users = User::whereHas('person', function ($query) use ($cis) {
-                return $query->where('id_number', '=', $cis);
+                return $query->where('id_number', 'LIKE', "%$cis%");
             });
         if($busqueda_rol)
            $users=$users->where('role_id','=',$busqueda_rol);
