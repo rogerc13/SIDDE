@@ -188,9 +188,12 @@ class UserController extends Controller
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este participante se encuentra registrado en una acción de formación."));
             }
         }
+        else if($usuario->isAdministrador()){
+            return Redirect::back()->with('alert', Funciones::getAlert("danger", "Error", "No se puede eliminar a un administrador."));
+        }
 
         if ($usuario->delete()) {
-
+            $usuario->person->delete();
             return Redirect::back()->with('alert',Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
 
         }

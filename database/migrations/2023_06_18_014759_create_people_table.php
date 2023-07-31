@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('sex')->nullable();
             $table->string('avatar_path')->nullable();
+            $table->softDeletes();
         });
     }
 

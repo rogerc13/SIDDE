@@ -23,7 +23,9 @@ class Course extends Model
     , 'addressed',
   ];
   protected $dates = [ 'deleted_at', ];
-
+/* public function minMax(){
+  return $this->capacity
+} */
 public function category()
 {
     return $this->belongsTo(Category::class);

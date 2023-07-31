@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Person extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -17,6 +19,7 @@ class Person extends Model
         'sex',
         'avatar_path',
     ];
+    protected $dates = ['deleted_at',];
 
     public function id_format(){ //returns id_number as 10.000.000
         return number_format($this->id_number, 0, '', '.');

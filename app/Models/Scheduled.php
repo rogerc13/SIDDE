@@ -35,11 +35,15 @@ class Scheduled extends Model
   {
     return $this->hasMany(Participant::class);
   }
+
+  public function persons(){
+    return $this->belongsToMany(Person::class,'participants');
+  }
     //
 
-  public function participantes(){
+ /*  public function participantes(){
     return $this->belongsToMany(User::class,'participante_curso','curso_programado_id','user_id')->withPivot('id');
-  }
+  } */
 
   
   public function isPorDictar(){

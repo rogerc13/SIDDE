@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             //$table->integer('person_id')->unsigned();
             $table->timestamps();
-            
+            $table->softDeletes();
             $table->foreignID('person_id')->references('id')->on('people')->onDelete('cascade')->onUpdate('cascade');
         });
     }

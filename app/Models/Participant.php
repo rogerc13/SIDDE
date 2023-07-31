@@ -26,15 +26,15 @@ class Participant extends Model
   ];
   protected $dates = [ 'deleted_at', ];
 
-  public function person()
+   public function person()
   {
     return $this->belongsTo(Person::class);
   }
 
-  public function scheduled()
+  /* public function scheduled()
   {
     return $this->belongsTo(Scheduled::class);
-  }
+  } */
 
   /* public function participantCourse()
   {
