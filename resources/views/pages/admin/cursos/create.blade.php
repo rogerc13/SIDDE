@@ -1,14 +1,14 @@
 @push('JS')
-    <script src="{{asset('assets/js/fileinput.js')}}"></script>
+   {{--  <script src="{{asset('assets/js/fileinput.js')}}"></script>
     <script src="{{asset('assets/js/course-content-list.js')}}"></script>
-    <script src="{{asset('assets/js/course-code-validation.js')}}"></script>
+    <script src="{{asset('assets/js/course-code-validation.js')}}"></script> --}}
     
 {{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
 {{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
 
 
 <script>
-    function crearAccion(url){
+    /* function crearAccion(url){
         //var contentData = [];
         //console.log(contentData);
         $('.course-code').parent().removeClass('has-error');
@@ -26,15 +26,13 @@
 
         //$('#objetivo').data('wysihtml5').editor.composer.clear();
         $("#accion-modal").modal();    
-    }
+    } */
 </script>
-
-
 
 
 @endpush
 <div class="modal fade" id="accion-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -48,8 +46,6 @@
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="course-id" class="course-id">
-
-
                 <div class="modal-body">
                     <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
@@ -61,7 +57,7 @@
                     <div class="form-group">
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
-                            {{ Form::text('titulo', null , array('class' => 'form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese el Título del Curso')) }}
+                            {{ Form::text('titulo', null , array('class' => 'form-control input-lg', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese el Título del Curso')) }}
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('categoria_id', 'Área de conocimiento',array('class' => 'control-label')) }}
@@ -79,14 +75,12 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group" >
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('modalidad_id', 'Modalidad',array('class' => 'control-label')) }}
                             {{-- Form::text('modalidad', null , array('class' => 'form-control', 'maxlength'=>45 ,'required')) --}}
                             <select name="modalidad_id" class="select2 " id="modalidad_id" data-allow-clear="true" required="true">
                                 <option></option>
-
                                 @foreach($modalities as $modality)
                                     @if(old('modalidad_id') == $modality->id)
                                         <option value="{{$modality->id}}" selected>{{$modality->name}}</option>
@@ -98,7 +92,7 @@
                         </div>
                         <div class="col-lg-6 col-md-6" >
                             {{ Form::label('duracion', 'Duración (Horas)',array('class' => 'control-label')) }}
-                            {{ Form::number('duracion', null , array('class' => 'form-control', 'min' => '1', 'required','placeholder'=>'Ingrese la duración del Curso')) }}
+                            {{ Form::number('duracion', null , array('class' => 'form-control input-lg', 'min' => '1', 'required','placeholder'=>'Ingrese la duración del Curso')) }}
                         </div>
                     </div>
                     <div class="form-group" >
@@ -107,7 +101,6 @@
                             {{ Form::text('dirigido', null , array('class' => 'form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese a quien va dirigido el Curso')) }}
                         </div>
                     </div>
-
                     <h5 style="font-weight: bold; color: #444444">Numero de Participantes</h5>
                     <div class="form-group" >
                         <div class="col-lg-6 col-md-6" >
@@ -119,15 +112,12 @@
                             {{ Form::number('max', null , array('class' => 'form-control', 'min' => '1', 'required','placeholder'=>'Ingrese el número máximo de participantes')) }}
                         </div>
                     </div>
-
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('objetivo', 'Objetivo',array('class' => 'control-label')) }}
                             {{ Form::textarea('objetivo', null , array('class' => 'form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required','placeholder'=>'Ingrese el objetivo del Curso')) }}
-
                         </div>
-                    </div>
-                    
+                    </div>          
                     <div class="form-group">
                         <div class="col-lg-12" >
                             {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
@@ -135,7 +125,6 @@
                             {{ Form::textarea('contenido', null , array('class' => 'form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required','placeholder'=>'Ingrese los contenidos del Curso')) }}
                         </div>
                     </div>
-
                     <div id="docs">
                         <div class="form-group" >
                             <div class="col-lg-6" >
@@ -213,7 +202,6 @@
                             </div>
                         </div>
                     </div>
-                
                     <div class="read-only-docs">
                         <div class="form-group" >
                             <div class="col-lg-6" >
@@ -234,11 +222,7 @@
                             </div>
                         </div>
                     </div>
-                
-
-
                 </div>
-
                 <div class="modal-footer" style='text-align: center;'>
                     {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'accion-aceptar')) }}
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>

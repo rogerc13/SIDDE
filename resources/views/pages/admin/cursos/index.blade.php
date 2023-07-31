@@ -101,7 +101,7 @@
 @stop
 
 @section('modals')
-    @include('pages.admin.cursos.create')
+    @include('pages.admin.cursos.create_test')
     @include('pages.admin.cursos.update')
     @include('pages.admin.cursos.details')
     @include('pages.admin.cursos.delete')
