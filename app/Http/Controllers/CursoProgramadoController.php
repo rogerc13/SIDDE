@@ -11,6 +11,7 @@ use App\Models\Funciones;
 use App\Models\Participant;
 use App\Models\Person;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoProgramadoForm;
 use App\Models\Facilitator;
@@ -60,14 +61,13 @@ class CursoProgramadoController extends Controller
 
         $participantes = User::whereNotIn('person_id', $pts)->where('role_id',5)
         ->get();
-
+        
 
         $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
         $estados = CourseStatus::orderBy('name','asc')->get();
-        //dd($cursos->paginate(10));
+        
 
         if($titulos){
-           // $cursos=$cursos->where('curso.titulo','LIKE',"%$titulos%");
            $cursos=$cursos->whereHas('course', function($q) use($titulos){
                     $q->where('title', 'like', '%'.$titulos.'%');});
             
@@ -98,7 +98,7 @@ class CursoProgramadoController extends Controller
 
     public function store(CursoProgramadoForm $request)
     {
-        //dd($request);
+        
         $user=Auth::user();
 
         if ($user->can('store', Scheduled::class)){
@@ -299,9 +299,9 @@ class CursoProgramadoController extends Controller
 
         $cursos = Scheduled::orderBy("id","asc");
 
-        //$cursos= $usuario->cursoFacilitador();
+        
         if($usuario->isFacilitador()){
-            $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id)->get();    
+            $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id);    
         }else{
             $cursos = [];
         }
@@ -347,5 +347,28 @@ class CursoProgramadoController extends Controller
                 ->with('usuario',$usuario);
     }
 
+    public function assignList(Request $request){
+        //return json_encode($request->scheduled_id);
+        //need to filter if participant
+        $scheduledId = $request->scheduled_id;
+        //get dates of selected course
+        $scheduledCourse = Scheduled::find($scheduledId);
+
+        $participants = Person::with('scheduled')->whereHas(
+            'scheduled',
+            function($query) use ($scheduledCourse){
+                $query->whereBetween('start_date',array($scheduledCourse->start_date, $scheduledCourse->end_date));
+            }
+         )->get()->pluck('id');
+        
+        //get participants not in the list
+        $people = Person::whereNotIn('id',$participants)->with('user')->whereHas(
+            'user',
+            function($query){
+                $query->where('role_id',5);
+            })->get();
+        //$participants = Participant::whereNot('scheduled_id',$scheduledId)->with('person')->get();
+        return json_encode(["list" =>$people]);
+    }
 
 }

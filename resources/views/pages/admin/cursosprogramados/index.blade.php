@@ -39,7 +39,7 @@
 
 		            <select name="id_facilitador" class="select2 " id="id_facilitador" data-allow-clear="true" required="true">
 	                                <option value='0'>Todos</option>
-
+						
 						@foreach($facilitadores as $facilitador)
 
                             @if($id_facilitador == $facilitador->id)
@@ -169,7 +169,7 @@
 									      <i class="entypo-users"></i>
 									  </a>
 
-									  <a  title="Asignar participante" href="javascript:asignarParticipante('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" class="btn btn-success btn-xs">
+									  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs">
 									      <i class="entypo-user-add"></i>
 									  </a>
 								  @endcan

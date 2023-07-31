@@ -1,6 +1,45 @@
 @push('JS')
 <script>
-    function asignarParticipante(url,id){
+    
+        $.ajaxSetup({
+            headers:{
+                'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    $(document).ready(function(){
+        $('#asignar-modal').on('hide.bs.modal',function(){
+            $('#participante').html('');
+            console.log('event');
+        })
+    })
+    
+
+    function asignarParticipanteLista(url,id){
+        
+        console.log("click");
+        let data = {"scheduled_id":id};
+        console.log(data);
+        $.ajax({
+            type: "post",
+            url:'af_programadas/assignList',
+            data: data,
+            dataType: "json",
+            success: function(response){
+                 let values = [];
+                //console.log(values);
+                response.list.forEach(element => {
+                    values.push(element.id);
+                    console.log($('#participante'));
+                    $('#participante').append(`<option personid="${element.id}" value="${element.id}">${element.name} ${element.last_name} C.I: ${element.id_number}</option>`);
+
+                })
+            },
+            error: function(response){
+                console.log(response);
+            }
+            
+        });
+
         document.getElementById("asignar-form").reset(); 
         $('#participante').trigger("change");
         $(".loader").addClass("hidden");
@@ -40,9 +79,9 @@
                                 <select name="participante" class="select2 " id="participante" data-allow-clear="true" required="true">
                                     <option></option>
 
-                                    @foreach($participantes as $participante) 
-                                            <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I:{{$participante->person->id_number}}</option>
-                                    @endforeach
+                                    {{-- @foreach($participantes as $participante) 
+                                            <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I: {{$participante->person->id_format()}}</option>
+                                    @endforeach --}}
                                 </select>                      
                             </div>                 
                         </div>    
