@@ -348,27 +348,36 @@ class CursoProgramadoController extends Controller
     }
 
     public function assignList(Request $request){
-        //return json_encode($request->scheduled_id);
-        //need to filter if participant
         $scheduledId = $request->scheduled_id;
         //get dates of selected course
-        $scheduledCourse = Scheduled::find($scheduledId);
+        $scheduledCourse = Scheduled::with('course')->find($scheduledId);
+        $courseMaxCapacity = $scheduledCourse->course->capacity[0]->max;
 
-        $participants = Person::with('scheduled')->whereHas(
-            'scheduled',
-            function($query) use ($scheduledCourse){
-                $query->whereBetween('start_date',array($scheduledCourse->start_date, $scheduledCourse->end_date));
-            }
-         )->get()->pluck('id');
+        //check current amount of participants
+        $participantAmount = Participant::where('scheduled_id',$scheduledId)->count();
+
+        if($participantAmount == $courseMaxCapacity){
+            $response = ['success' => false, 'message'=>'Capacidad Máxima de Participantes Alcanzada.'];
+            return response()->json($response);
+        }else{
+            $participants = Person::with('scheduled')->whereHas(
+                'scheduled',
+                function ($query) use ($scheduledCourse) {
+                    $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
+                }
+            )->get()->pluck('id');
+
+            //get participants not in the list
+            $people = Person::whereNotIn('id', $participants)->with('user')->whereHas(
+                'user',
+                function ($query) {
+                    $query->where('role_id', 5);
+                }
+            )->get();
+            $response = ['success' => true, 'message'=> '','list'=>$people];
+            return json_encode($response);
+        }
         
-        //get participants not in the list
-        $people = Person::whereNotIn('id',$participants)->with('user')->whereHas(
-            'user',
-            function($query){
-                $query->where('role_id',5);
-            })->get();
-        //$participants = Participant::whereNot('scheduled_id',$scheduledId)->with('person')->get();
-        return json_encode(["list" =>$people]);
     }
 
 }

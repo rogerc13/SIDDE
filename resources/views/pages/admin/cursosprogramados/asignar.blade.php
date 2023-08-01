@@ -15,10 +15,7 @@
     
 
     function asignarParticipanteLista(url,id){
-        
-        console.log("click");
         let data = {"scheduled_id":id};
-        console.log(data);
         $.ajax({
             type: "post",
             url:'af_programadas/assignList',
@@ -26,16 +23,18 @@
             dataType: "json",
             success: function(response){
                  let values = [];
-                //console.log(values);
-                response.list.forEach(element => {
+                if(response.success){
+                    $('capacity-error-text').hide();
+                    response.list.forEach(element => {
                     values.push(element.id);
-                    console.log($('#participante'));
                     $('#participante').append(`<option personid="${element.id}" value="${element.id}">${element.name} ${element.last_name} C.I: ${element.id_number}</option>`);
-
-                })
+                 })
+                }else{
+                    $('capacity-error-text').show();
+                    $('.capacity-error-text').html(response.message)
+                }
             },
             error: function(response){
-                console.log(response);
             }
             
         });
@@ -82,7 +81,8 @@
                                     {{-- @foreach($participantes as $participante) 
                                             <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I: {{$participante->person->id_format()}}</option>
                                     @endforeach --}}
-                                </select>                      
+                                </select>
+                                <span id="helpBlock" class="has-error help-block capacity-error-text"></span>              
                             </div>                 
                         </div>    
 

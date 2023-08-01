@@ -131,7 +131,7 @@
 
 								<td>
 									<span class="badge badge-success">
-										{{count($cursop->participants)}}
+										{{count($cursop->participants)}}/{{$cursop->course->capacity[0]->max}}
 									</span>
 
 									{{-- <!--	{{count($cursop->participants)}}/{{$cursop->course->capacity->max}}
@@ -168,8 +168,7 @@
 									  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									      <i class="entypo-users"></i>
 									  </a>
-
-									  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs">
+									  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{$cursop->atMaxCapacity() ? 'disabled' :''}}">
 									      <i class="entypo-user-add"></i>
 									  </a>
 								  @endcan
