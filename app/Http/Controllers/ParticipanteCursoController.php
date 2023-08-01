@@ -143,7 +143,10 @@ class ParticipanteCursoController extends Controller
         if (!$cursoprogramado)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
-
+        if($cursoprogramado->atMaxCapacity()){
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado se encuentra a su máxima capacidad."));
+        }
         $usuario = new User([
             'role_id' => 5,
             'email' => $request->email,
@@ -158,7 +161,7 @@ class ParticipanteCursoController extends Controller
         $person = Person::create($personData);
         //$success = $person->save();
         //dd($person);
-        if(!$person){
+        if(!$person)
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "No se pudo crear el participante"));
         }

@@ -8,8 +8,8 @@
   
   <br>
   @if (!Auth::user()->isFacilitador())
-    <a href="javascript:asignarParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}')" class="btn btn-blue"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
-    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>    
+    <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{$cursoprogramado->atMaxCapacity() ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
+    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{$cursoprogramado->atMaxCapacity() ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>    
   @else
     <div class="btn btn-success evaluate-button"><i class="fa fa-check" aria-hidden="true"></i><span> Evaluar Participantes</span></div>
   @endif

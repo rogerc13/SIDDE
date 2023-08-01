@@ -1,12 +1,50 @@
 @push('JS')
 <script>
-    function asignarParticipante(url){
+    
+        $.ajaxSetup({
+            headers:{
+                'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    $(document).ready(function(){
+        $('#asignar-modal').on('hide.bs.modal',function(){
+            $('#participante').html('');
+            //console.log('event');
+        })
+    })
+    
+
+    function asignarParticipanteLista(url,id){
+        let data = {"scheduled_id":id};
+        $.ajax({
+            type: "post",
+            url:'af_programadas/participantes/assignList',
+            data: data,
+            dataType: "json",
+            success: function(response){
+                 let values = [];
+                if(response.success){
+                    $('capacity-error-text').hide();
+                    response.list.forEach(element => {
+                    values.push(element.id);
+                    $('#participante').append(`<option personid="${element.id}" value="${element.id}">${element.name} ${element.last_name} C.I: ${element.id_number}</option>`);
+                 })
+                }else{
+                    $('capacity-error-text').show();
+                    $('.capacity-error-text').html(response.message)
+                }
+            },
+            error: function(response){
+            }
+            
+        });
+
         document.getElementById("asignar-form").reset(); 
         $('#participante').trigger("change");
         $(".loader").addClass("hidden");
         $("#asignar-form").removeClass("hidden");
         $("[name=_method]").val("POST");
-        $("[name=curso_p_id]").val('{{$cursoprogramado->id}}');
+        $("[name=curso_p_id]").val(id);
         $("#asignar-label").html("Asignar participante");
         $("#asignar-form").attr("action", url);  
         $("#asignar-modal").modal();
@@ -23,7 +61,7 @@
                 <h4 class="modal-title" id="asignar-label"></h4>
             </div>
             <div class="loader text-center">
-                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
                 <span class="sr-only">Cargando...</span>
             </div>
             <form class="form-horizontal hidden" method="POST" id='asignar-form'  enctype="multipart/form-data">
@@ -40,10 +78,11 @@
                                 <select name="participante" class="select2 " id="participante" data-allow-clear="true" required="true">
                                     <option></option>
 
-                                    @foreach($participantes2 as $participante) 
-                                            <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I:{{$participante->person->id_number}}</option>
-                                    @endforeach
-                                </select>                      
+                                    {{-- @foreach($participantes as $participante) 
+                                            <option value="{{$participante->person_id}}">{{$participante->person->name}} {{$participante->person->last_name}} C.I: {{$participante->person->id_format()}}</option>
+                                    @endforeach --}}
+                                </select>
+                                <span id="helpBlock" class="has-error help-block capacity-error-text"></span>              
                             </div>                 
                         </div>    
 

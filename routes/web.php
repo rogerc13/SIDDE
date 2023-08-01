@@ -104,8 +104,10 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
                 Route::post('/', 'App\Http\Controllers\CursoProgramadoController@store');
                 Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@update');
-                Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');        
+                Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');
 
+                Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
+                Route::post('/{id}/af_programadas/participantes/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
 
                 Route::get('/{id}/evaluacion', 'App\Http\Controllers\ParticipanteCursoController@getAllEvaluation');
