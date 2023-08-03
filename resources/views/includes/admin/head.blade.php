@@ -29,14 +29,14 @@
 	
 	{{-- for morris graphs --}}
 	<script src="{{url('assets/js/jquery-1.11.3.min.js')}}"></script>
-	<script src="{{url('assets/js/morris.min.js')}}"></script>
-	<script src="{{url('assets/js/raphael-min.js')}}"></script>
+{{-- 	<script src="{{url('assets/js/morris.min.js')}}"></script>
+	<script src="{{url('assets/js/raphael-min.js')}}"></script> --}}
 
 	{{-- for rickshaw graphs --}}
-	<link rel="stylesheet" href="{{url('assets/js/rickshaw/rickshaw.min.css')}}">
+	{{-- <link rel="stylesheet" href="{{url('assets/js/rickshaw/rickshaw.min.css')}}">
 	<script src="{{url('assets/js/rickshaw/vendor/d3.min.js')}}"></script>
 	<script src="{{url('assets/js/rickshaw/vendor/d3.layout.min.js')}}"></script>
-	<script src="{{url('assets/js/rickshaw/rickshaw.min.js')}}"></script>
+	<script src="{{url('assets/js/rickshaw/rickshaw.min.js')}}"></script> --}}
 
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2-bootstrap.css')}}">
 	<link rel="stylesheet" href="{{url('assets/js/select2/select2.css')}}">

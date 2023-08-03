@@ -1,6 +1,6 @@
 	<!-- Imported styles on this page -->
-	<link rel="stylesheet" href="{{url('assets/js/jvectormap/jquery-jvectormap-1.2.2.css')}}">
-	<link rel="stylesheet" href="{{url('assets/js/rickshaw/rickshaw.min.css')}}">
+	{{-- <link rel="stylesheet" href="{{url('assets/js/jvectormap/jquery-jvectormap-1.2.2.css')}}">
+	<link rel="stylesheet" href="{{url('assets/js/rickshaw/rickshaw.min.css')}}"> --}}
 	<script src="{{url('assets/js/select2/select2.min.js')}}"></script>
 
 	<!-- Bottom scripts (common) -->
@@ -10,16 +10,16 @@
 	<script src="{{url('assets/js/joinable.js')}}"></script>
 	<script src="{{url('assets/js/resizeable.js')}}"></script>
 	<script src="{{url('assets/js/neon-api.js')}}"></script>
-	<script src="{{url('assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
+	{{-- <script src="{{url('assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js')}}"></script> --}}
 
 
 	<!-- Imported scripts on this page -->
-	<script src="{{url('assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js')}}"></script>
+	{{-- <script src="{{url('assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js')}}"></script> --}}
 	<script src="{{url('assets/js/jquery.sparkline.min.js')}}"></script>
-	<script src="{{url('assets/js/rickshaw/vendor/d3.v3.js')}}"></script>
+	{{-- <script src="{{url('assets/js/rickshaw/vendor/d3.v3.js')}}"></script>
 	<script src="{{url('assets/js/rickshaw/rickshaw.min.js')}}"></script>
 	<script src="{{url('assets/js/raphael-min.js')}}"></script>
-	<script src="{{url('assets/js/morris.min.js')}}"></script>
+	<script src="{{url('assets/js/morris.min.js')}}"></script> --}}
 	<script src="{{url('assets/js/toastr.js')}}"></script>
 	<script src="{{url('assets/js/fullcalendar/fullcalendar.min.js')}}"></script>
 	<script src="{{url('assets/js/neon-chat.js')}}"></script>
