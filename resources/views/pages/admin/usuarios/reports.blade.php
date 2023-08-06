@@ -1,4 +1,5 @@
 @push('JS')
+    <script src="{{asset('assets/js/chartjs/Chart.js')}}"></script>
     <script src="{{asset('assets/js/reports.js')}}"></script>
 @endpush
 @extends('layouts.admin')
@@ -43,7 +44,7 @@
                     <select name="step" id="step" class="form-control">
                         <option value="1 day" selected>Diario</option>
                         <option value="1 week">Semanal</option>
-                        <option value="2 weeks">Quincenal</option>
+                        <option value="15 days">Quincenal</option>
                         <option value="1 month">Mensual</option>
                         <option value="4 months">Cada 4 meses</option>
                         <option value="6 months">Cada 6 meses</option>
@@ -64,15 +65,8 @@
         </div>
         <div class="course-pie-graph"></div>
     </div>
-    <div class="row">
-        {{-- Rickshaw Graph container --}}
-        <div class="col-xs-12 col-md-12 graph-container">
-            <div style="" id="graphByDate">
-                <div id="y_axis"></div>
-                <div id="chart"></div>
-            </div>
-            <div id="legend"></div>
-        </div>
+    <div class="row graph-container">
+        <canvas id="myChart" width="400" height="400"></canvas>
     </div>
     <div class="row">
         <div class="course-list col-md-12">

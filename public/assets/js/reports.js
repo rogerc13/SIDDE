@@ -13,7 +13,7 @@
 $(document).ready(function(){
 
     $('#date_range').on('change',function (e) { 
-        console.log('change');
+        //console.log('change');
         let optionIndex = $(this).index();
         $('#step').val('1 day').change();
         if(optionIndex != 5){
@@ -36,23 +36,55 @@ $(document).ready(function(){
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
+
+        //Graph Amount of Courses By Date
         $('.generate').click(function (e) { 
             //data to send
             let selected = $('.selector').find(':selected').val();
             let formData = $('.report-form').serialize();
-            console.log(selected);
             //reset graph container
             $('.graph-container').children().remove();
-            $('.graph-container').append('<div class="col-xs12 col-md-12 graph-container">'+
-                                            '<div style="" id="graphByDate">'+
-                                                '<div id="y_axis">'+
-                                                '</div>'+
-                                                '<div id="chart">'+
-                                                '</div>'+
-                                            '</div>'+
-                                            '<div id="legend">'+
-                                            '</div>'+
-                                        '</div>');
+            $('.graph-container').append('<canvas id="myChart" width="400" height="400"></canvas>');
+            let ctx = $('#myChart');
+            $.ajax({
+            type: "POST",
+            data: formData,
+            url: '/reports/'+selected,
+            success: function(response){
+                $('.print-report').removeAttr('disabled');
+                //console.log(response);
+                response = JSON.parse(response);
+                console.log(response);
+                //console.log(response.y);
+                $('.course-amount-number span').html(`Cantidad de Cursos entre ${response.start_date} y ${response.end_date} : ${response.total}`);
+                var chart = new Chart(ctx, {
+                                type: 'line',
+                                data:{
+                                    datasets: [{
+                                        label:"Cantidad de Cursos",
+                                        data:response.y,
+                                        fill:false,
+                                        borderColor: 'steelblue',
+                                    }],
+                                    labels:response.x,
+                                }, 
+                                })
+            }, 
+            error:function(response){
+                console.log("error "+response);
+            }
+            });
+            e.preventDefault();
+        });
+        //Graph Amount of Courses per Category
+        $('.generate-category').click(function (e) { 
+            //data to send
+            let selected = $('.selector').find(':selected').val();
+            let formData = $('.report-form').serialize();
+            //reset graph container
+            $('.graph-container').children().remove();
+            $('.graph-container').append('<canvas id="myChart" width="400" height="400"></canvas>');
+            let ctx = $('#myChart');
             $.ajax({
             type: "POST",
             data: formData,
@@ -61,21 +93,33 @@ $(document).ready(function(){
 
                 $('.print-report').removeAttr('disabled');
 
-                console.log(response);
+                //console.log(response);
                 response = JSON.parse(response);
                 console.log(response);
-                //console.log(response);
+                //console.log(response.y);
+                var chart = new Chart(ctx, {
+                                type: 'line',
+                                data:{
+                                    datasets: [{
+                                        label:response.categories,
+                                        data:response.y,
+                                        fill:false,
+                                        borderColor: 'steelblue',
+                                    }],
+                                    labels:response.x,
+                                }, 
+                                })
                 /*  let names = [];
                 response.names.forEach(element => {
                     names.push(element.name);
                 });
                 */
 
-                let data = response;
+                /* let data = response;
                 let graph = new Rickshaw.Graph({
                     width: 580,
                     height: 250, 
-                    element: document.querySelector('#graphByDate'),
+                    element: document.querySelector('#chart'),
                     renderer: 'line',
                     series: [{
                         color: 'steelblue',
@@ -86,7 +130,7 @@ $(document).ready(function(){
                 let axes = new Rickshaw.Graph.Axis.X({
                     graph: graph,
                     tickFormat: function(x){
-                        return new Date(x).toLocaleDateString();
+                        return new Date(x).toISOString().split('T')[0];
                     }});
                 let y_axis = new Rickshaw.Graph.Axis.Y({
                     graph:graph,
@@ -98,13 +142,17 @@ $(document).ready(function(){
                     element: document.querySelector('#legend'),
                     graph:graph
                 });
-                let hoverDetail = new Rickshaw.Graph.HoverDetail({
-                    graph:graph
-                });
-                graph.render();
                 
+                graph.render();
+                new Rickshaw.Graph.HoverDetail({
+                    graph:graph,
+                    formatter: function(x){
+                        return new Date(x).toISOString().split('T')[0];
+                    }
+                    
+                });
                 $('.course-amount-number span').html(`<h3>Cantidad de Cursos en Este Periodo de Tiempo : ${data.total}</h3>`);
-
+ */
             }, 
             error:function(response){
                 console.log(response);
