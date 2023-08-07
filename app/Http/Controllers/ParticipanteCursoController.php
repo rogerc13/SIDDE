@@ -161,7 +161,7 @@ class ParticipanteCursoController extends Controller
         $person = Person::create($personData);
         //$success = $person->save();
         //dd($person);
-        if(!$person)
+        if(!$person){
             return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error", "No se pudo crear el participante"));
         }
