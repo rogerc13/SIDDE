@@ -1,4 +1,5 @@
 @push('JS')
+    <script src="{{asset('assets/js/Moment.js')}}"></script>    
     <script src="{{asset('assets/js/chartjs/Chart.js')}}"></script>
     <script src="{{asset('assets/js/reports.js')}}"></script>
 @endpush

@@ -112,33 +112,35 @@ class ReportController extends Controller
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
+        $day = $dates->day;
         $i = 0;
 
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$i < $numberOfSteps ? $i = $i + 1 : $i];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
             
-            $xAxis[] = [Carbon::parse($start_date)->format('Y-m-d'),];
+            $xAxis[] = Carbon::parse($start_date)->format('Y-m-d');
             
         }
         foreach (Category::all() as $category) {
             foreach ($date as $key => $value) {
 
                 $start_date = $date[$key];
-                $end_date = $date[$i < $numberOfSteps ? $i = $i + 1 : $i];
+                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-                $yAxis[] = [$category->name => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->whereHas(
+                $yAxis[] = [
+                    
+                    'category' => $category->name, 'y' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->whereHas(
                     'course',
                     function ($query) use ($category) {
                         $query->where('category_id', $category->id);
                     }
-                )->count(), 'date'=> Carbon::parse($start_date)->format('Y-m-d'),];    
-            }
-            $categories[] = $category->name;
-        }
-
-        foreach(Category::all() as $category){
+                )->count(), 'x'=> Carbon::parse($start_date)->format('Y-m-d'),
             
+            
+            ];    
+            }//this
+            $categories[] = $category->name;
         }
 
         return json_encode(['x' => $xAxis,'y'=>$yAxis,'categories' => $categories]);
