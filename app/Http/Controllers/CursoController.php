@@ -40,16 +40,14 @@ class CursoController extends Controller
     public function getAccionFormacion($id)
     {
         $user = Auth::user();
-        $curso = Course::with('capacity')->with('modality')->with('content')->with('category')->where('id',$id)->first();
+        $curso = Course::where('id', $id)->with('capacity')->with('modality')->with('content')->with('category')->first();
         if($curso==null)
         {
             return Redirect::back()
                         ->with("alert", Funciones::getAlert("danger","Error","La acción de formación no pudo ser encontrada"));
         }
-        //return view('pages.public.ficha')->with('curso',$curso);
         return view('pages.public.ficha_tecnica')->with('curso',$curso);
-        //dd($curso->capacity[0]->min);
-    }
+    }//view Ficha Tecnica
 
     public function descargarDoc($id, $d)
     {

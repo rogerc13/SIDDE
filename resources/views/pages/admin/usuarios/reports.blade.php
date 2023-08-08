@@ -19,7 +19,7 @@
                         <select name="report-type" id="report-type" class="form-control selector" >
                             <option value="date" selected>Cantidad de Cursos</option>
                             <option value="category">Cantidad de Cursos Por Categoria</option>
-                            <option value="status">Cantidad de Cursos Por Estatus</option>
+                            <option value="status">Cantidad de Cursos Por Estado</option>
                             <option value="duration">Duracion de Cursos</option>
                             <option value="participant-by-status">Estatus de Participantes</option>
                             <option value="participant-by-quantity">Cantidad de Participantes</option>
@@ -66,11 +66,27 @@
         </div>
         <div class="course-pie-graph"></div>
     </div>
-    <div class="row graph-container">
-        <canvas id="myChart" width="400" height="400"></canvas>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 graph-container">
+            <canvas id="myChart" width="400" height="400"></canvas>
+        </div>
+        <div class="col-xs-12 col-md-6 doughnut-container">
+            <canvas id="doughnut" width="400" height="400"></canvas>
+        </div>
     </div>
     <div class="row">
-        <div class="course-list col-md-12">
+        <div class="col-xs12 col-md-12">
+            <table class="course-list table table-striped table-bordered table-center">
+                <thead>
+                        <td>Titulo</td>
+                        <td>Fecha de Inicio</td>
+                        <td>Fecha Fin</td>
+                        <td>Estado del Curso</td>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
         </div>
     </div>
     </div>{{-- container --}}

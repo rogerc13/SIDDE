@@ -44,7 +44,9 @@ $(document).ready(function(){
             let formData = $('.report-form').serialize();
             //reset graph container
             $('.graph-container').children().remove();
+            $('.doughnut-container').children().remove();
             $('.graph-container').append('<canvas id="myChart" width="400" height="400"></canvas>');
+            $('.doughnut-container').append('<canvas id="doughnut" width="400" height="400"></canvas>');
             let ctx = $('#myChart');
             $.ajax({
             type: "POST",
@@ -94,7 +96,7 @@ $(document).ready(function(){
                         var chart = new Chart(ctx, {
                                 type: 'line',
                                 data:{
-                                    labels:response.x,
+                                    //labels:response.x,
                                     datasets: categories,   
                                 },
                                 options: {
@@ -104,23 +106,133 @@ $(document).ready(function(){
                                             display: true,
                                             scaleLabel:{
                                                 display: true,
-                                                labelString: 'Date'
+                                                labelString: 'Período de Tiempo'
                                             },
                                             ticks:{
+                                                //beginAtZero: true,
                                                 major:{
                                                     fontStyle: 'bold',
                                                     fontColor: 'black'
                                                 }
                                             }
                                         }],
+                                        yAxes:[{
+                                            ticks:{
+                                                stepSize:1
+                                            }
+                                        }],
                                     }
                                 }
                                 })
-                /*  let names = [];
-                response.names.forEach(element => {
-                    names.push(element.name);
-                });
-                */
+                        break;
+                    case 'status':
+                        console.log('status');
+                        //linear graph data
+                        let statuses = [];
+                        response.statuses.forEach(element => {
+                            let status = {
+                                    label:element,
+                                    data: response.y.filter(obj => {
+                                            return obj.status === element && obj.y !== 0;
+                                        }),
+                                    showLine:true,
+                                    fill:false,
+                                    borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+                            };
+                            statuses.push(status);     
+                        });
+                        statuses = statuses.filter(obj =>{
+                                return obj.data.length > 0;
+                        });
+                        //list data
+                        courseData = response.courseData.filter(obj => {
+                                return obj.courseData.length !== 0;
+                        });
+                        courseData.forEach(element => {
+                            element.courseData.forEach(helperA => {
+                                //console.log(helperA);
+                                $('.course-list tbody').append(`<tr>
+                                                            <td>${helperA.course.title}</td>
+                                                            <td>${helperA.start_date}</td>
+                                                            <td>${helperA.end_date}</td>
+                                                            <td>${helperA.course_status.name}</td>
+                                                        </tr>`);
+                            })
+                        });
+                        //doughnut data
+                        let doughnutData = [];
+                        let doughnutLabels = [];
+                        let doughnutBackgroundColor = [];
+                        let amountHelp = 0;
+                        statuses.forEach(element => {
+                            console.log(element);
+                            element.data.forEach(helperB => {
+                                amountHelp = amountHelp+helperB.y
+                            });
+                            //console.log(amountHelp);
+                            doughnutData.push(amountHelp);
+                            amountHelp = 0;
+                            doughnutLabels.push(element.label);
+                            doughnutBackgroundColor.push(`#${Math.floor(Math.random()*16777215).toString(16)}`);
+                        });
+                        var chart = new Chart(ctx, {
+                                type: 'line',
+                                data:{
+                                    //labels:response.x,
+                                    datasets: statuses,   
+                                },
+                                options: {
+                                    scales:{
+                                        xAxes: [{
+                                            type:'time',
+                                            display: true,
+                                            scaleLabel:{
+                                                display: true,
+                                                labelString: 'Período de Tiempo'
+                                            },
+                                            ticks:{
+                                                //beginAtZero: true,
+                                                major:{
+                                                    fontStyle: 'bold',
+                                                    fontColor: 'black'
+                                                }
+                                            }
+                                        }],
+                                        yAxes:[{
+                                            ticks:{
+                                                stepSize:1
+                                            },
+                                            scaleLabel:{
+                                                display:true,
+                                                labelString: 'Cantidad'
+                                            }
+                                        }],
+                                    }
+                                }
+                                });
+                        
+                        //doughnut
+                        let doughnut = $('#doughnut');
+                        var myDoughnutChart = new Chart(doughnut, {
+                            type: 'doughnut',
+                            data: {datasets: [{
+                                        data:doughnutData,
+                                        backgroundColor: doughnutBackgroundColor,
+                                    }],
+                                    labels: doughnutLabels},
+                        });
+                        break;
+                    case 'duration':
+                        console.log('duration');
+                        break;
+                    case 'participant-by-status':
+                        console.log('participant-by-status');
+                        break;
+                    case 'participant-by-quantity':
+                        console.log('participant-by-quantity');
+                        break;
+                    case 'participant-average':
+                        console.log('participant-average');
                         break;
                     default:
                         break;

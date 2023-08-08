@@ -7,6 +7,7 @@ use App\Models\Scheduled;
 use App\Models\Course;
 use App\Models\Participant;
 use App\Models\Category;
+use App\Models\CourseStatus;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -95,20 +96,6 @@ class ReportController extends Controller
     public function byCategory(Request $request){
         //Course amount By Category
 
-        /* $categories = Category::all();
-        foreach ($categories as $category){
-            $categoryCourse[] = [
-                'id' => $category->id,
-                'name' => $category->name,
-            ];
-        }
-
-        for ($i=1; $i <=(Category::count()) ; $i++) { 
-
-            $categoryCourse[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
-                'amount ' => Scheduled::whereBetween(DB::raw('start_date'), array($start_date, $end_date))->where('category_id',$i)->count(),];
-        } */
-
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
@@ -139,51 +126,88 @@ class ReportController extends Controller
             
             
             ];    
-            }//this
+            }
             $categories[] = $category->name;
         }
 
         return json_encode(['x' => $xAxis,'y'=>$yAxis,'categories' => $categories]);
     }//end course by category
 
-    public function byStatus(){
+    public function byStatus(Request $request){
         //Courses By Status
 
         /* $statusCourse = Scheduled::with('courseStatus')
             ->where('course_status_id', $request->course_status_id)
             ->get(); */
 
-        //by all time all course status no conditions
+        //by all time all course status no conditions, no time range
         $byAllTime = Scheduled::with('courseStatus')->select('course_status_id')->selectRaw('COUNT(*) as amount')
         ->groupBy('course_status_id')->orderByDesc('amount')->get();
 
         //by date range
 
-        $sixMonthsAgo =  Carbon::now()->subMonth('6')->format('Y-m-d');
-        $currentDate =  Carbon::now()->format('Y-m-d');
+        $dates =  $this->range($request);
+        $date = $dates->date;
+        $numberOfSteps = $dates->numberOfSteps;
+        $day = $dates->day;
+        $i = 0;
 
-        $monthlyInterval = CarbonPeriod::create($sixMonthsAgo, '1 month', $currentDate);
+        foreach ($date as $key => $value) {
+            $start_date = $date[$key];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-        foreach ($monthlyInterval as $key => $dates) {
-            $date[] = $dates->toDateTimeString();
+            $xAxis[] = Carbon::parse($start_date)->format('Y-m-d');
         }
 
         $i = 0;
 
+        foreach (CourseStatus::all() as $status) {
+           foreach($date as $key => $value){
+                $start_date = $date[$key];
+                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+
+                //Data to show graphs
+                $byDateRange[] = [
+                    'status' => $status->name,
+                    'x' => Carbon::parse($start_date)->format('Y-m-d'),
+                    'y' => Scheduled::where('course_status_id',$status->id)
+                                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->count()];
+                
+                //Data to show course list
+                $courseData[] = ['courseData' => Scheduled::with('course','courseStatus')->where('course_status_id', $status->id)
+                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get()];
+           } 
+            $statusNames[] = $status->name;
+        }
+        
+        /* foreach ($byDateRange as $dates) {
+            $filterByDate[] = array_filter(
+                $dates,
+                fn ($value, $key) => count($value) !== 0 && $key === 'y',
+                ARRAY_FILTER_USE_BOTH
+            );       
+        } */
+
+        /* $filtered = $byDateRange->filter(function($value,$key){
+            return $value['y'] !== 0;
+        }); */
+        //return json_encode($filtered);
+
         /* foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$i < 6 ? $i = $i + 1 : $i];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
         
-            $byDateRange[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
-                             'amount' => Scheduled::select('course_status_id')->selectRaw('COUNT(*) as amount')
+            $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
+                             'y' => Scheduled::select('course_status_id')->selectRaw('COUNT(*) as amount')
                                 ->groupBy('course_status_id')->orderByDesc('amount')
-                                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->()];
-        }
- */
+                                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get()];
+        } */
+    
         //by given status
-        //$response = Scheduled::where('course_status_id',$request->status_id)->with('courseStatus')->count();
+            //$response = Scheduled::where('course_status_id',$request->status_id)->with('courseStatus')->count();
 
-        return json_encode(['byAllTime' => $byAllTime]);
+        return json_encode(['statuses' => $statusNames,'x' => $xAxis, 'y' => $byDateRange , 'byAllTime' => $byAllTime , 'courseData' => $courseData]);
+
     }//end course by status
 
     public function byCourseDuration(Request $request){
@@ -297,11 +321,15 @@ class ReportController extends Controller
         $approved = Participant::withTrashed()->where('participant_status_id',3)->count();        
         $failed = Participant::withTrashed()->where('participant_status_id',2)->count();
         $total = $approved + $failed;
+        
+        if($total === 0){
+            return json_encode(['message' => 'No se encuentran Participantes en este período de tiempo', 'amount' => $total]);
+        }
+
         $averageApproved = $failed / $total;
         $averageFailed = $approved / $total;
         $byAllTime = [];
         $byDateRange = []; 
-        
         //return json_encode(['byallTime' => $byAllTime, 'byDateRange' => $byDateRange]);
         return json_encode(['total'=>$total,'averageApproved'=>$averageApproved , 'averageFailed' => $averageFailed]);
     }//end participant average
