@@ -5,6 +5,9 @@
 
 
 @section('content')
+@push('JS')
+    <script src="{{asset('assets/js/ficha-tecnica.js')}}"></script>
+@endpush
 
 <div class="container-fluid">
     <div class="row buttons hidden-print form-group">
