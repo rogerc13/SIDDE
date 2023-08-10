@@ -124,30 +124,55 @@ $(document).ready(function(){
                                     }
                                 }
                                 })
+
+                                
                         break;
                     case 'status':
                         console.log('status');
                         //linear graph data
                         let statuses = [];
+                        
                         response.statuses.forEach(element => {
+                            
+                            let fillColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
                             let status = {
                                     label:element,
                                     data: response.y.filter(obj => {
-                                            return obj.status === element && obj.y !== 0;
+                                            return obj.status === element;
+                                            //return {x,y} = (obj.status === element /* && obj.y !== 0 */) && {x,y} ;               
+                                        }).map((x) => {
+                                            if(x.y > 0 ){
+                                                return {'x':x.x,'y':x.y};
+                                            }else{
+                                                return {'x':x.x,'y':0};
+                                            }
                                         }),
                                     showLine:true,
                                     fill:false,
-                                    borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+                                    borderColor: fillColor,
+                                    backgroundColor: fillColor,
+                                    //spanGaps:false,
+                                    /* points:[{display:response.y.filter(obj => {
+                                            return obj.status === element;
+                                        }).map((x) => {
+                                            if(x.y > 0 ){
+                                                return true;
+                                            }else{
+                                                return false;
+                                            }
+                                        })},] */
                             };
                             statuses.push(status);     
                         });
                         statuses = statuses.filter(obj =>{
                                 return obj.data.length > 0;
                         });
+                        console.log(statuses);
                         //list data
                         courseData = response.courseData.filter(obj => {
                                 return obj.courseData.length !== 0;
                         });
+                        
                         courseData.forEach(element => {
                             element.courseData.forEach(helperA => {
                                 //console.log(helperA);
@@ -165,7 +190,7 @@ $(document).ready(function(){
                         let doughnutBackgroundColor = [];
                         let amountHelp = 0;
                         statuses.forEach(element => {
-                            console.log(element);
+                            //console.log(element);
                             element.data.forEach(helperB => {
                                 amountHelp = amountHelp+helperB.y
                             });
@@ -176,7 +201,7 @@ $(document).ready(function(){
                             doughnutBackgroundColor.push(`#${Math.floor(Math.random()*16777215).toString(16)}`);
                         });
                         var chart = new Chart(ctx, {
-                                type: 'line',
+                                type: 'scatter',
                                 data:{
                                     //labels:response.x,
                                     datasets: statuses,   
@@ -200,17 +225,22 @@ $(document).ready(function(){
                                         }],
                                         yAxes:[{
                                             ticks:{
-                                                stepSize:1
+                                                stepSize:1,
+                                                beginAtZero: true,
+                                                min:0,
+                                                max:4,
                                             },
                                             scaleLabel:{
                                                 display:true,
                                                 labelString: 'Cantidad'
-                                            }
+                                            },
+                                            /* type:'linear', */
                                         }],
-                                    }
+                                    },                                    
+                                    spanGaps:true,
+                                    showLines:true
                                 }
                                 });
-                        
                         //doughnut
                         let doughnut = $('#doughnut');
                         var myDoughnutChart = new Chart(doughnut, {
@@ -224,6 +254,7 @@ $(document).ready(function(){
                         break;
                     case 'duration':
                         console.log('duration');
+                        
                         break;
                     case 'participant-by-status':
                         console.log('participant-by-status');
