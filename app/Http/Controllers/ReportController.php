@@ -225,8 +225,8 @@ class ReportController extends Controller
             $start_date = $date[$key];
             $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-            $byDateRange[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
-                            'duration' => Course::select('duration')->whereHas(
+            $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
+                            'y' => Course::select('duration')->whereHas(
                                 'scheduled', function($query) use($start_date,$end_date){
                                     $query/* ->where('course_status_id', 3) */->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
                                 }
@@ -236,7 +236,7 @@ class ReportController extends Controller
 
         }
         //course with the most duration in hours
-        //course that spans the most days
+        //course that spans the most days, biggest difference between start_date and end_date
         
         return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange]);
     }//end course duration
@@ -341,6 +341,14 @@ class ReportController extends Controller
     public function notScheduled(Request $request){
         //all courses not present on scheduled table    
         $data = Course::with('scheduled','capacities')->whereDoesntHave('scheduled')->get();    
+        return json_encode(['data' => $data]);
+    }
+    
+    public function mostScheduled(Request $request){
+        //id of course that appears the most on scheduled table
+        //get course ids, count how many times each one repeats, get course data of each
+        
+        $data = [];
         return json_encode(['data' => $data]);
     }
 }
