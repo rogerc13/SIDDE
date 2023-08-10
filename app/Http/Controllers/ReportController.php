@@ -214,26 +214,30 @@ class ReportController extends Controller
         //Course Total Time, no condition
         $byAllTime = Course::with('scheduled')->select('duration')->sum('duration');
 
-        //by date range , finished courses
-        $dates = $this->range($request);
+        //by date range , all scheduled status
+        $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
-        $byDateRange =[];
-
+        $day = $dates->day;
         $i = 0;
 
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$i < $numberOfSteps ? $i = $i + 1 : $i];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
             $byDateRange[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
                             'duration' => Course::select('duration')->whereHas(
-                'scheduled', function($query) use($start_date,$end_date){
-                    $query->where('course_status_id', 3)->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
-                }
-                )->sum('duration'),];
+                                'scheduled', function($query) use($start_date,$end_date){
+                                    $query/* ->where('course_status_id', 3) */->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
+                                }
+                                )->sum('duration'),
+                            'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
+                            ];
 
         }
+        //course with the most duration in hours
+        //course that spans the most days
+        
         return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange]);
     }//end course duration
 
@@ -246,26 +250,26 @@ class ReportController extends Controller
     public function participantsByStatus(Request $request)
     {
         //by all time
-        $byAllTime = Participant::where('participant_status_id', 1 /* $request->status */)->count();
-
+        $byAllTime = Participant::with('person')->where('participant_status_id', 1 /* $request->status */)->get();
+        //return json_encode($byAllTime);
         //by date range
 
-        $dates = $this->range($request);
+        $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
-        $byDateRange = [];
-        
+        $day = $dates->day;
         $i = 0;
-
+        
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$i < $numberOfSteps ? $i = $i + 1 : $i];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+            
             $byDateRange[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'byStatus' => Participant::with('scheduled')->select('scheduled_id')->whereHas(
+                    'byStatus' => Participant::with('scheduled', 'participantStatus','person')->select('scheduled_id')->whereHas(
                         'scheduled', function($query) use($start_date, $end_date){
                             $query->whereBetween('start_date', array($start_date,$end_date));
                         } 
-                    )->count()];
+                    )->get()];
         }
 
         //by given participant status all time
@@ -333,4 +337,10 @@ class ReportController extends Controller
         //return json_encode(['byallTime' => $byAllTime, 'byDateRange' => $byDateRange]);
         return json_encode(['total'=>$total,'averageApproved'=>$averageApproved , 'averageFailed' => $averageFailed]);
     }//end participant average
+
+    public function notScheduled(Request $request){
+        //all courses not present on scheduled table    
+        $data = Course::with('scheduled','capacities')->whereDoesntHave('scheduled')->get();    
+        return json_encode(['data' => $data]);
+    }
 }
