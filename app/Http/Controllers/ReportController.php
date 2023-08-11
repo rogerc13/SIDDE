@@ -232,11 +232,7 @@ class ReportController extends Controller
             $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
             $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
-                            'y' => Course::select('duration')->whereHas(
-                                'scheduled', function($query) use($start_date,$end_date){
-                                    $query/* ->where('course_status_id', 3) */->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
-                                }
-                                )->sum('duration'),
+                            'y' => collect(Scheduled::/* where('course_status_id', 3)-> */whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
                             'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
                             ];
 
