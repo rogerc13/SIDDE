@@ -214,16 +214,11 @@ class ReportController extends Controller
     public function byCourseDuration(Request $request){
         //Course Total Time, no condition
         $byAllTime = Course::with('scheduled')->select('duration')->sum('duration');
+        
         //total hours, finished courses
-        /* $finishedTotal = Course::with('scheduled')->whereHas('scheduled', function($query){
-            $query->where('course_status_id',3);
-        })->select('duration')->sum('duration'); */
-
         $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get();
 
         $finishedHelper = collect($finishedTotal)->sum('course.duration');
-
-    
 
         //by date range , all scheduled status
         $dates =  $this->range($request);
@@ -245,11 +240,15 @@ class ReportController extends Controller
                             'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
                             ];
 
+            $byDateHelper[] = collect(Scheduled::where('course_status_id',3)->whereBetween(DB::raw('start_date'),array($start_date, $end_date))->with('course')->get())->sum(('course.duration'));
         }
+
+        $dateHelper = collect($byDateHelper)->sum();
+        
         //course with the most duration in hours
         //course that spans the most days, biggest difference between start_date and end_date
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'finishedTotal' => $finishedHelper]);
+        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'finishedAllTime' => $finishedHelper, 'finishedByDateRange' => $dateHelper]);
     }//end course duration
 
     public function byCanceled(){
@@ -287,9 +286,9 @@ class ReportController extends Controller
         $byStatusAllTime = Participant::with('person')->where('participant_status',$request->participantStatus)->get();/* where()->get(); */
 
         //participants not in a course
-        $notInCorse = Person::where('role_id',5)->whereDoesntHave('participant')->get();
+        $notInCourse = Person::where('role_id',5)->whereDoesntHave('participant')->get();
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'notInCourse' => $notInCorse]);
+        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'notInCourse' => $notInCourse]);
     }//end by participant status
 
     public function participantByQuantity(Request $request){
