@@ -213,7 +213,7 @@ class ReportController extends Controller
 
     public function byCourseDuration(Request $request){
         //Course Total Time, no condition
-        $byAllTime = Course::with('scheduled')->select('duration')->sum('duration');
+        $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
         
         //total hours, finished courses
         $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get();
