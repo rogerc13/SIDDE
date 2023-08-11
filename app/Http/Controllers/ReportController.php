@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Participant;
 use App\Models\Category;
 use App\Models\CourseStatus;
+use App\Models\Person;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -213,6 +214,16 @@ class ReportController extends Controller
     public function byCourseDuration(Request $request){
         //Course Total Time, no condition
         $byAllTime = Course::with('scheduled')->select('duration')->sum('duration');
+        //total hours, finished courses
+        /* $finishedTotal = Course::with('scheduled')->whereHas('scheduled', function($query){
+            $query->where('course_status_id',3);
+        })->select('duration')->sum('duration'); */
+
+        $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get();
+
+        $finishedHelper = collect($finishedTotal)->sum('course.duration');
+
+    
 
         //by date range , all scheduled status
         $dates =  $this->range($request);
@@ -238,7 +249,7 @@ class ReportController extends Controller
         //course with the most duration in hours
         //course that spans the most days, biggest difference between start_date and end_date
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange]);
+        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'finishedTotal' => $finishedHelper]);
     }//end course duration
 
     public function byCanceled(){
@@ -273,13 +284,16 @@ class ReportController extends Controller
         }
 
         //by given participant status all time
-        $byStatusAllTime = Participant::all();/* where()->get(); */
+        $byStatusAllTime = Participant::with('person')->where('participant_status',$request->participantStatus)->get();/* where()->get(); */
 
+        //participants not in a course
+        $notInCorse = Person::where('role_id',5)->whereDoesntHave('participant')->get();
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange]);
+        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'notInCourse' => $notInCorse]);
     }//end by participant status
 
     public function participantByQuantity(Request $request){
+        //Courses by amount of participants
 
         //by all time
         //with per scheduled course
@@ -321,7 +335,7 @@ class ReportController extends Controller
     }//end participant amount
 
     public function participantAverage(Request $request){
-
+        
         $approved = Participant::withTrashed()->where('participant_status_id',3)->count();        
         $failed = Participant::withTrashed()->where('participant_status_id',2)->count();
         $total = $approved + $failed;
@@ -346,8 +360,8 @@ class ReportController extends Controller
     
     public function mostScheduled(Request $request){
         //id of course that appears the most on scheduled table
-        //get course ids, count how many times each one repeats, get course data of each
-        
+        //get courses ids, count how many times each one repeats, get course data of each
+
         $data = [];
         return json_encode(['data' => $data]);
     }
