@@ -330,21 +330,29 @@ class ReportController extends Controller
     }//end participant amount
 
     public function participantAverage(Request $request){
-        
-        $approved = Participant::withTrashed()->where('participant_status_id',3)->count();        
-        $failed = Participant::withTrashed()->where('participant_status_id',2)->count();
-        $total = $approved + $failed;
-        
-        if($total === 0){
-            return json_encode(['message' => 'No se encuentran Participantes en este período de tiempo', 'amount' => $total]);
-        }
 
-        $averageApproved = $failed / $total;
-        $averageFailed = $approved / $total;
-        $byAllTime = [];
-        $byDateRange = []; 
-        //return json_encode(['byallTime' => $byAllTime, 'byDateRange' => $byDateRange]);
-        return json_encode(['total'=>$total,'averageApproved'=>$averageApproved , 'averageFailed' => $averageFailed]);
+        //return json_encode('hello');
+        $dates =  $this->range($request);
+        $date = $dates->date;
+        $numberOfSteps = $dates->numberOfSteps;
+        $day = $dates->day;
+        $j = 0;
+
+        foreach ($date as $key => $value) {
+            $start_date = $date[$key];
+            $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
+            foreach(Scheduled::whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get() as $scheduled) {
+                $data[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
+                    'scheduled_id' => $scheduled->id,
+                    'approved' => Participant::where('participant_status_id', 3)->where('scheduled_id',$scheduled->id)->count(),
+                    'failed' => Participant::where('participant_status_id', 2)->where('scheduled_id', $scheduled->id)->count(),
+                    'total' => Participant::where('scheduled_id',$scheduled->id)->count(),
+                ];
+           }
+        }
+        
+        return json_encode(['data' => $data]);
+        
     }//end participant average
 
     public function notScheduled(Request $request){
