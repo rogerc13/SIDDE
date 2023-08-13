@@ -276,7 +276,7 @@ class CursoController extends Controller
             if ($user->can('store', Course::class)) {
                 $data = array(
                     'code' => $request->codigo,
-                    'title' => $request->titulo,
+                    'title' => str_replace(['pdvsa','Y'],['PDVSA','y'],ucwords(strtolower($request->titulo))),
                     'category_id' => $request->categoria_id,
                     'modality_id' => $request->modalidad_id,
                     'objective'=> $request->objetivo,
