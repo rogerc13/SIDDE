@@ -366,7 +366,8 @@ class ReportController extends Controller
         //id of course that appears the most on scheduled table
         //get courses ids, count how many times each one repeats, get course data of each
 
-        $data = [];
+        $data = Scheduled::all()->countBy('course_id');
+
         return json_encode(['data' => $data]);
     }
 }
