@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Scheduled;
 use App\Models\Course;
 use App\Models\Participant;
+use App\Models\ParticipantStatus;
 use App\Models\Category;
 use App\Models\CourseStatus;
 use App\Models\Person;
@@ -255,39 +256,47 @@ class ReportController extends Controller
 
     public function participantsByStatus(Request $request)
     {
-        //by all time
-        $byAllTime = Participant::with('person')->where('participant_status_id', 1 /* $request->status */)->get();
-        //return json_encode($byAllTime);
-        //by date range
+        //all time by status
+        $byAllTime = Participant::with('person','participantStatus')->where('participant_status_id', 1 /* $request->status */)->get();
 
+        //participants not in a course, always all time
+        $notInCourse = Person::whereDoesntHave('participant')->whereHas('user',function($query){
+            $query->where('role_id',5);
+        })->select('id','name','last_name','id_number','phone')->get();
+      
+        //by date range by status
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
         $i = 0;
-        
-        foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
-            
-            $byDateRange[] = ['date' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'byStatus' => Participant::with('scheduled', 'participantStatus','person')->select('scheduled_id')->whereHas(
-                        'scheduled', function($query) use($start_date, $end_date){
-                            $query->whereBetween('start_date', array($start_date,$end_date));
-                        } 
-                    )->get()];
+
+        //return json_encode($date);
+        foreach(ParticipantStatus::all() as $status){
+            foreach ($date as $key => $value) {
+                $start_date = $date[$key];
+                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+
+                $byDateRange[] = [
+                    'date' => Carbon::parse($start_date)->format('Y-m-d'),
+                    'countByStatus' => Participant::where('participant_status_id',$status->id)->whereHas(
+                        'scheduled',
+                        function ($query) use ($start_date, $end_date) {
+                            $query->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
+                        }
+                    )->get()->count(), 'status' => $status->name,
+                ];
+            }
+
+            $labels[] = ['label' => $status->name,];
         }
-
-        //by given participant status all time
-        $byStatusAllTime = Participant::with('person')->where('participant_status',$request->participantStatus)->get();/* where()->get(); */
-
-        //participants not in a course
-        $notInCourse = Person::where('role_id',5)->whereDoesntHave('participant')->get();
+        
+        //return json_encode($byDateRange);
         
         return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'notInCourse' => $notInCourse]);
     }//end by participant status
 
-    public function participantByQuantity(Request $request){
+    public function courseByParticipantQuantity(Request $request){
         //Courses by amount of participants
 
         //by all time
