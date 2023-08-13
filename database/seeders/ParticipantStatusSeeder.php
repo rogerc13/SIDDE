@@ -24,5 +24,8 @@ class ParticipantStatusSeeder extends Seeder
         ParticipantStatus::create([
             'name' => 'Aprobado'
         ]);
+        ParticipantStatus::create([
+            'name' => 'Cancelado'
+        ]);
     }
 }
