@@ -297,46 +297,36 @@ class ReportController extends Controller
     }//end by participant status
 
     public function courseByParticipantQuantity(Request $request){
-        //Courses by amount of participants
 
-        //by all time
-        //with per scheduled course
-        $response = Participant::select('scheduled_id')->selectRaw('COUNT(*) AS count ')
+        //participant amount of participants all time no condition
+        $amountAllTime = Participant::with('scheduled')->selectRaw('COUNT(*) as amount')->get();
+        //participant amount by course, all time no condition
+        $amountAllTimePerCourse = Participant::select('scheduled_id')->selectRaw('COUNT(*) AS count ')
                     ->groupBy('scheduled_id')->orderByDesc('count')->get();
 
-        //amount all time
-        //$response = Participant::count();
-
-        //by date range
+        //dates
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
-        $i = 0;
-        
+        $j = 0;
+
+        //participant amount per course in a date range, no other condition
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
-            
-                $monthlyAmount[] = [
-                    /* 'date' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'participant_amount' => Scheduled::with('participants')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->whereHas(
-                        'participants',
-                        function ($query)  {
-                            $query->select('scheduled_id')->groupBy('scheduled_id')->orderByRaw('COUNT(*) DESC');
-                        }
-                    )->count(), */
+            $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
+            foreach (Scheduled::whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get() as $scheduled) {
+                $dateRangeAmountPerCourse[] = [
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'participantAmount' => Participant::with('scheduled')->select('scheduled_id')->selectRaw('COUNT(*) as amount')->whereHas(
-                        'scheduled', function($query) use($start_date,$end_date){
-                            $query->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
-                        }
-                    )->count(),
+                    'scheduled_id' => $scheduled->id,
+                    'count' => Participant::where('scheduled_id', $scheduled->id)->count(),
                 ];
-            
-
+            }
         }
-        return json_encode(['byAllTime' => $response , 'byDateRange'=>$monthlyAmount]);
+        
+        return json_encode(['amountAllTime' => $amountAllTime, 
+            'amountAllTimePerCourse' => $amountAllTimePerCourse, 
+            'dateRangeAmountPerCourse' => $dateRangeAmountPerCourse]);
     }//end participant amount
 
     public function participantAverage(Request $request){
