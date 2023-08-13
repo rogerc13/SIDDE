@@ -308,14 +308,15 @@ class ReportController extends Controller
         //$response = Participant::count();
 
         //by date range
-        $dates = $this->range($request);
+        $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
-
+        $day = $dates->day;
         $i = 0;
+        
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$i < $numberOfSteps ? $i = $i + 1 : $i];
+            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
             
                 $monthlyAmount[] = [
                     /* 'date' => Carbon::parse($start_date)->format('Y-m-d'),
