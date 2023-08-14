@@ -3,6 +3,7 @@
     <script src="{{asset('assets/js/course-content-list.js')}}"></script>
     <script src="{{asset('assets/js/course-code-validation.js')}}"></script>
     <script src="{{asset('assets/js/course-modal.js')}}"></script>
+    <script src="{{asset('assets/js/course-modal-prerequisite.js')}}"></script>
     
 {{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
 {{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
@@ -50,11 +51,34 @@
                 <div class="modal-body">
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="tab-1">{{-- 1st tab --}}
-                            <div class="form-group">
+                        <div class="form-group">
                             <div class="col-lg-6 col-md-6" >
                                 {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
                                 {{ Form::text('codigo', null , array('class' => '0-tab-input input-lg form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock",'placeholder'=>'Ingrese el Código del Curso')) }}
                                 <span id="helpBlock" class="has-error help-block code-error-text">Este código ya se encuentra asignado a otra Acción de Formación.</span>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <label for="Prerequisite" class="control-label">Prerequisito</label>
+                                    <div class="radio radio-replace neon-cb-replacement checked radio-1 radio-prerequisite no-prerequisite">
+                                        <label class="cb-wrapper">
+                                            <input type="radio" id="rd-1" name="radio1" checked="" data-gtm-form-interact-field-id="2">
+                                            <div class="checked"></div>
+                                        </label>
+                                        <label>No Posee Prerequisito</label>
+                                    </div>
+                                    <div class="radio radio-replace neon-cb-replacement radio-2 radio-prerequisite">
+                                         <label class="cb-wrapper">
+                                            <input type="radio" id="rd-2" name="radio1" data-gtm-form-interact-field-id="0">
+                                            <div class="checked">
+                                            </div>
+                                        </label>
+                                        <label>Si Posee Prerequisito</label> 
+                                    </div>
+                                <div class="select-prerequisite-helper">
+                                    <select name="prerequisite" class="select2" id="prerequisite" data-allow-clear="true">
+                                        
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -64,10 +88,8 @@
                             </div>
                             <div class="col-lg-6 col-md-6" >
                                 {{ Form::label('categoria_id', 'Área de conocimiento',array('class' => 'control-label')) }}
-
                                 <select name="categoria_id" class="select2" id="categoria_id" data-allow-clear="true" required="true">
                                     <option></option>
-
                                     @foreach($categorias as $categ)
                                         @if(old('categoria_id') == $categ->id)
                                             <option value="{{$categ->id}}" selected>{{$categ->name}}</option>

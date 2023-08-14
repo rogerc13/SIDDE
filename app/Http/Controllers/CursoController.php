@@ -12,6 +12,7 @@ use App\Models\Funciones;
 use App\Models\Modality;
 use App\Models\Scheduled;
 use App\Models\File;
+use App\Models\Prerequisite;
 
 use App\Http\Requests\CursoForm;
 
@@ -284,6 +285,7 @@ class CursoController extends Controller
                     'addressed' => $request->dirigido,
                 );
                 
+                
                 $contentList = explode(",",$request->content_data);  //turns string of content into an array
                 
                 foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
@@ -323,9 +325,10 @@ class CursoController extends Controller
                 if(isset($path)){
                      $response->file()->saveMany($path); //inserts path into course_files      
                 }
-                
-                $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
 
+                $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
+                $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
+                $response->prerequisite()->save($prerequisite);
                 $response->capacity()->save($capacity);
                 $response->content()->saveMany($contentData); //inserts intro course_contents table with course's id given relationship
                 
@@ -632,6 +635,15 @@ class CursoController extends Controller
         if($response){
             return json_encode($response);
         }
+    }
+
+    public function prerequisiteList(){
+        foreach(Course::orderBy('code','ASC')->get() as $course){
+            $courses[] = ['id' => $course->id,
+                'code' => $course->code,
+                'title'=> $course->title,];
+        }
+        return json_encode(['courses' => $courses]);
     }
     
 }

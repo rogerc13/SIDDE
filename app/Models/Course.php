@@ -52,6 +52,10 @@ public function modality(){
   return $this->belongsTo(Modality::class);
 }
 
+public function prerequisite(){
+  return $this->hasMany(Prerequisite::class);
+}
+
 }
 
 
