@@ -14,4 +14,10 @@ class Prerequisite extends Model
     public function course(){
         return $this->belongsTo(Course::class);
     }
+
+    public function courseName(){
+        $title = Course::select('title')->find($this->prerequisite_id);
+
+        return $title['title'];
+    }
 }
