@@ -257,7 +257,8 @@ class ReportController extends Controller
     public function participantsByStatus(Request $request)
     {
         //all time by status
-        $byAllTime = Participant::with('person','participantStatus')->where('participant_status_id', 1 /* $request->status */)->get();
+        $byAllTime = Participant::with('person','participantStatus')->where('participant_status_id', $request->participant_status)->get();
+        
 
         //participants not in a course, always all time
         $notInCourse = Person::whereDoesntHave('participant')->whereHas('user',function($query){
@@ -277,7 +278,7 @@ class ReportController extends Controller
                 $start_date = $date[$key];
                 $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-                $byDateRange[] = [
+                $allStatusbyDateRange[] = [
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'countByStatus' => Participant::where('participant_status_id',$status->id)->whereHas(
                         'scheduled',
@@ -291,9 +292,25 @@ class ReportController extends Controller
             $labels[] = ['label' => $status->name,];
         }
         
+        $j = 0;
+        foreach ($date as $key => $value) {
+            $start_date = $date[$key];
+            $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
+
+            $byStatusByDateRange[] = [
+                'date' => Carbon::parse($start_date)->format('Y-m-d'),
+                'countByStatus' => Participant::where('participant_status_id', $request->participant_status)->whereHas(
+                    'scheduled',
+                    function ($query) use ($start_date, $end_date) {
+                        $query->whereBetween(DB::raw('start_date'), array($start_date, $end_date));
+                    }
+                )->get()->count(), 'status' => $status->name,                
+            ];
+        }
+        
         //return json_encode($byDateRange);
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'notInCourse' => $notInCourse]);
+        return json_encode(['byAllTime' => $byAllTime, 'byStatusByDateRange'=> $byStatusByDateRange ,'allStatusbyDateRange' => $allStatusbyDateRange,'notInCourse' => $notInCourse, 'labels' => $labels]);
     }//end by participant status
 
     public function courseByParticipantQuantity(Request $request){

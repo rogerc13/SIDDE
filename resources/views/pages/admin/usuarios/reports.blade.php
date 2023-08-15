@@ -55,6 +55,17 @@
                     </select>    
                 </div>
                 </div>
+                <div class="col-md-6 participant-status-container">
+                    <div class="form-group">
+                        <label for="participant_status">Estatus de Participantes</label>
+                        <select name="participant_status" id="participant_status" class="form-control">
+                            <option value="1">En Curso</option>
+                            <option value="2">Susperndido / Reprobado</option>
+                            <option value="3">Aprobado</option>
+                            <option value="4">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             </div> {{-- row --}}
             <button type="submit" class="generate btn btn-primary"><span>Generar Reporte</span></button> 

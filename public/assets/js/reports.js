@@ -11,6 +11,17 @@
         //show list of courses or people if necessary
         //print report
 $(document).ready(function(){
+   $(".participant-status-container").hide();
+
+    $('.selector').on('click',function(){
+        if($(this).val() == 'participant-by-status'){
+            $(".participant-status-container").show();
+            console.log('show');
+        }else{
+            $(".participant-status-container").hide();
+            console.log("hide");
+        }
+    });
 
     $('#date_range').on('change',function (e) { 
         //console.log('change');
@@ -286,7 +297,95 @@ $(document).ready(function(){
                         console.log("duration");
                         break;
                     case "participant-by-status":
+                        
+                        //total amount of paticipants all time given status
+                        //$().html(response.byAllTime.length);
+
+                        //list of participants per given status all time
                         console.log("participant-by-status");
+                        response.byAllTime.forEach((element) => {
+                            $(".course-list tbody").append(`<tr>
+                                    <td>${element.person.name}</td>
+                                    <td>${element.person.last_name}</td>
+                                    <td>${element.person.id_number}</td>
+                                    </tr>`);
+                        });
+
+                        //participants not in a course //missing last participated course if any
+                        response.notInCourse.forEach((element) => {
+                            $(".course-list tbody").append(`<tr>
+                                    <td>${element.name}</td>
+                                    <td>${element.last_name}</td>
+                                    <td>${element.id_number}</td>
+                                    <td>${element.id_number}</td>
+                                    </tr>`);
+                        });
+                        
+                        //
+                        let participantStatusesDateRange = [];
+                        participantStatusesDateRange = response.allStatusbyDateRange.filter((obj) => {
+                            return obj.countByStatus > 0;
+                        }); 
+                        //returns Status name , amount
+                        //console.log(participantStatusesDateRange);
+                        
+                        //doughnut Data
+                        let doughnutDataStatus = [];
+                        let doughnutLabelsStatus = [];
+                        let amountHelperStatus = 0;
+                        let doughnutBackgroundColorStatus = [];
+                        response.labels.forEach(element => {
+                            participantStatusesDateRange.forEach(helper => {
+                                if(helper.status === element.label){
+                                    amountHelperStatus = amountHelperStatus + helper.countByStatus;
+                                }
+                            })
+                            doughnutDataStatus.push(amountHelperStatus);
+                            doughnutLabelsStatus.push(element.label);
+                            amountHelperStatus = 0;
+                            doughnutBackgroundColorStatus.push(
+                                `#${Math.floor(
+                                    Math.random() * 16777215
+                                ).toString(16)}`
+                            );
+                        });
+                        console.log(doughnutDataStatus);
+
+                        let doughnutStatus = $("#doughnut");
+                        var myDoughnutChart = new Chart(doughnutStatus, {
+                            type: "doughnut",
+                            data: {
+                                datasets: [
+                                    {
+                                        data: doughnutDataStatus,
+                                        backgroundColor:
+                                            doughnutBackgroundColorStatus,
+                                    },
+                                ],
+                                labels: doughnutLabelsStatus,
+                            },
+                        });
+                        //bar chart
+                        let barStatus = $("#myChart");
+                        var myDoughnutChart = new Chart(barStatus, {
+                            type: "bar",
+                            data: {
+                                datasets: [
+                                    {
+                                        data: doughnutDataStatus,
+                                        backgroundColor:
+                                            doughnutBackgroundColorStatus,
+                                    },
+                                ],
+                                labels: doughnutLabelsStatus,
+                            },
+                        });
+
+                        /* response.allStatusbyDateRange.forEach(element => {
+                            console.log(`${element.status} : ${element.countByStatus}`);
+                        }); */
+
+                        //console.log(response.notInCourse);
                         break;
                     case "participant-by-quantity":
                         console.log("participant-by-quantity");
@@ -318,16 +417,16 @@ $(document).ready(function(){
                         console.log(totalAmountOfCourses);
                         break;
                     case "not-scheduled":
-                        console.log('not-scheduled');
+                        console.log("not-scheduled");
                         //draw table and show amount of courses
                         //$('').html(`Cantidad de Cursos no Programados: ${response.data.length}`)
-                        response.data.forEach(element => {
-                            $('.course-list tbody').append(`<tr>
+                        response.data.forEach((element) => {
+                            $(".course-list tbody").append(`<tr>
                                                             <td>${element.code}</td>
                                                             <td>${element.title}</td>
                                                             <td>${element.category.name}</td>
                                                         </tr>`);
-                        })
+                        });
                         break;
                     default:
                         break;
