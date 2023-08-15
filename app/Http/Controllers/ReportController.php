@@ -356,8 +356,8 @@ class ReportController extends Controller
     }//end participant average
 
     public function notScheduled(Request $request){
-        //all courses not present on scheduled table    
-        $data = Course::with('scheduled','capacities')->whereDoesntHave('scheduled')->get();    
+        //all courses not present on scheduled table
+        $data = Course::with('scheduled','capacity','category')->whereDoesntHave('scheduled')->get();    
         return json_encode(['data' => $data]);
     }
     
