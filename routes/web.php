@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth'], function ()
     Route::group(['prefix' => 'u'], function()
     {
         Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
+        Route::post('/prerequisite', 'App\Http\Controllers\CursoController@prerequisiteList'); //ajax call to check if code already exists
         
         
         Route::group(['prefix' => 'usuarios'], function()
@@ -154,9 +155,11 @@ Route::group(['middleware' => 'auth'], function ()
         Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');
         Route::post('/duration', 'App\Http\Controllers\ReportController@byCourseDuration');
         Route::post('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
+        Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@courseByParticipantQuantity');
         Route::post('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
-        Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@participantByQuantity');
         Route::post('/participant-average','App\Http\Controllers\ReportController@participantAverage');
+        Route::post('/most-scheduled', 'App\Http\Controllers\ReportController@mostScheduled');
+        Route::post('/not-scheduled', 'App\Http\Controllers\ReportController@notScheduled');
     });   
 });
 
