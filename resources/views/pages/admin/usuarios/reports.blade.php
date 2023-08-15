@@ -19,11 +19,13 @@
                         <select name="report-type" id="report-type" class="form-control selector" >
                             <option value="date" selected>Cantidad de Cursos</option>
                             <option value="category">Cantidad de Cursos Por Categoria</option>
-                            <option value="status">Cantidad de Cursos Por Estado</option>
+                            <option value="status">Cantidad de Cursos Por Estatus</option>
                             <option value="duration">Duracion de Cursos</option>
+                            <option value="participant-by-quantity">Cursos por Cantidad de Participantes</option>
                             <option value="participant-by-status">Estatus de Participantes</option>
-                            <option value="participant-by-quantity">Cantidad de Participantes</option>
                             <option value="participant-average">Promedio de Participantes</option>
+                            <option value="most-scheduled">Cursos más Programados</option>
+                            <option value="not-scheduled">Cursos No Programados</option>
                         </select>
                     </div>
                 </div>
@@ -89,6 +91,6 @@
             </table>
         </div>
     </div>
-    </div>{{-- container --}}
+    </div>{{-- end class container --}}
 
 @endsection

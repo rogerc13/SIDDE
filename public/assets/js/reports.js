@@ -131,10 +131,10 @@ $(document).ready(function(){
                         console.log('status');
                         //linear graph data
                         let statuses = [];
-                        
+                        let fillColor = [];
                         response.statuses.forEach(element => {
                             
-                            let fillColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+                            fillColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
                             let status = {
                                     label:element,
                                     data: response.y.filter(obj => {
@@ -151,6 +151,7 @@ $(document).ready(function(){
                                     fill:false,
                                     borderColor: fillColor,
                                     backgroundColor: fillColor,
+                                    borderWidth: 1,
                                     //spanGaps:false,
                                     /* points:[{display:response.y.filter(obj => {
                                             return obj.status === element;
@@ -254,7 +255,6 @@ $(document).ready(function(){
                         break;
                     case 'duration':
                         console.log('duration');
-                        
                         break;
                     case 'participant-by-status':
                         console.log('participant-by-status');
@@ -264,6 +264,30 @@ $(document).ready(function(){
                         break;
                     case 'participant-average':
                         console.log('participant-average');
+                        break;
+                    case 'most-scheduled':
+                        console.log('most-scheduled');
+                        //draw list of courses
+                            let totalAmountOfCourses = 0;
+                        response.courseData.forEach(element => {
+                            let amount;
+                            for (const property in response.amountData) {
+                                    if(property == element.id){
+                                        amount = response.amountData[property];
+                                    }
+                            };
+                            $(".course-list tbody").append(`<tr>
+                                                        <td>${element.id}</td>
+                                                        <td>${element.code}</td>
+                                                        <td>${
+                                                            element.title
+                                                        }</td>
+                                                        <td>
+                                                            ${amount}
+                                                       </td></tr>`);
+                            totalAmountOfCourses = totalAmountOfCourses + amount;
+                        });
+                        console.log(totalAmountOfCourses);
                         break;
                     default:
                         break;
