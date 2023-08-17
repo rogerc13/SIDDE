@@ -19,7 +19,7 @@ class ParticipantStatusSeeder extends Seeder
             'name' => 'En Curso'
         ]);
         ParticipantStatus::create([
-            'name' => 'Suspendido/Reprobado'
+            'name' => 'Reprobado'
         ]);
         ParticipantStatus::create([
             'name' => 'Aprobado'
