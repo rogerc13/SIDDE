@@ -297,7 +297,6 @@ $(document).ready(function(){
                         console.log("duration");
                         break;
                     case "participant-by-status":
-                        
                         //total amount of paticipants all time given status
                         //$().html(response.byAllTime.length);
 
@@ -320,26 +319,29 @@ $(document).ready(function(){
                                     <td>${element.id_number}</td>
                                     </tr>`);
                         });
-                        
+
                         //
                         let participantStatusesDateRange = [];
-                        participantStatusesDateRange = response.allStatusbyDateRange.filter((obj) => {
-                            return obj.countByStatus > 0;
-                        }); 
+                        participantStatusesDateRange =
+                            response.allStatusbyDateRange.filter((obj) => {
+                                return obj.countByStatus > 0;
+                            });
                         //returns Status name , amount
                         //console.log(participantStatusesDateRange);
-                        
+
                         //doughnut Data
                         let doughnutDataStatus = [];
                         let doughnutLabelsStatus = [];
                         let amountHelperStatus = 0;
                         let doughnutBackgroundColorStatus = [];
-                        response.labels.forEach(element => {
-                            participantStatusesDateRange.forEach(helper => {
-                                if(helper.status === element.label){
-                                    amountHelperStatus = amountHelperStatus + helper.countByStatus;
+                        response.labels.forEach((element) => {
+                            participantStatusesDateRange.forEach((helper) => {
+                                if (helper.status === element.label) {
+                                    amountHelperStatus =
+                                        amountHelperStatus +
+                                        helper.countByStatus;
                                 }
-                            })
+                            });
                             doughnutDataStatus.push(amountHelperStatus);
                             doughnutLabelsStatus.push(element.label);
                             amountHelperStatus = 0;
@@ -389,6 +391,25 @@ $(document).ready(function(){
                         break;
                     case "participant-by-quantity":
                         console.log("participant-by-quantity");
+                        //amount of participants all time
+                        //$('').html(`Cantidad Total de Participantes: ${response.amountAllTime[0].amount}`)
+                        //list of courses per participant in a date range
+                        if(response.dateRangeAmountPerCourse != 0){
+                            //draw list
+                            response.dateRangeAmountPerCourse.forEach(element => {
+                                $('.course-list tbody').append(`<tr>
+                                                            <td>${element.course}</td>
+                                                            <td>${element.count}</td>
+                                                        </tr>`)
+                            });
+                        }else{
+                            //$().html('No existen cursos con participantes en este periodo de tiempo');
+                        }
+
+                        //graphs
+                        //doughnut all time 
+                        
+
                         break;
                     case "participant-average":
                         console.log("participant-average");
@@ -420,6 +441,17 @@ $(document).ready(function(){
                         console.log("not-scheduled");
                         //draw table and show amount of courses
                         //$('').html(`Cantidad de Cursos no Programados: ${response.data.length}`)
+                        $(".course-amount-number span").html(
+                            `<h3>Cantidad de Cursos No Programados: ${response.data.length}</h3>`
+                        );
+                        $('.row-graphs').html("");
+                        $(".course-list thead").html("");
+                        $(".course-list thead").append(`<tr>
+                                                        <th>Codigo del Curso</th>
+                                                        <th>Título del Curso</th>
+                                                        <th>Area de Conocimiento</th>
+                                                        </tr>`);
+                        $(".course-list tbody").html("");
                         response.data.forEach((element) => {
                             $(".course-list tbody").append(`<tr>
                                                             <td>${element.code}</td>

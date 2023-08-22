@@ -5,6 +5,7 @@
 @endpush
 @extends('layouts.admin')
 @section('content')
+<img class="hidden-lg hidden-md hidden-sm hidden-xs visible-print" src="{{asset('assets/images/PDV_S.A._logo.svg')}}" alt="">
     <h1>Reportes</h1>
     <div class="container-fluid">
         <div class="row hidden-print form-group">
@@ -79,7 +80,7 @@
         </div>
         <div class="course-pie-graph"></div>
     </div>
-    <div class="row">
+    <div class="row row-graphs">
         <div class="col-xs-12 col-md-6 graph-container">
             <canvas id="myChart" width="400" height="400"></canvas>
         </div>
@@ -91,13 +92,8 @@
         <div class="col-xs12 col-md-12">
             <table class="course-list table table-striped table-bordered table-center">
                 <thead>
-                        <td>Titulo</td>
-                        <td>Fecha de Inicio</td>
-                        <td>Fecha Fin</td>
-                        <td>Estado del Curso</td>
                 </thead>
                 <tbody>
-
                 </tbody>
             </table>
         </div>
