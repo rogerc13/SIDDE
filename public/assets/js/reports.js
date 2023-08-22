@@ -195,22 +195,7 @@ $(document).ready(function(){
                             return obj.data.length > 0;
                         });
                         console.log(statuses);
-                        //list data
-                        courseData = response.courseData.filter((obj) => {
-                            return obj.courseData.length !== 0;
-                        });
 
-                        courseData.forEach((element) => {
-                            element.courseData.forEach((helperA) => {
-                                //console.log(helperA);
-                                $(".course-list tbody").append(`<tr>
-                                                            <td>${helperA.course.title}</td>
-                                                            <td>${helperA.start_date}</td>
-                                                            <td>${helperA.end_date}</td>
-                                                            <td>${helperA.course_status.name}</td>
-                                                        </tr>`);
-                            });
-                        });
                         //doughnut data
                         let doughnutData = [];
                         let doughnutLabels = [];
@@ -275,6 +260,11 @@ $(document).ready(function(){
                                 },
                                 spanGaps: true,
                                 showLines: true,
+                                title: {
+                                    display: true,
+                                    text: `Distribución de Acciones de Formación por Estatus en el Período `,
+                                },
+
                             },
                         });
                         //doughnut
@@ -291,7 +281,45 @@ $(document).ready(function(){
                                 ],
                                 labels: doughnutLabels,
                             },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: `Distribución de Acciones de Formación por Estatus en el Período `,
+                                },
+                            },
                         });
+                        $(".table-col-helper").html("");
+                        //list data
+                        $(".table-col-helper")
+                            .append(`<table class="course-list table table-striped table-bordered table-center">
+                                    <caption>Acciones de Formación Durante el Período</caption>
+                                    <thead>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    </table>`);
+                        $('.course-list thead').append(`<tr>
+                        <th>Título</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Culminación</th>
+                        <th>Estatus</th>
+                        </tr>`);
+                        courseData = response.courseData.filter((obj) => {
+                            return obj.courseData.length !== 0;
+                        });
+                        courseData.forEach((element) => {
+                            element.courseData.forEach((helperA) => {
+                                //console.log(helperA);
+                                $(".course-list tbody").append(`<tr>
+                                                            <td>${helperA.course.title}</td>
+                                                            <td>${helperA.start_date}</td>
+                                                            <td>${helperA.end_date}</td>
+                                                            <td>${helperA.course_status.name}</td>
+                                                        </tr>`);
+                            });
+                        });
+                        
+
                         break;
                     case "duration":
                         console.log("duration");
@@ -435,7 +463,6 @@ $(document).ready(function(){
                                     </tr>`);
                         });
 
-                        
                         //participants not in a course //missing last participated course if any
                         $(".table-col-helper").append(
                             `<table class="not-in-course-list-table table table-striped table-bordered table-center">
@@ -444,7 +471,7 @@ $(document).ready(function(){
                                 <tbody></tbody>
                             </table>`
                         );
-                        
+
                         $(".not-in-course-list-table thead").append(`<tr>
                                                 <th>Nombres</th>
                                                 <th>Apellidos</th>
