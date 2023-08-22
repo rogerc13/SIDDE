@@ -29,7 +29,7 @@ class CursoController extends Controller
     {
         $user = Auth::user();
         //$curso = Course::find($id);
-        $curso = Course::with('Content')->with('File')->with('Capacity')->where('id',$id)->get();
+        $curso = Course::with('Content')->with('File')->with('Capacity')->with('prerequisite')->where('id',$id)->get();
         if(!$curso || $user->cannot('get', Course::class))
         {
             return json_encode([]);
@@ -592,6 +592,7 @@ class CursoController extends Controller
         $user = Auth::user();
         $curso = Course::with('File')
         ->with('Capacity')
+        ->with('prerequisite')
         ->with('Content')->where('id',$id)
         ->get();
         

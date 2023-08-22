@@ -17,14 +17,23 @@
         // $('#objetivo').data('wysihtml5').editor.toolbar.hide();
         // $('#objetivo').data('wysihtml5').editor.composer.disable();
 
+        $('.radio-prerequisite').hide();
+        $('.select-prerequisite-helper').show();
 
 
         $.get(url,function(data,status){
-            
                 
+
                 data=JSON.parse(data);
                 console.log(data);
+                //console.log(data[0].prerequisite[0].id);
                 $('#codigo').val(data[0].code);
+
+                if(data[0].prerequisite.length > 0){
+                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].id}</option>`).trigger('change');
+                }else{
+                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                }
                 $('#titulo').val(data[0].title);
                 $('#categoria_id').val(data[0].category_id).trigger("change");
                 $('#modalidad_id').val(data[0].modality_id).trigger("change");
