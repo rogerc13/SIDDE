@@ -150,23 +150,23 @@ Route::group(['middleware' => 'auth'], function ()
 
 
     });
-        //Route::group(['middleware' => ['reports']], function () {
-        Route::group(['prefix' => 'reports'], function () {
-                Route::get('/', function () {
-                        return view('pages.admin.usuarios.reports');
+        Route::group(['middleware' => ['reports']], function () {
+                Route::group(['prefix' => 'reports'], function () {
+                        Route::get('/', function () {
+                                return view('pages.admin.usuarios.reports');
+                        });
+                        Route::post('/date', 'App\Http\Controllers\ReportController@byDate');
+                        Route::post('/category', 'App\Http\Controllers\ReportController@byCategory');
+                        Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');
+                        Route::post('/duration', 'App\Http\Controllers\ReportController@byCourseDuration');
+                        Route::post('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
+                        Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@courseByParticipantQuantity');
+                        Route::post('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
+                        Route::post('/participant-average', 'App\Http\Controllers\ReportController@participantAverage');
+                        Route::post('/most-scheduled', 'App\Http\Controllers\ReportController@mostScheduled');
+                        Route::post('/not-scheduled', 'App\Http\Controllers\ReportController@notScheduled');
                 });
-                Route::post('/date', 'App\Http\Controllers\ReportController@byDate');
-                Route::post('/category', 'App\Http\Controllers\ReportController@byCategory');
-                Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');
-                Route::post('/duration', 'App\Http\Controllers\ReportController@byCourseDuration');
-                Route::post('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
-                Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@courseByParticipantQuantity');
-                Route::post('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
-                Route::post('/participant-average', 'App\Http\Controllers\ReportController@participantAverage');
-                Route::post('/most-scheduled', 'App\Http\Controllers\ReportController@mostScheduled');
-                Route::post('/not-scheduled', 'App\Http\Controllers\ReportController@notScheduled');
         });
-        //});
     
     Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
     
