@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('last_name');
             $table->string('id_number');
+            $table->foreignId('id_type_id')->references('id')->on('id_types');
             $table->string('phone')->nullable();
             $table->string('sex')->nullable();
             $table->string('avatar_path')->nullable();

@@ -15,6 +15,7 @@ class Person extends Model
         'name',
         'last_name',
         'id_number',
+        'id_type_id',
         'phone',
         'sex',
         'avatar_path',
@@ -44,4 +45,8 @@ class Person extends Model
      /* public function scheduled(){
         return $this->hasManyThrough(Scheduled::class,Participant::class);
     }  */
+
+    public function idType(){
+        return $this->belongsTo(IdType::class);
+    }
 }   
