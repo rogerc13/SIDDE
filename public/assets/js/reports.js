@@ -146,6 +146,10 @@ $(document).ready(function(){
                                         },
                                     ],
                                 },
+                                title: {
+                                    display: true,
+                                    text: `Cantidad de Acciones de Formacion por Areas de Conocimiento durante el período`,
+                                },
                             },
                         });
 
