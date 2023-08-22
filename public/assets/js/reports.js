@@ -297,28 +297,21 @@ $(document).ready(function(){
                         console.log("duration");
                         break;
                     case "participant-by-status":
-                        //total amount of paticipants all time given status
-                        //$().html(response.byAllTime.length);
-
-                        //list of participants per given status all time
                         console.log("participant-by-status");
-                        response.byAllTime.forEach((element) => {
-                            $(".course-list tbody").append(`<tr>
-                                    <td>${element.person.name}</td>
-                                    <td>${element.person.last_name}</td>
-                                    <td>${element.person.id_number}</td>
-                                    </tr>`);
-                        });
 
-                        //participants not in a course //missing last participated course if any
-                        response.notInCourse.forEach((element) => {
-                            $(".course-list tbody").append(`<tr>
-                                    <td>${element.name}</td>
-                                    <td>${element.last_name}</td>
-                                    <td>${element.id_number}</td>
-                                    <td>${element.id_number}</td>
-                                    </tr>`);
-                        });
+                        let start_date = response.byStatusByDateRange[0].date;
+
+                        let end_date =
+                            response.byStatusByDateRange[
+                                response.byStatusByDateRange.length - 1
+                            ].date;
+
+                        $(".couse-list thead").html("");
+                        $(".couse-list tbody").html("");
+                        //total amount of paticipants all time given status
+
+                        //$().html(response.byAllTime.length);
+                        //console.log(response.byAllTime.length);
 
                         //
                         let participantStatusesDateRange = [];
@@ -327,8 +320,8 @@ $(document).ready(function(){
                                 return obj.countByStatus > 0;
                             });
                         //returns Status name , amount
-                        //console.log(participantStatusesDateRange);
 
+                        //charts by date range
                         //doughnut Data
                         let doughnutDataStatus = [];
                         let doughnutLabelsStatus = [];
@@ -351,7 +344,7 @@ $(document).ready(function(){
                                 ).toString(16)}`
                             );
                         });
-                        console.log(doughnutDataStatus);
+                        //console.log(doughnutDataStatus);
 
                         let doughnutStatus = $("#doughnut");
                         var myDoughnutChart = new Chart(doughnutStatus, {
@@ -365,6 +358,12 @@ $(document).ready(function(){
                                     },
                                 ],
                                 labels: doughnutLabelsStatus,
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                                },
                             },
                         });
                         //bar chart
@@ -381,8 +380,83 @@ $(document).ready(function(){
                                 ],
                                 labels: doughnutLabelsStatus,
                             },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                                },
+                                legend: {
+                                    display: false,
+                                },
+                            },
                         });
 
+                        $(".table-col-helper").html("");
+                        $(".table-col-helper").append(
+                            `<table class="status-amount-table table table-striped table-bordered table-center">
+                                <caption>Cantidad de Participantes Durante el Período ${start_date} - ${end_date}</caption>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>`
+                        );
+                        $(".status-amount-table thead").append(`<tr>
+                                                <th>En Curso</th>
+                                                <th>Aprobado</th>
+                                                <th>Reprobado</th>
+                                                <th>Cancelado</th>
+                                            </tr>`);
+                        $(".status-amount-table tbody").append(`<tr>
+                                                <td>${doughnutDataStatus[0]}</td>
+                                                <td>${doughnutDataStatus[2]}</td>
+                                                <td>${doughnutDataStatus[1]}</td>
+                                                <td>${doughnutDataStatus[3]}</td>
+                                            </tr>`);
+
+                        //list of participants per given status all time
+                        $(".table-col-helper").append(
+                            `<table class="all-time-list-table table table-striped table-bordered table-center">
+                                <caption>Lista de Participantes Con Estatus:</caption>    
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>`
+                        );
+
+                        $(".all-time-list-table thead").append(`<tr>
+                                                <th>Nombres</th>
+                                                <th>Apellidos</th>
+                                                <th>Cédula</th>
+                                            </tr>`);
+
+                        response.byAllTime.forEach((element) => {
+                            $(".all-time-list-table tbody").append(`<tr>
+                                    <td>${element.person.name}</td>
+                                    <td>${element.person.last_name}</td>
+                                    <td>${element.person.id_number}</td>
+                                    </tr>`);
+                        });
+
+                        
+                        //participants not in a course //missing last participated course if any
+                        $(".table-col-helper").append(
+                            `<table class="not-in-course-list-table table table-striped table-bordered table-center">
+                                <caption>Participantes No Asignados a Cursos</caption>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>`
+                        );
+                        
+                        $(".not-in-course-list-table thead").append(`<tr>
+                                                <th>Nombres</th>
+                                                <th>Apellidos</th>
+                                                <th>Cédula</th>
+                                            </tr>`);
+                        response.notInCourse.forEach((element) => {
+                            $(".not-in-course-list-table tbody").append(`<tr>
+                                    <td>${element.name}</td>
+                                    <td>${element.last_name}</td>
+                                    <td>${element.id_number}</td>
+                                    </tr>`);
+                        });
                         /* response.allStatusbyDateRange.forEach(element => {
                             console.log(`${element.status} : ${element.countByStatus}`);
                         }); */
@@ -394,21 +468,22 @@ $(document).ready(function(){
                         //amount of participants all time
                         //$('').html(`Cantidad Total de Participantes: ${response.amountAllTime[0].amount}`)
                         //list of courses per participant in a date range
-                        if(response.dateRangeAmountPerCourse != 0){
+                        if (response.dateRangeAmountPerCourse != 0) {
                             //draw list
-                            response.dateRangeAmountPerCourse.forEach(element => {
-                                $('.course-list tbody').append(`<tr>
+                            response.dateRangeAmountPerCourse.forEach(
+                                (element) => {
+                                    $(".course-list tbody").append(`<tr>
                                                             <td>${element.course}</td>
                                                             <td>${element.count}</td>
-                                                        </tr>`)
-                            });
-                        }else{
+                                                        </tr>`);
+                                }
+                            );
+                        } else {
                             //$().html('No existen cursos con participantes en este periodo de tiempo');
                         }
 
                         //graphs
-                        //doughnut all time 
-                        
+                        //doughnut all time
 
                         break;
                     case "participant-average":
@@ -418,15 +493,15 @@ $(document).ready(function(){
                         console.log("most-scheduled");
                         //draw list of courses
 
-                        $('.row-graphs').html("");
+                        $(".row-graphs").html("");
                         $(".course-list thead").html("");
                         $(".course-list tbody").html("");
-                        $('.course-list thead').append(`<tr>
+                        $(".course-list thead").append(`<tr>
                                                         <th>Código del Curso</th>
                                                         <th>Título del Curso</th>
                                                         <th>Cantidad de Veces Programado</th>
                                                         </tr>`);
-                        
+
                         let totalAmountOfCourses = 0;
                         response.courseData.forEach((element) => {
                             let amount;
@@ -449,7 +524,7 @@ $(document).ready(function(){
                         $(".course-amount-number span").html(
                             `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
                         );
-                        
+
                         break;
                     case "not-scheduled":
                         console.log("not-scheduled");
@@ -458,7 +533,7 @@ $(document).ready(function(){
                         $(".course-amount-number span").html(
                             `<h3>Cantidad de Cursos No Programados: ${response.data.length}</h3>`
                         );
-                        $('.row-graphs').html("");
+                        $(".row-graphs").html("");
                         $(".course-list thead").html("");
                         $(".course-list thead").append(`<tr>
                                                         <th>Codigo del Curso</th>

@@ -89,7 +89,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs12 col-md-12">
+        <div class="col-xs12 col-md-12 table-col-helper">
             <table class="course-list table table-striped table-bordered table-center">
                 <thead>
                 </thead>
