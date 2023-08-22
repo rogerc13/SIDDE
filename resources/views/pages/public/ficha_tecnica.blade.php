@@ -78,9 +78,13 @@
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Acciones de formación previa</p></td>
-                <td colspan="4" rowspan="1" class="ficha-subtitile-name-td"><p class="ficha-course-requirement">@if ($curso->prerequisite[0]->prerequisite_id != null) {{$curso->prerequisite[0]->courseName()}}
-                    @else Ninguna                    
-                @endif</p></td>
+                <td colspan="4" rowspan="1" class="ficha-subtitile-name-td"><p class="ficha-course-requirement">
+                    @if (isset($curso->prerequisite[0]) && ($curso->prerequisite[0]->prerequisite_id != null)) 
+                        {{$curso->prerequisite[0]->courseName()}}
+                    @else 
+                        Ninguna                    
+                    @endif
+                </p></td>
             </tr>
             <tr>
                 <td colspan="1" rowspan="1" class="ficha-course-participant-capacity-subtitle-td">
