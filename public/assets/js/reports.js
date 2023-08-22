@@ -417,6 +417,16 @@ $(document).ready(function(){
                     case "most-scheduled":
                         console.log("most-scheduled");
                         //draw list of courses
+
+                        $('.row-graphs').html("");
+                        $(".course-list thead").html("");
+                        $(".course-list tbody").html("");
+                        $('.course-list thead').append(`<tr>
+                                                        <th>Código del Curso</th>
+                                                        <th>Título del Curso</th>
+                                                        <th>Cantidad de Veces Programado</th>
+                                                        </tr>`);
+                        
                         let totalAmountOfCourses = 0;
                         response.courseData.forEach((element) => {
                             let amount;
@@ -426,7 +436,7 @@ $(document).ready(function(){
                                 }
                             }
                             $(".course-list tbody").append(`<tr>
-                                                        <td>${element.id}</td>
+                                                        
                                                         <td>${element.code}</td>
                                                         <td>${element.title}</td>
                                                         <td>
@@ -435,7 +445,11 @@ $(document).ready(function(){
                             totalAmountOfCourses =
                                 totalAmountOfCourses + amount;
                         });
-                        console.log(totalAmountOfCourses);
+
+                        $(".course-amount-number span").html(
+                            `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
+                        );
+                        
                         break;
                     case "not-scheduled":
                         console.log("not-scheduled");
