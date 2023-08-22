@@ -87,6 +87,12 @@ $(document).ready(function(){
                                 ],
                                 labels: response.x,
                             },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: `Acciones de Formación durante el Período ${response.start_date} - ${response.end_date}`,
+                                },
+                            },
                         });
                         break;
                     case "category":
