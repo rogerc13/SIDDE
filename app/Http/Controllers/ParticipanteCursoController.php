@@ -49,7 +49,7 @@ class ParticipanteCursoController extends Controller
 
     public function getAllPorCurso($id)
     {
-
+        
         $user = Auth::user();
 
         if($user->cannot('getAllPorCurso',Participant::class))
@@ -84,6 +84,7 @@ class ParticipanteCursoController extends Controller
     }//getAllPorCurso
 
     public function getAllEvaluation($id){
+        
         $user = Auth::user();
 
         if ($user->cannot('getAllPorCurso', Participant::class)) {
@@ -113,19 +114,33 @@ class ParticipanteCursoController extends Controller
     }//end get all evaluation
 
     public function participantEvaluationStatus(Request $request){
+        
+
         if(isset($request->data)){
-    
+            
             foreach ($request->data as $key => $value) {
                 
                 $data = array('participant_status_id' => $request->data[$key]['status_id']);
-
+                //return json_encode($request->data[$key]['scheduled_id']);
                 Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->where('id',$request->data[$key]['participant_id'])->update($data);
             } 
-            return json_encode($response = array('success'=>'Evaluacion Completada','error'=>'Error durante la evaluación'));
+            return json_encode($response = array('success'=>'Evaluación Completada'));
         }else{
-            return json_encode($response = array('error'=>'No Se ejecutó la evaluación'));
+            return json_encode($response = array('error'=>'No Se ejecutó la Evaluación'));
         }
-    }//end participantEvaluationStatus
+    } //end participantEvaluationStatus
+
+    public function onEvaluationSubmitAlert($request)
+    { //redirects on evaluation submit
+        //return json_encode("submit");
+        //return $request;
+        if (isset($request)) {
+            return redirect("/u/af_programadas/" . $request . '/participantes')->with("alert", Funciones::getAlert("success", "Evaluación Completada.", "Operación Exitosa."));
+        } else {
+            return redirect("/u/af_programadas/" . $request . '/participantes')->with("alert", Funciones::getAlert("danger", "Error al Intentar Evaluar", "Operación Errónea."));
+        }
+
+    }//end onCourseSubmitAlert
 
     public function store(UserForm $request,$id)
     {

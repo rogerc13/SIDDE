@@ -84,7 +84,7 @@
 		<div align="center">{!! $participantes->links() !!}</div>			
 	</div>
       <a href="{{Auth::user()->isFacilitador() ? url("u/mis_acciones") : url("u/af_programadas")}}">
-    <center><button type="button" class="btn btn-info" ><i class="entypo-back" aria-hidden="true"></i> Regresar</button></center> 
+    <center><button type="button" class="btn btn-info return-button" ><i class="entypo-back" aria-hidden="true"></i> Regresar</button></center> 
     </a>			
 </div>
 @stop
