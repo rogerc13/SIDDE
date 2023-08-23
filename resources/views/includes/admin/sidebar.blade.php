@@ -187,8 +187,8 @@
 			@endcan
 			@if(Auth::user()->isParticipante() || Auth::user()->isFacilitador())
 			@else
-				<li title="Reportes">
-					<a href="{{"/reports"}}">
+				<li class="{{Request::is('reports') ? 'active' :''}}" title="Reportes">
+					<a href="{{url("/reports")}}">
 						<i class="entypo-list"></i>
 						<span class="title">Reportes</span>
 					</a>
