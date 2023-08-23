@@ -142,10 +142,10 @@
 						<i class="entypo-book-open"></i>
 						<span class="title">Gestión de A.F</span>
 					</a>
-				</
+				</li>
 			@endcan
 			@can('getAll','App\Scheduled')
-				<li class="@if(Request::is('u/af_programadas') || Request::is('u/af_programadas/*')) active @endif" title="Acciones de Formación Programadas">
+				<li class="{{ Request::is('u/af_programadas','u/af_programadas/*') ? 'active' : '' }}" title="Acciones de Formación Programadas">
 					<a href="{{url("u/af_programadas")}}">
 						<i class="entypo-calendar"></i>
 						<span class="title">A.F Programadas</span>
