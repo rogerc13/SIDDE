@@ -57,10 +57,24 @@
 
               <div class="form-group">
                 <label for="ci" class="col-sm-3 control-label">C.I</label>
-                
                 <div class="col-sm-5">
-                  <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->person->id_number}}" maxlength="45" required="true">
+                  <div class="input-group">
+                    <div class="input-group-btn">
+                      <select name="id_type" id="id_type" class="form-select input-group-text btn btn-default 
+                       dropdown-toggle">
+                        @foreach ($types as $type)
+                          <option value="{{$type->id}}" 
+                            @if (Auth::user()->person->id_type_id == $type->id)
+                              selected                               
+                            @endif>{{$type->inital()}}
+                          </option>
+                        @endforeach  
+                      </select>
+                    </div>
+                    <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->person->id_number}}" maxlength="45" required="true">
+                  </div>  
                 </div>
+
               </div>
               <div class="form-group">
                 <label for="sex" class="col-sm-3 control-label">Sexo</label>
@@ -127,6 +141,7 @@
               <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-5">
                   <button type="submit" class="btn btn-default">Aceptar</button>
+                  {{-- cancel button goes here --}}
                 </div>
               </div>
             </form>

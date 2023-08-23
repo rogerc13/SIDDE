@@ -9,6 +9,7 @@ use App\Models\Person;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Funciones;
+use App\Models\IdType;
 
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
@@ -211,13 +212,13 @@ class UserController extends Controller
         if($user->cannot('misDatos',User::class))
             return redirect()->back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar obtener datos", "No tienes permisos para acceder a esta información."));
-
-        return view('pages.admin.usuarios.misdatos');
+        //$types = IdType::all();
+        return view('pages.admin.usuarios.misdatos')->with('types',IdType::all());
     }
 
     public function misDatosUpdate(UserForm $request)
     {
-
+        
         $user=Auth::user();
 
         if($user->cannot('misDatosUpdate',User::class))
@@ -243,6 +244,7 @@ class UserController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'id_type_id' => $request->id_type,
             'sex' => $request->sex,
             'phone' => $request->phone,
             'avatar_path' => isset($avatar_path) ? $avatar_path : $usuario->person->avatar_path

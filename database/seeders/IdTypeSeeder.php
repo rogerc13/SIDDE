@@ -16,7 +16,7 @@ class IdTypeSeeder extends Seeder
     public function run()
     {
         IdType::create(['id' => 1,
-        'name' => 'Venezolando',]);
+        'name' => 'Venezolano',]);
 
         IdType::create(['id' => 2,
         'name' => 'Extranjero',]);

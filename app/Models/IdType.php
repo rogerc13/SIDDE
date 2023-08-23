@@ -15,4 +15,8 @@ class IdType extends Model
     public function person(){
         return $this->hasMany(Person::class);
     }
+
+    public function inital(){
+        return $this->name[0];
+    }
 }
