@@ -10,8 +10,33 @@
         //show amount of courses or people queried along with graphs if necessary
         //show list of courses or people if necessary
         //print report
+
+function participantStatusSelect(){
+    
+    $.ajax({
+        type:'GET',
+        url: '/reports/participant-status-select',
+        success: function(response){
+            //console.log(JSON.parse(response));
+
+            response = JSON.parse(response);
+            response.statuses.forEach(status => {
+                $("#participant_status").append(
+                    `<option value="${status.id}">${status.name}</option>`
+                );
+            });
+        },
+        error: function(response){
+            console.log(response);
+        }
+        
+    });
+}
+
 $(document).ready(function(){
    $(".participant-status-container").hide();
+
+   
 
     $('.selector').on('click',function(){
         if($(this).val() == 'participant-by-status'){
@@ -47,6 +72,10 @@ $(document).ready(function(){
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
+
+    //console.log(participantStatusSelect());
+
+    participantStatusSelect(); //draws participant status selector
 
         //Reports by type selected
         $('.generate').click(function (e) { 

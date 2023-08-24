@@ -165,6 +165,8 @@ Route::group(['middleware' => 'auth'], function ()
                         Route::post('/participant-average', 'App\Http\Controllers\ReportController@participantAverage');
                         Route::post('/most-scheduled', 'App\Http\Controllers\ReportController@mostScheduled');
                         Route::post('/not-scheduled', 'App\Http\Controllers\ReportController@notScheduled');
+
+                        Route::get('/participant-status-select', 'App\Http\Controllers\ReportController@participantStatus');
                 });
         });
     

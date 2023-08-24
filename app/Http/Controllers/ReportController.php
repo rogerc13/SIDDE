@@ -47,7 +47,13 @@ class ReportController extends Controller
         $numberOfSteps = count($date) - 1;
         return ((object)['currentDate' => $currentDate,'interval'=>$interval,'date'=>$date,'numberOfSteps'=>$numberOfSteps,'day'=>$day]);
         
-    }   
+    }
+
+    public function participantStatus(){
+
+        $statuses = ParticipantStatus::all();
+        return json_encode(['statuses' => $statuses]);
+    }
 
     public function byDate(Request $request)
     {
@@ -213,15 +219,15 @@ class ReportController extends Controller
     }//end course by status
 
     public function byCourseDuration(Request $request){
-        //Course Total Time, no condition
+
+        //Course Total Time, no condition, all scheduled courses
         $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
         
-        //total hours, finished courses
-        $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get();
+        //total hours, finished courses, all time
+        $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get()->pluck('course.duration')->sum();
 
-        $finishedHelper = collect($finishedTotal)->sum('course.duration');
 
-        //by date range , all scheduled status
+        //by date range , by status
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
@@ -243,9 +249,16 @@ class ReportController extends Controller
         $dateHelper = collect($byDateHelper)->sum();
         
         //course with the most duration in hours
+        $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration','desc')->get();
+
         //course that spans the most days, biggest difference between start_date and end_date
+        //Scheduled::with('course')->whereRaw('start_date');
         
-        return json_encode(['byAllTime' => $byAllTime, 'byDateRange' => $byDateRange,'finishedAllTime' => $finishedHelper, 'finishedByDateRange' => $dateHelper]);
+        return json_encode(['byAllTime' => $byAllTime,
+        'finishedByAllTime' => $finishedTotal, 
+        'byDateRange' => $byDateRange,
+        'finishedByDateRange' => $dateHelper,
+        'mostDuration' => $mostDuration]);
     }//end course duration
 
     public function byCanceled(){
@@ -310,7 +323,7 @@ class ReportController extends Controller
         
         //return json_encode($byDateRange);
         
-        return json_encode(['byAllTime' => $byAllTime, 'byStatusByDateRange'=> $byStatusByDateRange ,'allStatusbyDateRange' => $allStatusbyDateRange,'notInCourse' => $notInCourse, 'labels' => $labels]);
+        return json_encode(['byAllTime' => $byAllTime, 'byStatusByDateRange'=> $byStatusByDateRange ,'allStatusbyDateRange' => $allStatusbyDateRange,'notInCourse' => $notInCourse, 'labels' => $labels,]);
     }//end by participant status
 
     public function courseByParticipantQuantity(Request $request){
@@ -332,18 +345,19 @@ class ReportController extends Controller
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
             $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
-            foreach (Scheduled::whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get() as $scheduled) {
+            foreach (Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get() as $scheduled) {
                 $dateRangeAmountPerCourse[] = [
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'scheduled_id' => $scheduled->id,
+                    'course' => $scheduled->course->title,
                     'count' => Participant::where('scheduled_id', $scheduled->id)->count(),
                 ];
             }
         }
-        
+
         return json_encode(['amountAllTime' => $amountAllTime, 
             'amountAllTimePerCourse' => $amountAllTimePerCourse, 
-            'dateRangeAmountPerCourse' => $dateRangeAmountPerCourse]);
+            'dateRangeAmountPerCourse' => isset($dateRangeAmountPerCourse) ? $dateRangeAmountPerCourse : 0]);
     }//end participant amount
 
     public function participantAverage(Request $request){
