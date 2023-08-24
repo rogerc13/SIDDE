@@ -140,8 +140,8 @@
               
               <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-5">
-                  <button type="submit" class="btn btn-default">Aceptar</button>
-                  {{-- cancel button goes here --}}
+                  <a href="{{URL::previous()}}" type="" class="btn btn-default">Regresar</a>
+                  <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </div>
               </div>
             </form>
