@@ -76,13 +76,8 @@
                          <div class="col-lg-12 col-md-12 facilitador" >
                             <label for="facilitador">Facilitador</label>
                             <select name="facilitador" class="select2 " id="facilitador" data-allow-clear="true" required>
-                                <option></option>
                                 @foreach($facilitadores as $facilitador)
-                                    @if(old('facilitador') == $facilitador->id)
-                                        <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
-                                    @else
-                                        <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_number}}</option>
-                                    @endif
+                                    <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$facilitador->person->id_format()}}</option>
                                 @endforeach
                             </select>
                         </div>

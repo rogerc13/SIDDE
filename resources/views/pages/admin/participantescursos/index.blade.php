@@ -50,7 +50,7 @@
                         <tr>
                             <td><span class="form-control">{{$participante->person->name}}</span></td>
                             <td><span class="form-control">{{$participante->person->last_name}}</span></td>
-                            <td><span class="form-control">{{$participante->person->id_format()}}</span></td>
+                            <td><span class="form-control">{{$participante->person->id_type_id == 1 ? 'V' : 'E'}}-{{$participante->person->id_format()}}</span></td>
                             <td>
                               <select name="participant_status" id="participant_status" class="participant_status form-control" disabled>
                                     @foreach ($statuses as $status)

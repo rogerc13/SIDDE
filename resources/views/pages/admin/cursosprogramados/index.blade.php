@@ -43,9 +43,9 @@
 						@foreach($facilitadores as $facilitador)
 
                             @if($id_facilitador == $facilitador->id)
-                                <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
+                                <option value="{{$facilitador->person->facilitator->id}}" selected>{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$facilitador->person->id_format()}}</option>
                             @else
-                                <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_format()}}</option>
+                                <option value="{{$facilitador->person->facilitator->id}}">{{$facilitador->person->name}} {{$facilitador->person->last_name}} C.I:{{$facilitador->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$facilitador->person->id_format()}}</option>
                             @endif
                         @endforeach
 		            </select>

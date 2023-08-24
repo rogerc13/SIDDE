@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Participant;
 use App\Models\ParticipantStatus;
 use App\Models\Funciones;
+use App\Models\IdType;
 
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
@@ -79,11 +80,11 @@ class ParticipanteCursoController extends Controller
                 ->with('participantes',$participantes->paginate(10))
                 ->with('cursoprogramado',$cursoprogramado)
                 ->with('participantes2',$participantes2)
-                ->with('estados', Participant::$estados)->with('statuses',ParticipantStatus::all());
+                ->with('estados', Participant::$estados)->with('statuses',ParticipantStatus::all())->with('types',IdType::all());
 
     }//getAllPorCurso
 
-    public function getAllEvaluation($id){
+    public function getAllEvaluation($id){ //not used
         
         $user = Auth::user();
 
@@ -172,6 +173,7 @@ class ParticipanteCursoController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'id_type_id' => $request->id_type,
         );
         $person = Person::create($personData);
         //$success = $person->save();
