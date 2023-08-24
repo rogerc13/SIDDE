@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Models\User;
 use App\Models\Person;
 use App\Models\Funciones;
+use App\Models\IdType;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,7 @@ class ParticipanteController extends Controller
         $nombres = filter_input(INPUT_GET,'nombres',FILTER_SANITIZE_STRING);
         $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);  
+        $idTypeId = filter_input(INPUT_GET,'id_type_search',FILTER_SANITIZE_NUMBER_INT);  
 
 
 
@@ -58,16 +60,17 @@ class ParticipanteController extends Controller
             });
         }
         if($cis){
-            $users = $users->whereHas('person', function ($query) use ($cis) {
-                        $query->where('id_number', 'LIKE', "%$cis%");
+            $users = $users->whereHas('person', function ($query) use ($cis,$idTypeId) {
+                        $query->where('id_type_id','=',$idTypeId)->where('id_number', 'LIKE', "%$cis%");
                 });
             }
-        
+        $types = IdType::all();
+
         return view('pages.admin.participantes.index')
                 ->with('users',$users->paginate(10))
                 ->with('nombres',$nombres)
                 ->with('apellidos',$apellidos)
-                ->with('cis',$cis);;
+                ->with('cis',$cis)->with('id_type_search',$idTypeId)->with('types',$types);
 
     }
     
@@ -92,6 +95,7 @@ class ParticipanteController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'id_type_id' => $request->id_type,
         );
 
         $person = Person::create($personData);
@@ -135,7 +139,8 @@ class ParticipanteController extends Controller
         $usuario->person()->update([
             'name' => $request->nombre,
             'last_name' => $request->apellido,
-            'id_number' => $request->ci
+            'id_number' => $request->ci,
+            'id_type_id' => $request->id_type
         ]);
         
         if($request->password!='')
