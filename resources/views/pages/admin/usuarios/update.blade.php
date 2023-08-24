@@ -20,6 +20,7 @@
                 $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);
                 $('#ci').val(data.person.id_number); 
+                $('#id_type').val(data.person.id_type_id); 
                 $('#rol').val(data.role_id);
                 $('#user_id').val(data.id);                
                 $(".loader").addClass("hidden");

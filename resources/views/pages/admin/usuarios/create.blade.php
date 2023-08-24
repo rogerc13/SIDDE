@@ -46,10 +46,20 @@
                             <div class="col-lg-6 col-md-6" >
                                 {{ Form::label('email', 'Correo') }}
                                 {{ Form::email('email', null , array('class' => 'form-control','maxlength'=>60 ,'required')) }}
-                            </div>   
+                            </div>
                             <div class="col-lg-6 col-md-6" >
                                 {{ Form::label('ci', 'C.I') }}
-                                {{ Form::number('ci', null, array('class' => 'form-control', 'min' => '0', 'maxlength'=>45,'required')) }}
+                                <div class="input-group">
+                                    <div class="input-group-btn">
+                                        <select name="id_type" id="id_type" class="form-select input-group-text btn btn-default 
+                                        dropdown-toggle">
+                                            @foreach ($types as $type)
+                                            <option value="{{$type->id}}">{{$type->inital()}}</option>
+                                            @endforeach  
+                                        </select>
+                                    </div>
+                                    {{ Form::number('ci', null, array('class' => 'form-control', 'min' => '0', 'maxlength'=>45,'required')) }}
+                                </div>
                             </div>                    
                         </div>
 

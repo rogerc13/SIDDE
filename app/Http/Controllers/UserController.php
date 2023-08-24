@@ -45,6 +45,7 @@ class UserController extends Controller
         $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);
         $busqueda_rol = filter_input(INPUT_GET,'busqueda_rol',FILTER_SANITIZE_NUMBER_INT);
+        $idTypeId = filter_input(INPUT_GET,'id_type',FILTER_SANITIZE_NUMBER_INT);
 
         $users = User::with('role')->with('person')->orderBy("id","asc");
         
@@ -56,15 +57,15 @@ class UserController extends Controller
             $users = User::whereHas('person', function ($query) use ($apellidos) {
                 return $query->where('last_name', 'LIKE', "%$apellidos%");
             });
-        if($cis)
-            
-            $users = User::whereHas('person', function ($query) use ($cis) {
-                return $query->where('id_number', 'LIKE', "%$cis%");
+        if($cis && $idTypeId)
+            $users = User::whereHas('person', function ($query) use ($cis,$idTypeId) {
+                return $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
             });
         if($busqueda_rol)
            $users=$users->where('role_id','=',$busqueda_rol);
 
        	$roles = Role::$roles;
+        $types = IdType::all();
 
         return view('pages.admin.usuarios.index')
                 ->with('users',$users->paginate(10))
@@ -72,7 +73,7 @@ class UserController extends Controller
                 ->with('nombres',$nombres)
                 ->with('apellidos',$apellidos)
                 ->with('cis',$cis)
-                ->with('busqueda_rol',$busqueda_rol);
+                ->with('busqueda_rol',$busqueda_rol)->with('id_types',$idTypeId)->with('types',$types);
 
     }
 
@@ -97,6 +98,7 @@ class UserController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'id_type_id' => $request->id_type,
         );
         $person = Person::create($personData);
 
@@ -142,7 +144,8 @@ class UserController extends Controller
         $usuario->person()->update([
             'name' => $request->nombre,
             'last_name' => $request->apellido,
-            'id_number' => $request->ci
+            'id_number' => $request->ci,
+            'id_type_id' => $request->id_type
         ]);
 
         if($request->password!=''){
