@@ -25,6 +25,14 @@
             <div class="col-md-3 col-sm-6 col-xs-12">
               <label for="cis" class="control-label">C.I</label>
               <div class="input-group">
+                <div class="input-group-btn">
+                    <select name="id_type_search" id="id_type_search" class="form-select input-group-text btn btn-default btn-lg 
+                    dropdown-toggle">
+                        @foreach ($types as $type)
+                        <option value="{{$type->id}}">{{$type->inital()}}</option>
+                        @endforeach  
+                    </select>
+                </div>
                 <input type="text" class="form-control" id="cis" name="cis" value="{{$cis}}" />
                 <span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
               </div>
@@ -68,7 +76,7 @@
                       <tr>
                           <td>{{$user->person->name}}</td>
                           <td>{{$user->person->last_name}}</td>
-                          <td>{{$user->person->id_format()}}</td>
+                          <td>{{$user->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$user->person->id_format()}}</td>
                           <td>{{$user->email}}</td>                      
                           <td>
                               <a  title="Más Información" href="javascript:detallesFacilitador('{{url('u/facilitadores/'.$user->id)}}')" class="btn btn-info btn-xs">

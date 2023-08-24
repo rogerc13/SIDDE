@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Person;
 use App\Models\Funciones;
+use App\Models\IdType;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -40,6 +41,7 @@ class FacilitadorController extends Controller
         $nombres = filter_input(INPUT_GET,'nombres',FILTER_SANITIZE_STRING);
         $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
         $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);        
+        $idTypeId = filter_input(INPUT_GET, 'id_type_search',FILTER_SANITIZE_NUMBER_INT);        
 
         $users = User::with('role')->with('person')->where('role_id','4');
         
@@ -52,17 +54,17 @@ class FacilitadorController extends Controller
             $query->where('last_name', 'LIKE', "%$apellidos%");
         });
         if($cis)
-        $users = $users->whereHas('person', function ($query) use ($cis) {
-            $query->where('id_number', 'LIKE' , "%$cis%");
+        $users = $users->whereHas('person', function ($query) use ($cis,$idTypeId) {
+            $query->where('id_type_id','=',$idTypeId)->where('id_number', 'LIKE' , "%$cis%");
         });
 
 
-        
+        $types = IdType::all();
         return view('pages.admin.facilitadores.index')
                 ->with('users',$users->paginate(10))
                 ->with('nombres',$nombres)
                 ->with('apellidos',$apellidos)
-                ->with('cis',$cis);;
+                ->with('cis',$cis)->with('id_type_search',$idTypeId)->with('types',$types);
 
     }
     
@@ -86,6 +88,7 @@ class FacilitadorController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
+            'id_type_id' => $request->id_type,
         );
         
         $person = Person::create($personData);
@@ -134,7 +137,8 @@ class FacilitadorController extends Controller
         $usuario->person()->update([
             'name' => $request->nombre,
             'last_name' => $request->apellido,
-            'id_number' => $request->ci
+            'id_number' => $request->ci,
+            'id_type_id' => $request->id_type
         ]);
 
         
