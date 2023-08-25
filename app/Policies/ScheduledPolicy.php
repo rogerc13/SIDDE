@@ -48,4 +48,9 @@ class ScheduledPolicy
     {
         return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador();
     }
+
+    public function cancel(User $user)
+    {
+        return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador();
+    }
 }

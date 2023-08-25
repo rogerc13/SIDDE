@@ -107,6 +107,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::post('/', 'App\Http\Controllers\CursoProgramadoController@store');
                 Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@update');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');
+                Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@cancel');
 
                 Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
                 Route::post('/{id}/af_programadas/participantes/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
