@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Funciones;
 use App\Models\Participant;
 use App\Models\Person;
+use App\Models\Prerequisite;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -356,6 +357,42 @@ class CursoProgramadoController extends Controller
         //check current amount of participants
         $participantAmount = Participant::where('scheduled_id',$scheduledId)->count();
 
+        //get ID of selected course
+        //check if course has prerequisite on the prerequiste table
+        //if it does 
+        //get the prerequisite ID
+        //get the person that has the prerequisite ID on the table participants and participant_status_id 3 //Aprobado
+        //if it doesn't
+        //get all the persons, do nothing
+
+        //get prerequisite of selected course
+        $coursePrerequisite = Prerequisite::where('course_id', $scheduledCourse->course->id)->select('prerequisite_id')->get();
+
+        //return json_encode(count($coursePrerequisite));
+
+                
+
+        //return json_encode($coursePrerequisite[0]->prerequisite_id);
+
+        //return json_encode(['prerequisite' => $coursePrerequisite[0]->prerequisite_id]);
+
+        //get person in participant table with scheduled_id that matches the course id prerequisite AND has participant status 3 
+        /* $participantTest = Participant::with('scheduled','person')->whereHas('scheduled',function($query) use($coursePrerequisite){
+            $query->where('course_id',$coursePrerequisite[0]->prerequisite_id);
+        })->where('participant_status_id',3)->get(); */
+
+        /* $participantTest = Person::with('scheduled','participant','user')->whereNotIn('id',$participants)->whereHas('user',function($query){
+            $query->where('role_id',5);
+        })->whereHas('scheduled',function($query) use($coursePrerequisite){
+            $query->where('course_id',$coursePrerequisite[0]->prerequisite_id);
+        })->whereHas('participant',function($query){
+            $query->where('participant_status_id',3);
+        })->get();
+
+        return json_encode(['participantWithPrequisite' => $participantTest]); */
+
+    
+
         if($participantAmount == $courseMaxCapacity){
             $response = ['success' => false, 'message'=>'Capacidad Máxima de Participantes Alcanzada.'];
             return response()->json($response);
@@ -368,12 +405,24 @@ class CursoProgramadoController extends Controller
             )->get()->pluck('id');
 
             //get participants not in the list
-            $people = Person::whereNotIn('id', $participants)->with('user')->whereHas(
-                'user',
-                function ($query) {
+            //if course has no prerequisite
+            if(count($coursePrerequisite) === 0){
+                $people = Person::whereNotIn('id', $participants)->with('user')->whereHas(
+                    'user',
+                    function ($query) {
+                        $query->where('role_id', 5);
+                    }
+                )->get();
+            }else{
+                $people = Person::with('scheduled', 'participant', 'user')->whereNotIn('id', $participants)->whereHas('user', function ($query) {
                     $query->where('role_id', 5);
-                }
-            )->get();
+                })->whereHas('scheduled', function ($query) use ($coursePrerequisite) {
+                    $query->where('course_id', $coursePrerequisite[0]->prerequisite_id);
+                })->whereHas('participant', function ($query) {
+                    $query->where('participant_status_id', 3);
+                })->get();
+            }
+            
             $response = ['success' => true, 'message'=> '','list'=>$people];
             return json_encode($response);
         }
