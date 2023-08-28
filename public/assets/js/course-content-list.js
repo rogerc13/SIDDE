@@ -57,25 +57,31 @@ $(document).ready(function (){
             listElement.classList.add("list-group-item");
             listElement.appendChild(document.createTextNode(content.value));
             //console.log("contentData length: "+contentData.length);
-            $(listElement).append('<i class="fa fa-remove " style="float:right"></i>')
+            $(listElement).append(
+                '<span class="badge remove-badge"><i class="fa fa-remove " ></span></i>'
+            );
             $(listElement).val(contentData.length - 1); //sets list value according to contentData array length
             
             
-            listElement.addEventListener('click',(e) =>{ //removes the selected content from the list and array
-                contentData.splice(e.target.value,1);
-
-                let siblings = $(e.target).siblings();
-                
-                for(let prop in siblings){ //lowers the value of next siblings by 1
-                    if(siblings[prop].value > e.target.value){
-                        siblings[prop].value --;
-                    }
-                }
-                e.target.remove();
-            },false);
-            
             contentList.appendChild(listElement);
             
+            $(".remove-badge").off('click').on('click',function () {  //removes selected item from content list and content list data array
+            
+                contentData.splice($(this).parent().val(), 1);
+                
+                let siblings = $(this).parent().siblings();
+
+                for (let prop in siblings) {
+                    //lowers the value of next siblings by 1
+                    if (siblings[prop].value > $(this).parent().val()) {
+                        siblings[prop].value--;
+                    }
+                }
+
+                $(this).parent().remove();
+                
+            });
+
             content.value = "";
             counter++;
 
