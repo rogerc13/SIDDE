@@ -319,8 +319,13 @@
 
 .list-group-item::before { /*adds bullets to the list*/
     content: "●";
-    margin-right: 0.75rem;
+    /* margin-right: 0.75rem; */
+    
 }
+
+/* .li-helper{
+    display: inline-block;
+} */
 
 .list-element{
     cursor:pointer;
@@ -334,8 +339,8 @@
 }
 
 /* Reports */
-.graph-container{
+/* .graph-container{
     width: 400px;
-    height: 400px;
-}
+    height: 800px;
+}  */
 /* End Reports */

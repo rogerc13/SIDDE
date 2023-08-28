@@ -58,7 +58,7 @@ $(document).ready(function (){
             listElement.appendChild(document.createTextNode(content.value));
             //console.log("contentData length: "+contentData.length);
             $(listElement).append(
-                '<span class="badge remove-badge"><i class="fa fa-remove " ></span></i>'
+                '<span class="badge remove-badge"><i class="fa fa-remove"></span></i>'
             );
             $(listElement).val(contentData.length - 1); //sets list value according to contentData array length
             
