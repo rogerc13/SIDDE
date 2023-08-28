@@ -219,46 +219,58 @@ class ReportController extends Controller
     }//end course by status
 
     public function byCourseDuration(Request $request){
-
-        //Course Total Time, no condition, all scheduled courses
-        $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
         
-        //total hours, finished courses, all time
-        $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get()->pluck('course.duration')->sum();
+        //ALL TIME
+            //Course Total Time, no condition, all scheduled courses
+            $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
+            
+            //total hours, finished courses, all time
+            $finishedTotal = Scheduled::where('course_status_id',3)->with('course')->get()->pluck('course.duration')->sum();
 
+            //course with the most duration in hours
+            $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration', 'desc')->get();
 
-        //by date range , by status
-        $dates =  $this->range($request);
-        $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
-        $day = $dates->day;
-        $i = 0;
+            //course that spans the most days, biggest difference between start_date and end_date
+            $spansMostDays = Scheduled::with('course')
+            ->select('id','course_id',DB::raw('DATEDIFF(end_date,start_date) AS max_difference'))
+            ->orderByDesc('max_difference')
+            ->get();
 
-        foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+        //DATE RANGE
+            //by date range , by status
+            $dates =  $this->range($request);
+            $date = $dates->date;
+            $numberOfSteps = $dates->numberOfSteps;
+            $day = $dates->day;
+            $i = 0;
 
-            $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
-                            'y' => collect(Scheduled::/* where('course_status_id', 3)-> */whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
-                            'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
-                            ];
+            foreach ($date as $key => $value) {
+                $start_date = $date[$key];
+                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-            $byDateHelper[] = collect(Scheduled::where('course_status_id',3)->whereBetween(DB::raw('start_date'),array($start_date, $end_date))->with('course')->get())->sum(('course.duration'));
-        }
+                $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
+                                'y' => collect(Scheduled::/* where('course_status_id', 3)-> */whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
+                                'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
+                                ];
 
-        $dateHelper = collect($byDateHelper)->sum();
+                $byDateHelper[] = collect(Scheduled::where('course_status_id',3)
+                ->whereBetween(DB::raw('start_date'),array($start_date, $end_date))
+                ->with('course')
+                ->get())
+                ->sum(('course.duration'));
+            }
+
+            $dateHelper = collect($byDateHelper)->sum();
         
-        //course with the most duration in hours
-        $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration','desc')->get();
-
-        //course that spans the most days, biggest difference between start_date and end_date
-        //Scheduled::with('course')->whereRaw('start_date');
         
         return json_encode(['byAllTime' => $byAllTime,
-        'finishedByAllTime' => $finishedTotal, 
+        'finishedByAllTime' => $finishedTotal,
+        'mostDuration' => $mostDuration,
         'byDateRange' => $byDateRange,
         'finishedByDateRange' => $dateHelper,
-        'mostDuration' => $mostDuration]);
+        'spansMostDays' => $spansMostDays
+        ]);
+
     }//end course duration
 
     public function byCanceled(){
