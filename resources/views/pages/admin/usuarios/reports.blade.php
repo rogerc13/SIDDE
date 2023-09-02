@@ -6,7 +6,7 @@
 @extends('layouts.admin')
 @section('content')
 <img class="hidden-lg hidden-md hidden-sm hidden-xs visible-print" src="{{asset('assets/images/PDV_S.A._logo.svg')}}" alt="">
-    <h1>Reportes</h1>
+    <h1>S.I.D.D.E. Reportes</h1>
     <div class="container-fluid">
         <div class="row hidden-print form-group">
         <div class="col-xs12 col-md-12">
@@ -18,15 +18,15 @@
                     <div class="form-group">
                         <label for="report-type">Tipo de Reporte</label>
                         <select name="report-type" id="report-type" class="form-control selector" >
-                            <option value="date" selected>Cantidad de Cursos</option>
-                            <option value="category">Cantidad de Cursos Por Categoria</option>
-                            <option value="status">Cantidad de Cursos Por Estatus</option>
-                            <option value="duration">Duracion de Cursos</option>
-                            <option value="participant-by-quantity">Cursos por Cantidad de Participantes</option>
+                            <option value="date" selected>Cantidad de Acciones de Formación</option>
+                            <option value="category">Cantidad de Acciones de Formación Por Areas de Conocimiento</option>
+                            <option value="status">Cantidad de Acciones de Formación Por Estatus</option>
+                            <option value="duration">Duración de Acciones de Formación</option>
+                            <option value="participant-by-quantity">Acciones de Formación por Cantidad de Participantes</option>
                             <option value="participant-by-status">Estatus de Participantes</option>
                             <option value="participant-average">Promedio de Participantes</option>
-                            <option value="most-scheduled">Cursos más Programados</option>
-                            <option value="not-scheduled">Cursos No Programados</option>
+                            <option value="most-scheduled">Acciónes de Formación más Programadas</option>
+                            <option value="not-scheduled">Acciones de Formación No Programadas</option>
                         </select>
                     </div>
                 </div>
@@ -78,12 +78,8 @@
         <div class="course-pie-graph"></div>
     </div>
     <div class="row row-graphs">
-        <div class="col-xs-12 col-md-6 graph-container">
-            <canvas id="myChart" width="400" height="400"></canvas>
-        </div>
-        <div class="col-xs-12 col-md-6 doughnut-container">
-            <canvas id="doughnut" width="400" height="400"></canvas>
-        </div>
+        
+        {{--  --}}
     </div>
     <div class="row">
         <div class="col-xs12 col-md-12 table-col-helper">

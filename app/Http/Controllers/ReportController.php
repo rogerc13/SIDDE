@@ -49,7 +49,7 @@ class ReportController extends Controller
         
     }
 
-    public function participantStatus(){
+    public function participantStatus(){ //dynamic participant status selector
 
         $statuses = ParticipantStatus::all();
         return json_encode(['statuses' => $statuses]);
@@ -124,21 +124,51 @@ class ReportController extends Controller
                 $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
                 $yAxis[] = [
-                    
-                    'category' => $category->name, 'y' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->whereHas(
-                    'course',
-                    function ($query) use ($category) {
-                        $query->where('category_id', $category->id);
-                    }
-                )->count(), 'x'=> Carbon::parse($start_date)->format('Y-m-d'),
-            
-            
-            ];    
+                    'category' => $category->name,
+                     'y' => Scheduled::with('course')
+                        ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->whereHas(
+                        'course',
+                        function ($query) use ($category) {
+                            $query->where('category_id', $category->id);
+                        })->count(), 'x'=> Carbon::parse($start_date)->format('Y-m-d'),
+                 ];    
             }
             $categories[] = $category->name;
+
+            $graphData[] = [
+                'category' => $category->name,
+                'y' => Scheduled::whereBetween(DB::raw('start_date'), array($date[0], end($date)))->whereHas(
+                        'course',
+                        function ($query) use ($category) {
+                            $query->where('category_id', $category->id);
+                        }
+                    )->select('start_date as y')->get(), 
+                'x' => Scheduled::whereBetween(DB::raw('start_date'), array($date[0], end($date)))->whereHas(
+                        'course',
+                        function ($query) use ($category) {
+                            $query->where('category_id', $category->id);
+                        }
+                    )->select('start_date as x')->get(),
+            ];
+
+            $courseData[] = ['categoryName'=> $category->name,
+            'courseData' => Scheduled::with('course','course.category')->whereHas('course', function($query) use($category){
+                $query->where('category_id',$category->id);
+            })->whereBetween(DB::raw('start_date'), array($date[0], end($date)))->get(),
+            'amount' => Scheduled::with('course')->whereHas('course', function ($query) use ($category) {
+                    $query->where('category_id', $category->id);
+                })->whereBetween(DB::raw('start_date'), array($date[0], end($date)))->count()];
         }
 
-        return json_encode(['x' => $xAxis,'y'=>$yAxis,'categories' => $categories]);
+        $dateRangeHelper = ['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')];
+        
+        return json_encode(['x' => $xAxis,
+        'graphData'=>$graphData,
+        'categories' => $categories,
+        'courseData' => $courseData,
+        'dateRange' => $dateRangeHelper,
+        'y' => $yAxis]);
+
     }//end course by category
 
     public function byStatus(Request $request){
@@ -181,40 +211,33 @@ class ReportController extends Controller
                     'y' => Scheduled::where('course_status_id',$status->id)
                                 ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->count()];
                 
-                //Data to show course list
-                $courseData[] = ['courseData' => Scheduled::with('course','courseStatus')->where('course_status_id', $status->id)
-                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get()];
            } 
             $statusNames[] = $status->name;
+
+            //Data to show course list by date range
+            $courseData[] = ['statusName' => $status->name,
+            'courseData' => Scheduled::with('course', 'courseStatus')
+            ->where('course_status_id', $status->id)
+            ->whereBetween(DB::raw('start_date'), array($date[0], end($date)
+            ))->get(),
+            'amount' => Scheduled::with('course', 'courseStatus')
+                    ->where('course_status_id', $status->id)
+                    ->whereBetween(DB::raw('start_date'), array(
+                        $date[0], end($date)
+            ))->count(),];
         }
-        
-        /* foreach ($byDateRange as $dates) {
-            $filterByDate[] = array_filter(
-                $dates,
-                fn ($value, $key) => count($value) !== 0 && $key === 'y',
-                ARRAY_FILTER_USE_BOTH
-            );       
-        } */
 
-        /* $filtered = $byDateRange->filter(function($value,$key){
-            return $value['y'] !== 0;
-        }); */
-        //return json_encode($filtered);
-
-        /* foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
-        
-            $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
-                             'y' => Scheduled::select('course_status_id')->selectRaw('COUNT(*) as amount')
-                                ->groupBy('course_status_id')->orderByDesc('amount')
-                                ->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get()];
-        } */
-    
         //by given status
             //$response = Scheduled::where('course_status_id',$request->status_id)->with('courseStatus')->count();
+        
+        $dateRangeHelper =['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')]; 
 
-        return json_encode(['statuses' => $statusNames,'x' => $xAxis, 'y' => $byDateRange , 'byAllTime' => $byAllTime , 'courseData' => $courseData]);
+        return json_encode(['statuses' => $statusNames,
+                            'x' => $xAxis, 
+                            'y' => $byDateRange , 
+                            'byAllTime' => $byAllTime , 
+                            'courseData' => $courseData,
+                            'dateRange' => $dateRangeHelper]);
 
     }//end course by status
 
@@ -229,10 +252,10 @@ class ReportController extends Controller
 
             //course with the most duration in hours
             $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration', 'desc')->get();
-
+ 
             //course that spans the most days, biggest difference between start_date and end_date
             $spansMostDays = Scheduled::with('course')
-            ->select('id','course_id',DB::raw('DATEDIFF(end_date,start_date) AS max_difference'))
+            ->select('id','start_date','end_date','course_id',DB::raw('DATEDIFF(end_date,start_date) AS max_difference'))
             ->orderByDesc('max_difference')
             ->get();
 
@@ -249,7 +272,7 @@ class ReportController extends Controller
                 $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
                 $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
-                                'y' => collect(Scheduled::/* where('course_status_id', 3)-> */whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
+                                'y' => collect(Scheduled::where('course_status_id', 3)->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
                                 'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
                                 ];
 
@@ -261,14 +284,17 @@ class ReportController extends Controller
             }
 
             $dateHelper = collect($byDateHelper)->sum();
-        
+
+        $dateRangeHelper = ['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')]; 
+
         
         return json_encode(['byAllTime' => $byAllTime,
-        'finishedByAllTime' => $finishedTotal,
+        'finishedTotal' => $finishedTotal,
         'mostDuration' => $mostDuration,
         'byDateRange' => $byDateRange,
         'finishedByDateRange' => $dateHelper,
-        'spansMostDays' => $spansMostDays
+        'spansMostDays' => $spansMostDays,
+        'dateRange' => $dateRangeHelper
         ]);
 
     }//end course duration
@@ -339,14 +365,14 @@ class ReportController extends Controller
     }//end by participant status
 
     public function courseByParticipantQuantity(Request $request){
+        //ALL TIME
+            //participant amount of participants all time no condition
+            $amountAllTime = Participant::selectRaw('COUNT(*) as amount')->get();
+            //participant amount by course, all time no condition
+            $amountAllTimePerCourse = Participant::select('scheduled_id')->selectRaw('COUNT(*) AS count ')
+                        ->groupBy('scheduled_id')->orderByDesc('count')->get();
 
-        //participant amount of participants all time no condition
-        $amountAllTime = Participant::with('scheduled')->selectRaw('COUNT(*) as amount')->get();
-        //participant amount by course, all time no condition
-        $amountAllTimePerCourse = Participant::select('scheduled_id')->selectRaw('COUNT(*) AS count ')
-                    ->groupBy('scheduled_id')->orderByDesc('count')->get();
-
-        //dates
+        //BY DATE RANGE
         $dates =  $this->range($request);
         $date = $dates->date;
         $numberOfSteps = $dates->numberOfSteps;
@@ -362,14 +388,17 @@ class ReportController extends Controller
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'scheduled_id' => $scheduled->id,
                     'course' => $scheduled->course->title,
-                    'count' => Participant::where('scheduled_id', $scheduled->id)->count(),
+                    'count' => Participant::where('scheduled_id', $scheduled->id)->count()
                 ];
             }
         }
 
+        $collected = collect($dateRangeAmountPerCourse);
+        $sorted = $collected->sortByDesc('count')->values();
+
         return json_encode(['amountAllTime' => $amountAllTime, 
             'amountAllTimePerCourse' => $amountAllTimePerCourse, 
-            'dateRangeAmountPerCourse' => isset($dateRangeAmountPerCourse) ? $dateRangeAmountPerCourse : 0]);
+            'dateRangeAmountPerCourse' => isset($dateRangeAmountPerCourse) ? $sorted : 0]);
     }//end participant amount
 
     public function participantAverage(Request $request){
@@ -402,7 +431,7 @@ class ReportController extends Controller
         //all courses not present on scheduled table
         $data = Course::with('scheduled','capacity','category')->whereDoesntHave('scheduled')->get();    
         return json_encode(['data' => $data]);
-    }
+    }//end courses not scheduled
     
     public function mostScheduled(Request $request){
         //id of course that appears the most on scheduled table
@@ -418,5 +447,5 @@ class ReportController extends Controller
 
 
         return json_encode(['amountData' => $amountData, 'courseData' => $courseData]);
-    }
+    }//end course most scheduled
 }
