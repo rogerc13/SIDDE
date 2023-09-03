@@ -67,7 +67,15 @@ $(document).ready(function(){
         //console.log('back index:'+tabIndex);
     })
     //when modal closes
-    $('.modal').on('hide.bs.modal',function(){
+    $('.modal').off().on('hidden.bs.modal',function(){
+        $('.select2').prop('disabled',true);
+        $('.select2').each(function(){
+            $(this).prop('disabled',false);
+        });
+        $('.create-course-form :input').prop('disabled',false);
+        $('.code-error-text').hide();
+        console.log('closed!');
+        
         tabIndex = 0;
         $('.tab-button-next').show();
         $('.tab-button-back').hide();
@@ -75,6 +83,14 @@ $(document).ready(function(){
         $('.tab-button-close').show();
         $('tab-button-next').addClass('disabled');
         tabSwitch(tabIndex);
+    });
+
+    $('.modal').off().on('shown.bs.modal',function(){
+        tabCheck('0');
+        console.log('open');
+        $('.select2').each(function(){
+            $(this).prop('disabled',false);
+        });
     });
 
     //enable navigation if inputs are not empty
