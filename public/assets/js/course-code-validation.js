@@ -7,7 +7,7 @@ $(document).ready(function (){
         });
     $('.code-error-text').hide(); //hides helper text
 
-    $('.course-code').on('input',function (e) { 
+    $('.course-code').off().on('input',function (e) { 
         e.preventDefault();
         let codeValue = $(this).val();
         //codeValue.push(1050);
@@ -25,12 +25,14 @@ $(document).ready(function (){
                     //console.log("code already exists");
                     $('.create-course-form :input').prop('disabled',true);
                     $('.course-code').prop('disabled',false);
+                    
 
                 }else{
                     $('.course-code').parent().removeClass('has-error');
                     $('.code-error-text').hide();
                     //console.log("code available");
                     $('.create-course-form :input').prop('disabled',false);
+                    $('.select2').prop('disabled',false);
                 }
                 //console.log("success");
             },
