@@ -11,7 +11,7 @@ class Participant extends Model
 
   const ENCURSO = 1;
   const SUSPENDIDO = 2;
-   const APROBADO = 3;
+  const APROBADO = 3;
 
   public static $estados = [
 
@@ -27,15 +27,19 @@ class Participant extends Model
   protected $dates = [ 'deleted_at', ];
 
    public function person()
-  {
-    return $this->belongsTo(Person::class);
-  }
+    {
+      return $this->belongsTo(Person::class);
+    }
 
-  /* public function scheduled()
-  {
-    return $this->belongsTo(Scheduled::class);
-  } */
+  public function scheduled()
+    {
+      return $this->belongsTo(Scheduled::class);
+    } 
 
+  public function participantStatus()
+    {
+      return $this->belongsTo(ParticipantStatus::class,'participant_status_id','id');
+    }
   /* public function participantCourse()
   {
     return $this->belongsToMany(Course::class);
@@ -50,7 +54,4 @@ class Participant extends Model
         else if($this->participant_status_id==3)
             return "Aprobado";
   }
-
-
-    //
 }
