@@ -222,12 +222,6 @@ class ParticipanteCursoController extends Controller
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();
-       //dd($request->participante);
-        /* if($validacion > 0)
-        {
-            return Redirect::back()
-                     ->with("alert", Funciones::getAlert("danger","Error al asignar","Este participante seleccionado ya se encuentra asignado."));
-        } */ 
    
         $participantecurso = new Participant();
         $participantecurso->participant_status_id=1;
