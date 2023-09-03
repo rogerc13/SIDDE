@@ -61,6 +61,9 @@
 		          	<span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
 		          </div>
 		        </div>
+				<div class="col-md-4 col-sm-6 col-xs-12">
+					<button class="btn btn-primary"><span>Mostrar todo</span></button>
+				</div>
 	       	</div>
 			<!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
 	              <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>
