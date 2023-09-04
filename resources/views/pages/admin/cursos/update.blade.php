@@ -30,6 +30,7 @@
                 //$('#contenido').val(data[0].contenido);
                
                 //console.log(data[1]);
+                $('.content-list').html('');
                 contentData = [];
                 i = 0;
                 data[0].content.forEach(element => {

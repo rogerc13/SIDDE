@@ -44,7 +44,8 @@
                 $('#objetivo').val(data[0].objective);
                 // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
                 //$('#contenido').val(data[0].contenido);
-
+                
+                $('.content-list').html('');
                 contentData = [];
                 i = 0;
                 data[0].content.forEach(element => {
