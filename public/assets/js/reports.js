@@ -83,34 +83,18 @@ function reportByCategory(response){
 
     //console.log(response.categories);
 
-    /* response.categories.forEach((element) => {
+    //line graph data
+    let fillColor = [];
+    let colorHelp = 0;
+    response.categories.forEach(element => {
+        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
+        //console.log(colorHelp);
         let category = {
             label: element,
             data: response.y.filter((obj) => {
                 return obj.category === element && obj.y !== 0;
             }),
             showLine: true,
-            fill: false,
-            borderColor: `#${Math.floor(Math.random() * 16777215).toString(
-                16
-            )}`,
-        };
-        categories.push(category);
-    });
-
-    categories = categories.filter((obj) => {
-        return obj.data.length > 0;
-    }); */
-
-    //line graph data
-    let fillColor = [];
-    let colorHelp  = 0;
-    response.graphData.forEach(element => {
-        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
-        let category = {
-            label: element.category,
-            data: undefined,
-            showline: true,
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
@@ -119,6 +103,28 @@ function reportByCategory(response){
         colorHelp++;
     });
 
+    /* categories = categories.filter((obj) => {
+        return obj.data.length > 0;
+    }); */
+
+    
+
+/*     response.graphData.forEach(element => {
+        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
+        response.y.forEach(yHelper => {
+            let category = {
+            label: yHelper.category,
+            data: yHelper.y,
+            showline: true,
+            fill: false,
+            borderColor: fillColor[colorHelp],
+            backgroundColor: fillColor[colorHelp],
+        };
+        })
+        categories.push(category);
+        colorHelp++;
+    });
+ */
     console.log(categories);
     
     var chart = new Chart(ctx, {
