@@ -29,7 +29,8 @@ function tabCheck(a){
     $(inputElement).each(function(){
         if($(this).val() !== ''){
             $('.tab-button-next').show();
-            $('.tab-button-next').removeClass('disabled');
+            $(".tab-button-next")
+                .removeClass("disabled");
             
         }else{
             $('.tab-button-next').addClass('disabled');
@@ -37,12 +38,12 @@ function tabCheck(a){
         })
 
     $(inputElement).on('input', function () {
-        console.log('event');
+        console.log('input event');
         $(inputElement).each(function(){
         if($(this).val() !== ''){
             $('.tab-button-next').show();
-            $('.tab-button-next').removeClass('disabled');
-            
+            $(".tab-button-next")
+                .removeClass("disabled");
         }else{
             $('.tab-button-next').addClass('disabled');
         }
@@ -81,13 +82,15 @@ $(document).ready(function(){
         $('.tab-button-back').hide();
         $('.tab-submit').hide();
         $('.tab-button-close').show();
-        $('tab-button-next').addClass('disabled');
+        $('.tab-button-next').addClass('disabled');
         tabSwitch(tabIndex);
     });
-
+    
+    //when modal opens
     $('.modal').off().on('shown.bs.modal',function(){
+        
         tabCheck('0');
-        console.log('open');
+        console.log('open!');
         $('.select2').each(function(){
             $(this).prop('disabled',false);
         });
