@@ -168,8 +168,8 @@ function reportByCategory(response){
     });
         
     $(".row-graphs").append(`<div class="col-xs-12 col-md-6 doughnut-container">
-            <canvas id="doughnut" width="400" height="400"></canvas>
-    </div>`);
+                                <canvas id="doughnut" width="400" height="400"></canvas>
+                            </div>`);
 
     //doughnut data
     let doughnutData = [];
@@ -177,8 +177,9 @@ function reportByCategory(response){
     let doughnutBackgroundColor = [];
     let colorHelpDoughnut = 0;
 
-    response.graphData.forEach(element => {
-        doughnutLabels.push(element.category);
+    response.courseData.forEach(element => {
+        doughnutData.push(element.amount);
+        doughnutLabels.push(element.categoryName);
         doughnutBackgroundColor.push(fillColor[colorHelpDoughnut]);
         colorHelpDoughnut++;
     });
@@ -877,10 +878,10 @@ $(document).ready(function(){
     $('.selector').on('click',function(){
         if($(this).val() == 'participant-by-status'){
             $(".participant-status-container").show();
-            console.log('show');
+            //console.log('show');
         }else{
             $(".participant-status-container").hide();
-            console.log("hide");
+            //console.log("hide");
         }
     });
 
