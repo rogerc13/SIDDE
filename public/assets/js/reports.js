@@ -102,15 +102,21 @@ function reportByCategory(response){
         return obj.data.length > 0;
     }); */
 
+    //line graph data
+    let fillColor = [];
+    let colorHelp  = 0;
     response.graphData.forEach(element => {
+        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
         let category = {
             label: element.category,
             data: undefined,
             showline: true,
             fill: false,
-            borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            borderColor: fillColor[colorHelp],
+            backgroundColor: fillColor[colorHelp],
         };
-        categories.push(category)
+        categories.push(category);
+        colorHelp++;
     });
 
     console.log(categories);
@@ -157,6 +163,43 @@ function reportByCategory(response){
             title: {
                 display: true,
                 text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+            },
+        },
+    });
+        
+    $(".row-graphs").append(`<div class="col-xs-12 col-md-6 doughnut-container">
+            <canvas id="doughnut" width="400" height="400"></canvas>
+    </div>`);
+
+    //doughnut data
+    let doughnutData = [];
+    let doughnutLabels = [];
+    let doughnutBackgroundColor = [];
+    let colorHelpDoughnut = 0;
+
+    response.graphData.forEach(element => {
+        doughnutLabels.push(element.category);
+        doughnutBackgroundColor.push(fillColor[colorHelpDoughnut]);
+        colorHelpDoughnut++;
+    });
+
+    let doughnut = $("#doughnut"); //div selector
+
+        var myDoughnutChart = new Chart(doughnut, {
+        type: "doughnut",
+        data: {
+            datasets: [
+                {
+                    data: doughnutData,
+                    backgroundColor: doughnutBackgroundColor,
+                },
+            ],
+            labels: doughnutLabels,
+        },
+        options: {
+            title: {
+                display: true,
+                text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
             },
         },
     });
