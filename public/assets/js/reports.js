@@ -722,14 +722,21 @@ function reportByCourseNotScheduled(response){
             `<h3>Cantidad de Acciones de Formación No Programadas: ${response.data.length}</h3>`
         );
 
-        $(".table-col-helper")
-            .append(`<table class="course-list table table-striped table-bordered table-center">
-            <caption>Acciones de Formación no Programadas</caption>    
-            <thead>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>`);
+        $(".table-col-helper").append(`<div class="panel panel-success">
+            <div class="panel-heading">
+				<div class="panel-title">
+			  		Acciones de Formación No Programadas
+				</div>
+			</div>
+            <div class="panel-body with-table table-responsive">
+                <table class="course-list table table-striped table-bordered table-center">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>`);
 
         $(".course-list thead").append(`<tr>
                                         <th>Código</th>
