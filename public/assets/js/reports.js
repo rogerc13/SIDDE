@@ -80,12 +80,12 @@ function reportByCategory(response){
     
     refresh();
     $(".row-graphs")
-        .append(`<div class="panel panel-success line-graph-panel">
+        .append(`<div class="panel panel-success line-graph-panel col-md-6">
                 <div class="panel-heading">
                     <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
                 </div>
                 <div class="panel-body">
-                    <div class="h-25 col-xs-12 col-md-12 graph-container">
+                    <div class="graph-container">
                      <canvas id="myChart" width="200" height="200"></canvas>
                     </div>
                 </div>
@@ -180,6 +180,8 @@ function reportByCategory(response){
                     },
                 ],
             },
+            spanGaps: true,
+            showLines: true,
             title: {
                 display: true,
                 text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
@@ -188,14 +190,14 @@ function reportByCategory(response){
     });
         
     $(".row-graphs").append(`
-        <div class="panel panel-success doughnut-panel">
+        <div class="panel panel-success doughnut-panel col-md-6">
             <div class="panel-heading">
                 <div class="panel-title">
                     Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}
                 </div>
             </div>
             <div class="panel-body">
-                <div class="h-25 col-xs-12 col-md-12  doughnut-container">
+                <div class="  doughnut-container">
                     <canvas id="doughnut" width="400" height="400"></canvas>
                 </div>
             </div>
@@ -297,13 +299,13 @@ function reportByCourseStatus(response){ //reports by course status
 
     refresh();
     $(".row-graphs")
-        .append(`<div class="panel panel-success by-status-line-panel">
+        .append(`<div class="panel panel-success by-status-line-panel col-md-6 ">
             <div class="panel-heading">
                 <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
             </div>
             <div class="panel-body">
                 <div class="h-25 col-xs-12 col-md-12 graph-container">
-                <canvas id="myChart" width="200" height="200"></canvas>
+                <canvas id="myChart" width="400" height="430"></canvas>
                 </div>
             </div>
             </div>`);
@@ -422,7 +424,7 @@ function reportByCourseStatus(response){ //reports by course status
 
     //doughnut graph draw
     $(".row-graphs")
-        .append(`<div class="panel panel-success by-status-doughnut-panel">
+        .append(`<div class="panel panel-success by-status-doughnut-panel col-md-6">
             <div class="panel-heading">
                 <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
             </div>
@@ -824,7 +826,7 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
     console.log("most-scheduled");
     //draw list of courses
     refresh();
-
+    
     $(".table-col-helper").append(`<div class="panel panel-success">
     <div class="panel-heading">
         <div class="panel-title">Acciones de Formación más programadas</div>
