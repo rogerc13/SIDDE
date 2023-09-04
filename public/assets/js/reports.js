@@ -163,11 +163,18 @@ function reportByCategory(response){
 
     //tables
     $(".table-col-helper")
-        .append(`<table class="course-category-list table table-striped table-bordered table-center">
-        <caption>Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</caption>
-        <thead></thead>
-        <tbody></tbody>
-            </table>`);
+        .append(`<div class="panel panel-success course-by-category-list">
+                    
+                    <div class="panel-heading">
+                        <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                    </div>         
+                    <div class="panel-body with-table table-responsive">   
+                    <table class="course-category-list table table-striped table-bordered table-center">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                    </div>
+                </div>`);
     
     $('.course-category-list thead').append(`<tr>
         <th>Área de Conomiento</th>
@@ -179,12 +186,17 @@ function reportByCategory(response){
                                                     <td>${element.amount}</td></tr>`);
     });
     
-    $(".table-col-helper")
-        .append(`<table class="course-data-category-list table table-striped table-bordered table-center">
-        <caption>Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</caption>
-        <thead></thead>
-        <tbody></tbody>
-            </table>`);
+    $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range">
+        <div class="panel-heading">
+            <div class="panel-title">Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+        </div>
+            <div class="panel-body with-table table-responsive">
+                <table class="course-data-category-list table table-striped table-bordered table-center">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>`);
 
     $(".course-data-category-list thead").append(`<tr>
                         <th>Título</th>
@@ -357,11 +369,17 @@ function reportByCourseStatus(response){ //reports by course status
     //list data table
 
     $(".table-col-helper").append(
-        `<table class="course-status-amount-table table table-striped table-bordered table-center">
-                                <caption>Cantidad de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</caption>
-                                <thead></thead>
-                                <tbody></tbody>
-                            </table>`
+        `<div class="panel panel-success course-status-panel">
+        <div class="panel-heading">
+            <div class="panel-title">Cantidad de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+        </div>
+        <div class="panel-body with-table table-responsive"> 
+        <table class="course-status-amount-table table table-striped table-bordered table-center">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+        </div>
+        </div>`
     );
 
     $(".course-status-amount-table thead").append(`<tr>
@@ -371,16 +389,22 @@ function reportByCourseStatus(response){ //reports by course status
                                                 <th>Cancelado</th>
                                             </tr>`);
 
-    $(".course-status-amount-table tbody").append(`<tr></tr>`);    
+     $(".course-status-amount-table tbody").append(`<tr></tr>`);
     
     $(".table-col-helper")
-        .append(`<table class="course-list table table-striped table-bordered table-center">
-                                    <caption>Acciones de Formación Durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</caption>
-                                    <thead>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                    </table>`);
+        .append(`<div class="panel panel-success courses-by-date-range-status">
+        <div class="panel-heading">
+            <div class="panel-title">Acciones de Formación Durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+        </div>
+        <div class="panel-body with-table table-responsive">
+                    <table class="course-list table table-striped table-bordered table-center">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+        </div>
+                </div>`);
     $(".course-list thead").append(`<tr>
                         <th>Título</th>
                         <th>Fecha de Inicio</th>
@@ -417,13 +441,21 @@ function reportByDuration(response){ //reports by course duration
     //tables
     //Spans Most Days ALL TIME
     $(".table-col-helper")
-        .append(`<table class="course-day-span-all-time-list table table-striped table-bordered table-center">
-                <caption>Acciones de Formacion según cantidad de horas y días que abarcan</caption>
+        .append(`<div class="panel panel-success courses-by-day-span">
+            <div class="panel-heading">
+                <div class="panel-title">Acciones de Formacion según cantidad de horas y días que abarcan</div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+            <table class="course-day-span-all-time-list table table-striped table-bordered table-center">
+            
                 <thead>
                 </thead>
                 <tbody>
                 </tbody>
-            </table>`);
+            </table>
+            </div>
+            </div>`);
+
     $('.course-day-span-all-time-list thead').append(`<tr>
         <th>Título</th>
         <th>Fecha de Inicio</th>
@@ -444,13 +476,19 @@ function reportByDuration(response){ //reports by course duration
 
     //Most duration hours
     $(".table-col-helper")
-        .append(`<table class="course-most-duration-all-time-list table table-striped table-bordered table-center">
-                <caption>Acciones de Formacion según cantidad de horas</caption>
+        .append(`<div class="panel panel-success courses-by-hours">
+        <div class="panel-heading">
+            <div class="panel-title">Acciones de Formacion según cantidad de horas</div>
+        </div>
+        <div class="panel-body with-table table-responsive">
+        <table class="course-most-duration-all-time-list table table-striped table-bordered table-center">
                 <thead>
                 </thead>
                 <tbody>
                 </tbody>
-            </table>`);
+            </table>
+        </div>
+        </div>`);
 
     $('.course-most-duration-all-time-list thead').append(`<tr>
     <th>Código</th>
@@ -561,11 +599,17 @@ function reportByParticipantStatus(response){
     });
 
     $(".table-col-helper").append(
-        `<table class="status-amount-table table table-striped table-bordered table-center">
-                                <caption>Cantidad de Participantes Durante el Período ${start_date} - ${end_date}</caption>
-                                <thead></thead>
-                                <tbody></tbody>
-                            </table>`
+        `<div class="panel panel-success participant-during-period-with-status">
+            <div class="panel-heading">
+                <div class="panel-title">Cantidad de Participantes Durante el Período ${start_date} - ${end_date}</div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+                <table class="status-amount-table table table-striped table-bordered table-center">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>`
     );
     $(".status-amount-table thead").append(`<tr>
                                                 <th>En Curso</th>
@@ -582,11 +626,18 @@ function reportByParticipantStatus(response){
 
     //list of participants per given status all time
     $(".table-col-helper").append(
-        `<table class="all-time-list-table table table-striped table-bordered table-center">
-                                <caption>Lista de Participantes Con Estatus:</caption>    
+        `<div class="panel panel-success participant-with-status">
+        <div class="panel-heading">
+            <div class="panel-title">Lista de Participantes Con Estatus:</div>
+        </div>
+        <div class="panel-body with-table table-responsive">
+        <table class="all-time-list-table table table-striped table-bordered table-center">
+
                                 <thead></thead>
                                 <tbody></tbody>
-                            </table>`
+                            </table>
+        </div>
+        </div>`
     );
 
     $(".all-time-list-table thead").append(`<tr>
@@ -605,11 +656,16 @@ function reportByParticipantStatus(response){
 
     //participants not in a course //missing last participated course if any
     $(".table-col-helper").append(
-        `<table class="not-in-course-list-table table table-striped table-bordered table-center">
-                                <caption>Participantes No Asignados a Cursos</caption>
+        `<div class="panel panel-success participant-not-asigned">
+        <div class="panel-heading">
+            <div class="panel-title">Participantes No Asignados a Cursos</div>
+        </div>
+            <div class="panel-body with-table table-responsive"><table class="not-in-course-list-table table table-striped table-bordered table-center">
                                 <thead></thead>
                                 <tbody></tbody>
-                            </table>`
+                            </table>
+            </div>
+        </div>`
     );
 
     $(".not-in-course-list-table thead").append(`<tr>
@@ -640,14 +696,21 @@ function reportByParticipantQuantity(response){
     //list of courses per participant in a date range
     if (response.dateRangeAmountPerCourse != 0) {
         //draw list
-        $(".table-col-helper")
-            .append(`<table class="course-list table table-striped table-bordered table-center">
-                <caption>Acciones de Formación por Cantidad de Participantes</caption>    
+        $(".table-col-helper").append(`<div class="panel panel-success">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Acciones de Formación por Cantidad de Participantes
+                </div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+            <table class="course-list table table-striped table-bordered table-center">
                 <thead>
                 </thead>
                 <tbody>
                 </tbody>
-            </table>`);
+            </table>
+            </div>
+            </div>`);
 
         $('.course-list thead').append(`<tr>
         <th>Título</th>
@@ -673,13 +736,20 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
     //draw list of courses
     refresh();
 
-    $('.table-col-helper').append(`<table class="course-list table table-striped table-bordered table-center">
-                <caption>Acciones de Formación más programadas</caption>
+    $(".table-col-helper").append(`<div class="panel panel-success">
+    <div class="panel-heading">
+        <div class="panel-title">Acciones de Formación más programadas</div>
+    </div>
+        <div class="panel-body with-table table-responsive">
+        <table class="course-list table table-striped table-bordered table-center">
+                
                 <thead>
                 </thead>
                 <tbody>
                 </tbody>
-            </table>`);
+            </table>
+        </div>
+            </div>`);
 
     $('.course-list thead').append(`<tr>
         <th>Código</th>
@@ -717,7 +787,6 @@ function reportByCourseNotScheduled(response){
     refresh();
     //draw table and show amount of courses
     if (response.data.length != 0) {
-        //$('').html(`Cantidad de Cursos no Programados: ${response.data.length}`)
         $(".course-amount-number").append(
             `<h3>Cantidad de Acciones de Formación No Programadas: ${response.data.length}</h3>`
         );
