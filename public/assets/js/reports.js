@@ -37,9 +37,15 @@ function participantStatusSelect(){ //participant status select dropdown
 
 function reportByDate(response){ //reports by date
     refresh();
-    $(".row-graphs")
-        .append(`<div class="h-25 col-xs-12 col-md-12 graph-container">
-            <canvas id="myChart" width="200" height="200"></canvas>
+    $(".row-graphs").append(`<div class="panel panel-success by-date-line">
+        <div class="panel-heading">
+            <div class="panel-title">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</div>
+        </div>    
+        <div class="panel-body">
+            <div class="h-25 col-xs-12 col-md-12 graph-container">
+                <canvas id="myChart" width="200" height="200"></canvas>
+            </div>
+        </div>
         </div>`);
 
     let ctx = $("#myChart");
@@ -74,9 +80,16 @@ function reportByCategory(response){
     
     refresh();
     $(".row-graphs")
-        .append(`<div class="h-25 col-xs-12 col-md-12 graph-container">
-            <canvas id="myChart" width="200" height="200"></canvas>
-        </div>`);
+        .append(`<div class="panel panel-success line-graph-panel">
+                <div class="panel-heading">
+                    <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                </div>
+                <div class="panel-body">
+                    <div class="h-25 col-xs-12 col-md-12 graph-container">
+                     <canvas id="myChart" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>`);
 
     let ctx = $("#myChart");
     let categories = [];
@@ -98,6 +111,7 @@ function reportByCategory(response){
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
+            borderWidth: 1,
         };
         categories.push(category);
         colorHelp++;
@@ -161,7 +175,7 @@ function reportByCategory(response){
                         },
                         ticks: {
                             beginAtZero: true,
-                            stepSize: 1,
+                            stepSize: 5,
                         },
                     },
                 ],
@@ -173,9 +187,19 @@ function reportByCategory(response){
         },
     });
         
-    $(".row-graphs").append(`<div class="col-xs-12 col-md-6 doughnut-container">
-                                <canvas id="doughnut" width="400" height="400"></canvas>
-                            </div>`);
+    $(".row-graphs").append(`
+        <div class="panel panel-success doughnut-panel">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="h-25 col-xs-12 col-md-12  doughnut-container">
+                    <canvas id="doughnut" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>`);
 
     //doughnut data
     let doughnutData = [];
@@ -273,9 +297,16 @@ function reportByCourseStatus(response){ //reports by course status
 
     refresh();
     $(".row-graphs")
-        .append(`<div class="h-25 col-xs-12 col-md-12 graph-container">
-            <canvas id="myChart" width="200" height="200"></canvas>
-        </div>`);
+        .append(`<div class="panel panel-success by-status-line-panel">
+            <div class="panel-heading">
+                <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+            </div>
+            <div class="panel-body">
+                <div class="h-25 col-xs-12 col-md-12 graph-container">
+                <canvas id="myChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+            </div>`);
 
     let ctx = $("#myChart"); //linear graph selector
 
@@ -390,8 +421,16 @@ function reportByCourseStatus(response){ //reports by course status
     });
 
     //doughnut graph draw
-    $(".row-graphs").append(`<div class="col-xs-12 col-md-6 doughnut-container">
-            <canvas id="doughnut" width="400" height="400"></canvas>
+    $(".row-graphs")
+        .append(`<div class="panel panel-success by-status-doughnut-panel">
+            <div class="panel-heading">
+                <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+            </div>
+            <div class="panel-body">
+                <div class="doughnut-container">
+                    <canvas id="doughnut" width="400" height="400"></canvas>
+                </div>
+            </div>
         </div>`);
 
     let doughnut = $("#doughnut"); //div selector
