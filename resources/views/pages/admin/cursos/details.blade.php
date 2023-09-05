@@ -20,10 +20,8 @@
         $('.radio-prerequisite').hide();
         $('.select-prerequisite-helper').show();
 
-
         $.get(url,function(data,status){
                 
-
                 data=JSON.parse(data);
                 console.log(data);
                 //console.log(data[0].prerequisite[0].id);
@@ -68,20 +66,21 @@
                 }                
                 $(".loader").addClass("hidden");
                 $("#accion-form").removeClass("hidden");
-
             });
-        $("#accion-modal").modal();
 
+        $("#accion-modal").modal();
+        
         $("#accion-modal").on("hidden.bs.modal", function () {
             $('.course-code').parent().removeClass('has-error');
             $('.code-error-text').hide();
             //$('.create-course-form')[0].reset(); //resets input fields at closing
             $("#accion-form :input").prop('readonly', false);
-            $( "#accion-form select" ).prop('disabled', false);
+            $("#accion-form select").prop('disabled', false);
             $("#accion-aceptar").removeClass("hidden");
             $("#docs").removeClass("hidden");
             // $('#objetivo').data('wysihtml5').editor.toolbar.show();
             // $('#objetivo').data('wysihtml5').editor.composer.enable();
+        $('.course-list').off();
        });
     }
 </script>
