@@ -35,7 +35,7 @@ function tabCheck(a){
         }else{
             $('.tab-button-next').addClass('disabled');
         }
-        })
+    });
 
     $(inputElement).on('input', function () {
         console.log('input event');
@@ -67,27 +67,29 @@ $(document).ready(function(){
         tabSwitch(tabIndex);
         //console.log('back index:'+tabIndex);
     })
+
     //when modal closes
-    $('.modal').off().on('hidden.bs.modal',function(){
-        $('.select2').prop('disabled',true);
-        $('.select2').each(function(){
-            $(this).prop('disabled',false);
+    $(".modal").on("hidden.bs.modal", function () {
+        $(".select2").prop("disabled", true);
+        $(".select2").each(function () {
+            $(this).prop("disabled", false);
         });
-        $('.create-course-form :input').prop('disabled',false);
-        $('.code-error-text').hide();
-        console.log('closed!');
+
+        $(".create-course-form :input").prop("disabled", false);
+        $(".code-error-text").hide();
+        console.log("closed!");
         
         tabIndex = 0;
-        $('.tab-button-next').show();
-        $('.tab-button-back').hide();
-        $('.tab-submit').hide();
-        $('.tab-button-close').show();
-        $('.tab-button-next').addClass('disabled');
-        tabSwitch(tabIndex);
+        $(".tab-button-next").show();
+        $(".tab-button-back").hide();
+        $(".tab-submit").hide();
+        $(".tab-button-close").show();
+        $(".tab-button-next").addClass("disabled");
+        tabSwitch(0);
     });
     
     //when modal opens
-    $('.modal').off().on('shown.bs.modal',function(){
+    $('.modal').on('shown.bs.modal',function(){
         
         tabCheck('0');
         console.log('open!');
