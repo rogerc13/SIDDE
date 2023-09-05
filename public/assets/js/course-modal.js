@@ -25,31 +25,36 @@ function tabSwitch(tabIndex){
 }
 
 function tabCheck(a){
-    let inputElement = '.'+a+'-tab-input';
-    $(inputElement).each(function(){
-        if($(this).val() !== ''){
-            $('.tab-button-next').show();
-            $(".tab-button-next")
-                .removeClass("disabled");
-            
-        }else{
-            $('.tab-button-next').addClass('disabled');
+    let inputElement = "." + a + "-tab-input";
+    $(inputElement).each(function () {
+        if ($(this).val() !== "") {
+            $(".tab-button-next").show();
+            $(".tab-button-next").removeClass("disabled");
+        } else {
+            $(".tab-button-next").addClass("disabled");
         }
     });
 
-    $(inputElement).on('input', function () {
-        console.log('input event');
-        $(inputElement).each(function(){
-        if($(this).val() !== ''){
-            $('.tab-button-next').show();
-            $(".tab-button-next")
-                .removeClass("disabled");
-        }else{
-            $('.tab-button-next').addClass('disabled');
-        }
-        })
+    $(inputElement).on("input", function () {
+        console.log("input event");
+        $(inputElement).each(function () {
+            if ($(this).val() !== "") {
+                $(".tab-button-next").show();
+                $(".tab-button-next").removeClass("disabled");
+            } else {
+                $(".tab-button-next").addClass("disabled");
+            }
+        });
     });
+
+    if((a == '2') && $('#accion-label').text() === 'Detalles acción de formación'){
+        console.log('event');
+        $('.tab-button-next').removeClass('disabled');
+    }
+
+    console.log(inputElement);
 }
+
 $(document).ready(function(){
     $('.tab-submit').hide();
     $('.tab-button-back').hide();
