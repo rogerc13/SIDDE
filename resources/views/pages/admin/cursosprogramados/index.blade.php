@@ -173,7 +173,7 @@
 									  </a>
 								  @endcan
 
-								  <a  title="Editar Programación" href="javascript:editarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-default btn-xs">
+								  <a  title="Editar Programación" href="javascript:editarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-default btn-xs {{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' :''}}">
 								      <i class="entypo-pencil"></i>
 								  </a>
 
