@@ -1,5 +1,10 @@
 function evaluate(data){
-    console.log(data[0].scheduled_id);
+    //console.log(data);
+
+    if(data.length === 0){
+        return;
+    }
+    //console.log(data[0].scheduled_id);
     /* console.log(data);
     b = data.reduce(function(x,y){
             if(!x.some(function(el){return el.participant_id === y.participant_id;})) x.push(y);
@@ -13,14 +18,14 @@ function evaluate(data){
             data: {'data':data},
             dataType: "json",
             success: function (response) {
-                console.log(response);
+                //console.log(response);
                 success = true;
                 method = "";
                 window.location =
                     /* data[0].scheduled_id+ */ "onSubmitAlert/" + success;
             },
             error: function (response) {
-                console.log(response);
+                //console.log(response);
                 success = false;
                 method = "";
                 window.location = /* data[0].scheduled_id+ */"onSubmitAlert/" + success;
