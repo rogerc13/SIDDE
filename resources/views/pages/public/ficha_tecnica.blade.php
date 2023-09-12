@@ -12,7 +12,7 @@
 <div class="container-fluid">
     <div class="row buttons hidden-print form-group">
     <div class="col-md-6 col-sm-12">
-        <a class="btn btn-blue" href="{{url()->previous()}}" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
+        <a class="btn btn-blue" onclick="goBack()" role="button"><i class="entypo-back" aria-hidden="true"></i>Regresar</a>
     </div>
     <div class="col-md-3 col-sm-12">
         <a class="btn btn-default" href="" role="button"><i class="entypo-download"></i>Descargar Documentos del Curso</a>
