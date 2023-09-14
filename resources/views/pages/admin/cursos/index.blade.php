@@ -25,7 +25,7 @@
 	<h3>Acciones de Formación</h3>
 	<a href="javascript:crearAccion('{{url('u/acciones_formacion')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva acción de formación</a>
 
-	<a href="{{url('u/print')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación</a>
+	<a href="{{url('u/pdf/courses')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación</a>
 	{{-- <a href='/acciones_formacion/print' class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Imprimir Lista de Acciones de Formación</a> --}}
 
 	<br>
