@@ -14,5 +14,8 @@
         "sass": "^1.32.11",
         "sass-loader": "^11.0.1",
         "vite": "^2.9.11"
+    },
+    "dependencies": {
+        "puppeteer": "^21.1.1"
     }
 }
