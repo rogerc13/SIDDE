@@ -52,7 +52,7 @@ body .login-container .login-header {
 
 .btn-primary {
   color: #fff;
-  background-color: #00a651;
+  background-color: #00a651 !important;
   border-color: #00a651;
 }
 
