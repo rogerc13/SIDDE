@@ -5,6 +5,9 @@
 	<h3>Facilitadores</h3>
 
 	<a href="javascript:crearFacilitador('{{url('u/facilitadores')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Facilitador</a>
+
+  <a href="{{url('u/pdf/facilitators')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Facilitadores</a>
+
   <br>
   <br>
 <div class="row filtros">           
