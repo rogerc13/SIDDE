@@ -5,6 +5,9 @@
 	<h3>Participantes</h3>
 
 	<a href="javascript:crearParticipante('{{url('u/participantes')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Participante</a>
+
+  <a href="{{url('u/pdf/participants')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Participantes</a>
+
   <br>
   <br>
 
