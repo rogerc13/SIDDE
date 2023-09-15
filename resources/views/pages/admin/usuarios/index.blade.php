@@ -5,6 +5,9 @@
 	<h3>Usuarios</h3>
 
 	<a href="javascript:crearUsuario('{{url('u/usuarios')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Usuario</a>
+
+  <a href="{{url('u/pdf/users')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Usuarios</a>
+
   <br>
   <br>
 <div class="row filtros">           
