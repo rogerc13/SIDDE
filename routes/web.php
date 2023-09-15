@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'pdf'], function()
         {
                 Route::get('/courses', 'App\Http\Controllers\BrowserShotController@courses')->name('courses');
-                Route::get('/scheduled', 'App\Http\Contollers\BrowserShotController@scheduled')->name('scheduled'); 
+                Route::get('/scheduled', 'App\Http\Controllers\BrowserShotController@scheduled')->name('scheduled'); 
                 Route::get('/users', 'App\Http\Controllers\BrowserShotController@users')->name('users');
                 Route::get('/facilitators', 'App\Http\Controllers\BrowserShotController@facilitators')->name('facilitators');
                 Route::get('/participants', 'App\Http\Controllers\BrowserShotController@participants')->name('participants');
