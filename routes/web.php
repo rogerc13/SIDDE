@@ -39,6 +39,16 @@ Route::group(['middleware' => 'auth'], function ()
         Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
         Route::post('/prerequisite', 'App\Http\Controllers\CursoController@prerequisiteList'); //ajax call to check if code already exists
         
+        Route::group(['prefix' => 'pdf'], function()
+        {
+                Route::get('/courses', 'App\Http\Controllers\BrowserShotController@courses')->name('courses');
+                Route::get('/scheduled', 'App\Http\Contollers\BrowserShotController@scheduled')->name('scheduled'); 
+                Route::get('/users', 'App\Http\Controllers\BrowserShotController@users')->name('users');
+                Route::get('/facilitators', 'App\Http\Controllers\BrowserShotController@facilitators')->name('facilitators');
+                Route::get('/participants', 'App\Http\Controllers\BrowserShotController@participants')->name('participants');
+        });
+
+        
         
         Route::group(['prefix' => 'usuarios'], function()
         {
@@ -96,6 +106,10 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::delete('/{id}', 'App\Http\Controllers\CursoController@delete');
 
                 Route::get('/onSubmitAlert/{request}', 'App\Http\Controllers\CursoController@onCourseSubmitAlert');
+
+                
+
+               
         });
 
 
@@ -148,6 +162,8 @@ Route::group(['middleware' => 'auth'], function ()
 
         Route::get('/{id}', 'App\Http\Controllers\CursoController@getAccionFormacion');
         Route::get('/documentos/{id}/{d}', 'App\Http\Controllers\CursoController@descargarDoc');
+
+        
 
 
     });
