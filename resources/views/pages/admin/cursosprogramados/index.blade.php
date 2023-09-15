@@ -21,6 +21,9 @@
 	<h3>Acciones de Formación Programadas</h3>
 	@can('store','App\Scheduled')
 		<a href="javascript:programarAccion('{{url('u/af_programadas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
+
+		<a href="{{url('u/pdf/scheduled')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación Programadas</a>
+
 		<br>
 		<br>
 	@endcan
