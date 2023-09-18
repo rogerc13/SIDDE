@@ -20,6 +20,7 @@
 </style>
 <footer>
     <div>
+        <span>Pág </span>
         <span class="pageNumber"></span>
         <span> / </span>
         <span class="totalPages"></span>

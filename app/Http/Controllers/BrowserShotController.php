@@ -11,24 +11,20 @@ use Spatie\Browsershot\Browsershot;
 class BrowserShotController extends Controller
 {
     public function courses(Request $request){
-        $path = public_path('storage/Lista de Acciones de Formación');
+        $path = public_path('storage/Lista de Acciones de Formación.pdf');
         $courses = Course::get();
         //$html = view('pdf.course' , ['courses' => $courses])->render();
         //$header= view('includes.admin.head')->render();
         $pdf = Browsershot::html(view('pdf.course' , ['courses' => $courses])->render())
-        //->headerHtml(public_path('storage/bootstrap.css'))
-        //->noSandbox()
-        //->newHeadless()
+        ->noSandbox()
+        ->waitUntilNetworkIdle()
+        ->emulateMedia('screen')
+        ->footerHtml(view('pdf.footer')->render())
+        ->showBrowserHeaderAndFooter()
+        ->hideHeader()
+        ->showBackground()
+        ->margins(20, 10, 20, 10)
         ->savePdf($path);
-        //->pdf();
-
-        //return $pdf;
-        //$path = public_path('storage/course.pdf');
-        //return response();
-        //return response()->file(public_path('storage/course.pdf'));
-        //return response()->file(public_path('storage/course.pdf'));
-
-        //return response()->file(public_path('storage/course.pdf'));
 
         return response()->download($path)->deleteFileAfterSend(true);
 
@@ -38,16 +34,33 @@ class BrowserShotController extends Controller
         $scheduled = Scheduled::with('course')->get();
         $path = public_path('storage/Lista de Acciones de Formación Programadas.pdf');
         $pdf = Browsershot::html(view('pdf.scheduled', ['scheduled' => $scheduled])->render())
+        ->noSandbox()
+        ->waitUntilNetworkIdle()
+        ->emulateMedia('screen')
+        ->footerHtml(view('pdf.footer')->render())
+        ->showBrowserHeaderAndFooter()
+        ->hideHeader()
+        ->showBackground()
+        ->margins(20, 10, 20, 10)
         ->savePdf($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
+        
     }
 
     public function users(Request $request){
         $users = User::get();
         $path = public_path('storage/Lista de Usuarios.pdf');
         $pdf = Browsershot::html(view('pdf.users', ['users' =>  $users])->render())
-        ->savePdf($path);   
+        ->noSandbox()
+        ->waitUntilNetworkIdle()
+        ->emulateMedia('screen')
+        ->footerHtml(view('pdf.footer')->render())
+        ->showBrowserHeaderAndFooter()
+        ->hideHeader()
+        ->showBackground()
+        ->margins(20, 10, 20, 10)
+        ->savePdf($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
     }
@@ -56,6 +69,14 @@ class BrowserShotController extends Controller
         $facilitators = User::where('role_id',4)->get();;
         $path = public_path('storage/Lista de Facilitadores.pdf');
         $pdf = Browsershot::html(view('pdf.facilitators', ['facilitators' => $facilitators])->render())
+        ->noSandbox()
+        ->waitUntilNetworkIdle()
+        ->emulateMedia('screen')
+        ->footerHtml(view('pdf.footer')->render())
+        ->showBrowserHeaderAndFooter()
+        ->hideHeader()
+        ->showBackground()
+        ->margins(20, 10, 20, 10)
         ->savePdf($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
@@ -65,6 +86,14 @@ class BrowserShotController extends Controller
         $participants = User::where('role_id',5)->get();
         $path = public_path('storage/Lista de Participantes.pdf');
         $pdf = Browsershot::html(view('pdf.participants', ['participants' => $participants])->render())
+        ->noSandbox()
+        ->waitUntilNetworkIdle()
+        ->emulateMedia('screen')
+        ->footerHtml(view('pdf.footer')->render())
+        ->showBrowserHeaderAndFooter()
+        ->hideHeader()
+        ->showBackground()
+        ->margins(20, 10, 20, 10)
         ->savePdf($path);
 
         return response()->download($path)->deleteFileAfterSend(true);
