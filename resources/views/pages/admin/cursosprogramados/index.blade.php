@@ -133,7 +133,7 @@
 								@endif
 
 								<td>
-									<span class="badge badge-success">
+									<span class="">
 										{{count($cursop->participants)}}/{{$cursop->course->capacity[0]->max}}
 									</span>
 
