@@ -37,7 +37,9 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 <h4 class="modal-title" id="accion-label"></h4>
             </div>
             <div class="loader text-center">
@@ -151,7 +153,7 @@
                             <div class="col-lg-12" >
                                 {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
                                 <ul class="content-list list-style list-group"></ul>
-                                {{ Form::textarea('contenido', null , array('class' => '2-tab-input form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','required','placeholder'=>'Ingrese los contenidos del Curso')) }}
+                                {{ Form::textarea('contenido', null , array('class' => '2-tab-input form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','placeholder'=>'Ingrese los contenidos del Curso')) }}
                             </div>
                         </div>
                     </div>{{-- end 3rd tab --}}
@@ -252,6 +254,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="no-docs">
+                            <span><h4>Este Curso No posee documentos asignados</h4></span>
+                        </div>
                     </div>{{-- end 4th tab --}}
                 </div>
                 </div>
@@ -261,7 +266,7 @@
                     <ul class="nav nav-pills" role="tablist">
                         <li role="presentation" class=""><a class="tab-button-close btn" data-dismiss="modal" aria-label="Close">Cerrar</a></li>
                         <li role="presentation" class=""><a class="tab-button-back btn">Atrás</a></li>
-                        <li role="presentation" class="active"><a class="tab-button-next btn">Siguiente</a></li>
+                        <li role="presentation" class="active"><a class="tab-button-next btn btn-primary">Siguiente</a></li>
                         <li role="presentation" class="">
                             {{ Form::submit('Aceptar', array('class' => 'tab-submit btn btn-primary', 'id'=>'accion-aceptar')) }}
                         </li>
