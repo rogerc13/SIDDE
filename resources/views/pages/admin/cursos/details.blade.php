@@ -24,11 +24,11 @@
                 
                 data=JSON.parse(data);
                 console.log(data);
-                //console.log(data[0].prerequisite[0].id);
+                console.log(data[0].prerequisite[0].prerequisite.title);
                 $('#codigo').val(data[0].code);
 
                 if(data[0].prerequisite.length > 0){
-                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].id}</option>`).trigger('change');
+                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
                 }else{
                     $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
                 }

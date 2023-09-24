@@ -20,4 +20,8 @@ class Prerequisite extends Model
 
         return $title['title'];
     }
+
+    public function prerequisite(){
+        return $this->belongsTo(Course::class,'prerequisite_id');
+    } 
 }

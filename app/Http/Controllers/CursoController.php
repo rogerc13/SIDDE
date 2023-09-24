@@ -590,17 +590,18 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Course::with('File')
-        ->with('Capacity')
-        ->with('prerequisite')
-        ->with('Content')->where('id',$id)
+        $curso = Course::with(['File','Capacity','Prerequisite.prerequisite','Content'])/* ->with('File') */
+        //->with('Capacity')
+        //->with('prerequisite.prerequisite')
+        //->with(DB::raw(Course::where('id', Prerequisite::where('course_id', $id)->select('prerequisite_id'))->select('title')->get()))
+        /* ->with('Content') */->where('id',$id)        
         ->get();
         
         if(!$curso || $user->cannot('get', Course::class))
         {
             return json_encode([]);
         } 
-
+        
         return json_encode($curso);
     }
 
