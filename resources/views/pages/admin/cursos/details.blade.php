@@ -24,14 +24,22 @@
                 
                 data=JSON.parse(data);
                 console.log(data);
-                console.log(data[0].prerequisite[0].prerequisite.title);
+                //console.log(data[0].prerequisite[0].prerequisite_id === null);
                 $('#codigo').val(data[0].code);
-
+                $('#prerequisite').html('');
                 if(data[0].prerequisite.length > 0){
-                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+                    if(data[0].prerequisite[0].prerequisite_id !== null){
+                        console.log('prerequisite and not null');
+                        $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+                    }else if(data[0].prerequisite[0].prerequisite_id === null){
+                        console.log('prerequisite and null');
+                        $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                    }    
                 }else{
+                    console.log('no prerequisite');
                     $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
                 }
+
                 $('#titulo').val(data[0].title);
                 $('#categoria_id').val(data[0].category_id).trigger("change");
                 $('#modalidad_id').val(data[0].modality_id).trigger("change");
