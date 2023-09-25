@@ -28,7 +28,7 @@
                     $('capacity-error-text').hide();
                     response.list.forEach(element => {
                     values.push(element.id);
-                    $('#participante').append(`<option personid="${element.id}" value="${element.id}">${element.name} ${element.last_name} C.I: ${element.id_type_id == 1 ? 'V' : 'E'}-${element.id_number}</option>`);
+                    $('#participante').append(`<option personid="${element.id}" value="${element.id}">${element.name} ${element.last_name} C.I: ${element.id_type_id == 1 ? 'V' : 'E'}-${element.id_number.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}</option>`);
                  })
                 }else{
                     //console.log(response);
