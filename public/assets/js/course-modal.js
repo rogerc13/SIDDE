@@ -18,6 +18,9 @@ function tabSwitch(tabIndex){
         $('.tab-button:eq(3)').tab('show');
         $('.tab-button-next').hide();
         $('.tab-submit').show();
+        console.log('tab switch');
+        //tabSwitch(tabIndex);
+        
     }else if(tabIndex > 3){
         tabIndex = 2;
         tabSwitch(tabIndex);
@@ -35,8 +38,10 @@ function tabCheck(a){
         }
     });
 
-    $(inputElement).on("input", function () {
+    $(inputElement).off().on("input", function () {
+        //triggers on every input element of the modal
         console.log("input event");
+        console.log($(this).val());
         $(inputElement).each(function () {
             if ($(this).val() !== "") {
                 $(".tab-button-next").show();
@@ -45,14 +50,45 @@ function tabCheck(a){
                 $(".tab-button-next").addClass("disabled");
             }
         });
+
+        //CREATE MODAL
+        if (
+            (($("#min").val() == "") ||
+            ($("#min").val() == "")) &&
+            (($("#accion-label").text() === "Nueva acción de formación") &&
+            (a == '1'))
+        ) {
+            $(".tab-button-next").addClass("disabled");
+            console.log("min max not set");
+        }
+        //END CREATE MODAL
     });
+
+    if((a == '2') && ($('#contenido').val() == '') && ($('#objetivo').val() != '')){
+        $('.tab-button-next').removeClass('disabled');
+        console.log('empty content');
+    }
+    
+    //DETAILS MODAL
+    //if details 3rd tab is open
+    if((a == '0')  && $('#accion-label').text() === 'Detalles acción de formación'){
+        $(".tab-button-next").removeClass("disabled");
+        console.log('details');
+    }
 
     if((a == '2') && $('#accion-label').text() === 'Detalles acción de formación'){
         console.log('event');
         $('.tab-button-next').removeClass('disabled');
     }
 
+    if ((a == "3") && ($("#accion-label").text() === "Detalles acción de formación")) {
+        $(".tab-button-close").show(); 
+    }
+
+    //END DETAILS MODAL
+
     console.log(inputElement);
+        
 }
 
 $(document).ready(function(){
