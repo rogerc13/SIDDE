@@ -19,6 +19,7 @@ $(document).ready(function(){
                 success: function(response){
                     $(".radio-prerequisite").hide();
                     $(".select-prerequisite-helper").show();
+                    $("#prerequisite").html('');
                     response.courses.forEach(element => {
                         $('#prerequisite').append(`<option value="${element.id}">
                                                             ${element.code} |
