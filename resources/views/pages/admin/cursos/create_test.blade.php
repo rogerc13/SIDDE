@@ -25,7 +25,9 @@
         $("#accion-label").html("<h3>Nueva acción de formación</h3>");
         //$("#accion-form").attr("action", url);
         //$('#objetivo').data('wysihtml5').editor.composer.clear();
-        $("#accion-modal").modal();    
+        $("#accion-modal").modal();   
+
+        $(".no-docs").hide();
     }
 </script>
 
