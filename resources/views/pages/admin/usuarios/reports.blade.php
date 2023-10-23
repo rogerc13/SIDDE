@@ -26,7 +26,7 @@
                             <option value="participant-by-quantity">Acciones de Formación por Cantidad de Participantes</option>
                             <option value="duration">Duración de Acciones de Formación</option>
                             <option value="participant-by-status">Estatus de Participantes</option>
-                            <option value="participant-average">Promedio de Participantes</option>
+                            {{-- <option value="participant-average">Promedio de Participantes</option> --}}
                             
                         </select>
                     </div>

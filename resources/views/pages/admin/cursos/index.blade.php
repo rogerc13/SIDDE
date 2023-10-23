@@ -104,7 +104,7 @@
 								      <i class="entypo-search"></i>
 								  </a>
 
-								  <a  title="Editar acción de formación" href="javascript:editarAccion('{{url('u/acciones_formacion/'.$curso->id)}}')" class="btn btn-default btn-xs">
+								  <a  title="Editar acción de formación" href="javascript:editarAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-default btn-xs">
 								      <i class="entypo-pencil"></i>
 								  </a>
 

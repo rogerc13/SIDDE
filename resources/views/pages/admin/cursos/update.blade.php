@@ -13,11 +13,30 @@
 
         $(".fileinput-filename").empty();
 
+        $('.radio-prerequisite').hide();
+        $('.select-prerequisite-helper').show();
+
         $.get(url,function(data,status){
                 data=JSON.parse(data);
-                //console.log(data);
+                console.log(data);
                 $('.course-id').val(data[0].id);
                 $('.course-code').val(data[0].code);
+                console.log(data[0].prerequisite[0]);
+                $('#prerequisite').html('');
+                
+                if(data[0].prerequisite.length > 0){
+                    if(data[0].prerequisite[0].prerequisite_id !== null){
+                        console.log('prerequisite and not null');
+                        $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+                    }else if(data[0].prerequisite[0].prerequisite_id === null){
+                        console.log('prerequisite and null');
+                        $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                    }    
+                }else{
+                    console.log('no prerequisite');
+                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                }
+
                 $('#titulo').val(data[0].title);
                 $('#categoria_id').val(data[0].category_id).trigger("change");
                 $('#modalidad_id').val(data[0].modality_id).trigger("change");
@@ -42,7 +61,7 @@
                    //console.log(i++ +' '+element.text);
                 });
 
-                $('.remove-badge').off().on('click',function(e) { //removes the selected content from the list and array
+                $('.remove-badge').on('click',function(e) { //removes the selected content from the list and array
                     contentData.splice($(this).parent().val(),1);
                     //console.log(contentData);
                     let siblings = $(this).parent().siblings();
@@ -54,7 +73,8 @@
                     $(this).parent().remove();
 	            });
 
-                $('.list-element').off().on('click',function(e){ //adds a textarea into the list element to edit it's content
+                $('.list-element').on('click',function(e){ //adds a textarea into the list element to edit it's content
+                
                     if(e.target !== e.currentTarget) return; //prevents event from triggering when clicking on any of the children
                     $(this).children('.list-text').addClass('hidden'); //hides the span element that contains the old text value
                     $(this).append(`<textarea style="width:100%" type="text" id="list-textarea-${$(this).val()}" class="form-control" value="${$(this).text()}"/>`); //adds the textarea

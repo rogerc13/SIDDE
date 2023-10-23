@@ -70,7 +70,6 @@ function tabCheck(a){
     }
     
     //DETAILS MODAL
-    //if details 3rd tab is open
     if((a == '0')  && $('#accion-label').text() === 'Detalles acción de formación'){
         $(".tab-button-next").removeClass("disabled");
         console.log('details');
@@ -84,7 +83,6 @@ function tabCheck(a){
     if ((a == "3") && ($("#accion-label").text() === "Detalles acción de formación")) {
         $(".tab-button-close").show(); 
     }
-
     //END DETAILS MODAL
 
     console.log(inputElement);

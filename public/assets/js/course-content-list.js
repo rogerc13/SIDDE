@@ -84,7 +84,8 @@ $(document).ready(function (){
 
             content.value = "";
             counter++;
-
+            
+            console.log(contentData);
             return contentData; 
         }  
     });

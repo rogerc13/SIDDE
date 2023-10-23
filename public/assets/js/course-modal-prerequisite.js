@@ -5,6 +5,7 @@ $(document).ready(function(){
         },
     });
     $('.select-prerequisite-helper').hide();
+    console.log("active");
     $(".radio-prerequisite").on('click',function(e){
         $('.radio-prerequisite').not(this).removeClass('checked');
         $(this).addClass('checked');
@@ -45,6 +46,10 @@ $(document).ready(function(){
                 //need id of course and name
                 //need to add Ninguno option to list with value of NULL
     });
+
+
+    //check if update modal is selected
+    //empty and draw new prerequisite list
 
     //on modal open/close remove select course list if exists and show radio buttons
     $('.modal').on('hidden.bs.modal',function(){

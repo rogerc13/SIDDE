@@ -370,8 +370,9 @@ class CursoController extends Controller
         $curso->addressed = $request->dirigido;
         $curso->objective = $request->objetivo;
         //$curso->contenido = $request->contenido;
-
-        //delete all contents of the course if they exist on the content list table
+        
+        //delete all contents of the course if they exist on the content list table 
+        //return json_encode(is_null($request->prerequisite));
         $curso->content()->delete();
 
         $contentList = explode(",", $request->content_data);  //turns string of content into an array
@@ -466,6 +467,14 @@ class CursoController extends Controller
             $response[] = $result;
         }
         $response = $curso->capacity()->update(['min' => $request->min , 'max' => $request->max]);
+        $response = $curso->prerequisite()->update(['prerequisite_id' => $request->prerequisite]);
+        /* if ($request->prerequisite != null) {
+            $curso->prerequisite()->delete();
+            $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
+            $response = $curso->prerequisite()->save($prerequisite);
+        }else{
+            return json_encode($request->prerequisite);
+        } */
 
         //$response[] = $path;
 
