@@ -99,9 +99,15 @@ function reportByCategory(response){
     //line graph data
     let fillColor = [];
     let colorHelp = 0;
+    let regHex=/^#([0-9a-f]{3}){1,2}$/i;
     response.categories.forEach(element => {
-        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
-        //console.log(colorHelp);
+        //fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
+        fillColor.push(
+            "#000000".replace(/0/g,function(){
+                return (~~(Math.random()*16)).toString(16);
+            })
+        );
+        console.log(regHex.test(fillColor[colorHelp]));
         let category = {
             label: element,
             data: response.y.filter((obj) => {
