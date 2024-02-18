@@ -135,6 +135,48 @@ $(document).ready(function(){
         $('.select2').each(function(){
             $(this).prop('disabled',false);
         });
+
+        //course code validation
+
+        $('.0-tab-input.course-code').trigger('focus');
+        $('.create-course-form :input').prop('disabled',true);
+        $('.course-code').prop('disabled',false);
+
+        $('.0-tab-input.course-code').on('input',function(){
+
+            $('.0-tab-input.course-code').focus();
+            console.log('code validation');
+            let codeValue = $('.course-code').val();
+            $.ajax({
+                data: {'codeValue' : codeValue},
+                type:'POST',
+                url: 'codes',
+                dataType: 'json',
+                success: function(response){
+                    //console.log(response);
+                    if(response === true){
+                        $('.course-code').parent().addClass('has-error');
+                        $('.code-error-text').show();
+                        console.log("code already exists");
+                        $('.create-course-form :input').prop('disabled',true);
+                        $('.course-code').prop('disabled',false);
+                       // $('.course-code').trigger('focus');
+                        
+    
+                    }else{
+                        $('.course-code').parent().removeClass('has-error');
+                        $('.code-error-text').hide();
+                        console.log("code available");
+                        $('.create-course-form :input').prop('disabled',false);
+                        $('.select2').prop('disabled',false);
+                    }
+                    //console.log("success");
+                },
+                error: function(response){
+                
+                }
+            });
+        });
     });
 
     //enable navigation if inputs are not empty
