@@ -136,10 +136,17 @@ $(document).ready(function(){
             $(this).prop('disabled',false);
         });
 
+        $('.0-tab-input.course-code').trigger('focus');
+
+        //enable inputs when edit modal opens
+        if($('#accion-label').html() == 'Editar acción de formación'){
+            $('.create-course-form :input').prop('disabled',false);
+        }else{
+            $('.create-course-form :input').prop('disabled',true);
+        }
+
         //course code validation
 
-        $('.0-tab-input.course-code').trigger('focus');
-        $('.create-course-form :input').prop('disabled',true);
         $('.course-code').prop('disabled',false);
 
         $('.0-tab-input.course-code').on('input',function(){
