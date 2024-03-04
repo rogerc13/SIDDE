@@ -222,7 +222,13 @@ class ParticipanteCursoController extends Controller
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();
-   
+                                        
+        //check if participant is not al    ready in current course
+
+        //add prerequisite check
+        //Participant::where();
+        //add override for prerequisite check
+
         $participantecurso = new Participant();
         $participantecurso->participant_status_id=1;
         $participantecurso->scheduled_id=$request->curso_p_id;
