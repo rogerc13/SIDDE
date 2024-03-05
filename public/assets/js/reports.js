@@ -104,6 +104,7 @@ function reportByCategory(response){
         //fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
         fillColor.push(
             "#000000".replace(/0/g,function(){
+               
                 return (~~(Math.random()*16)).toString(16);
             })
         );
@@ -323,7 +324,12 @@ function reportByCourseStatus(response){ //reports by course status
     let fillColor = [];
     let colorHelp = 0;
     response.statuses.forEach((element) => {
-        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
+        fillColor.push(
+            "#000000".replace(/0/g,function(){
+               
+                return (~~(Math.random()*16)).toString(16);
+            })
+        );
         let status = {
             label: element,
             data: response.y
@@ -647,7 +653,10 @@ function reportByParticipantStatus(response){
         doughnutLabelsStatus.push(element.label);
         amountHelperStatus = 0;
         doughnutBackgroundColorStatus.push(
-            `#${Math.floor(Math.random() * 16777215).toString(16)}`
+            "#000000".replace(/0/g,function(){
+               
+                return (~~(Math.random()*16)).toString(16);
+            })
         );
     });
     //console.log(doughnutDataStatus);
