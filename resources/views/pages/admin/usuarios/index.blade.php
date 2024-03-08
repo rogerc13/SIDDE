@@ -6,8 +6,17 @@
 
 	<a href="javascript:crearUsuario('{{url('u/usuarios')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Usuario</a>
 
-  <a href="{{url('u/pdf/users')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Usuarios</a>
+  <form action="pdf/users" method="GET">
+			@csrf
+			<input type="hidden" id="hidden_name" name="hidden_name" value="{{request()->nombres}}">
+			<input type="hidden" id="hidden_surname" name="hidden_surname" value="{{request()->apellidos}}">
+			<input type="hidden" id="hidden_role" name="hidden_role" value="{{request()->busqueda_rol}}">
+			<input type="hidden" id="hidden_id" name="hidden_id" value="{{request()->cis}}">
+			<input type="hidden" id="hidden_id_type" name="hidden_id_type" value="{{request()->id_type}}">
+			<button class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Usuarios</button> 
+  </form>
 
+<!--   <a href="{{url('u/pdf/users')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Usuarios</a> -->
   <br>
   <br>
 <div class="row filtros">           

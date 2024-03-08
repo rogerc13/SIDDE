@@ -21,8 +21,16 @@
 	<h3>Acciones de Formación Programadas</h3>
 	@can('store','App\Scheduled')
 		<a href="javascript:programarAccion('{{url('u/af_programadas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
-
-		<a href="{{url('u/pdf/scheduled')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación Programadas</a>
+		<form action="pdf/scheduled" method="GET">
+			@csrf
+			<input type="hidden" id="hidden_title" name="hidden_title" value="{{request()->titulos}}">
+			<input type="hidden" id="hidden_facilitator" name="hidden_facilitator" value="{{request()->id_facilitador}}">
+			<input type="hidden" id="hidden_status" name="hidden_status" value="{{request()->id_estado}}">
+			<input type="hidden" id="hidden_date" name="hidden_date" value="{{request()->fechas}}">
+			<button class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación Programadas</button> 
+		</form>
+		
+		<!-- <a href="{{url('u/pdf/scheduled')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación Programadas</a> -->
 
 		<br>
 		<br>

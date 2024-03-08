@@ -6,7 +6,16 @@
 
 	<a href="javascript:crearFacilitador('{{url('u/facilitadores')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Facilitador</a>
 
-  <a href="{{url('u/pdf/facilitators')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Facilitadores</a>
+  <form action="pdf/facilitators" method="GET">
+			@csrf
+			<input type="hidden" id="hidden_name" name="hidden_name" value="{{request()->nombres}}">
+			<input type="hidden" id="hidden_surname" name="hidden_surname" value="{{request()->apellidos}}">
+			<input type="hidden" id="hidden_id" name="hidden_id" value="{{request()->cis}}">
+			<input type="hidden" id="hidden_id_type" name="hidden_id_type" value="{{request()->id_type_search}}">
+			<button class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Facilitadores</button> 
+  </form>
+
+  <!-- <a href="{{url('u/pdf/facilitators')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Facilitadores</a> -->
 
   <br>
   <br>
