@@ -316,27 +316,31 @@
 .no-border-top{
     border-top: none !important;
 }
-
-.list-group-item::before { /*adds bullets to the list*/
+/* 
+.list-group-item::before { 
     content: "●";
-    /* margin-right: 0.75rem; */
-    
-}
-
-/* .li-helper{
-    display: inline-block;
+    margin-right: 0.75rem;
 } */
 
-.list-element{
-    cursor:pointer;
-}
-
-.list-content-span{
+.list-content-span{ 
     font-family: "Arial Narrow", sans-serif;
     font-style: normal;
     font-size:11pt;
     color: #000000;
 }
+
+/* end ficha tecnica */
+
+
+/* .li-helper{
+    display: inline-block;
+} */
+
+/* .list-element{
+    cursor:pointer;
+} */
+
+
 
 /* Reports */
 /* .graph-container{

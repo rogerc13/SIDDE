@@ -154,8 +154,12 @@
                         <div class="form-group">
                             <div class="col-lg-12" >
                                 {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
-                                <ul class="content-list list-style list-group"></ul>
-                                {{ Form::textarea('contenido', null , array('class' => '2-tab-input form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','placeholder'=>'Ingrese los contenidos del Curso')) }}
+                                <br>
+                                <a class="btn btn-default add-btn">Anadir Contenido <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+                                <a class="btn btn-default undo-btn">Deshacer</a>
+                                <a class="btn btn-default list-btn">console</a>
+                                <ul class="content-list list-style list-group sortable"></ul>
+                                <!-- {{ Form::textarea('contenido', null , array('class' => '2-tab-input form-control course-content','maxlength'=>3000 , 'rows'=>'1', 'style'=>'resize: none;','placeholder'=>'Ingrese los contenidos del Curso')) }} -->
                             </div>
                         </div>
                     </div>{{-- end 3rd tab --}}

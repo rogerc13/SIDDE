@@ -56,9 +56,10 @@
                 i = 0;
                 data[0].content.forEach(element => {
                     contentData[i] = element.text;
-                    $('.content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span><i class="fa fa-remove " style="float:right"></i></li>`);
+                    $('.content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
                 //console.log(i++ +' '+element.text);
                 });
+                $('.content-list')
 
                 if(typeof data[0].file !== 'undefined'){
                     if(data[0].file.length > 0){

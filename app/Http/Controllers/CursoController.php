@@ -272,7 +272,7 @@ class CursoController extends Controller
     
 
     public function setCourse(CursoForm $request){
-            //dd($request);
+       // return json_encode($request->prerequisite);
             $user = Auth::user();
             if ($user->can('store', Course::class)) {
                 $data = array(
@@ -343,6 +343,7 @@ class CursoController extends Controller
     }
 
     public function update(CursoForm $request, $id){
+       //return json_encode(isset($request->prerequisite));
         $response = array();
         $user=Auth::user();
         
@@ -467,7 +468,7 @@ class CursoController extends Controller
             $response[] = $result;
         }
         $response = $curso->capacity()->update(['min' => $request->min , 'max' => $request->max]);
-        $response = $curso->prerequisite()->update(['prerequisite_id' => $request->prerequisite]);
+        $response = $curso->prerequisite()->update(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
         /* if ($request->prerequisite != null) {
             $curso->prerequisite()->delete();
             $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
@@ -619,6 +620,8 @@ class CursoController extends Controller
         
         if($request == 'true'){
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
+            //if method = put 
+                //return redirect()->route('acciones')->with("alert", Funciones::getAlert("success","Accion actualizadada exitosamente","Operacion Exitosa."));
         }else{
             return redirect()->route('acciones')->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
         }

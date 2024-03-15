@@ -1,4 +1,4 @@
-function setCourse(){
+/* function setCourse(){
                     let formData = new FormData ($('#accion-form').get(0));
                     formData.append('content_data',contentData);
                     method = formData.get('_method');
@@ -31,16 +31,15 @@ function setCourse(){
                             window.location = "acciones_formacion/onSubmitAlert/"+success;
                         }
                     });
-                
-            }
+            } */
 
-$(document).ready(function (){
+/* $(document).ready(function (){
     $.ajaxSetup({
             headers:{
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
-        });
-    contentData = [];
+        }); */
+/*     contentData = [];
 
     const content = document.querySelector('.course-content');
     const contentList = document.querySelector('.content-list');
@@ -88,12 +87,18 @@ $(document).ready(function (){
             console.log(contentData);
             return contentData; 
         }  
-    });
-
+    }); */
+$(document).ready(function (){
+    
+    /* $.ajaxSetup({
+        headers:{
+            'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+        }
+    }); */
 
     $("#accion-modal").on("hidden.bs.modal", function(){
         $(".content-list").children().remove();// deletes list items to avoid incorrect list values when modal re opens
         counter = 0; //sets global list value to 0
         contentData = [];
-    });
+    });    
 });

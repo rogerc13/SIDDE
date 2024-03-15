@@ -27,14 +27,14 @@
                 if(data[0].prerequisite.length > 0){
                     if(data[0].prerequisite[0].prerequisite_id !== null){
                         console.log('prerequisite and not null');
-                        $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+                        $('#prerequisite').append(`<option value=${data[0].prerequisite[0].prerequisite_id}>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
                     }else if(data[0].prerequisite[0].prerequisite_id === null){
                         console.log('prerequisite and null');
-                        $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                        $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
                     }    
                 }else{
                     console.log('no prerequisite');
-                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                    $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
                 }
 
                 $('#titulo').val(data[0].title);
@@ -73,8 +73,8 @@
                     $(this).parent().remove();
 	            });
 
-                $('.list-element').on('click',function(e){ //adds a textarea into the list element to edit it's content
-                
+                /* $('.list-element').on('click',function(e){ //adds a textarea into the list element to edit it's content
+                    console.log(edit);
                     if(e.target !== e.currentTarget) return; //prevents event from triggering when clicking on any of the children
                     $(this).children('.list-text').addClass('hidden'); //hides the span element that contains the old text value
                     $(this).append(`<textarea style="width:100%" type="text" id="list-textarea-${$(this).val()}" class="form-control" value="${$(this).text()}"/>`); //adds the textarea
@@ -87,7 +87,7 @@
                             $(this).remove(); //removes the textarea element from the dom
                         }
                     });
-                });
+                }); */
 
                 //console.log(data[0].file.length);
 
