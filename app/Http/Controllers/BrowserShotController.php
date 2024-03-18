@@ -154,7 +154,7 @@ class BrowserShotController extends Controller
         return response()->download($path)->deleteFileAfterSend(true);
     }
 
-    public function courseParticipants($id){
+    public function courseParticipants($id){ //prints list of participants in a given course
         //dd($id);
         $scheduled = Scheduled::with('course')->with('facilitator')->with('participants.person')->with('participants.participantStatus')->find($id);
         //dd($scheduled->participants[0]->person->name);
