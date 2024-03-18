@@ -10,6 +10,7 @@
   @if (!Auth::user()->isFacilitador())
     <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{$cursoprogramado->atMaxCapacity() ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
     <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{$cursoprogramado->atMaxCapacity() ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>    
+    <a href="{{url('u/pdf/participants/'.$cursoprogramado->id)}}" class="btn btn-success"><i class="fa fa-file-pdf-o " aria-hidden="true"></i> Imprimir Lista de Participantes</a>    
   @else
     <div class="btn btn-success evaluate-button {{!($cursoprogramado->isEnCurso() || $cursoprogramado->isCulminado()) ? 'disabled' : '' }}"><i class="fa fa-check" aria-hidden="true"></i><span> Evaluar Participantes</span></div>
   @endif

@@ -154,4 +154,11 @@ class BrowserShotController extends Controller
         return response()->download($path)->deleteFileAfterSend(true);
     }
 
+    public function courseParticipants($id){
+        //dd($id);
+        $scheduled = Scheduled::with('course')->with('facilitator')->with('participants.person')->with('participants.participantStatus')->find($id);
+        //dd($scheduled->participants[0]->person->name);
+        $pdf = Pdf::loadView('pdf.course_participants',['scheduled' => $scheduled]);
+        return $pdf->download($scheduled->course->title.' - Lista de Participantes.pdf');
+    }
 }
