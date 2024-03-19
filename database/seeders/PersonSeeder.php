@@ -67,6 +67,16 @@ class PersonSeeder extends Seeder
             'phone' => '123456785',
             'sex' => 'Masculino',
         ]);
+        Person::create([
+            'name' => 'Manuel',
+            'last_name' => 'Albani',
+            'id_number' => '20375232',
+            'id_type_id' => 1,
+            'phone' => '123456785',
+            'sex' => 'Masculino',
+        ]);
+
+        //person -> user
        /*  $person[] = ['id_number' => 10948096, 'name' => 'Luis Beltran', 'last_name' => 'Astudillo','phone' =>  '04248918341',
                     'id_number' => 11381289, 'name' => 'Ramón José', 'last_name' => 'Rodríguez Velásquez','phone' => '04266872009',
                     'id_number' => 15936375, 'name' => 'Jesus Javier', 'last_name' => 'Salazar','phone' => '04248448659',

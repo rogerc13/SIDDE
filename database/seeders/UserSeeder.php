@@ -58,7 +58,13 @@ class UserSeeder extends Seeder
             'role_id' => '5',
             'person_id' => '5',
         ]);
-
+        User::create([
+            'email' => 'manuelalbani@pdvsa.com',
+            'password' => bcrypt('123456'),
+            'role_id' => '5',
+            'person_id' => '6',
+        ]);
+        //person -> user
         /* $user = ['email' => 'luisbastudillo@gmail.com',
                 'email' => 'krmniz777@hotmail.com',
                 'email' => 'jjsr20092009@hotmail.com',
