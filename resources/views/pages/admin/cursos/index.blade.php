@@ -21,13 +21,12 @@
 	</script>
 @endpush
 @section('content')
-
 	<h3>Acciones de Formación</h3>
 	<a href="javascript:crearAccion('{{url('u/acciones_formacion')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva acción de formación</a>
 	<form action="pdf/courses" method="GET" style='all:unset'>
 			@csrf
-			<input type="hidden" id="hidden_category" name="hidden_category" value="{{ $request->id_areas }}">
-			<input type="hidden" id="hidden_title" name="hidden_title" value="{{ $request->titulos }}">
+			<input type="hidden" id="hidden_category" name="hidden_category" value="{{request()->id_areas}}">
+			<input type="hidden" id="hidden_title" name="hidden_title" value="{{(request()->titulos)}}">
 			<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Acciones de Formación</button> 
 	</form>
 	<!-- <a href="{{url('u/pdf/courses')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación</a> -->
