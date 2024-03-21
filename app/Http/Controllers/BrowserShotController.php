@@ -15,14 +15,18 @@ class BrowserShotController extends Controller
     public function courses(Request $request){
 
         $courses = Course::with('category');
-
+        
         if((empty($request->hidden_title) && empty($request->hidden_category)) == true){
           $courses = $courses->get();
         }else{
-            $courses = $courses->where([
-                ['category_id','=',$request->hidden_category],
-                ['title','LIKE',"%$request->hidden_title%"]
-            ])->get();
+            if($request->hidden_category){
+                $courses = $courses->where('category_id','=',$request->hidden_category);
+            }
+            if($request->hidden_title){
+                $courses = $courses->where('title','LIKE',"%$request->hidden_title%");
+            }
+
+            $courses = $courses->get();
         }
 
         $pdf = Pdf::loadView('pdf.course',['courses' => $courses]);
