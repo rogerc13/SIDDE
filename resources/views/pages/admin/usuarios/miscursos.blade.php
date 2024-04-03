@@ -22,6 +22,16 @@
 
 	<h3>Mis acciones de formación</h3>
 
+	<br>
+	<form action="pdf/mycourses" method="GET" style='all:unset'>
+		@csrf 
+		<input type="hidden" id="hidden_title" name="hidden_title" value="{{request()->titulos}}">
+		<input type="hidden" id="hidden_facilitator" name="hidden_facilitator" value="{{request()->id_facilitador}}">
+		<input type="hidden" id="hidden_status" name="hidden_status" value="{{request()->id_estado}}">
+		<input type="hidden" id="hidden_date" name="hidden_date" value="{{request()->fechas}}">
+		<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Mi Lista de Mis Acciones de Formación Programadas</button> 
+	</form>
+	<br>
 
 <div class="row filtros">						
 	<div class="col-md-12">

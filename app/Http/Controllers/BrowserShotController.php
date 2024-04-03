@@ -6,6 +6,7 @@ use App\Models\Scheduled;
 use App\Models\User;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -185,5 +186,71 @@ class BrowserShotController extends Controller
         //dd($scheduled->participants[0]->person->name);
         $pdf = Pdf::loadView('pdf.course_participants',['scheduled' => $scheduled]);
         return $pdf->download($scheduled->course->title.' - Lista de Participantes.pdf');
+    }
+
+    public function myCourses(Request $request){
+        
+        $user = Auth::user();
+        
+        if($user->isParticipante()){ //user is participant
+            
+            $user = Auth::user();
+            $courses = $user->person->scheduled; //courses is a Collection
+            
+            foreach ($courses as $course) {
+                $values[] = $course->id;
+            }
+            
+            if(count($courses) > 0){
+                $scheduled = Scheduled::with('facilitator')->with('course')->whereIn('id', $values); //cursos needs to be Builder
+                
+            }else{
+                $scheduled = Scheduled::with('facilitator')->with('course')->where('id', null);
+            }
+
+        }else{ //user is facilitator
+
+            $user = Auth::user();
+
+            $scheduled = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $user->person->facilitator->id);
+        
+        }
+
+        //filters
+
+        if((empty($request->hidden_title) && empty($request->hidden_facilitator) && empty($request->hidden_date)) == true){
+            
+            $scheduled = $scheduled->get();
+
+            
+
+        }else{
+            if($request->hidden_title){
+                
+                $hiddenTitle = $request->hidden_title;
+                $scheduled = $scheduled->whereHas('course', function($q) use($hiddenTitle){
+                            $q->where('title', 'like', '%'.$hiddenTitle.'%');
+                        });
+            }
+            if($request->hidden_facilitator){
+
+                $scheduled=$scheduled->where('facilitator_id','=',$request->hidden_facilitator);
+                
+            }
+            if($request->hidden_date){
+                
+                $fecha= new Carbon('01-'.$request->hidden_date);
+                $scheduled = $scheduled->whereMonth('start_date',$fecha->month)
+                                    ->whereYear('end_date',$fecha->year);
+                
+                                    $fecha=$fecha->format('m-Y');
+            }
+
+            $scheduled = $scheduled->get();
+        }
+
+        $pdf = Pdf::loadView('pdf.my_courses',['scheduled' => $scheduled]);
+        return $pdf->download("Mis Acciones de Formación Programadas.pdf");
+        
     }
 }

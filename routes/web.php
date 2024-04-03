@@ -47,6 +47,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('/facilitators', 'App\Http\Controllers\BrowserShotController@facilitators')->name('facilitators');
                 Route::get('/participants', 'App\Http\Controllers\BrowserShotController@participants')->name('participants');
                 Route::get('/participants/{id}', 'App\Http\Controllers\BrowserShotController@courseParticipants')->name('course-participants');
+                Route::get('/mycourses', 'App\Http\Controllers\BrowserShotController@myCourses')->name('my-courses');
         });
 
         
