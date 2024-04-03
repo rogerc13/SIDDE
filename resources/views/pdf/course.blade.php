@@ -42,7 +42,7 @@
                         <td>{{$course->title}}</td>
                         <td>{{$course->category->name}}</td>
                         <td>{{$course->duration}}</td>
-                    <tr>
+                    </tr>
                 @endforeach
             </tbody>
         </table>       

@@ -46,7 +46,7 @@
                         <td>{{$participant->person->last_name}}</td>
                         <td>{{$participant->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$participant->person->id_format()}}</td>
                         <td>{{$participant->participantStatus->name}}</td>
-                    <tr>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

@@ -47,7 +47,7 @@
                     <td>{{$course->start_date}}</td>
                     <td>{{$course->end_date}}</td>
                     <td>{{count($course->participants)}}/{{$course->course->capacity[0]->max}}</td>
-                <tr>
+                </tr>
             @endforeach
         </tbody>
         </table>

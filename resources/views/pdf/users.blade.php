@@ -47,7 +47,7 @@
                     <td>{{$user->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$user->person->id_format()}}</td>
                     <td>{{$user->email}}</td>
                     <td>{{$user->role->name}}</td>
-                <tr>
+                </tr>
             @endforeach
         </tbody>
     </table>
