@@ -6,8 +6,18 @@
     .ficha-red-line{
     border: 1px solid red;
     }
-    td {
+    th, td {
         text-align: center;
+        
+    }
+    .table > tbody > tr > td {
+        vertical-align: middle !important;
+        font-size: 14px;
+    }
+    th{   
+        background-color: #EF3E36 !important;
+        color: white;
+
     }
 </style>
 
