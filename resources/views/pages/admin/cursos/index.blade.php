@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@push('JS')
-
-@endpush
 @section('content')
 	<h3>Acciones de Formación</h3>
 	<a href="javascript:crearAccion('{{url('u/acciones_formacion')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva acción de formación</a>
@@ -13,7 +10,6 @@
 	</form>
 	<br>
 	<br>
-
 <div class="row filtros">						
 	<div class="col-md-12">
 		<form class="form-horizontal">
@@ -101,7 +97,7 @@
 @stop
 
 @section('modals')
-    @include('pages.admin.cursos.create_test')
+    @include('pages.admin.cursos.create')
     @include('pages.admin.cursos.update')
     @include('pages.admin.cursos.details')
     @include('pages.admin.cursos.delete')
