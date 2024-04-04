@@ -40,7 +40,7 @@ class BrowserShotController extends Controller
 
         $scheduled = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
         
-        if((empty($request->hidden_title) && empty($request->hidden_facilitador) && empty($request->hidden_status) && empty($request->hidden_date)) == true){
+        if((empty($request->hidden_title) && empty($request->hidden_facilitator) && empty($request->hidden_status) && empty($request->hidden_date)) == true){
             $scheduled = $scheduled->get();
         }else{
             if($request->hidden_title){
