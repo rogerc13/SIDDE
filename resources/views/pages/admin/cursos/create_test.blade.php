@@ -1,13 +1,8 @@
 @push('JS')
-    
     <script src="{{asset('assets/js/course-content-list.js')}}"></script>
     <script src="{{asset('assets/js/course-code-validation.js')}}"></script>
     <script src="{{asset('assets/js/course-modal.js')}}"></script>
     <script src="{{asset('assets/js/course-modal-prerequisite.js')}}"></script>
-    
-{{--    <script src="{{url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js')}}"></script>--}}
-{{--    <script src="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>--}}
-{{-- <script src="{{asset('assets/js/fileinput.js')}}"></script> --}}
 
 <script>
     function crearAccion(url){
@@ -26,13 +21,9 @@
         //$("#accion-form").attr("action", url);
         //$('#objetivo').data('wysihtml5').editor.composer.clear();
         $("#accion-modal").modal();   
-
         $(".no-docs").hide();
     }
 </script>
-
-
-
 
 @endpush
 <div class="modal fade" id="accion-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -80,7 +71,6 @@
                                     </div>
                                 <div class="select-prerequisite-helper">
                                     <select name="prerequisite" class="select2" id="prerequisite" data-allow-clear="true">
-                                        
                                     </select>
                                 </div>
                             </div>

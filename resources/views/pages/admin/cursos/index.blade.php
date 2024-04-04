@@ -1,24 +1,6 @@
 @extends('layouts.admin')
 @push('JS')
-	<script>
-		function printList() {
-			//console.log(url);
-			$.post('/u/print',function(data){
-				//console.log(data);
-				/* console.log(data);
-				console.log('print'); */
-				//e.preventDefault()
-				//window.open(data,'_blank');
-			})
-		}
-		$(document).ready(function () {
 
-				$('.print-list-button').on('click',function(event){
-					//printList();
-					//event.preventDefault();
-				})	
-		});
-	</script>
 @endpush
 @section('content')
 	<h3>Acciones de Formación</h3>
@@ -29,11 +11,9 @@
 			<input type="hidden" id="hidden_title" name="hidden_title" value="{{(request()->titulos)}}">
 			<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Acciones de Formación</button> 
 	</form>
-	<!-- <a href="{{url('u/pdf/courses')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación</a> -->
-	{{-- <a href='/acciones_formacion/print' class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Imprimir Lista de Acciones de Formación</a> --}}
+	<br>
+	<br>
 
-	<br>
-	<br>
 <div class="row filtros">						
 	<div class="col-md-12">
 		<form class="form-horizontal">
@@ -41,11 +21,8 @@
 
 		        <div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="id_areas" class="control-label">Área</label>
-
-
 		            <select name="id_areas" class="select2 " id="id_areas" data-allow-clear="true" required="true">
-	                                <option value='0'>Todos</option>
-
+								<option value='0'>Todos</option>
 		                @foreach($categorias as $categ)                                    
 		                    @if($categ->id == $busqueda_area)
 		                        <option value="{{$categ->id}}" selected>{{$categ->name}}</option>
@@ -63,12 +40,10 @@
 		          </div>
 		        </div>
 	       	</div>
-			<!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
-	              <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>
-	        </div> -->
       	</form>	
 	</div>
 </div>
+
 <div class="row">						
 	<div class="col-md-12">	
    		<div class="panel panel-success" data-collapsed="0">  
@@ -99,23 +74,20 @@
 				      @endif
 			         @foreach($cursos as $curso)
 			            <tr>
-
-								<td>{{$curso->title}}</td>
-								<td>{{$curso->category->name}}</td>
-								<td>{{$curso->duration}}</td>
-								<td>
-								  <a  title="Más Información" href="javascript:detallesAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-info btn-xs">
-								      <i class="entypo-search"></i>
-								  </a>
-
-								  <a  title="Editar acción de formación" href="javascript:editarAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-default btn-xs">
-								      <i class="entypo-pencil"></i>
-								  </a>
-
-								  <a  title="Eliminar acción de formación" href="javascript:eliminarCurso('{{url('u/acciones_formacion/'.$curso->id)}}')" class="btn btn-danger btn-xs">
-								      <i class="entypo-trash"></i>
-								  </a>
-								</td>
+							<td>{{$curso->title}}</td>
+							<td>{{$curso->category->name}}</td>
+							<td>{{$curso->duration}}</td>
+							<td>
+								<a  title="Más Información" href="javascript:detallesAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-info btn-xs">
+									<i class="entypo-search"></i>
+								</a>
+								<a  title="Editar acción de formación" href="javascript:editarAccion('{{url('u/acciones_formacion/details/'.$curso->id)}}')" class="btn btn-default btn-xs">
+									<i class="entypo-pencil"></i>
+								</a>
+								<a  title="Eliminar acción de formación" href="javascript:eliminarCurso('{{url('u/acciones_formacion/'.$curso->id)}}')" class="btn btn-danger btn-xs">
+									<i class="entypo-trash"></i>
+								</a>
+							</td>
 			            </tr>
 			        	@endforeach		
 					</tbody>
