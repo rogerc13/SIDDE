@@ -161,6 +161,46 @@ function setCourse(){
     });//end ajax call
 }
 
+function prerequisiteSelect(data){
+
+    if($('#accion-label').html() == 'Detalles Acción de formación'){ //DETAILS MODAL
+            $('.radio-prerequisite').hide();
+        $('.select-prerequisite-helper').show();
+
+        $('#prerequisite').html('');
+        if(data[0].prerequisite.length > 0){
+            if(data[0].prerequisite[0].prerequisite_id !== null){
+                console.log('prerequisite and not null');
+                $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+            }else if(data[0].prerequisite[0].prerequisite_id === null){
+                console.log('prerequisite and null');
+                $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+            }    
+        }else{
+            console.log('no prerequisite');
+            $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+        }
+    }else if($('#accion-label').html() == 'Editar Acción de formación'){ //EDIT MODAL
+        $('.radio-prerequisite').hide();
+        $('.select-prerequisite-helper').show();
+        console.log(data[0].prerequisite[0]);
+
+        $('#prerequisite').html('');   
+            if(data[0].prerequisite.length > 0){
+                if(data[0].prerequisite[0].prerequisite_id !== null){
+                    console.log('prerequisite and not null');
+                    $('#prerequisite').append(`<option value=${data[0].prerequisite[0].prerequisite_id}>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+                }else if(data[0].prerequisite[0].prerequisite_id === null){
+                    console.log('prerequisite and null');
+                    $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
+                }    
+            }else{
+                console.log('no prerequisite');
+                $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
+            }
+    }
+}
+
 function crearAccion(url){
     $('.course-code').parent().removeClass('has-error');
     $('.code-error-text').hide();
@@ -189,28 +229,14 @@ function detallesAccion(url){
     $("#docs").addClass("hidden");
     $("#accion-aceptar").addClass("hidden");
 
-    $('.radio-prerequisite').hide();
-    $('.select-prerequisite-helper').show();
-
     $.get(url,function(data,status){
             
             data=JSON.parse(data);
             console.log(data);
 
             $('#codigo').val(data[0].code);
-            $('#prerequisite').html('');
-            if(data[0].prerequisite.length > 0){
-                if(data[0].prerequisite[0].prerequisite_id !== null){
-                    console.log('prerequisite and not null');
-                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
-                }else if(data[0].prerequisite[0].prerequisite_id === null){
-                    console.log('prerequisite and null');
-                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
-                }    
-            }else{
-                console.log('no prerequisite');
-                $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
-            }
+
+            prerequisiteSelect(data);
 
             $('#titulo').val(data[0].title);
             $('#categoria_id').val(data[0].category_id).trigger("change");
@@ -270,39 +296,22 @@ function detallesAccion(url){
 
 function editarAccion(url){
     $(".loader").removeClass("hidden");
-    //$("#accion-form").addClass("hidden");
     $('.course-code').parent().removeClass('has-error');
     $('.code-error-text').hide();
     $('.read-only-docs').hide();
     $("[name=_method]").val("PUT");
-    //$("#accion-form").attr("action", url);
     $("#accion-label").html("Editar Acción de formación");
 
     $(".fileinput-filename").empty();
 
-    $('.radio-prerequisite').hide();
-    $('.select-prerequisite-helper').show();
 
     $.get(url,function(data,status){
             data=JSON.parse(data);
             console.log(data);
             $('.course-id').val(data[0].id);
             $('.course-code').val(data[0].code);
-            console.log(data[0].prerequisite[0]);
-            $('#prerequisite').html('');
-            
-            if(data[0].prerequisite.length > 0){
-                if(data[0].prerequisite[0].prerequisite_id !== null){
-                    console.log('prerequisite and not null');
-                    $('#prerequisite').append(`<option value=${data[0].prerequisite[0].prerequisite_id}>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
-                }else if(data[0].prerequisite[0].prerequisite_id === null){
-                    console.log('prerequisite and null');
-                    $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
-                }    
-            }else{
-                console.log('no prerequisite');
-                $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
-            }
+
+            prerequisiteSelect(data);
 
             $('#titulo').val(data[0].title);
             $('#categoria_id').val(data[0].category_id).trigger("change");
@@ -312,9 +321,7 @@ function editarAccion(url){
             $('#min').val(data[0].capacity[0].min);
             $('#max').val(data[0].capacity[0].max);
             $('#objetivo').val(data[0].objective);
-            // $("#objetivo").data("wysihtml5").editor.setValue(data.objetivo);
-            //$('#contenido').val(data[0].contenido);
-           
+
             //console.log(data[1]);
             $('.content-list').html('');
             contentData = [];
@@ -453,10 +460,12 @@ $(document).ready(function(){
         $('.0-tab-input.course-code').trigger('focus');
 
         //enable inputs when edit modal opens
-        if($('#accion-label').html() == 'Editar acción de formación'){
+        if($('#accion-label').html() == 'Editar Acción de formación'){
             $('.create-course-form :input').prop('disabled',false);
+            console.log('edit enabled');
         }else{
             $('.create-course-form :input').prop('disabled',true);
+            console.log('edit disabled');
         }
 
         //course code validation
