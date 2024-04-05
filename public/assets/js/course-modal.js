@@ -90,7 +90,7 @@ function tabCheck(a){
 }//end tabCheck
 
 function draggableCheck(){ //checks if content list items can be draggable
-    if(($("#accion-label").text() === "Nueva acción de formación") || ($('#accion-label').text() === "Editar acción de formación")){
+    if(($("#accion-label").text() === "Nueva acción de formación") || ($('#accion-label').text() === "Editar Acción de formación")){
         $('.sortable').sortable({
             disabled: false
         });
@@ -106,11 +106,12 @@ function draggableCheck(){ //checks if content list items can be draggable
             disabled: true
         });
     }
+    console.log('sort check');
     //enables list elements to be sortable
 }//end draggable check
 
 function listButtonsCheck(){
-    if(($("#accion-label").text() === "Nueva acción de formación") || ($('#accion-label').text() === "Editar acción de formación")){
+    if(($("#accion-label").text() === "Nueva acción de formación") || ($('#accion-label').text() === "Editar Acción de formación")){
         $('.add-btn').show();
     }else{
         $('.add-btn').hide();
@@ -214,6 +215,7 @@ function crearAccion(url){
     $("#accion-label").html("<h3>Nueva acción de formación</h3>");
     $("#accion-modal").modal();   
     $(".no-docs").hide();
+    $('.content-list').html('');
 }// CREATE MODAL / CREAR ACCION DE FORMACION
 
 function detallesAccion(url){
