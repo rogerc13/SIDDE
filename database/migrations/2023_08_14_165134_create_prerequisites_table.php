@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('prerequisites', function (Blueprint $table) {
             $table->id();
+            $table->string('prerequisite')->nullable();
+            $table->string('course_code')->nullable();
             $table->foreignId('course_id')->references('id')->on('courses');
-            $table->foreignId('prerequisite_id')->nullable()->references('id')->on('courses');
+
             $table->timestamps();
         });
     }

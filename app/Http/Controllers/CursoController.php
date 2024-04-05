@@ -327,7 +327,8 @@ class CursoController extends Controller
                 }
 
                 $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
-                $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
+                $prerequisite = new Prerequisite(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
+                    'course_code' => $request->code]);
                 $response->prerequisite()->save($prerequisite);
                 $response->capacity()->save($capacity);
                 $response->content()->saveMany($contentData); //inserts intro course_contents table with course's id given relationship
@@ -468,7 +469,7 @@ class CursoController extends Controller
             $response[] = $result;
         }
         $response = $curso->capacity()->update(['min' => $request->min , 'max' => $request->max]);
-        $response = $curso->prerequisite()->update(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
+        $response = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
         /* if ($request->prerequisite != null) {
             $curso->prerequisite()->delete();
             $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
@@ -658,6 +659,36 @@ class CursoController extends Controller
                 'title'=> $course->title,];
         }
         return json_encode(['courses' => $courses]);
+    }
+
+    public function prerequisiteTest(){
+        
+        
+        //$prerequisite = new Prerequisite(['prerequisite' => '2546','course_code' => '12345']);
+        /* $response = Course::create(['code' => '12345',
+            'title' => 'test',
+            'objective' =>'test',
+            'duration' => '0',
+            'addressed' => 'test',
+            'modality_id' =>'1',
+            'category_id' => '1']); */
+        
+        //dd($course);
+        //dd($prerequisite);
+
+        //$response->prerequisite()->save($prerequisite);
+
+        $course = Course::find('6');
+        //dd($course);
+        dd($course->prerequisite[0]->courseName());
+
+        //dd($course);
+
+        //$response = $course->prerequisite()->update(['prerequisite' => '2603']);
+
+        //dd($response);
+
+
     }
     
 }

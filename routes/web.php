@@ -30,6 +30,8 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
+Route::get('prerequisite-test', 'App\Http\Controllers\CursoController@prerequisiteTest');
+
 
 
 Route::group(['middleware' => 'auth'], function ()

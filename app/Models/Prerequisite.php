@@ -9,19 +9,19 @@ class Prerequisite extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'prerequisite_id'];
+    protected $fillable = ['course_id', 'prerequisite','course_code'];
 
     public function course(){
         return $this->belongsTo(Course::class);
     }
 
     public function courseName(){
-        $title = Course::select('title')->find($this->prerequisite_id);
-
-        return $title['title'];
+        $title = Course::where('code',$this->prerequisite)->get();
+        
+        return $title[0]->title;
     }
 
     public function prerequisite(){
-        return $this->belongsTo(Course::class,'prerequisite_id');
+        return $this->belongsTo(Course::class,'course_id');
     } 
 }
