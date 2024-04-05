@@ -22,7 +22,7 @@ $(document).ready(function(){
                     $(".select-prerequisite-helper").show();
                     $("#prerequisite").html('');
                     response.courses.forEach(element => {
-                        $('#prerequisite').append(`<option value="${element.id}">
+                        $('#prerequisite').append(`<option value="${element.code}">
                                                             ${element.code} |
                                                             ${element.title}
                                                             </option>`);

@@ -328,7 +328,7 @@ class CursoController extends Controller
 
                 $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
                 $prerequisite = new Prerequisite(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
-                    'course_code' => $request->code]);
+                    'course_code' => $request->codigo]);
                 $response->prerequisite()->save($prerequisite);
                 $response->capacity()->save($capacity);
                 $response->content()->saveMany($contentData); //inserts intro course_contents table with course's id given relationship
