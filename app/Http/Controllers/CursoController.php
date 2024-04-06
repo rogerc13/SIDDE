@@ -374,7 +374,6 @@ class CursoController extends Controller
         //$curso->contenido = $request->contenido;
         
         //delete all contents of the course if they exist on the content list table 
-        //return json_encode(is_null($request->prerequisite));
         $curso->content()->delete();
 
         $contentList = explode(",", $request->content_data);  //turns string of content into an array
@@ -469,14 +468,14 @@ class CursoController extends Controller
             $response[] = $result;
         }
         $response = $curso->capacity()->update(['min' => $request->min , 'max' => $request->max]);
-        $response = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
-        /* if ($request->prerequisite != null) {
-            $curso->prerequisite()->delete();
-            $prerequisite = new Prerequisite(['prerequisite_id' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
-            $response = $curso->prerequisite()->save($prerequisite);
+
+        if($curso->prerequisite->count() > 0){
+            $response = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
         }else{
-            return json_encode($request->prerequisite);
-        } */
+            $prerequisite = new Prerequisite(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
+                    'course_code' => $request->codigo]);
+            $response = $curso->prerequisite()->save($prerequisite);
+        }
 
         //$response[] = $path;
 
@@ -678,16 +677,24 @@ class CursoController extends Controller
 
         //$response->prerequisite()->save($prerequisite);
 
-        $course = Course::find('6');
+        //$course = Course::find('6');
         //dd($course);
-        dd($course->prerequisite[0]->courseName());
+        //dd($course->prerequisite[0]->courseName());
 
         //dd($course);
 
         //$response = $course->prerequisite()->update(['prerequisite' => '2603']);
 
         //dd($response);
+        
+        //get prerequisite course details
+        //$curso = Course::with(['File','Capacity','Prerequisite','Content'])->where('id','6')->get();
+        //$curso = Prerequisite::where('course_code','test')->get();
+        //return ($curso[0]->courseName());
 
+        //check if course has prerequisites
+        //$course = Course::find(5);
+        //return ($course->prerequisite->count());
 
     }
     

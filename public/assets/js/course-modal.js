@@ -165,40 +165,47 @@ function setCourse(){
 function prerequisiteSelect(data){
 
     if($('#accion-label').html() == 'Detalles Acción de formación'){ //DETAILS MODAL
-            $('.radio-prerequisite').hide();
+        $('.radio-prerequisite').hide();
         $('.select-prerequisite-helper').show();
-
         $('#prerequisite').html('');
         if(data[0].prerequisite.length > 0){
             if(data[0].prerequisite[0].prerequisite_id !== null){
-                console.log('prerequisite and not null');
                 $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
             }else if(data[0].prerequisite[0].prerequisite_id === null){
-                console.log('prerequisite and null');
                 $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
             }    
         }else{
-            console.log('no prerequisite');
             $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
         }
     }else if($('#accion-label').html() == 'Editar Acción de formación'){ //EDIT MODAL
         $('.radio-prerequisite').hide();
         $('.select-prerequisite-helper').show();
-        console.log(data[0].prerequisite[0]);
-
-        $('#prerequisite').html('');   
-            if(data[0].prerequisite.length > 0){
-                if(data[0].prerequisite[0].prerequisite_id !== null){
-                    console.log('prerequisite and not null');
-                    $('#prerequisite').append(`<option value=${data[0].prerequisite[0].prerequisite_id}>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
-                }else if(data[0].prerequisite[0].prerequisite_id === null){
-                    console.log('prerequisite and null');
-                    $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
-                }    
-            }else{
-                console.log('no prerequisite');
-                $('#prerequisite').append(`<option value=""}>No posee Prerequisito</option>`).trigger('change');
+        //get course list to draw select
+        $.ajax({
+            type: "POST",
+            url: "prerequisite",
+            dataType: 'JSON',
+            success: function(response){
+                $('#prerequisite').html('');
+                response.courses.forEach(element => {
+                $('#prerequisite').append(`<option value="${element.code}">
+                                                        ${element.code} |
+                                                        ${element.title}
+                                                        </option>`);
+                });
+                $("#prerequisite").append(
+                    `<option value="">No Posee Prerequisito</option>`
+                );
+                if(data[0].prerequisite.length > 0){
+                    $("#prerequisite").val(data[0].prerequisite[0].prerequisite.code).change();
+                }else{
+                    $("#prerequisite").val('').change();
+                }   
+            },
+            error: function(response){
+                console.log(response);
             }
+        });
     }
 }
 
@@ -349,21 +356,6 @@ function editarAccion(url){
                 $(this).parent().remove();
             });
 
-            /* $('.list-element').on('click',function(e){ //adds a textarea into the list element to edit it's content
-                console.log(edit);
-                if(e.target !== e.currentTarget) return; //prevents event from triggering when clicking on any of the children
-                $(this).children('.list-text').addClass('hidden'); //hides the span element that contains the old text value
-                $(this).append(`<textarea style="width:100%" type="text" id="list-textarea-${$(this).val()}" class="form-control" value="${$(this).text()}"/>`); //adds the textarea
-                $('#list-'+$(this).val()).focus(); //focuses the cursor on the new textarea
-                
-                $('#list-textarea-'+$(this).val()).on('keyup',function(event){ //substitues the data in the list and contentData array
-                    if((event.key === "Enter") || (event.key === ".")){ 
-                        $(this).siblings('.list-text').removeClass('hidden').text(`${$(this).val()}`);
-                        contentData[$(this).parent().val()] = $(this).val();
-                        $(this).remove(); //removes the textarea element from the dom
-                    }
-                });
-            }); */
 
             //console.log(data[0].file.length);
 
