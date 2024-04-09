@@ -1,4 +1,5 @@
 function tabSwitch(tabIndex){
+    //console.log(`tab index at tabSwitch: ${tabIndex}`);
     if(tabIndex === 0){
         $('.tab-button:eq(0)').tab('show');
         $('.tab-button-back').hide();
@@ -22,13 +23,15 @@ function tabSwitch(tabIndex){
         //tabSwitch(tabIndex);
         
     }else if(tabIndex > 3){
-        tabIndex = 2;
+        tabIndex = 3;
         tabSwitch(tabIndex);
     }
 }
 
 function tabCheck(a){
+    //console.log(`a value: ${a}`);
     let inputElement = "." + a + "-tab-input";
+    //console.log(`Tab Check before:${inputElement}`);
     $(inputElement).each(function () {
         if ($(this).val() !== "") {
             $(".tab-button-next").show();
@@ -72,12 +75,12 @@ function tabCheck(a){
     //DETAILS MODAL
     if((a == '0')  && $('#accion-label').text() === 'Detalles Acción de formación'){
         $(".tab-button-next").removeClass("disabled");
-        console.log('enabled Details modal');
+        //console.log(`Enabled Details Modal a value: ${a}`);
     }
 
     if((a == '2') && $('#accion-label').text() === 'Detalles Acción de formación'){
         $('.tab-button-next').removeClass('disabled');
-        console.log('enabled Details modal');
+        //console.log(`Enabled Details Modal a value: ${a}`);
     }
 
     if ((a == "3") && ($("#accion-label").text() === "Detalles Acción de formación")) {
@@ -85,10 +88,23 @@ function tabCheck(a){
     }
     //END DETAILS MODAL
 
-    console.log(inputElement);
+    //console.log(`Tab Check: ${inputElement}`);
         
 }//end tabCheck
 
+function tabButtons(tabIndex){
+    $('.tab-button-next').off().on('click',function(){
+        tabIndex = tabIndex+1;
+        //console.log(`Tab Index on Next Click: ${tabIndex}`);
+        tabSwitch(tabIndex);
+        //console.log('next index:'+tabIndex);
+    });
+    $('.tab-button-back').off().on('click',function(){
+        tabIndex = tabIndex-1;
+        tabSwitch(tabIndex);
+        //console.log('back index:'+tabIndex);
+    });
+}
 function draggableCheck(){ //checks if content list items can be draggable
     if(($("#accion-label").text() === "Nueva acción de formación") || ($('#accion-label').text() === "Editar Acción de formación")){
         $('.sortable').sortable({
@@ -106,7 +122,7 @@ function draggableCheck(){ //checks if content list items can be draggable
             disabled: true
         });
     }
-    console.log('sort check');
+    console.log('Content List Sort Check');
     //enables list elements to be sortable
 }//end draggable check
 
@@ -169,8 +185,14 @@ function prerequisiteSelect(data){
         $('.select-prerequisite-helper').show();
         $('#prerequisite').html('');
         if(data[0].prerequisite.length > 0){
-            if(data[0].prerequisite[0].prerequisite_id !== null){
-                $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');
+            console.log(data[0].prerequisite[0]);
+            if(data[0].prerequisite.length > 0){
+                try {
+                    $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');         
+                } catch (error) {
+                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');    
+                    //console.log(error);
+                }
             }else if(data[0].prerequisite[0].prerequisite_id === null){
                 $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
             }    
@@ -197,7 +219,13 @@ function prerequisiteSelect(data){
                     `<option value="">No Posee Prerequisito</option>`
                 );
                 if(data[0].prerequisite.length > 0){
-                    $("#prerequisite").val(data[0].prerequisite[0].prerequisite.code).change();
+                    console.log(data[0].prerequisite[0]);
+                    try {
+                        $("#prerequisite").val(data[0].prerequisite[0].prerequisite.code).change();    
+                    } catch (error) {
+                        $("#prerequisite").val('').change();
+                        //console.log(error);
+                    }
                 }else{
                     $("#prerequisite").val('').change();
                 }   
@@ -290,17 +318,7 @@ function detallesAccion(url){
 
     $("#accion-modal").modal();
     
-    $("#accion-modal").on("hidden.bs.modal", function () {
-        $('.course-code').parent().removeClass('has-error');
-        $('.code-error-text').hide();
-        
-        $("#accion-form :input").prop('readonly', false);
-        $("#accion-form select").prop('disabled', false);
-        $("#accion-aceptar").removeClass("hidden");
-        $("#docs").removeClass("hidden");
-        
-    $('.course-list').off();
-   });
+   
 }//DETAILS MODAL / DETALLES DE ACCION DE FORMACION
 
 function editarAccion(url){
@@ -339,7 +357,8 @@ function editarAccion(url){
                 contentData[i] = element.text;
                 $('.content-list').append(`<li value="${i++}" class="list-element list-group-item form-inline">
                         <span class="list-text">${element.text}</span>
-                        <span class="badge remove-badge"><i class="fa fa-remove"></i></span>
+                        <span class="badge list-item-edit" aria-hidden="true"><i class="fa fa-pencil"></i></span>
+                <span class="badge list-item-delete" aria-hidden="true"><i class="fa fa-remove"></i></span>
                     </li>`);
                //console.log(i++ +' '+element.text);
             });
@@ -387,83 +406,13 @@ function editarAccion(url){
 
         });
     $("#accion-modal").modal();
-
+    
     
 }//UPDATE MODAL / EDITAR ACCION DE FORMACION
 
-
-$(document).ready(function(){
-    console.log('loaded');
-    $.ajaxSetup({ //csrf token
-        headers:{
-            'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-        }
-    });//end csrf token
-
-    $('.tab-submit').hide();
-    $('.tab-button-back').hide();
-    $('.tab-button-next').addClass('disabled');
-
-    //tab buttons
-    let tabIndex = 0;
-    $('.tab-button-next').on('click',function(){
-        tabIndex = tabIndex+1;
-        tabSwitch(tabIndex);
-        //console.log('next index:'+tabIndex);
-    })
-    $('.tab-button-back').on('click',function(){
-        tabIndex = tabIndex-1;
-        tabSwitch(tabIndex);
-        //console.log('back index:'+tabIndex);
-    })
-
-    //when modal closes
-    $(".modal").on("hidden.bs.modal", function () {
-        $(".select2").prop("disabled", true);
-        $(".select2").each(function () {
-            $(this).prop("disabled", false);
-        });
-
-        $(".create-course-form :input").prop("disabled", false);
-        $(".code-error-text").hide();
-        console.log("closed!");
-        
-        tabIndex = 0;
-        $(".tab-button-next").show();
-        $(".tab-button-back").hide();
-        $(".tab-submit").hide();
-        $(".tab-button-close").show();
-        $(".tab-button-next").addClass("disabled");
-        tabSwitch(0);
-    });//end ON modal close event
-    
-    //when modal opens
-    $('.modal').on('shown.bs.modal',function(){
-        
-        tabCheck('0');
-        
-        console.log('open!');
-
-        draggableCheck();
-        listButtonsCheck();
-
-        $('.select2').each(function(){
-            $(this).prop('disabled',false);
-        });
-
-        $('.0-tab-input.course-code').trigger('focus');
-
-        //enable inputs when edit modal opens
-        if($('#accion-label').html() == 'Editar Acción de formación'){
-            $('.create-course-form :input').prop('disabled',false);
-            console.log('edit enabled');
-        }else{
-            $('.create-course-form :input').prop('disabled',true);
-            console.log('edit disabled');
-        }
-
-        //course code validation
-
+function courseCodeValidation(){ //Course Code Validation
+//course code validation
+        //need to hide code validation message when edit modal opens for the first time
         $('.course-code').prop('disabled',false);
 
         $('.0-tab-input.course-code').on('input',function(){ //code validation ajax event call
@@ -485,8 +434,7 @@ $(document).ready(function(){
                         $('.create-course-form :input').prop('disabled',true);
                         $('.course-code').prop('disabled',false);
                        // $('.course-code').trigger('focus');
-                        
-    
+                    
                     }else{
                         $('.course-code').parent().removeClass('has-error');
                         $('.code-error-text').hide();
@@ -501,67 +449,143 @@ $(document).ready(function(){
                 }
             });
         });//end code validation event ajax call
+}
+
+function modalCloses(){
+    $(".modal").on("hidden.bs.modal", function () {
+        $(".select2").prop("disabled", true);
+        $(".select2").each(function () {
+            $(this).prop("disabled", false);
+        });
+
+        $(".create-course-form :input").prop("disabled", false);
+        $(".code-error-text").hide();
+        
+        console.log("closed!");
+        
+        tabIndex = 0;
+
+        //console.log(`tab index at 454 ${tabIndex}`);
+        $(".tab-button-next").show();
+        $(".tab-button-back").hide();
+        $(".tab-submit").hide();
+        $(".tab-button-close").show();
+        $(".tab-button-next").addClass("disabled");
+
+        if($('#accion-label').text() === 'Detalles Acción de formación'){
+            $('.course-code').parent().removeClass('has-error');
+            $('.code-error-text').hide();
+            
+            $("#accion-form :input").prop('readonly', false);
+            $("#accion-form select").prop('disabled', false);
+            $("#accion-aceptar").removeClass("hidden");
+            $("#docs").removeClass("hidden");
+            
+            $('.course-list').off();
+        }
+        tabSwitch(0);
+    });//end ON modal close event
+    
+}
+
+function modalOpens(){
+    //when modal opens
+    $('.modal').on('shown.bs.modal',function(){
+        let tabIndex = 0;
+        //console.log('Modal Open');
+
+        tabCheck('0');
+        tabButtons(tabIndex);
+        draggableCheck();
+        listButtonsCheck();
+
+        $('.select2').each(function(){
+            $(this).prop('disabled',false);
+        });
+
+        $('.0-tab-input.course-code').trigger('focus');
+
+        //enable inputs when edit modal opens
+        if($('#accion-label').html() == 'Editar Acción de formación'){
+            try {
+                $('.create-course-form :input').prop('disabled',false);
+                eventRefresh('Edit Modal');    
+            } catch (error) {
+                //console.log(error);    
+            }
+        }else if($('#accion-label').html() == 'Detalles Acción de formación'){
+            eventRefresh('Details Modal');
+        }else{
+            $('.create-course-form :input').prop('disabled',true);
+            console.log('Edit Disabled on Modal Open');
+        }
+
+        courseCodeValidation();
+        
     });//end ON modal open event
 
-    //content list
-    $('.undo-btn').hide();
+    
+}
+
+function eventRefresh(msg){ //content list event refresh
+
+    console.log(`Event Refresh Function on ${msg}`);
+
+    $('.list-item-edit').off();
+    $('.list-item-delete').off();
 
     let tempElement; //helper to store temporary element to undo deletion
 
-    $('.undo-btn').on('click',function(){ //undo deletion
+    $('.undo-btn').off().on('click',function(){ //undo deletion
         console.log(tempElement);
         $('.content-list').append(tempElement);
-        eventRefresh();
     });
 
-    function eventRefresh(){ //content list event refresh
+    $('.list-item-edit').on('click',function(){ //edit
+        console.log(`Clicked`);
+        let textElement = $(this).siblings('.list-text');
+        textElement.on('keypress',function(e){
+            if((e.key === 'Enter') || (e.key === '.')){
+                textElement.blur();
+            }
+        });
 
-        console.log('function loaded');
-    
-        $('.list-item-edit').off();
-        $('.list-item-delete').off();
-    
-        $('.list-item-edit').on('click',function(){ //edit
-            let textElement = $(this).siblings('.list-text');
-            textElement.on('keypress',function(e){
-                if((e.key === 'Enter') || (e.key === '.')){
-                    textElement.blur();
-                }
-            });
+        console.log('edit function');
+        $(this).siblings().prop('contenteditable',true);
+        let contentEle = $(this).siblings()[0];
+        //console.log($(contentEle).children());
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.setStart(contentEle, contentEle.childNodes.length);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
 
-            console.log('edit function');
-            $(this).siblings().prop('contenteditable',true);
-            let contentEle = $(this).siblings()[0];
-            //console.log($(contentEle).children());
-            const range = document.createRange();
-            const selection = window.getSelection();
-            range.setStart(contentEle, contentEle.childNodes.length);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
+    });//edit list item
 
-        });//edit list item
-    
+    try {
         $('.list-item-delete').on('click',function(){ //delete
-          //console.log($(this));
-          //console.log($(this).parent('.list-element'));
-          $('.undo-btn').show();
-          tempElement = $(this).parent('.list-element'); 
-          $(this).parent('.list-element').remove();
-          return tempElement;
-        }); // delete list item
-        return tempElement;
-    }//end event refresh
+            //console.log($(this));
+            //console.log($(this).parent('.list-element'));
+            $('.undo-btn').show();
+            tempElement = $(this).parent('.list-element'); 
+            $(this).parent('.list-element').remove();
+            return tempElement;
+          }); // delete list item
+    } catch (error) {
+        console.log(`Coudln't Delete Element`);
+        //console.log(error);
+    }
 
-
-    
-    $('.add-btn').on('click',function(){// add new element
+    $('.add-btn').off().on('click',function(){// add new element
         let listItemValue = $('.list-element').length;
-        $('.content-list').prepend(`<li value="${listItemValue}" class="list-element list-group-item"><span class="list-text"><p>Nuevo contenido</p></span><span class="glyphicon glyphicon-pencil list-item-edit" aria-hidden="true"></span><span class="glyphicon glyphicon-trash list-item-delete" aria-hidden="true"></span></li>`);
-        
-        //console.log(listItemValue);
-
-        //console.log($(`.list-element[value=${listItemValue}]`).children());
+        $('.content-list').prepend(`<li value="${listItemValue}" class="list-element list-group-item form-inline">
+                <span class="list-text">
+                    <p>Nuevo contenido</p>
+                </span>
+                <span class="badge list-item-edit" aria-hidden="true"><i class="fa fa-pencil"></i></span>
+                <span class="badge list-item-delete" aria-hidden="true"><i class="fa fa-remove"></i></span> 
+            </li>`);
   
         $(`.list-element[value=${listItemValue}] span:first-child`).prop('contenteditable',true);
   
@@ -582,11 +606,30 @@ $(document).ready(function(){
                 tempElement.blur();
             }
         }); //end lose focus event
-
-        eventRefresh();
   
       })//end add new element to list event
-      
+}//end event refresh
+$(document).ready(function(){
+    console.log('loaded');
+    $.ajaxSetup({ //csrf token
+        headers:{
+            'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+        }
+    });//end csrf token
+
+    $('.tab-submit').hide();
+    $('.tab-button-back').hide();
+    $('.tab-button-next').addClass('disabled');
+
+    //tab buttons
+    
+
+    modalCloses();
+    modalOpens();
+    
+    //content list
+    $('.undo-btn').hide();
+
     //enable navigation if inputs are not empty
-    tabCheck('0'); 
+    //tabCheck('0');
 });
