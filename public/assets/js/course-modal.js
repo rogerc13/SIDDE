@@ -283,22 +283,21 @@ function detallesAccion(url){
             $('#min').val(data[0].capacity[0].min);
             $('#max').val(data[0].capacity[0].max);
             $('#objetivo').val(data[0].objective);
-
-            //$('#contenido').val(data[0].contenido);
             
             $('.content-list').html('');
+
             contentData = [];
             i = 0;
             data[0].content.forEach(element => {
                 contentData[i] = element.text;
                 $('.content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
-            //console.log(i++ +' '+element.text);
+
             });
             $('.content-list')
 
             if(typeof data[0].file !== 'undefined'){
                 if(data[0].file.length > 0){
-                    //console.log(data[0].file.length);
+                    
                     $('.read-only-docs').show();    
                     $('.no-docs').hide();
                     $('.facilitator_manual').val(data[0].file[0].path);
@@ -349,8 +348,8 @@ function editarAccion(url){
             $('#max').val(data[0].capacity[0].max);
             $('#objetivo').val(data[0].objective);
 
-            //console.log(data[1]);
             $('.content-list').html('');
+
             contentData = [];
             i = 0;
             data[0].content.forEach(element => {
@@ -363,7 +362,7 @@ function editarAccion(url){
                //console.log(i++ +' '+element.text);
             });
 
-            $('.remove-badge').on('click',function(e) { //removes the selected content from the list and array
+            /* $('.remove-badge').on('click',function(e) { //removes the selected content from the list and array
                 contentData.splice($(this).parent().val(),1);
                 //console.log(contentData);
                 let siblings = $(this).parent().siblings();
@@ -373,7 +372,9 @@ function editarAccion(url){
                     }
                 }
                 $(this).parent().remove();
-            });
+            }); */
+
+            eventRefresh('Edit Modal');
 
 
             //console.log(data[0].file.length);
@@ -465,7 +466,7 @@ function modalCloses(){
         
         tabIndex = 0;
 
-        //console.log(`tab index at 454 ${tabIndex}`);
+        //console.log(`tab index ${tabIndex}`);
         $(".tab-button-next").show();
         $(".tab-button-back").hide();
         $(".tab-submit").hide();
@@ -483,6 +484,7 @@ function modalCloses(){
             
             $('.course-list').off();
         }
+        $('.content-list').html('');
         tabSwitch(0);
     });//end ON modal close event
     
@@ -509,15 +511,18 @@ function modalOpens(){
         if($('#accion-label').html() == 'Editar Acción de formación'){
             try {
                 $('.create-course-form :input').prop('disabled',false);
-                eventRefresh('Edit Modal');    
+                $('.tab-button-next').removeClass('disabled');
+                
             } catch (error) {
                 //console.log(error);    
             }
         }else if($('#accion-label').html() == 'Detalles Acción de formación'){
-            eventRefresh('Details Modal');
+            $('.tab-button-next').removeClass('disabled');
+            //eventRefresh('Details Modal');
         }else{
             $('.create-course-form :input').prop('disabled',true);
             console.log('Edit Disabled on Modal Open');
+            eventRefresh('Create Modal');
         }
 
         courseCodeValidation();
@@ -531,9 +536,6 @@ function eventRefresh(msg){ //content list event refresh
 
     console.log(`Event Refresh Function on ${msg}`);
 
-    $('.list-item-edit').off();
-    $('.list-item-delete').off();
-
     let tempElement; //helper to store temporary element to undo deletion
 
     $('.undo-btn').off().on('click',function(){ //undo deletion
@@ -541,30 +543,41 @@ function eventRefresh(msg){ //content list event refresh
         $('.content-list').append(tempElement);
     });
 
-    $('.list-item-edit').on('click',function(){ //edit
-        console.log(`Clicked`);
-        let textElement = $(this).siblings('.list-text');
-        textElement.on('keypress',function(e){
-            if((e.key === 'Enter') || (e.key === '.')){
-                textElement.blur();
-            }
-        });
+    if((msg == 'Edit Modal' || msg == 'Create Modal') && ($('.list-item-edit').attr('listener') !== 'true')){
+        console.log('Edit List');
+        //listerer check
+        if($('.list-item-edit').attr('listener') !== 'true'){
+            $('.list-item-edit').off().on('click',function(){ //edit
+                console.log(`Clicked`);
+                let textElement = $(this).siblings('.list-text');
+                textElement.on('keypress',function(e){
+                    if((e.key === 'Enter') || (e.key === '.')){
+                        textElement.blur();
+                    }
+                });
+        
+                console.log('edit function');
+                $(this).siblings().prop('contenteditable',true);
+                let contentEle = $(this).siblings()[0];
+                //console.log($(contentEle).children());
+                const range = document.createRange();
+                const selection = window.getSelection();
+                range.setStart(contentEle, contentEle.childNodes.length);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
 
-        console.log('edit function');
-        $(this).siblings().prop('contenteditable',true);
-        let contentEle = $(this).siblings()[0];
-        //console.log($(contentEle).children());
-        const range = document.createRange();
-        const selection = window.getSelection();
-        range.setStart(contentEle, contentEle.childNodes.length);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
+                $('.list-item-edit').attr('listener','true');
+                console.log('Edit event attached');
 
-    });//edit list item
+            });//edit list item
+        }//listener
+    }
+    
+    
 
     try {
-        $('.list-item-delete').on('click',function(){ //delete
+        $('.list-item-delete').off().on('click',function(){ //delete
             //console.log($(this));
             //console.log($(this).parent('.list-element'));
             $('.undo-btn').show();
@@ -581,14 +594,14 @@ function eventRefresh(msg){ //content list event refresh
         let listItemValue = $('.list-element').length;
         $('.content-list').prepend(`<li value="${listItemValue}" class="list-element list-group-item form-inline">
                 <span class="list-text">
-                    <p>Nuevo contenido</p>
+                    Nuevo contenido
                 </span>
                 <span class="badge list-item-edit" aria-hidden="true"><i class="fa fa-pencil"></i></span>
                 <span class="badge list-item-delete" aria-hidden="true"><i class="fa fa-remove"></i></span> 
             </li>`);
   
         $(`.list-element[value=${listItemValue}] span:first-child`).prop('contenteditable',true);
-  
+
         let contentEle = $(`.list-element[value=${listItemValue}] span:first-child`)[0];
         let tempElement = $(`.list-element[value=${listItemValue}] .list-text`);
         const range = document.createRange();
@@ -606,9 +619,10 @@ function eventRefresh(msg){ //content list event refresh
                 tempElement.blur();
             }
         }); //end lose focus event
-  
+        eventRefresh('Create Modal');
       })//end add new element to list event
 }//end event refresh
+
 $(document).ready(function(){
     console.log('loaded');
     $.ajaxSetup({ //csrf token
