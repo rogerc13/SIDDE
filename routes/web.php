@@ -31,6 +31,7 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
 Route::get('prerequisite-test', 'App\Http\Controllers\CursoController@prerequisiteTest');
+Route::get('assign-test', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
 
 

@@ -349,85 +349,75 @@ class CursoProgramadoController extends Controller
     }
 
     public function assignList(Request $request){
+
         $scheduledId = $request->scheduled_id;
-        //get dates of selected course
+        
         $scheduledCourse = Scheduled::with('course')->find($scheduledId);
         $courseMaxCapacity = $scheduledCourse->course->capacity[0]->max;
 
         //check current amount of participants
         $participantAmount = Participant::where('scheduled_id',$scheduledId)->count();
-
-        //get ID of selected course
-        //check if course has prerequisite on the prerequiste table
-        //if it does 
-        //get the prerequisite ID
-        //get the person that has the prerequisite ID on the table participants and participant_status_id 3 //Aprobado
-        //if it doesn't
-        //get all the persons, do nothing
-
+        
         //get prerequisite of selected course
-        $coursePrerequisite = Prerequisite::where('course_id', $scheduledCourse->course->id)->select('prerequisite_id')->get();
-
-        //return json_encode(count($coursePrerequisite));
-
-                
-
-        //return json_encode($coursePrerequisite[0]->prerequisite_id);
-
-        //return json_encode(['prerequisite' => $coursePrerequisite[0]->prerequisite_id]);
-
-        //get person in participant table with scheduled_id that matches the course id prerequisite AND has participant status 3 
-        /* $participantTest = Participant::with('scheduled','person')->whereHas('scheduled',function($query) use($coursePrerequisite){
-            $query->where('course_id',$coursePrerequisite[0]->prerequisite_id);
-        })->where('participant_status_id',3)->get(); */
-
-        /* $participantTest = Person::with('scheduled','participant','user')->whereNotIn('id',$participants)->whereHas('user',function($query){
-            $query->where('role_id',5);
-        })->whereHas('scheduled',function($query) use($coursePrerequisite){
-            $query->where('course_id',$coursePrerequisite[0]->prerequisite_id);
-        })->whereHas('participant',function($query){
-            $query->where('participant_status_id',3);
-        })->get();
-
-        return json_encode(['participantWithPrequisite' => $participantTest]); */
-
-    
-
-        if($participantAmount == $courseMaxCapacity){
+        $coursePrerequisite = Prerequisite::where('course_id', $scheduledCourse->course->id)->select('prerequisite')->get();
+        
+        if($participantAmount == $courseMaxCapacity){ //check if course is at max capacity
             $response = ['success' => false, 'message'=>'Capacidad Máxima de Participantes Alcanzada.'];
             return response()->json($response);
         }else{
-            $participants = Person::with('scheduled')->whereHas(
-                'scheduled',
-                function ($query) use ($scheduledCourse) {
-                    $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
-                }
-            )->get()->pluck('id');
-
-            //get participants not in the list
-            //if course has no prerequisite
-            if(count($coursePrerequisite) === 0){
-                $people = Person::whereNotIn('id', $participants)->with('user')->whereHas(
-                    'user',
-                    function ($query) {
-                        $query->where('role_id', 5);
-                    }
-                )->get();
-            }else{
-                $people = Person::with('scheduled', 'participant', 'user')->whereNotIn('id', $participants)->whereHas('user', function ($query) {
-                    $query->where('role_id', 5);
-                })->whereHas('scheduled', function ($query) use ($coursePrerequisite) {
-                    $query->where('course_id', $coursePrerequisite[0]->prerequisite_id);
-                })->whereHas('participant', function ($query) {
-                    $query->where('participant_status_id', 3);
-                })->get();
-            }
             
-            $response = ['success' => true, 'message'=> '','list'=>$people];
-            return json_encode($response);
-        }
-        
-    }
+            if((count($coursePrerequisite) === 0) || $coursePrerequisite[0]->prerequisite === null){ //if course has no prerequisite
+                
+                //get all participants in a course which date don't overlap current course
+                $participantsOverlap = Person::with('scheduled')->whereHas(
+                    'scheduled',
+                    function ($query) use ($scheduledCourse) {
+                        $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
+                    }
+                )->get()->pluck('id');
+
+                //get list of all participants
+                $participantList = Person::whereHas('user', function($query){
+                    $query->where('role_id','5');
+                })->get()->pluck('id');
+
+                $availableParticipants = $participantList->diff($participantsOverlap);
+
+                $people = Person::whereIn('id',$availableParticipants)->get();
+
+                $response = ['success' => true, 'message'=> 'No Prerequisite, List of Available Participants','list'=>$people];
+                return json_encode($response);
+
+            }else{ //if course has a prerequisite
+
+                //get list of courses that met the prerequsite
+                $courseList = Scheduled::whereHas('Course',function($query) use($coursePrerequisite){
+                    $query->where('code',$coursePrerequisite[0]->prerequisite)->where('course_status_id','3');
+                })->get()->pluck('id');
+                
+                //get all participants in a course which date don't overlap current course
+                $participantsOverlap = Person::with('scheduled')->whereHas(
+                    'scheduled',
+                    function ($query) use ($scheduledCourse) {
+                        $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
+                    }
+                )->get()->pluck('id');
+                
+                //get all participants that met the prerequisite
+                $participantsWithPrerequisite = Participant::with('Person')->whereIn('scheduled_id',$courseList)
+                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id','25')->select('id')->get())
+                ->get()->pluck('person_id');
+
+                $availableParticipants = $participantsWithPrerequisite->diff($participantsOverlap);
+                
+                $people = Person::whereIn('id',$availableParticipants)->get();
+
+                $response = ['success' => true, 'message'=> 'List of Available Participants','list'=>$people];
+                return json_encode($response);
+
+            }
+        }//end max capacity check  
+    }//end assignList()
 
     public function cancel($id) //cancel af programadas / courses
     {
