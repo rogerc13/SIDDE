@@ -179,13 +179,13 @@ function setCourse(){
 }
 
 function prerequisiteSelect(data){
-
+    
     if($('#accion-label').html() == 'Detalles Acción de formación'){ //DETAILS MODAL
         $('.radio-prerequisite').hide();
         $('.select-prerequisite-helper').show();
         $('#prerequisite').html('');
         if(data[0].prerequisite.length > 0){
-            console.log(data[0].prerequisite[0]);
+            //console.log(data[0].prerequisite[0]);
             if(data[0].prerequisite.length > 0){
                 try {
                     $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');         
@@ -208,8 +208,15 @@ function prerequisiteSelect(data){
             url: "prerequisite",
             dataType: 'JSON',
             success: function(response){
+
+                //filtering current course
+                response.courses = response.courses.filter((element) =>{
+                    return element.code !== data[0].code;
+                });
+
                 $('#prerequisite').html('');
                 response.courses.forEach(element => {
+                
                 $('#prerequisite').append(`<option value="${element.code}">
                                                         ${element.code} |
                                                         ${element.title}
@@ -219,7 +226,7 @@ function prerequisiteSelect(data){
                     `<option value="">No Posee Prerequisito</option>`
                 );
                 if(data[0].prerequisite.length > 0){
-                    console.log(data[0].prerequisite[0]);
+                    
                     try {
                         $("#prerequisite").val(data[0].prerequisite[0].prerequisite.code).change();    
                     } catch (error) {
@@ -362,22 +369,7 @@ function editarAccion(url){
                //console.log(i++ +' '+element.text);
             });
 
-            /* $('.remove-badge').on('click',function(e) { //removes the selected content from the list and array
-                contentData.splice($(this).parent().val(),1);
-                //console.log(contentData);
-                let siblings = $(this).parent().siblings();
-                for(let prop in siblings){ //lowers the value of next siblings by 1
-                    if(siblings[prop].value > $(this).parent().val()){
-                        siblings[prop].value --;
-                    }
-                }
-                $(this).parent().remove();
-            }); */
-
             eventRefresh('Edit Modal');
-
-
-            //console.log(data[0].file.length);
 
             if(data[0].file.length > 0){
                 $('.fileinput').addClass('fileinput-exists').removeClass('fileinput-new');
