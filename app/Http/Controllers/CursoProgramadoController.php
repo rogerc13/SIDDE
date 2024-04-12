@@ -64,7 +64,7 @@ class CursoProgramadoController extends Controller
         ->get();
         
 
-        $cursos = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
+        $cursos = Scheduled::orderBy("start_date","desc")->with(['course','facilitator','courseStatus']);
         $estados = CourseStatus::orderBy('name','asc')->get();
         
 
@@ -219,7 +219,7 @@ class CursoProgramadoController extends Controller
         
         
         if($user->isFacilitador()){
-            $cursos = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $user->person->facilitator->id);
+            $cursos = Scheduled::with(['facilitator','course'])->where('facilitator_id', $user->person->facilitator->id);
         }
 
         if($user->isParticipante()){
@@ -231,10 +231,10 @@ class CursoProgramadoController extends Controller
             }
             
             if(count($courses) > 0){
-                $cursos = Scheduled::with('facilitator')->with('course')->whereIn('id', $values); //cursos needs to be Builder
+                $cursos = Scheduled::with(['facilitator','course'])->whereIn('id', $values); //cursos needs to be Builder
                 
             }else{
-                $cursos = Scheduled::with('facilitator')->with('course')->where('id', null);
+                $cursos = Scheduled::with(['facilitator','course'])->where('id', null);
             }
         }
         
@@ -302,7 +302,7 @@ class CursoProgramadoController extends Controller
 
         
         if($usuario->isFacilitador()){
-            $cursos =  Scheduled::with('facilitator')->with('course')->where('facilitator_id', $usuario->person->facilitator->id);    
+            $cursos =  Scheduled::with(['facilitator','course'])->where('facilitator_id', $usuario->person->facilitator->id);    
         }else{
             $cursos = [];
         }
@@ -315,9 +315,9 @@ class CursoProgramadoController extends Controller
             }
 
             if (count($courses) > 0) {
-                $cursos = Scheduled::whereIn('id',$values)->with('facilitator')->with('course');
+                $cursos = Scheduled::with(['facilitator','course'])->whereIn('id',$values);
             }  else {
-                $cursos = Scheduled::where('id',null)->with('facilitator')->with('course');
+                $cursos = Scheduled::with(['facilitator','course'])->where('id',null);
             }  
         }
 
