@@ -47,7 +47,15 @@ class CursoController extends Controller
             return Redirect::back()
                         ->with("alert", Funciones::getAlert("danger","Error","La acción de formación no pudo ser encontrada"));
         }
-        return view('pages.public.ficha_tecnica')->with('curso',$curso);
+
+        $files = File::where('course_id',$id)->get();
+
+        if($files->count() >= 1){
+            return view('pages.public.ficha_tecnica')->with('curso',$curso)->with('files',$files);    
+        }
+        else{
+            return view('pages.public.ficha_tecnica')->with('curso',$curso);
+        }
     }//view Ficha Tecnica
 
     public function descargarDoc($id, $d)
@@ -560,17 +568,20 @@ class CursoController extends Controller
     }
 
     public function downloadAllFiles($id){
-        
+        //return ($id);
         $courseFiles = File::where('course_id',$id)->get();
         
         $files = [];
         foreach($courseFiles as $count => $courseFile){
             $files[$courseFile->id] = base_path()."/storage/app/".$courseFile->file_path;
         }
-        $zip = new ZipArchive;
 
+        return $files;
+         
+        $zip = new ZipArchive;
+        
         //saves file to public/uploads/zip/course_code
-        $zipFile = base_path()."/public/uploads/zip/".Course::find($id)->codigo.".zip"; //change to pc's download folder?
+        $zipFile = base_path()."/public/uploads/zip/".Course::find($id)->code.".zip"; //change to pc's download folder?
 
         if($zip->open($zipFile,ZipArchive::CREATE) == TRUE){ //opens file stream, creates zip file
             foreach ($files as $key => $value) {
@@ -658,6 +669,39 @@ class CursoController extends Controller
                 'title'=> $course->title,];
         }
         return json_encode(['courses' => $courses]);
+    }
+    
+    public function download($id,$type){
+        $files = File::where('course_id',$id)->get();
+            if($files->count() >= 1){
+                switch($type){
+                    case 1:
+                        //return 'Manual de Facilitador';
+                        return Storage::download($files[0]->path);
+                        break;
+                    case 2:
+                        //return 'Manual de Usuario';
+                        if(isset($files[1]))
+                            return Storage::download($files[1]->path);
+                        break; 
+                    case 3:
+                        //return 'Guia';
+                        if(isset($files[2]))
+                            return Storage::download($files[2]->path);
+                        break;
+                    case 4:
+                        //return 'Presentacion';
+                        if(isset($files[3]))
+                            return Storage::download($files[3]->path);
+                        break;
+                    default:
+                        break;
+                }
+            }else{
+                return redirect()->back();
+            }
+            
+        
     }
 
     public function prerequisiteTest(){

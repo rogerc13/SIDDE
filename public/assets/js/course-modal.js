@@ -309,6 +309,7 @@ function detallesAccion(url){
                     $('.no-docs').hide();
                     if(data[0].file[0] !== undefined){
                         $('.facilitator_manual').val(data[0].file[0].path);
+                    }
                     if(data[0].file[1] !== undefined){
                         $('.participant_manual').val(data[0].file[1].path);
                     }
@@ -322,8 +323,8 @@ function detallesAccion(url){
                     $('.read-only-docs').hide();
                     $('.no-docs').show();
                     
-                }
-            }                
+                }//else
+            }//if                
             $(".loader").addClass("hidden");
             $("#accion-form").removeClass("hidden");
         });

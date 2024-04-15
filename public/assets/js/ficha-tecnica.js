@@ -7,4 +7,8 @@ $(document).ready(function () {
         window.print();
         e.preventDefault();
     });
+
+    /* $('.course-file-btn a').on('click', function(e){
+       e.preventDefault();
+    }); */
 });

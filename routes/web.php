@@ -33,6 +33,7 @@ Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 Route::get('prerequisite-test', 'App\Http\Controllers\CursoController@prerequisiteTest');
 Route::get('assign-test', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
+Route::get('download/{id}/{type}','App\Http\Controllers\CursoController@download');
 
 
 Route::group(['middleware' => 'auth'], function ()
@@ -111,7 +112,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::delete('/{id}', 'App\Http\Controllers\CursoController@delete');
 
                 Route::get('/onSubmitAlert/{request}', 'App\Http\Controllers\CursoController@onCourseSubmitAlert');
-
+                
                 
 
                
@@ -144,7 +145,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
 
-                Route::get('/{id}/documents', 'App\Http\Controllers\CursoController@downloadAllFiles');
+                
                 
 
         });
@@ -165,11 +166,9 @@ Route::group(['middleware' => 'auth'], function ()
     Route::group(['prefix' => 'acciones_formacion'], function()
     {
 
-        Route::get('/{id}', 'App\Http\Controllers\CursoController@getAccionFormacion');
+        Route::get('/{id}', 'App\Http\Controllers\CursoController@getAccionFormacion'); //view Ficha Tecnica
         Route::get('/documentos/{id}/{d}', 'App\Http\Controllers\CursoController@descargarDoc');
-
-        
-
+        Route::get('/{id}/documents', 'App\Http\Controllers\CursoController@downloadAllFiles');
 
     });
         Route::group(['middleware' => ['reports']], function () {
