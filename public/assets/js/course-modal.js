@@ -311,22 +311,24 @@ function detallesAccion(url){
             $('.content-list')
 
             if(typeof data[0].file !== 'undefined'){
+
                 if(data[0].file.length > 0){
-                    
                     $('.read-only-docs').show();    
                     $('.no-docs').hide();
-                    if(data[0].file[0] !== undefined){
-                        $('.facilitator_manual').val(data[0].file[0].path);
-                    }
-                    if(data[0].file[1] !== undefined){
-                        $('.participant_manual').val(data[0].file[1].path);
-                    }
-                    if(data[0].file[2] !== undefined){
-                        $('.course_guide').val(data[0].file[2].path);
-                    }
-                    if(data[0].file[3] !== undefined){
-                        $('.course_presentation').val(data[0].file[3].path);
-                    }
+                    data[0].file.forEach(element => {
+                        if(element.type_id == 1){
+                            $('.facilitator_manual').val(element.path);
+                        }
+                        if(element.type_id == 2){
+                            $('.participant_manual').val(element.path);
+                        }
+                        if(element.type_id == 3){
+                            $('.course_guide').val(element.path);
+                        }
+                        if(element.type_id == 4){
+                            $('.course_presentation').val(element.path);
+                        }
+                    });
                 }else{
                     $('.read-only-docs').hide();
                     $('.no-docs').show();
