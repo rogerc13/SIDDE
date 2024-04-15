@@ -62,13 +62,17 @@
                     <td colspan="1" rowspan="1" class="ficha-subtitle-td"><p class="ficha-course-subtitle">Contenido</p></td>
                     <td colspan="4" rowspan="1" class="ficha-course-content">
                         {{--needs style--}}
-                        <ul>
-                            @foreach ($curso->content as $content)
-                                <li>
-                                    <span class="list-content-span">{{$content->text}}</span>
-                                </li>    
-                            @endforeach
-                        </ul>
+                        @if($curso->content->count() >= 1)
+                            <ul>
+                                @foreach ($curso->content as $content)
+                                    <li>
+                                        <span class="ficha-course-objective">{{$content->text}}</span>
+                                    </li>    
+                                @endforeach
+                            </ul>        
+                        @else
+                            <p class="list-content-span">Este Curso no posee lista de contenidos</p>
+                        @endif
                     </td>
                 </tr>
                 <tr>
