@@ -134,8 +134,12 @@ function listButtonsCheck(){
     }
 }//end list buttons check
 
-function setCourse(){
+function setCourse(deleteHelper){
     let contentData = [];
+
+    //let deleteHelper = updateDocuments();
+
+    console.log(deleteHelper);
 
     $(".content-list li").each(function() { //create content list data array
         contentData.push($(this).text().trim())
@@ -147,6 +151,10 @@ function setCourse(){
 
     if(method == 'PUT'){
         console.log("method put");
+        deleteHelper = JSON.stringify(deleteHelper);
+        formData.append('delete_flag',deleteHelper);
+        //console.log(formData);
+        //return console.log(formData);
         newUrl = "acciones_formacion/"+formData.get('course-id');
     }else{
         console.log("method POST");
@@ -334,7 +342,66 @@ function detallesAccion(url){
    
 }//DETAILS MODAL / DETALLES DE ACCION DE FORMACION
 
+let deleteHelper;
+function updateDocuments(){ //documents flags
+    deleteHelper = {
+        facilitator : false,
+        manual: false,
+        guide: false,
+        presentation: false
+    };
+        $('#remove_facilitator').off().on('click',(e)=>{
+            if(deleteHelper.facilitator == true){
+                deleteHelper.facilitator = false;
+            }else{
+            deleteHelper.facilitator = true;
+            $('#l_manual_f').html('');
+            }
+            console.log(deleteHelper);
+            return deleteHelper;
+        });
+
+        $('#remove_manual').off().on('click',(e)=>{
+            if(deleteHelper.manual == true){
+                deleteHelper.manual = false;
+            }else{
+            deleteHelper.manual = true;
+            $('#l_manual_p').html('');
+            }
+            console.log(deleteHelper);
+            return deleteHelper;
+        });
+
+        $('#remove_guide').off().on('click',(e)=>{
+            if(deleteHelper.guide == true){
+                deleteHelper.guide = false;
+            }else{
+            deleteHelper.guide = true;
+            $('#l_guia').html('');
+            }
+            console.log(deleteHelper);
+            return deleteHelper;
+        });
+
+        $('#remove_presentation').off().on('click',(e)=>{
+            if(deleteHelper.presentation == true){
+                deleteHelper.presentation = false;
+            }else{
+            deleteHelper.presentation = true;
+            $('#l_presentacion').html('');
+            }
+            console.log(deleteHelper);
+            return deleteHelper;
+        });
+
+        console.log(deleteHelper);
+        return deleteHelper;
+}//end documents flags
+
+
+
 function editarAccion(url){
+    updateDocuments();
     $(".loader").removeClass("hidden");
     $('.course-code').parent().removeClass('has-error');
     $('.code-error-text').hide();
@@ -645,4 +712,6 @@ $(document).ready(function(){
 
     //enable navigation if inputs are not empty
     //tabCheck('0');
+
+
 });

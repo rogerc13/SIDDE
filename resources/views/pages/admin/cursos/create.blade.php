@@ -19,7 +19,7 @@
                 <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
                 <span class="sr-only">Cargando...</span>
             </div>
-            <form class="form-horizontal hidden create-course-form" action="javascript:setCourse()" method="POST" id='accion-form'  enctype="multipart/form-data">
+            <form class="form-horizontal hidden create-course-form" action="javascript:setCourse(deleteHelper)" method="POST" id='accion-form'  enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="course-id" class="course-id">
@@ -138,16 +138,18 @@
                                     <label for="manual_f" class="control-label">Manual de facilitador</label>
                                     <div class="fileinput fileinput-new" data-provides="fileinput">
                                         <div class="input-group">
-                                            <div class="form-control uneditable-input" data-trigger="fileinput">
+
+                                            <div class="form-control" data-trigger="fileinput">
                                                 <i class="glyphicon glyphicon-file fileinput-exists"></i>
                                                 <span class="fileinput-filename" id="l_manual_f"></span>
                                             </div>
+                                            
                                             <span class="input-group-addon btn btn-default btn-file">
                                                 <span class="fileinput-new">Buscar</span>
                                                 <span class="fileinput-exists">Cambiar</span>
                                                 <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_f" id="manual_f">
                                             </span>
-                                            <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
+                                            <a href="#" id='remove_facilitator' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
                                         </div>
                                     </div>
                                 </div>
@@ -165,7 +167,7 @@
                                                 <span class="fileinput-exists">Cambiar</span>
                                                 <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_p" id="manual_p">
                                             </span>
-                                            <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
+                                            <a href="#" id='remove_manual' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
                                         </div>
                                     </div>
                                 </div>
@@ -185,7 +187,7 @@
                                                 <span class="fileinput-exists">Cambiar</span>
                                                 <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="guia" id="guia">
                                             </span>
-                                            <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
+                                            <a href="#" id='remove_guide' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
                                         </div>
                                     </div>
                                 </div>
@@ -202,7 +204,7 @@
                                                 <span class="fileinput-exists">Cambiar</span>
                                                 <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="presentacion" id="presentacion">
                                             </span>
-                                            <a href="#" class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
+                                            <a href="#" id='remove_presentation' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
                                         </div>
                                     </div>
                                 </div>

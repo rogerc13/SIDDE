@@ -353,7 +353,12 @@ class CursoController extends Controller
 
     public function update(CursoForm $request, $id){
        //return json_encode(isset($request->prerequisite));
-        $response = array();
+       
+       if(isset($request->delete_flag)){
+            $deleteHelper = json_decode($request->delete_flag);
+            //return json_encode($response = 'set');
+       }
+       //return json_encode($response = $deleteHelper->facilitator);
         $user=Auth::user();
         
         $curso = Course::find($id);
@@ -406,7 +411,12 @@ class CursoController extends Controller
                             file('manual_f')->
                             getClientOriginalExtension()), 'type_id' => 1];
 
+                }else if(($file->type_id == 1) && ($deleteHelper->facilitator === true)){
+                    $file->delete();
+                    $result[] = Storage::delete($file->path);
+                    //return json_encode($response = "file 1 deleted");
                 }
+
                 if(($file->type_id == 2) && ($request->file('manual_p'))){
                     $file->delete();
                     $result[] = Storage::delete($file->path);
@@ -416,6 +426,10 @@ class CursoController extends Controller
                             codigo, "Manual del Participante " . $request->titulo . "." . $request->
                             file('manual_p')->
                             getClientOriginalExtension()),'type_id' => 2];
+                }else if(($file->type_id == 2) && ($deleteHelper->manual === true)){
+                    $file->delete();
+                    $result[] = Storage::delete($file->path);
+                    //return json_encode($response = "file 2 deleted");
                 }
                 if(($file->type_id == 3) && ($request->file('guia'))){
                     $file->delete();
@@ -426,6 +440,10 @@ class CursoController extends Controller
                             codigo, "Guia del Curso " . $request->
                             titulo . "." . $request->file('guia')->
                             getClientOriginalExtension()),'type_id' => 3];
+                }else if(($file->type_id == 3) && ($deleteHelper->guide === true)){
+                    $file->delete();
+                    $result[] = Storage::delete($file->path);
+                    //return json_encode($response = "file 3 deleted");
                 }
                 if(($file->type_id == 4) && ($request->file('presentacion'))){
                     $file->delete();
@@ -437,7 +455,11 @@ class CursoController extends Controller
                                 titulo . "." . $request->
                                 file('presentacion')->
                                 getClientOriginalExtension()),'type_id' => 4];
-            }
+                }else if(($file->type_id == 4) && ($deleteHelper->presentation === true)){
+                    $file->delete();
+                    $result[] = Storage::delete($file->path);
+                    //return json_encode($response = "file 4 deleted");
+                }
             
         }
 
@@ -464,7 +486,7 @@ class CursoController extends Controller
             ->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')
             ->getClientOriginalExtension()), 'type_id' => 4]);
         }
-        
+
         $response[] = $curso->save();
         if(count($contentData) > 0){
             $response[] = $curso->content()->saveMany($contentData);
