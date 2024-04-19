@@ -113,6 +113,7 @@
 			           	</tr>
 				      @endif
 			         @foreach($cursos as $cursop)
+					 	
 			            <tr>
 								<td>{{$cursop->course->title}}</td>
 								@if($logeado->isParticipante())
@@ -135,11 +136,11 @@
 								<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 									<i class="entypo-users"></i>
 								</a>
-								<a  title="Descargar Documentos del Curso" href="{{url('u/af_programadas/'.$cursop->course->id.'/documents')}}" class="btn btn-info btn-xs">
+								<a  title="{{($cursop->course->file->count() == '0') ? 'No Posee Documentos' : 'Descargar Documentos del Curso'}}" href="javascript:documentModal('{{url('download/'.$cursop->course->id.'/0')}}')" class="btn btn-info btn-xs {{($cursop->course->file->count() == '0') ? 'disabled' : ''}}">
 									<i class="entypo-download"></i>
 								</a>
 								@endif
-								<a  title="Ver Ficha Técnica" href="{{url("acciones_formacion/".$cursop->course->id)}}" class="btn btn-info btn-xs">
+								<a  title="Ver Ficha Técnica" href="{{url('acciones_formacion/'.$cursop->course->id)}}" class="btn btn-info btn-xs">
 									<i class="entypo-search"></i>
 								</a>
 								</td>
@@ -157,4 +158,7 @@
 	</div>
 			
 </div>
+@stop
+@section('modals')
+	@include('pages.admin.usuarios.document_modal');
 @stop

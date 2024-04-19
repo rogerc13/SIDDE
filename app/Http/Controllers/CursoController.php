@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use \Illuminate\Support\Facades\File as IlluminateFile;
-
+use stdClass;
 use ZipArchive;
 
 class CursoController extends Controller
@@ -694,27 +694,49 @@ class CursoController extends Controller
     }
     
     public function download($id,$type){
-        $files = File::where('course_id',$id)->get();
+        if($type == '0'){
+            $files = File::where('course_id',$id)->orderBy('type_id','Asc')->get();
+            return json_encode(['files' => $files]);            
+        }else{
+            
+            $files = File::where('course_id',$id)->get();
+            $helper = new stdClass();
+            foreach($files as $file){
+                if($file->type_id == '1'){
+                    $helper->type1 = $file->path;  
+                }
+                if($file->type_id == '2'){
+                    $helper->type4 = $file->path;
+                }
+                if($file->type_id == '3'){
+                    $helper->type3 = $file->path;
+                }
+                if($file->type_id == '4'){
+                    $helper->type4 = $file->path;
+                }
+            }
+
             if($files->count() >= 1){
                 switch($type){
                     case 1:
                         //return 'Manual de Facilitador';
-                        return Storage::download($files[0]->path);
+                        if(isset($helper->type1))
+                            return Storage::download($helper->type1);
                         break;
                     case 2:
                         //return 'Manual de Usuario';
-                        if(isset($files[1]))
-                            return Storage::download($files[1]->path);
+                        if(isset($helper->type2))
+                            return Storage::download($helper->type2);
                         break; 
                     case 3:
                         //return 'Guia';
-                        if(isset($files[2]))
-                            return Storage::download($files[2]->path);
+                        if(isset($helper->type3))
+                            return Storage::download($helper->type3);
                         break;
                     case 4:
                         //return 'Presentacion';
-                        if(isset($files[3]))
-                            return Storage::download($files[3]->path);
+                        if(isset($helper->type4))
+                            return Storage::download($helper->type4);
                         break;
                     default:
                         break;
@@ -722,8 +744,7 @@ class CursoController extends Controller
             }else{
                 return redirect()->back();
             }
-            
-        
+        }
     }
 
     public function prerequisiteTest(){

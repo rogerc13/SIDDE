@@ -219,7 +219,7 @@ class CursoProgramadoController extends Controller
         
         
         if($user->isFacilitador()){
-            $cursos = Scheduled::with(['facilitator','course'])->where('facilitator_id', $user->person->facilitator->id);
+            $cursos = Scheduled::with(['facilitator','course.file'])->where('facilitator_id', $user->person->facilitator->id);
         }
 
         if($user->isParticipante()){
