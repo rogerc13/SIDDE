@@ -36,7 +36,11 @@
                 <th>Título</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Culminación</th>
-                <th>Registrados</th>
+                @if ($participant)
+                    <th>Facilitador</th>
+                @else
+                    <th>Registrados</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -45,7 +49,11 @@
                     <td>{{$course->course->title}}</td>
                     <td>{{$course->start_date}}</td>
                     <td>{{$course->end_date}}</td>
-                    <td>{{count($course->participants)}}/{{$course->course->capacity[0]->max}}</td>
+                    @if ($participant)
+                        <td>{{$course->facilitator->person->name}} {{$course->facilitator->person->last_name}}</td>
+                    @else
+                        <td>{{count($course->participants)}}/{{$course->course->capacity[0]->max}}</td>    
+                    @endif
                 </tr>
             @endforeach
         </tbody>

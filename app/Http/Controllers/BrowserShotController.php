@@ -191,6 +191,7 @@ class BrowserShotController extends Controller
     public function myCourses(Request $request){
         
         $user = Auth::user();
+        $participant = $user->isParticipante();
         
         if($user->isParticipante()){ //user is participant
             
@@ -248,8 +249,8 @@ class BrowserShotController extends Controller
 
             $scheduled = $scheduled->get();
         }
-
-        $pdf = Pdf::loadView('pdf.my_courses',['scheduled' => $scheduled]);
+        
+        $pdf = Pdf::loadView('pdf.my_courses',['scheduled' => $scheduled,'participant' => $participant]);
         return $pdf->download("Mis Acciones de Formación Programadas.pdf");
         
     }
