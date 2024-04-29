@@ -14,9 +14,9 @@
             {!! csrf_field() !!}
             <div class="row">
                 <div class="col-md-12">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="report-type">Tipo de Reporte</label>
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <label for="report-type" class='control-label'>Tipo de Reporte</label>
                         <select name="report-type" id="report-type" class="form-control selector" >
                             <option value="date" selected>Cantidad de Acciones de Formación</option>
                             <option value="category">Cantidad de Acciones de Formación Por Areas de Conocimiento</option>
@@ -31,35 +31,35 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
-                <div class="form-group">   
-                    <label for="date_range">Rango de Tiempo</label>
-                    <select name="date_range" id="date_range" class="form-control">
-                        <option value="1" selected>1 Mes</option>
-                        <option value="4">4 Meses</option>
-                        <option value="6">6 Meses</option>                        
-                        <option value="12">1 año</option>
-                        <option value="all">Todo el Tiempo</option>
-                    </select>   
-                </div>
-                </div>
-                <div class="col-md-6">
                 <div class="form-group">
-                    <label for="step">Intervalo de Tiempo</label>
-                    <select name="step" id="step" class="form-control">
-                        <option value="1 day" selected>Diario</option>
-                        <option value="1 week">Semanal</option>
-                        <option value="15 days">Quincenal</option>
-                        <option value="1 month">Mensual</option>
-                        <option value="4 months">Cada 4 meses</option>
-                        <option value="6 months">Cada 6 meses</option>
-                        <option value="1 year">Anual</option>
-                    </select>    
+                    <div class="col-md-6">   
+                        <label for="date_range" class='control-label'>Rango de Tiempo</label>
+                        <select name="date_range" id="date_range" class="form-control">
+                            <option value="1" selected>1 Mes</option>
+                            <option value="4">4 Meses</option>
+                            <option value="6">6 Meses</option>                        
+                            <option value="12">1 año</option>
+                            <option value="all">Todo el Tiempo</option>
+                        </select>   
+                    </div>
+                <!-- </div>
+                <div class="form-group"> -->
+                    <div class="col-md-6">
+                        <label for="step" class='control-label'>Intervalo de Tiempo</label>
+                        <select name="step" id="step" class="form-control">
+                            <option value="1 day" selected>Diario</option>
+                            <option value="1 week">Semanal</option>
+                            <option value="15 days">Quincenal</option>
+                            <option value="1 month">Mensual</option>
+                            <option value="4 months">Cada 4 meses</option>
+                            <option value="6 months">Cada 6 meses</option>
+                            <option value="1 year">Anual</option>
+                        </select>    
+                    </div>
                 </div>
-                </div>
-                <div class="col-md-6 participant-status-container">
-                    <div class="form-group">
-                        <label for="participant_status">Estatus de Participantes</label>
+                <div class="form-group">
+                    <div class="col-md-6 participant-status-container">
+                        <label for="participant_status" class='control-label'>Estatus de Participantes</label>
                         <select name="participant_status" id="participant_status" class="form-control">
                             
                         </select>

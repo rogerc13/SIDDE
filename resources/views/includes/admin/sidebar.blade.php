@@ -189,7 +189,7 @@
 			@else
 				<li class="{{Request::is('reports') ? 'active' :''}}" title="Reportes">
 					<a href="{{url("/reports")}}">
-						<i class="entypo-list"></i>
+					<i class="entypo-chart-area"></i>
 						<span class="title">Reportes</span>
 					</a>
 				</li>

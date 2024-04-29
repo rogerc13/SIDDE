@@ -246,7 +246,7 @@ function reportByCategory(response){
 
     //tables
     $(".table-col-helper")
-        .append(`<div class="panel panel-success course-by-category-list">
+        .append(`<div class="panel panel-success course-by-category-list" style="page-break-inside: avoid">
                     
                     <div class="panel-heading">
                         <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
@@ -266,10 +266,10 @@ function reportByCategory(response){
 
     response.courseData.forEach(element => {
         $(".course-category-list tbody").append(`<tr><td>${element.categoryName}</td>
-                                                    <td>${element.amount}</td></tr>`);
+                                                     <td>${element.amount}</td></tr>`);
     });
     
-    $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range">
+    $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range" style="page-break-inside: avoid">
         <div class="panel-heading">
             <div class="panel-title">Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
         </div>
