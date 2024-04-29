@@ -448,6 +448,7 @@ function editarAccion(url){
             eventRefresh('Edit Modal');
 
             if(data[0].file.length > 0){
+                $('.no-docs').hide();
                 $('.fileinput').addClass('fileinput-exists').removeClass('fileinput-new');
                 f = 0;
                 data[0].file.forEach(element => {
