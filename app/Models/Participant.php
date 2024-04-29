@@ -12,12 +12,14 @@ class Participant extends Model
   const ENCURSO = 1;
   const SUSPENDIDO = 2;
   const APROBADO = 3;
+  const CANCELADO = 4;
 
   public static $estados = [
 
       self::ENCURSO => "En Curso",
       self::SUSPENDIDO => "Suspendido/Reprobado",
       self::APROBADO => "Aprobado",
+      self::CANCELADO => "Cancelado",
   ];
 
   protected $table = 'participants';

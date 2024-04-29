@@ -50,7 +50,7 @@
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3" >
                                 {{ Form::label('estado', 'Estado') }}
-                                {{ Form::select('estado', $estados, null , array('class' => 'form-control','required')) }}
+                                {{ Form::select('estado',$estados, null , array('class' => 'form-control','required')) }}
                             </div>                      
                         </div>    
                 </div>     
