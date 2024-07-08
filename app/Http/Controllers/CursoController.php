@@ -298,6 +298,11 @@ class CursoController extends Controller
                 
                 foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
                 if(! empty($content)){
+                        $contentLength = strlen($content);
+                        //check if period is present at end of string
+                        if(($content[$contentLength-1]) != '.'){
+                            $content = $content.'.';
+                        }
                         $contentData[] = new Content([ //array to be stored
                             'text' => $content
                         ]);
