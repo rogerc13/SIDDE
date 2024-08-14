@@ -353,6 +353,7 @@ class CursoProgramadoController extends Controller
         $scheduledId = $request->scheduled_id;
         
         $scheduledCourse = Scheduled::with('course')->find($scheduledId);
+        //return response()->json($scheduledCourse);
         $courseMaxCapacity = $scheduledCourse->course->capacity[0]->max;
 
         //check current amount of participants
@@ -367,20 +368,22 @@ class CursoProgramadoController extends Controller
         }else{
             
             if((count($coursePrerequisite) === 0) || $coursePrerequisite[0]->prerequisite === null){ //if course has no prerequisite
+                                
+                //get scheduled id's of scheduled courses that overlap with selected course and without status
+                $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
+                )->where('course_status_id','!=','4')->get()->pluck('id');
                 
-                //get all participants in a course which date don't overlap current course
-                $participantsOverlap = Person::with('scheduled')->whereHas(
-                    'scheduled',
-                    function ($query) use ($scheduledCourse) {
-                        $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
-                    }
-                )->get()->pluck('id');
+                //get all participants on participants' table that match the scheduled course id and status is different of canceled '4'
+                $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
+                /* ->where('participant_status_id','!=' ,4) */
+                ->get()->pluck('person_id');
 
                 //get list of all participants
                 $participantList = Person::whereHas('user', function($query){
                     $query->where('role_id','5');
                 })->get()->pluck('id');
 
+                //getparticipants without those who are in a course that overlap
                 $availableParticipants = $participantList->diff($participantsOverlap);
 
                 $people = Person::whereIn('id',$availableParticipants)->get();
@@ -395,14 +398,15 @@ class CursoProgramadoController extends Controller
                     $query->where('code',$coursePrerequisite[0]->prerequisite)->where('course_status_id','3');
                 })->get()->pluck('id');
                 
-                //get all participants in a course which date don't overlap current course
-                $participantsOverlap = Person::with('scheduled')->whereHas(
-                    'scheduled',
-                    function ($query) use ($scheduledCourse) {
-                        $query->whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date));
-                    }
-                )->get()->pluck('id');
+                //get scheduled id's of scheduled courses that overlap with selected course and without status
+                $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
+                )->where('course_status_id','!=','4')->get()->pluck('id');
                 
+                //get all participants on participants' table that match the scheduled course id and status is different of canceled '4'
+                $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
+                /* ->where('participant_status_id','!=' ,4) */
+                ->get()->pluck('person_id');
+
                 //get all participants that met the prerequisite
                 $participantsWithPrerequisite = Participant::with('Person')->whereIn('scheduled_id',$courseList)
                 ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id','25')->select('id')->get())
