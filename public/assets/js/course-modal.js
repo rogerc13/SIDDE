@@ -198,14 +198,14 @@ function prerequisiteSelect(data){
                 try {
                     $('#prerequisite').append(`<option>${data[0].prerequisite[0].prerequisite.title}</option>`).trigger('change');         
                 } catch (error) {
-                    $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');    
+                    $('#prerequisite').append(`<option>No Posee Prerequisito</option>`).trigger('change');    
                     //console.log(error);
                 }
             }else if(data[0].prerequisite[0].prerequisite_id === null){
-                $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+                $('#prerequisite').append(`<option>No Posee Prerequisito</option>`).trigger('change');
             }    
         }else{
-            $('#prerequisite').append(`<option>No posee Prerequisito</option>`).trigger('change');
+            $('#prerequisite').append(`<option>No Posee Prerequisito</option>`).trigger('change');
         }
     }else if($('#accion-label').html() == 'Editar Acción de formación'){ //EDIT MODAL
         $('.radio-prerequisite').hide();
