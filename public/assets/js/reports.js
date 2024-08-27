@@ -936,6 +936,7 @@ function reportByCourseNotScheduled(response){
 
 
 $(document).ready(function(){
+    $(".loader").addClass("hidden");
    $(".participant-status-container").hide();
     $('.selector').on('click',function(){
         if($(this).val() == 'participant-by-status'){
@@ -987,7 +988,12 @@ $(document).ready(function(){
             type: "POST",
             data: formData,
             url: '/reports/'+selected,
+            beforeSend: function(){
+                console.log('waiting for response');
+                $(".loader").removeClass("hidden");
+            },
             success: function(response){
+                $(".loader").addClass("hidden");
                 $('.print-report').removeAttr('disabled');
                 //console.log(response);
                 response = JSON.parse(response);

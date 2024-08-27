@@ -78,8 +78,12 @@
         </div>
         <div class="course-pie-graph"></div>
     </div>
+    <div class="loader text-center">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+        <span class="sr-only">Cargando...</span>
+    </div>
     <div class="row row-graphs">
-        
+            
         {{--  --}}
     </div>
     <div class="row">
