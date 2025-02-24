@@ -43,37 +43,33 @@ function reportByDate(response){ //reports by date
         </div>    
         <div class="panel-body">
             <div class="h-25 col-xs-12 col-md-12 graph-container">
-                <canvas id="myChart" width="200" height="200"></canvas>
+                <canvas id="myChart" width="300" height="300"></canvas>
             </div>
         </div>
         </div>`);
 
-    let ctx = $("#myChart");
+    //let ctx = $("#myChart");
 
     $('.course-amount-number span').html("");
     $(".course-amount-number span").append(
         `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</h3>`
     );
-    var chart = new Chart(ctx, {
-        type: "line",
-        data: {
-            datasets: [
-                {
-                    label: "Cantidad de Acciones de Formación",
-                    data: response.y,
-                    fill: false,
-                    borderColor: "steelblue",
-                },
-            ],
-            labels: response.x,
-        },
-        options: {
-            title: {
-                display: true,
-                text: `Acciones de Formación durante el Período ${response.start_date} - ${response.end_date}`,
-            },
-        },
-    });
+    const ctx = document.getElementById('myChart');
+    const labels = response.x;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+          label: 'Cantidad de Acciones de Formacion',
+          data: response.y,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.5,
+          cubicInterpolationMode: 'monotone'
+        }]
+      }
+  });
 }//end report by date
 
 function reportByCategory(response){
