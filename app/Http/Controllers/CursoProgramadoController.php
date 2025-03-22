@@ -143,9 +143,10 @@ class CursoProgramadoController extends Controller
     public function update(CursoProgramadoForm $request, $id)
     {
         $user=Auth::user();
-
+        //dd($request);        
 
         $cursoProg = Scheduled::find($id);
+        //return json_encode("update");
 
 
         if (!$cursoProg)
@@ -426,6 +427,7 @@ class CursoProgramadoController extends Controller
     public function cancel($id) //cancel af programadas / courses
     {
         $user = Auth::user();
+        //dd($id);
 
         if ($user->can('cancel', Scheduled::class)) {
             $cursoProg = Scheduled::find($id);

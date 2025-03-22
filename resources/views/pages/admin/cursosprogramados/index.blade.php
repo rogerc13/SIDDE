@@ -191,7 +191,7 @@
 								  <a  title="Eliminar Acción de formación Programada" href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-danger btn-xs">
 								      <i class="entypo-trash"></i>
 								  </a>
-								  <a  title="Cancelar Acción de formación Programada" href="javascript:cancelPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-danger btn-xs">
+								  <a  title="Cancelar Acción de formación Programada" href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$cursop->id)}}')" class="btn btn-danger btn-xs">
 								      <i class="glyphicon glyphicon-ban-circle"></i>
 								  </a>
 								</td>

@@ -7,7 +7,7 @@
         $("#programar-form").attr("action", url);
         $("#programar-label").html("Editar programación");
         $('#titulo').prop('disabled',true); 
-       
+        console.log('editar');
 
         
 
@@ -35,7 +35,13 @@
         $('.dat2').datepicker({
             format: "dd-mm-yyyy"                
         });
-
+        /*
+            on submit event
+                ajax post with new data
+                save
+                close modal
+                refresh redirect
+        */
 
     }
 </script>
