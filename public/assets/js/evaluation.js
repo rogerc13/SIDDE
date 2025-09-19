@@ -39,14 +39,20 @@ $(document).ready(function(){
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
+        $('.participant_status').hide();
+        $('.participant_status_helper').show();
         $('.evaluate-button').on('click',function(e){
             $(".return-button").prop('disabled',true);
             if($('.participant_status').prop('disabled') == true){
+                $('.participant_status').show();
+                $('.participant_status_helper').hide();
                 $('.evaluate-button span').html(' Finalizar Evaluación');
                 $('.participant_status').each(function(){
                     $('.participant_status').prop('disabled', false);
                 });
             }else{
+                $('.participant_status').hide();
+                $('.participant_status_helper').show();
                 $('.participant_status').each(function(){
                     $(this).prop('disabled', true);
                 });
