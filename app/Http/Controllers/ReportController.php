@@ -19,34 +19,45 @@ use Illuminate\Support\Facades\DB;
 class ReportController extends Controller
 {
     protected function range($request){
-        //get time range
-        $dateRange = $request->date_range;
-        //get steps
-        $step = $request->step;
-        if ($dateRange !== 'all') {
-            $rangeStart =  Carbon::now()->subMonth('' . $dateRange . '')->format('Y-m-d');
+        $dateRange = $request->date_range ?? '1';
+        $step = $request->step ?? '1 month';
+
+        // determine start date
+        if ($dateRange !== 'all' && is_numeric($dateRange)) {
+            $rangeStart = Carbon::now()->subMonths((int)$dateRange)->startOfDay();
+        } elseif ($dateRange === 'all') {
+            $first = Scheduled::orderBy('start_date')->value('start_date');
+            $rangeStart = $first ? Carbon::parse($first)->startOfDay() : Carbon::now()->subYear()->startOfDay();
         } else {
-            $rangeStart = Scheduled::select('start_date')->first();
-            $rangeStart = Carbon::parse($rangeStart->start_date)->format('Y-m-d');
-            $rangeStart = '2022-10-17';
+            // fallback: treat as 1 month
+            $rangeStart = Carbon::now()->subMonths(1)->startOfDay();
         }
 
-        $currentDate =  Carbon::now()->format('Y-m-d');
+        $currentDate = Carbon::now()->endOfDay();
 
-        $interval = CarbonPeriod::create($rangeStart, '' . $step . '', $currentDate);
+        // Ensure step is a valid period string (examples: '1 day', '7 days', '1 month')
+        try {
+            $period = CarbonPeriod::create($rangeStart, $step, $currentDate);
+        } catch (\Throwable $e) {
+            // fallback to daily
+            $period = CarbonPeriod::create($rangeStart, '1 day', $currentDate);
+        }
 
-        foreach ($interval as $key => $dates) {
-            $date[] = $dates->toDateTimeString();
+        $date = [];
+        foreach ($period as $d) {
+            $date[] = $d->format('Y-m-d');
         }
-        
-        if($step === '1 day'){
-            $day = true;
-        }else{
-            $day = false;
-        }
-        $numberOfSteps = count($date) - 1;
-        return ((object)['currentDate' => $currentDate,'interval'=>$interval,'date'=>$date,'numberOfSteps'=>$numberOfSteps,'day'=>$day]);
-        
+
+        $day = (stripos($step, 'day') !== false && intval($step) === 1);
+        $numberOfSteps = max(0, count($date) - 1);
+
+        return (object)[
+            'currentDate' => $currentDate->format('Y-m-d'),
+            'interval' => $period,
+            'date' => $date,
+            'numberOfSteps' => $numberOfSteps,
+            'day' => $day
+        ];
     }
 
     public function participantStatus(){ //dynamic participant status selector
@@ -57,52 +68,44 @@ class ReportController extends Controller
 
     public function byDate(Request $request)
     {
-    //By date
-    //get status variable
-        //$courseStatus = $request->course_status; //canceled, finished, active
-        $dates =  $this->range($request);
-        $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
-        $day = $dates->day;
-        $i = 0;
- 
-        foreach ($date as $key => $value) {
+        $datesObj = $this->range($request);
+        $date = $datesObj->date;
+        $numberOfSteps = $datesObj->numberOfSteps;
+        $day = $datesObj->day;
 
-            $start_date = $date[$key];
-            //if daily is selected start_date and end_date are the same, if not 
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+        $xAxis = [];
+        $y = [];
 
-            $helperA[] = Scheduled::select('id')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get();
-            $xAxis[] = [Carbon::parse($start_date)->format('Y-m-d'),];
+        $steps = max(1, $numberOfSteps);
+        for ($k = 0; $k <= $steps; $k++) {
+            $start_date = $date[$k];
+            // if not daily, end is next date or same for last
+            $end_index = ($day ? $k : min($k + 1, count($date) - 1));
+            $end_date = $date[$end_index];
 
+            $xAxis[] = Carbon::parse($start_date)->format('Y-m-d');
+            $y[] = Scheduled::whereBetween('start_date', [$start_date, $end_date])->count();
         }
 
-        $helperC = array();
-        $helperB = array();
-        //remove duplicates from array
-        foreach ($helperA as $key => $value) {
-            if(in_array($value,$helperC)){
-                $helperA[$key] = []; //replacement value if exists
-                $helperB[] = 0;
-            }else{
-                $helperC[] = $value; //add to 'seen' array
-                $helperB[] = count($value);
-            }
-        }
-        //NEED TO REMOVE DUPLICATES ONE LEVEL DEEPER ARRAY[][]
-
-        //should return amount in a single number of courses queried
-        return json_encode(['x' => $xAxis,
-                            'y' => $helperB,
-                            'total'=> array_sum($helperB),
-                            'yData' => $helperC,
-                            'start_date'=>Carbon::parse($date[0])->format('Y-m-d'),
-                            'end_date'=> Carbon::parse($date[count($date) - 1])->format('Y-m-d')]);
-       
+        return response()->json([
+            'x' => $xAxis,
+            'y' => $y,
+            'total'=> array_sum($y),
+            'yData' => [], // keep shape stable; populate if you need raw items
+            'start_date' => $xAxis[0] ?? null,
+            'end_date' => end($xAxis) ?: null
+        ]);
     }//end course by date range
 
     public function byCategory(Request $request){
         //Course amount By Category
+
+        // initialize arrays to avoid undefined variable notices
+        $xAxis = [];
+        $yAxis = [];
+        $categories = [];
+        $graphData = [];
+        $courseData = [];
 
         $dates =  $this->range($request);
         $date = $dates->date;
@@ -307,10 +310,15 @@ class ReportController extends Controller
 
     public function participantsByStatus(Request $request)
     {
+        // initialize arrays and defaults
+        $byAllTime = [];
+        $notInCourse = [];
+        $allStatusbyDateRange = [];
+        $labels = [];
+        $byStatusByDateRange = [];
+
         //all time by status
         $byAllTime = Participant::with('person','participantStatus')->where('participant_status_id', $request->participant_status)->get();
-        
-
         //participants not in a course, always all time
         $notInCourse = Person::whereDoesntHave('participant')->whereHas('user',function($query){
             $query->where('role_id',5);

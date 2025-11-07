@@ -33,14 +33,14 @@
 
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3" >
-                                {{ Form::label('nombre', 'Nombre') }}
-                                {{ Form::text('nombre', null , array('class' => 'form-control', 'maxlength'=>60 ,'required')) }}
+                                <label for="nombre">Nombre</label>
+                                <input type="text" name="nombre" id="nombre" class="form-control" maxlength="60" required>
                             </div>                      
                         </div>    
                 </div>     
 
                 <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'categoria-aceptar')) }}
+                    <button type="submit" class="btn btn-primary" id="categoria-aceptar">Aceptar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
                 </div>
 

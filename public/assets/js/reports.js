@@ -1,4 +1,4 @@
-        //select time range
+//select time range
         //select intervals, time steps
         //type of report
         //additional filters: finished courses, participant status
@@ -16,13 +16,26 @@ function refresh(){
     $(".table-col-helper").html("");
 }
 
+// helper: build a point for every x label so the dataset is contiguous
+function buildSeriesFor(label, xLabels, points, keyName){
+    // points assumed like { x: '2025-10-01', y: 3, category: 'X' } or { x, y, status }
+    const map = {};
+    points.forEach(p => {
+        if(p[keyName] === label){
+            map[p.x] = p.y;
+        }
+    });
+    // return null for missing values so Chart.js will connect across gaps when spanGaps:true
+    return xLabels.map(x => ({ x: x, y: (map[x] !== undefined ? map[x] : null) }));
+}
+
 function participantStatusSelect(){ //participant status select dropdown
     $.ajax({
         type:'GET',
         url: '/reports/participant-status-select',
+        dataType: 'json', // <-- ensure jQuery parses JSON
         success: function(response){
-            //console.log(JSON.parse(response));
-            response = JSON.parse(response);
+            // response is already a JS object
             response.statuses.forEach(status => {
                 $("#participant_status").append(
                     `<option value="${status.id}">${status.name}</option>`
@@ -54,22 +67,26 @@ function reportByDate(response){ //reports by date
     $(".course-amount-number span").append(
         `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</h3>`
     );
-    const ctx = document.getElementById('myChart');
-    const labels = response.x;
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{
-          label: 'Cantidad de Acciones de Formacion',
-          data: response.y,
-          fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.5,
-          cubicInterpolationMode: 'monotone'
-        }]
-      }
-  });
+    const ctx = document.getElementById('myChart'); // DOM element
+    // or to be explicit: const ctx = document.getElementById('myChart').getContext('2d');
+
+    var chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: response.x,
+            datasets: [{
+                label: 'Cantidad de Acciones de Formacion',
+                data: response.y,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.5,
+                cubicInterpolationMode: 'monotone'
+            }]
+        },
+        options: {
+            spanGaps: true
+        }
+    });
 }//end report by date
 
 function reportByCategory(response){
@@ -97,19 +114,15 @@ function reportByCategory(response){
     let colorHelp = 0;
     let regHex=/^#([0-9a-f]{3}){1,2}$/i;
     response.categories.forEach(element => {
-        //fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
         fillColor.push(
             "#000000".replace(/0/g,function(){
-               
                 return (~~(Math.random()*16)).toString(16);
             })
         );
-        console.log(regHex.test(fillColor[colorHelp]));
         let category = {
             label: element,
-            data: response.y.filter((obj) => {
-                return obj.category === element && obj.y !== 0;
-            }),
+            // build a point for every response.x so line is contiguous
+            data: buildSeriesFor(element, response.x, response.y, 'category'),
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
@@ -219,9 +232,8 @@ function reportByCategory(response){
         colorHelpDoughnut++;
     });
 
-    let doughnut = $("#doughnut"); //div selector
-
-        var myDoughnutChart = new Chart(doughnut, {
+    const doughnutEl = document.getElementById('doughnut');
+    var myDoughnutChart = new Chart(doughnutEl, {
         type: "doughnut",
         data: {
             datasets: [
@@ -322,39 +334,18 @@ function reportByCourseStatus(response){ //reports by course status
     response.statuses.forEach((element) => {
         fillColor.push(
             "#000000".replace(/0/g,function(){
-               
                 return (~~(Math.random()*16)).toString(16);
             })
         );
         let status = {
             label: element,
-            data: response.y
-                .filter((obj) => {
-                    return obj.status === element;
-                    //return {x,y} = (obj.status === element /* && obj.y !== 0 */) && {x,y} ;
-                })
-                .map((x) => {
-                    if (x.y > 0) {
-                        return { x: x.x, y: x.y };
-                    } else {
-                        return { x: x.x, y: 0 };
-                    }
-                }),
+            // ensure value exists at every x -> contiguous line
+            data: buildSeriesFor(element, response.x, response.y, 'status'),
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
             borderWidth: 1,
-            //spanGaps:false,
-            /* points:[{display:response.y.filter(obj => {
-                                            return obj.status === element;
-                                        }).map((x) => {
-                                            if(x.y > 0 ){
-                                                return true;
-                                            }else{
-                                                return false;
-                                            }
-                                        })},] */
         };
         statuses.push(status);
         colorHelp++;
@@ -984,6 +975,7 @@ $(document).ready(function(){
             type: "POST",
             data: formData,
             url: '/reports/'+selected,
+            dataType: 'json', // <-- ensure jQuery parses JSON
             beforeSend: function(){
                 console.log('waiting for response');
                 $(".loader").removeClass("hidden");
@@ -991,10 +983,8 @@ $(document).ready(function(){
             success: function(response){
                 $(".loader").addClass("hidden");
                 $('.print-report').removeAttr('disabled');
-                //console.log(response);
-                response = JSON.parse(response);
+                // response is already an object; DO NOT call JSON.parse(response)
                 console.log(response);
-                //console.log(response.y);
                 switch (selected) {
                     case "date":
                         reportByDate(response);

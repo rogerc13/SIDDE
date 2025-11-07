@@ -33,9 +33,8 @@
 
             <div class="modal-footer">
                 <form class="form-horizontal hidden" method="POST" id='categoria-form-delete' >
-                    {!! csrf_field() !!}
-                    <input type="hidden" name="_method" value="POST">
-                    
+                    @csrf
+                    <input type="hidden" name="_method" value="DELETE">
                     <button class="btn btn-danger" id="btn-action" >Eliminar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
                 </form>
