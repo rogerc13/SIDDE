@@ -86,22 +86,22 @@
 
                     <div class="form-group" id="fechas_form">
                         <div class="col-lg-12 col-md-12" >
-                            {{ Form::label('fecha_i', 'Fecha de Inicio') }}
-                            {{ Form::text('fecha_i', null, array('class' => 'form-control input-lg dat2','required','autocomplete'=>'off')) }}
+                            <label for="fecha_i">Fecha de Inicio</label>
+                            <input type="text" name="fecha_i" id="fecha_i" class="form-control input-lg dat2" required autocomplete="off" value="{{ old('fecha_i') }}">
                             {{-- <label for="fecha_i">Fecha de Inicio</label>
                             <input type="date" class="form-control" name="fecha_i"> --}}
                         </div>
                     </div>
                     <div class="form-group" id="fechas_form">
                         <div class="col-lg-12 col-md-12" >
-                            {{ Form::label('fecha_f', 'Fecha de Culminación') }}
-                            {{ Form::text('fecha_f', null, array('class' => 'form-control dat2 input-lg','required','autocomplete'=>'off')) }}
+                            <label for="fecha_f">Fecha de Culminación</label>
+                            <input type="text" name="fecha_f" id="fecha_f" class="form-control dat2 input-lg" required autocomplete="off" value="{{ old('fecha_f') }}">
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'accion-aceptar')) }}
+                    <button type="submit" class="btn btn-primary" id="accion-aceptar">Aceptar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
                 </div>
 

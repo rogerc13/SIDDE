@@ -33,22 +33,22 @@
 
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('nombre', 'Nombre') }}
-                                {{ Form::text('nombre', null , array('class' => 'form-control', 'maxlength'=>45 ,'required')) }}
+                                <label for="nombre">Nombre</label>
+                                <input type="text" name="nombre" id="nombre" class="form-control" maxlength="45" required value="{{ old('nombre') }}">
                             </div>   
                             <div class="col-lg-6 col-md-6" >
-	                            {{ Form::label('apellido', 'Apellido') }}
-	                            {{ Form::text('apellido',null ,array('class' => 'form-control', 'maxlength'=>45,'required')) }}
+                                <label for="apellido">Apellido</label>
+                                <input type="text" name="apellido" id="apellido" class="form-control" maxlength="45" required value="{{ old('apellido') }}">
                             </div>                    
                         </div>    
 
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('email', 'Correo') }}
-                                {{ Form::email('email', null , array('class' => 'form-control','maxlength'=>60 ,'required')) }}
+                                <label for="email">Correo</label>
+                                <input type="email" name="email" id="email" class="form-control" maxlength="60" required value="{{ old('email') }}">
                             </div>   
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('ci', 'C.I') }}
+                                <label for="ci">C.I</label>
                                 <div class="input-group">
                                     <div class="input-group-btn">
                                         <select name="id_type" id="id_type" class="form-select input-group-text btn btn-default 
@@ -58,7 +58,7 @@
                                             @endforeach  
                                         </select>
                                     </div>
-                                    {{ Form::number('ci', null, array('class' => 'form-control', 'min' => '0', 'maxlength'=>45,'required')) }}
+                                    <input type="number" name="ci" id="ci" class="form-control" min="0" maxlength="45" required value="{{ old('ci') }}">
                                 </div>
                             </div>                    
                         </div>
@@ -79,7 +79,7 @@
                 </div>     
 
                 <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'participante-aceptar')) }}
+                    <button type="submit" class="btn btn-primary" id="participante-aceptar">Aceptar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
                 </div>
 

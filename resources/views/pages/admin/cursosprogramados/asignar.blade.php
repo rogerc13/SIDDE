@@ -95,7 +95,7 @@
                 </div>     
 
                 <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'usuario-aceptar')) }}
+                    <button type="submit" class="btn btn-primary" id="usuario-aceptar">Aceptar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
                 </div>
 

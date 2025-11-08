@@ -49,14 +49,18 @@
                     
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3" >
-                                {{ Form::label('estado', 'Estado') }}
-                                {{ Form::select('estado',$estados, null , array('class' => 'form-control','required')) }}
+                                <label for="estado">Estado</label>
+                                <select name="estado" id="estado" class="form-control" required>
+                                    @foreach($estados as $key => $value)
+                                        <option value="{{ $key }}" @if(old('estado') == $key) selected @endif>{{ $value }}</option>
+                                    @endforeach
+                                </select>
                             </div>                      
                         </div>    
                 </div>     
 
                 <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Aceptar', array('class' => 'btn btn-primary', 'id'=>'categoria-aceptar')) }}
+                    <button type="submit" class="btn btn-primary" id="categoria-aceptar">Aceptar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
                 </div>
 

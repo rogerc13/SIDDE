@@ -42,6 +42,8 @@ Route::group(['middleware' => 'auth'], function ()
     {
         Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
         Route::post('/prerequisite', 'App\Http\Controllers\CursoController@prerequisiteList'); //ajax call to check if code already exists
+        // Temporary GET route for testing
+        Route::get('/prerequisite-test', 'App\Http\Controllers\CursoController@prerequisiteList')->name('curso.prerequisiteList');
         
         Route::group(['prefix' => 'pdf'], function()
         {

@@ -28,8 +28,8 @@
                     <div role="tabpanel" class="tab-pane active" id="tab-1">{{-- 1st tab --}}
                         <div class="form-group">
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
-                                {{ Form::text('codigo', null , array('class' => '0-tab-input input-lg form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock",'placeholder'=>'Ingrese el Código del Curso')) }}
+                                <label for="codigo" class="control-label">Código</label>
+                                <input type="text" name="codigo" id="codigo" class="0-tab-input input-lg form-control course-code is-invalid" maxlength="300" required aria-describedby="helpBlock" placeholder="Ingrese el Código del Curso">
                                 <span id="helpBlock" class="has-error help-block code-error-text">Este código ya se encuentra asignado a otra Acción de Formación.</span>
                             </div>
                             <div class="col-lg-6 col-md-6">
@@ -57,11 +57,11 @@
                         </div>
                         <div class="form-group">
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
-                                {{ Form::text('titulo', null , array('class' => '0-tab-input form-control input-lg', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese el Título del Curso')) }}
+                                <label for="titulo" class="control-label">Título</label>
+                                <input type="text" name="titulo" id="titulo" class="0-tab-input form-control input-lg" maxlength="300" required placeholder="Ingrese el Título del Curso">
                             </div>
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('categoria_id', 'Área de conocimiento',array('class' => 'control-label')) }}
+                                <label for="categoria_id" class="control-label">Área de conocimiento</label>
                                 <select name="categoria_id" class="select2" id="categoria_id" data-allow-clear="true" required="true">
                                     <option></option>
                                     @foreach($categorias as $categ)
@@ -76,7 +76,7 @@
                         </div>
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('modalidad_id', 'Modalidad',array('class' => 'control-label')) }}
+                                <label for="modalidad_id" class="control-label">Modalidad</label>
                                 {{-- Form::text('modalidad', null , array('class' => 'form-control', 'maxlength'=>45 ,'required')) --}}
                                 <select name="modalidad_id" class="select2 " id="modalidad_id" data-allow-clear="true" required="true">
                                     <option></option>
@@ -90,8 +90,8 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 col-md-6" >
-                                {{ Form::label('duracion', 'Duración (Horas)',array('class' => 'control-label')) }}
-                                {{ Form::number('duracion', null , array('class' => '0-tab-input form-control input-lg', 'min' => '1', 'required','placeholder'=>'Ingrese la duración del Curso')) }}
+                                <label for="duracion" class="control-label">Duración (Horas)</label>
+                                <input type="number" name="duracion" id="duracion" class="0-tab-input form-control input-lg" min="1" required placeholder="Ingrese la duración del Curso">
                             </div>
                         </div>
                     </div>{{-- end 1st tab --}}
@@ -99,31 +99,31 @@
                             <h5 style="font-weight: bold; color: #444444">Numero de Participantes</h5>
                         <div class="form-group" >
                                 <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('min', 'Mínimo',array('class' => 'control-label')) }}
-                                    {{ Form::number('min', null , array('class' => '1-tab-input form-control', 'min' => '1', 'required','placeholder'=>'Ingrese el número mínimo de participantes')) }}
+                                    <label for="min" class="control-label">Mínimo</label>
+                                    <input type="number" name="min" id="min" class="1-tab-input form-control" min="1" required placeholder="Ingrese el número mínimo de participantes">
                                 </div>
                                 <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('max', 'Máximo',array('class' => 'control-label')) }}
-                                    {{ Form::number('max', null , array('class' => '1-tab-input form-control', 'min' => '1', 'required','placeholder'=>'Ingrese el número máximo de participantes')) }}
+                                    <label for="max" class="control-label">Máximo</label>
+                                    <input type="number" name="max" id="max" class="1-tab-input form-control" min="1" required placeholder="Ingrese el número máximo de participantes">
                                 </div>
                             </div>
                             <div class="form-group" >
                             <div class="col-lg-12" >
-                                {{ Form::label('dirigido', 'Dirigido a',array('class' => 'control-label')) }}
-                                {{ Form::text('dirigido', null , array('class' => '1-tab-input form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ingrese a quien va dirigido el Curso')) }}
+                                <label for="dirigido" class="control-label">Dirigido a</label>
+                                <input type="text" name="dirigido" id="dirigido" class="1-tab-input form-control" maxlength="300" required placeholder="Ingrese a quien va dirigido el Curso">
                             </div>
                         </div>
                     </div>{{-- end 2nd tab --}}
                     <div role="tabpanel" class="tab-pane" id="tab-3">{{-- 3rd tab --}}
                             <div class="form-group">
                             <div class="col-lg-12" >
-                                {{ Form::label('objetivo', 'Objetivo',array('class' => 'control-label')) }}
-                                {{ Form::textarea('objetivo', null , array('class' => '2-tab-input form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required','placeholder'=>'Ingrese el objetivo del Curso')) }}
+                                <label for="objetivo" class="control-label">Objetivo</label>
+                                <textarea name="objetivo" id="objetivo" class="2-tab-input form-control" maxlength="3000" rows="7" style="resize: none;" required placeholder="Ingrese el objetivo del Curso"></textarea>
                             </div>
                         </div>          
                         <div class="form-group">
                             <div class="col-lg-12" >
-                                {{ Form::label('contenido', 'Contenido',array('class' => 'control-label')) }}
+                                <label for="contenido" class="control-label">Contenido</label>
                                 <br>
                                 <a class="btn btn-default add-btn">Anadir Contenido <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
                                 <a class="btn btn-default undo-btn">Deshacer</a>
@@ -213,20 +213,20 @@
                         <div class="read-only-docs">
                             <div class="form-group" >
                                 <div class="col-lg-6" >
-                                    {{ Form::label('facilitator_manual', 'Manual del Facilitador', array('class' => 'control-label'))}}
-                                    {{ Form::text('facilitator_manual', null , array('class' => 'form-control facilitator_manual','disabled'))}}
+                                    <label for="facilitator_manual" class="control-label">Manual del Facilitador</label>
+                                    <input type="text" name="facilitator_manual" id="facilitator_manual" class="form-control facilitator_manual" disabled>
                                 </div>
                                 <div class="col-lg-6" >
-                                    {{ Form::label('participant_manual', 'Manual del Participante', array('class' => 'control-label'))}}
-                                    {{ Form::text('participant_manual', null , array('class' => 'form-control participant_manual','disabled'))}}
+                                    <label for="participant_manual" class="control-label">Manual del Participante</label>
+                                    <input type="text" name="participant_manual" id="participant_manual" class="form-control participant_manual" disabled>
                                 </div>
                                 <div class="col-lg-6" >
-                                    {{ Form::label('course_guide', 'Guia', array('class' => 'control-label'))}}
-                                    {{ Form::text('course_guide', null , array('class' => 'form-control course_guide','disabled'))}}
+                                    <label for="course_guide" class="control-label">Guia</label>
+                                    <input type="text" name="course_guide" id="course_guide" class="form-control course_guide" disabled>
                                 </div>
                                 <div class="col-lg-6" >
-                                    {{ Form::label('course_presentation', 'Presentación', array('class' => 'control-label'))}}
-                                    {{ Form::text('course_presentation', null , array('class' => 'form-control course_presentation','disabled'))}}
+                                    <label for="course_presentation" class="control-label">Presentación</label>
+                                    <input type="text" name="course_presentation" id="course_presentation" class="form-control course_presentation" disabled>
                                 </div>
                             </div>
                         </div>
@@ -244,7 +244,7 @@
                         <li role="presentation" class=""><a class="tab-button-back btn">Atrás</a></li>
                         <li role="presentation" class="active"><a class="tab-button-next btn btn-primary">Siguiente</a></li>
                         <li role="presentation" class="">
-                            {{ Form::submit('Aceptar', array('class' => 'tab-submit btn btn-primary', 'id'=>'accion-aceptar')) }}
+                            <button type="submit" class="tab-submit btn btn-primary" id="accion-aceptar">Aceptar</button>
                         </li>
                         <li role="presentation"><a class="tab-button hidden" href="#tab-1" aria-controls="tab-1" role="tab" data-toggle="tab"></a></li>
                         <li role="presentation"><a class="tab-button hidden" href="#tab-2" aria-controls="tab-2" role="tab" data-toggle="tab"></a></li>

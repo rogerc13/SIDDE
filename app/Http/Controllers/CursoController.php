@@ -690,12 +690,16 @@ class CursoController extends Controller
     }
 
     public function prerequisiteList(){ //draws course prerequiste selector
-        foreach(Course::orderBy('code','ASC')->get() as $course){
-            $courses[] = ['id' => $course->id,
+        $courses = [];
+        $courseList = Course::select(['id', 'code', 'title'])->orderBy('code', 'ASC')->get();
+        foreach ($courseList as $course) {
+            $courses[] = [
+                'id' => $course->id,
                 'code' => $course->code,
-                'title'=> $course->title,];
+                'title' => $course->title,
+            ];
         }
-        return json_encode(['courses' => $courses]);
+        return response()->json(['courses' => $courses]);
     }
     
     public function download($id,$type){
