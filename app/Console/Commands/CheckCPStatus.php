@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CPStatus;
-use App\Models\CursoProgramado;
+use App\Models\CourseStatus;
+use App\Models\Scheduled;
 use Illuminate\Console\Command;
 
 class CheckCPStatus extends Command
@@ -30,26 +30,26 @@ class CheckCPStatus extends Command
     public function handle()
     {
 
-        $cursos = CursoProgramado::orderBy("fecha_i","desc")->get();
+        $cursos = Scheduled::orderBy("start_date","desc")->get();
 
       foreach ($cursos as $curso){
 
-            if ($curso->status_id != CPStatus::CANCELADO) {
-                if (today() < $curso->fecha_i) {
-                    if ($curso->status_id != CPStatus::POR_DICTAR) {
-                        $curso->status_id = CPStatus::POR_DICTAR;
+            if ($curso->course_status_id != CourseStatus::CANCELADO) {
+                if (today() < $curso->start_date) {
+                    if ($curso->course_status_id != CourseStatus::POR_DICTAR) {
+                        $curso->course_status_id = CourseStatus::POR_DICTAR;
                         $curso->save();
                     }
                 }
-                else if (today() <= $curso->fecha_f) {
-                    if ($curso->status_id != CPStatus::EN_CURSO) {
-                        $curso->status_id = CPStatus::EN_CURSO;
+                else if (today() <= $curso->end_date) {
+                    if ($curso->course_status_id != CourseStatus::EN_CURSO) {
+                        $curso->course_status_id = CourseStatus::EN_CURSO;
                         $curso->save();
                     }
                 }
-                else if (today() > $curso->fecha_f){
-                    if ($curso->status_id != CPStatus::CULMINADO) {
-                        $curso->status_id = CPStatus::CULMINADO;
+                else if (today() > $curso->end_date){
+                    if ($curso->course_status_id != CourseStatus::CULMINADO) {
+                        $curso->course_status_id = CourseStatus::CULMINADO;
                         $curso->save();
                     }
                 }

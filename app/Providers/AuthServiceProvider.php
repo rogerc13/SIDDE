@@ -5,17 +5,17 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
-use App\User;
-use App\Categoria;
-use App\Curso;
-use App\CursoProgramado;
-use App\ParticipanteCurso;
+use App\Models\User;
+use App\Models\Category;
+use App\Models\Course;
+use App\Models\Scheduled;
+use App\Models\Participant;
 
 use App\Policies\UserPolicy;
 use App\Policies\CategoryPolicy;
-use App\Policies\CursoPolicy;
-use App\Policies\CursoProgramadoPolicy;
-use App\Policies\ParticipanteCursoPolicy;
+use App\Policies\CoursePolicy;
+use App\Policies\ScheduledPolicy;
+use App\Policies\ParticipantPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,9 +28,9 @@ class AuthServiceProvider extends ServiceProvider
         'App\Model' => 'App\Policies\ModelPolicy',
         User::class => UserPolicy::class,
         Category::class => CategoryPolicy::class,
-        Course::class => CoursesPolicy::class,
-        CursoProgramado::class => CursoProgramadoPolicy::class,
-        ParticipanteCurso::class => ParticipanteCursoPolicy::class,
+        Course::class => CoursePolicy::class,
+        Scheduled::class => ScheduledPolicy::class,
+        Participant::class => ParticipantPolicy::class,
     ];
 
     /**
