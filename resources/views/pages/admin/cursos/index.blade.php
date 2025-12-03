@@ -12,10 +12,10 @@
 	<br>
 <div class="row filtros">						
 	<div class="col-md-12">
-		<form class="form-horizontal">
-			<div class="form-group">
+		<form class="form-horizontal" method="GET" action="{{ url('u/acciones_formacion') }}">
+			  <div class="form-group" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;">
 
-		        <div class="col-md-4 col-sm-6 col-xs-12">
+				<div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="id_areas" class="control-label">Área</label>
 		            <select name="id_areas" class="select2 " id="id_areas" data-allow-clear="true" required="true">
 								<option value='0'>Todos</option>
@@ -28,13 +28,20 @@
 		                @endforeach
 		            </select>  
 		       	</div>
-		      	<div class="col-md-4 col-sm-6 col-xs-12">
+				  <div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="titulos" class="control-label">Título</label>
-		          <div class="input-group">
-		          	<input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
-		          	<span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
-		          </div>
-		        </div>
+				<div class="input-group">
+					<input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
+					<span class="input-group-btn">
+						<button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button>
+					</span>
+				</div>
+				</div>
+				<div class="col-md-2 col-sm-12 col-xs-12" style="min-width:120px;">
+					<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/acciones_formacion') }}'">
+						<i class="fa fa-refresh"></i>
+					</button>
+				</div>
 	       	</div>
       	</form>	
 	</div>

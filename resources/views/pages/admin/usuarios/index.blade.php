@@ -21,8 +21,8 @@
   <br>
 <div class="row filtros">           
   <div class="col-md-12">
-    <form class="form-horizontal">
-      <div class="form-group">
+  <form class="form-horizontal" method="GET" action="{{ url('u/usuarios') }}">
+  <div class="form-group" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;">
 
             <div class="col-md-3 col-sm-6 col-xs-12">
               <label for="nombres" class="control-label">Nombre</label>              
@@ -63,6 +63,11 @@
                 <span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
               </div>
             </div>
+          </div>
+          <div class="col-md-1 col-sm-12 col-xs-12" style="min-width:60px;">
+            <button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/usuarios') }}'">
+                <i class="fa fa-refresh"></i>
+            </button> 
           </div>
       <!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
                 <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>
