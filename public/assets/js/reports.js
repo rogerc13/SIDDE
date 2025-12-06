@@ -48,34 +48,62 @@ function reportByDate(response){ //reports by date
         </div>
         </div>`);
 
-    //let ctx = $("#myChart");
-
     $('.course-amount-number span').html("");
     $(".course-amount-number span").append(
         `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</h3>`
     );
-        const ctx = document.getElementById('myChart');
-        const labels = response.x;
-        // Replace 0 values with null to avoid drawing dots for zeroes
-        const cleanedData = response.y.map(val => val === 0 ? null : val);
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Cantidad de Acciones de Formacion',
-                        data: cleanedData,
-                        fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.5,
-                        cubicInterpolationMode: 'monotone'
-                    }]
-                },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
+
+    // Build array of {x, y} objects for time-based line chart, just like the other working graphs
+    let lineData = [];
+    if (Array.isArray(response.x) && Array.isArray(response.y)) {
+        // Flatten x if it's an array of arrays (as in the controller)
+        let xArr = response.x.map(val => Array.isArray(val) ? val[0] : val);
+        lineData = xArr.map((date, idx) => {
+            let yVal = response.y[idx];
+            return {
+                x: date,
+                y: (typeof yVal === 'number' && yVal !== 0) ? yVal : null
+            };
         });
+    }
+    const ctx = document.getElementById('myChart');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Cantidad de Acciones de Formacion',
+                data: lineData,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 3,
+                tension: 0.5,
+                cubicInterpolationMode: 'monotone'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [
+                    {
+                        type: "time",
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Período de Tiempo",
+                        },
+                        ticks: {
+                            major: {
+                                fontStyle: "bold",
+                                fontColor: "black",
+                            },
+                        },
+                    },
+                ],
+            },
+        }
+    });
 }//end report by date
 
 function reportByCategory(response){
@@ -124,7 +152,7 @@ function reportByCategory(response){
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
-            borderWidth: 1,
+            borderWidth: 3,
         };
         categories.push(category);
         colorHelp++;
@@ -339,10 +367,14 @@ function reportByCourseStatus(response){ //reports by course status
                 return (~~(Math.random()*16)).toString(16);
             })
         );
-        // For each status, build a data array with null for 0 values
-        let statusData = response.y
-            .filter((obj) => obj.status === element)
-            .map((x) => x.y > 0 ? { x: x.x, y: x.y } : { x: x.x, y: null });
+        // For each status, build an array of {x, y} objects for the time-based line chart
+        let statusData = response.x.map(date => {
+            let found = response.y.find(obj => obj.status === element && obj.x === date);
+            return {
+                x: date,
+                y: found ? (found.y > 0 ? found.y : null) : null
+            };
+        });
         let status = {
             label: element,
             data: statusData,
@@ -350,7 +382,7 @@ function reportByCourseStatus(response){ //reports by course status
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
-            borderWidth: 1,
+            borderWidth: 3,
         };
         statuses.push(status);
         colorHelp++;
