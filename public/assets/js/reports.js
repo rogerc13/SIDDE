@@ -43,7 +43,7 @@ function reportByDate(response){ //reports by date
         </div>    
         <div class="panel-body">
             <div class="h-25 col-xs-12 col-md-12 graph-container">
-                <canvas id="myChart" width="300" height="300"></canvas>
+                <canvas id="myChart"></canvas>
             </div>
         </div>
         </div>`);
@@ -54,22 +54,28 @@ function reportByDate(response){ //reports by date
     $(".course-amount-number span").append(
         `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</h3>`
     );
-    const ctx = document.getElementById('myChart');
-    const labels = response.x;
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [{
-          label: 'Cantidad de Acciones de Formacion',
-          data: response.y,
-          fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.5,
-          cubicInterpolationMode: 'monotone'
-        }]
-      }
-  });
+        const ctx = document.getElementById('myChart');
+        const labels = response.x;
+        // Replace 0 values with null to avoid drawing dots for zeroes
+        const cleanedData = response.y.map(val => val === 0 ? null : val);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cantidad de Acciones de Formacion',
+                        data: cleanedData,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.5,
+                        cubicInterpolationMode: 'monotone'
+                    }]
+                },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
 }//end report by date
 
 function reportByCategory(response){
@@ -82,7 +88,7 @@ function reportByCategory(response){
                 </div>
                 <div class="panel-body">
                     <div class="graph-container">
-                     <canvas id="myChart" width="200" height="200"></canvas>
+                     <canvas id="myChart"></canvas>
                     </div>
                 </div>
             </div>`);
@@ -97,19 +103,23 @@ function reportByCategory(response){
     let colorHelp = 0;
     let regHex=/^#([0-9a-f]{3}){1,2}$/i;
     response.categories.forEach(element => {
-        //fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
         fillColor.push(
             "#000000".replace(/0/g,function(){
-               
                 return (~~(Math.random()*16)).toString(16);
             })
         );
-        console.log(regHex.test(fillColor[colorHelp]));
+        // For each category, build an array of {x, y} objects for the time-based line chart
+        let categoryData = response.x.map(date => {
+            // Find the y value for this category and date
+            let found = response.y.find(obj => obj.category === element && obj.x === date);
+            return {
+                x: date,
+                y: found ? (found.y === 0 ? null : found.y) : null
+            };
+        });
         let category = {
             label: element,
-            data: response.y.filter((obj) => {
-                return obj.category === element && obj.y !== 0;
-            }),
+            data: categoryData,
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
@@ -151,6 +161,8 @@ function reportByCategory(response){
             datasets: categories,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 xAxes: [
                     {
@@ -201,7 +213,7 @@ function reportByCategory(response){
             </div>
             <div class="panel-body">
                 <div class="  doughnut-container">
-                    <canvas id="doughnut" width="400" height="400"></canvas>
+                    <canvas id="doughnut"></canvas>
                 </div>
             </div>
         </div>`);
@@ -233,6 +245,8 @@ function reportByCategory(response){
             labels: doughnutLabels,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
@@ -308,7 +322,7 @@ function reportByCourseStatus(response){ //reports by course status
             </div>
             <div class="panel-body">
                 <div class="h-25 col-xs-12 col-md-12 graph-container">
-                <canvas id="myChart" width="400" height="430"></canvas>
+                <canvas id="myChart"></canvas>
                 </div>
             </div>
             </div>`);
@@ -322,39 +336,21 @@ function reportByCourseStatus(response){ //reports by course status
     response.statuses.forEach((element) => {
         fillColor.push(
             "#000000".replace(/0/g,function(){
-               
                 return (~~(Math.random()*16)).toString(16);
             })
         );
+        // For each status, build a data array with null for 0 values
+        let statusData = response.y
+            .filter((obj) => obj.status === element)
+            .map((x) => x.y > 0 ? { x: x.x, y: x.y } : { x: x.x, y: null });
         let status = {
             label: element,
-            data: response.y
-                .filter((obj) => {
-                    return obj.status === element;
-                    //return {x,y} = (obj.status === element /* && obj.y !== 0 */) && {x,y} ;
-                })
-                .map((x) => {
-                    if (x.y > 0) {
-                        return { x: x.x, y: x.y };
-                    } else {
-                        return { x: x.x, y: 0 };
-                    }
-                }),
+            data: statusData,
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
             backgroundColor: fillColor[colorHelp],
             borderWidth: 1,
-            //spanGaps:false,
-            /* points:[{display:response.y.filter(obj => {
-                                            return obj.status === element;
-                                        }).map((x) => {
-                                            if(x.y > 0 ){
-                                                return true;
-                                            }else{
-                                                return false;
-                                            }
-                                        })},] */
         };
         statuses.push(status);
         colorHelp++;
@@ -387,6 +383,8 @@ function reportByCourseStatus(response){ //reports by course status
             datasets: statuses,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 xAxes: [
                     {
@@ -438,7 +436,7 @@ function reportByCourseStatus(response){ //reports by course status
             </div>
             <div class="panel-body">
                 <div class="doughnut-container">
-                    <canvas id="doughnut" width="400" height="400"></canvas>
+                    <canvas id="doughnut"></canvas>
                 </div>
             </div>
         </div>`);
@@ -457,6 +455,8 @@ function reportByCourseStatus(response){ //reports by course status
             labels: doughnutLabels,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
@@ -670,6 +670,8 @@ function reportByParticipantStatus(response){
             labels: doughnutLabelsStatus,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
@@ -690,6 +692,8 @@ function reportByParticipantStatus(response){
             labels: doughnutLabelsStatus,
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
@@ -977,8 +981,8 @@ $(document).ready(function(){
             //reset graph container
             $('.graph-container').children().remove();
             $('.doughnut-container').children().remove();
-            $('.graph-container').append('<canvas id="myChart" width="400" height="400"></canvas>');
-            $('.doughnut-container').append('<canvas id="doughnut" width="400" height="400"></canvas>');
+            $('.graph-container').append('<canvas id="myChart"></canvas>');
+            $('.doughnut-container').append('<canvas id="doughnut"></canvas>');
             
             $.ajax({
             type: "POST",

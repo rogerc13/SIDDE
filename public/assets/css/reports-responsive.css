@@ -1,0 +1,13 @@
+.graph-container, .doughnut-container {
+    width: 100% !important;
+    max-width: 100%;
+    height: 400px !important;
+    min-height: 300px;
+}
+
+#myChart, #doughnut {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    display: block;
+}
