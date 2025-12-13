@@ -88,17 +88,102 @@
             return contentData; 
         }  
     }); */
-$(document).ready(function (){
-    
-    /* $.ajaxSetup({
-        headers:{
-            'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
-        }
-    }); */
+$(document).ready(function () {
+    let contentData = [];
+    let editIndex = null;
 
-    $("#accion-modal").on("hidden.bs.modal", function(){
-        $(".content-list").children().remove();// deletes list items to avoid incorrect list values when modal re opens
-        counter = 0; //sets global list value to 0
+    function renderContentList() {
+        const $list = $(".content-list");
+        $list.empty();
+        contentData.forEach((item, idx) => {
+            $list.append(`
+                <li class="list-group-item d-flex align-items-center" style="display: flex; justify-content: space-between;" data-index="${idx}">
+                    <span class="content-text">${item}</span>
+                    <span style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="drag-handle" style="cursor: move; margin-right: 0.5rem;">
+                            <i class="glyphicon glyphicon-menu-hamburger"></i>
+                        </span>
+                        <button class="btn btn-xs btn-primary edit-content-btn" type="button"><i class="glyphicon glyphicon-pencil"></i></button>
+                        <button class="btn btn-xs btn-danger remove-content-btn" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                    </span>
+                </li>
+            `);
+        });
+
+        // Re-enable sortable after rendering
+        if ($list.hasClass('ui-sortable')) {
+            $list.sortable('destroy');
+        }
+        $list.sortable({
+            handle: '.drag-handle',
+            update: function (event, ui) {
+                // Update contentData order based on new DOM order
+                const newOrder = [];
+                $list.children('li').each(function () {
+                    const idx = $(this).data('index');
+                    newOrder.push(contentData[idx]);
+                });
+                contentData = newOrder;
+                // Re-render to update data-index attributes
+                renderContentList();
+            }
+        });
+    }
+
+    // Add content
+    $(document).on('click', '#add-content-btn', function () {
+        const value = $('#content-input').val().trim();
+        if (value) {
+            if (editIndex !== null) {
+                contentData[editIndex] = value;
+                editIndex = null;
+                $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+            } else {
+                contentData.push(value);
+            }
+            $('#content-input').val('');
+            renderContentList();
+        }
+    });
+
+    // Edit content
+    $(document).on('click', '.edit-content-btn', function () {
+        const idx = $(this).closest('li').data('index');
+        $('#content-input').val(contentData[idx]).focus();
+        editIndex = idx;
+        $('#add-content-btn').html('<span class="glyphicon glyphicon-floppy-disk"></span> Guardar').removeClass('btn-success').addClass('btn-warning');
+    });
+
+    // Remove content
+    $(document).on('click', '.remove-content-btn', function () {
+        const idx = $(this).closest('li').data('index');
+        contentData.splice(idx, 1);
+        if (editIndex === idx) {
+            $('#content-input').val('');
+            editIndex = null;
+            $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+        }
+        renderContentList();
+    });
+
+    // Cancel edit on input blur (optional, or add a cancel button if desired)
+    $('#content-input').on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            $(this).val('');
+            editIndex = null;
+            $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+        }
+    });
+
+    // Reset on modal close
+    $("#accion-modal").on("hidden.bs.modal", function () {
+        $(".content-list").children().remove();
+        $('#content-input').val('');
+        editIndex = null;
         contentData = [];
-    });    
+        $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+    });
+
+    // Expose contentData for form submission if needed
+    window.getContentData = function () { return contentData; };
 });
