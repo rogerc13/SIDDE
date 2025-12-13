@@ -265,61 +265,69 @@ class ReportController extends Controller
         //DATE RANGE
             //by date range , by status
             $dates =  $this->range($request);
+            // ALL TIME
+            $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
+            $finishedTotal = Scheduled::where('course_status_id', 3)->with('course')->get()->pluck('course.duration')->sum();
+            $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration', 'desc')->get();
+            $spansMostDays = Scheduled::with('course')
+                ->select('id', 'start_date', 'end_date', 'course_id', DB::raw('DATEDIFF(end_date,start_date) AS max_difference'))
+                ->orderByDesc('max_difference')
+                ->get();
+
+            // DATE RANGE (query only once for the full range)
+            $dates = $this->range($request);
             $date = $dates->date;
-            $numberOfSteps = $dates->numberOfSteps;
-            $day = $dates->day;
-            $i = 0;
+            $start_date = $date[0];
+            $end_date = end($date);
 
-            foreach ($date as $key => $value) {
-                $start_date = $date[$key];
-                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
 
-                $byDateRange[] = ['x' => Carbon::parse($start_date)->format('Y-m-d'),
-                                'y' => collect(Scheduled::where('course_status_id', 3)->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->with('course')->get())->sum(('course.duration')),
-                                'data' => Scheduled::with('course')->whereBetween(DB::raw('start_date'), array($start_date, $end_date))->get(),
-                                ];
-
-                $byDateHelper[] = collect(Scheduled::where('course_status_id',3)
-                ->whereBetween(DB::raw('start_date'),array($start_date, $end_date))
+            // Only include finished scheduled courses (status 3) in both total and list
+            // Use the exact same logic for the list as for the total
+            $scheduledCourses = Scheduled::where('course_status_id', 3)
+                ->whereBetween('start_date', [$start_date, $end_date])
                 ->with('course')
-                ->get())
-                ->sum(('course.duration'));
-            }
+                ->get();
 
-            $dateHelper = collect($byDateHelper)->sum();
+            // Calculate total hours for the range (sum durations of finished scheduled courses in range)
+            $dateHelper = $scheduledCourses->pluck('course.duration')->sum();
 
-        $dateRangeHelper = ['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')]; 
+            $dateRangeHelper = [
+                'startDate' => Carbon::parse($start_date)->format('Y-m-d'),
+                'endDate' => Carbon::parse($end_date)->format('Y-m-d')
+            ];
 
-        
-        return json_encode(['byAllTime' => $byAllTime,
-        'finishedTotal' => $finishedTotal,
-        'mostDuration' => $mostDuration,
-        'byDateRange' => $byDateRange,
-        'finishedByDateRange' => $dateHelper,
-        'spansMostDays' => $spansMostDays,
-        'dateRange' => $dateRangeHelper
-        ]);
 
-    }//end course duration
+            // Return one row per finished scheduled course in the date range
+            $scheduledList = $scheduledCourses
+                ->map(function($scheduled) {
+                    $durationDays = null;
+                    if ($scheduled->start_date && $scheduled->end_date) {
+                        $start = \Carbon\Carbon::parse($scheduled->start_date);
+                        $end = \Carbon\Carbon::parse($scheduled->end_date);
+                        $durationDays = $start->diffInDays($end) + 1;
+                    }
+                    $course = $scheduled->course;
+                    return [
+                        'scheduled_id' => $scheduled->id,
+                        'course_id' => $course ? $course->id : '',
+                        'course_title' => $course ? $course->title : 'Sin título',
+                        'duration' => $course ? $course->duration : 0,
+                        'start_date' => $scheduled->start_date ?? '',
+                        'end_date' => $scheduled->end_date ?? '',
+                        'duration_days' => $durationDays ?? '',
+                    ];
+                })
+                ->values();
 
-    public function byCanceled(){
-        //Canceled Courses
-        $canceledCourse = Scheduled::withTrashed()->where('course_status_id', 4)->with('course')->get();
-        return $canceledCourse;
-    }
-
-    public function participantsByStatus(Request $request)
-    {
-        // initialize arrays and defaults
-        $byAllTime = [];
-        $notInCourse = [];
-        $allStatusbyDateRange = [];
-        $labels = [];
-        $byStatusByDateRange = [];
-
-        //all time by status
-        $byAllTime = Participant::with('person','participantStatus')->where('participant_status_id', $request->participant_status)->get();
-        //participants not in a course, always all time
+            return json_encode([
+                'byAllTime' => $byAllTime,
+                'finishedTotal' => $finishedTotal,
+                'mostDuration' => $mostDuration,
+                'byDateRange' => $scheduledList,
+                'finishedByDateRange' => $dateHelper,
+                'spansMostDays' => $spansMostDays,
+                'dateRange' => $dateRangeHelper
+            ]);
         $notInCourse = Person::whereDoesntHave('participant')->whereHas('user',function($query){
             $query->where('role_id',5);
         })->select('id','name','last_name','id_number','phone')->get();
@@ -370,7 +378,7 @@ class ReportController extends Controller
         //return json_encode($byDateRange);
         
         return json_encode(['byAllTime' => $byAllTime, 'byStatusByDateRange'=> $byStatusByDateRange ,'allStatusbyDateRange' => $allStatusbyDateRange,'notInCourse' => $notInCourse, 'labels' => $labels,]);
-    }//end by participant status
+    }//end by course duration
 
     public function courseByParticipantQuantity(Request $request){
         //ALL TIME

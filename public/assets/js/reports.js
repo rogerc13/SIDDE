@@ -554,15 +554,17 @@ function reportByDuration(response){ //reports by course duration
         <th>Duración Días</th>
     </tr>`);
 
-    response.spansMostDays.forEach(element => {
-        $(".course-day-span-all-time-list tbody").append(`<tr>
-            <td>${element.course.title}</td>
-            <td>${element.start_date}</td>
-            <td>${element.end_date}</td>
-            <td>${element.course.duration}</td>
-            <td>${element.max_difference}</td>
-        </tr>`);
-    });
+    if (Array.isArray(response.byDateRange)) {
+        response.byDateRange.forEach(element => {
+            $(".course-day-span-all-time-list tbody").append(`<tr>
+                <td>${element.course_title ?? ''}</td>
+                <td>${element.start_date ?? ''}</td>
+                <td>${element.end_date ?? ''}</td>
+                <td>${element.duration ?? ''}</td>
+                <td>${element.duration_days ?? ''}</td>
+            </tr>`);
+        });
+    }
 
     //Most duration hours
     $(".table-col-helper")
@@ -605,7 +607,7 @@ function reportByParticipantStatus(response){
     refresh();
 
     let start_date = response.byStatusByDateRange[0].date;
-
+    
     let end_date =
         response.byStatusByDateRange[response.byStatusByDateRange.length - 1]
             .date;
