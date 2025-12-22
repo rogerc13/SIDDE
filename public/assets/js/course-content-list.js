@@ -89,7 +89,15 @@
         }  
     }); */
 $(document).ready(function () {
-    let contentData = [];
+
+    // Allow external initialization (for update view)
+    window.setInitialContentData = function(arr) {
+        contentData = Array.isArray(arr) ? arr.slice() : [];
+        editIndex = null;
+        renderContentList();
+    };
+
+    let contentData = window.initialContentData ? window.initialContentData.slice() : [];
     let editIndex = null;
 
     function renderContentList() {
@@ -116,16 +124,17 @@ $(document).ready(function () {
         }
         $list.sortable({
             handle: '.drag-handle',
-            update: function (event, ui) {
-                // Update contentData order based on new DOM order
+            update: function () {
+                // Rebuild contentData from current DOM order
                 const newOrder = [];
                 $list.children('li').each(function () {
-                    const idx = $(this).data('index');
-                    newOrder.push(contentData[idx]);
+                    newOrder.push($(this).find('.content-text').text().trim());
                 });
                 contentData = newOrder;
-                // Re-render to update data-index attributes
-                renderContentList();
+                // Keep data-index attributes in sync without re-rendering
+                $list.children('li').each(function (idx) {
+                    $(this).attr('data-index', idx);
+                });
             }
         });
     }

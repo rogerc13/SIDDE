@@ -293,20 +293,29 @@ class CursoController extends Controller
                     'addressed' => $request->dirigido,
                 );
                 
-                
-                $contentList = explode(",",$request->content_data);  //turns string of content into an array
-                
-                foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
-                if(! empty($content)){
-                        $contentLength = strlen($content);
-                        //check if period is present at end of string
-                        if(($content[$contentLength-1]) != '.'){
-                            $content = $content.'.';
-                        }
-                        $contentData[] = new Content([ //array to be stored
-                            'text' => $content
-                        ]);
+                // Build unique content list (avoid accidental duplicates)
+                $contentData = [];
+                $seenContent = [];
+                $contentList = explode(",", $request->content_data);  // turns string of content into an array
+                foreach ($contentList as $content) {  // cycles content list and creates array to store into course_contents
+                    $content = trim($content);
+                    if ($content === '') {
+                        continue;
                     }
+                    if (isset($seenContent[$content])) {
+                        // skip duplicates by text
+                        continue;
+                    }
+                    $seenContent[$content] = true;
+
+                    $contentLength = strlen($content);
+                    // check if period is present at end of string
+                    if ($contentLength > 0 && ($content[$contentLength - 1]) != '.') {
+                        $content = $content . '.';
+                    }
+                    $contentData[] = new Content([ // array to be stored
+                        'text' => $content
+                    ]);
                 }
         
                 $path = [];
@@ -391,16 +400,27 @@ class CursoController extends Controller
         $curso->objective = $request->objetivo;
         //$curso->contenido = $request->contenido;
         
-        //delete all contents of the course if they exist on the content list table 
+        // delete all contents of the course if they exist on the content list table 
         $curso->content()->delete();
 
-        $contentList = explode(",", $request->content_data);  //turns string of content into an array
-        foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
-            if (!empty($content)) {
-                $contentData[] = new Content([ //array to be stored
-                    'text' => $content
-                ]);
+        // Build unique content list from request (avoid accidental duplicates)
+        $contentData = [];
+        $seenContent = [];
+        $contentList = explode(",", $request->content_data);  // turns string of content into an array
+        foreach ($contentList as $content) {  // cycles content list and creates array to store into course_contents
+            $content = trim($content);
+            if ($content === '') {
+                continue;
             }
+            if (isset($seenContent[$content])) {
+                // skip duplicates by text
+                continue;
+            }
+            $seenContent[$content] = true;
+
+            $contentData[] = new Content([ // array to be stored
+                'text' => $content
+            ]);
         }
         $fileCollection = collect($curso->file);
     
