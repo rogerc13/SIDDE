@@ -49,11 +49,11 @@
                 <span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
               </div>
             </div>
-          </div>
-          <div class="col-md-1 col-sm-12 col-xs-12" style="min-width:60px;">
-            <button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/facilitadores') }}'">
-                <i class="fa fa-refresh"></i>
-            </button>
+            <div class="col-md-1 col-sm-12 col-xs-12" style="min-width:60px;">
+              <button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/facilitadores') }}'">
+                  <i class="fa fa-refresh"></i>
+              </button>
+            </div>
           </div>
       <!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
                 <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>

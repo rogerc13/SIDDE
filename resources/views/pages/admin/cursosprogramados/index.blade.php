@@ -59,7 +59,7 @@
                         @endforeach
 		            </select>
 		       	</div>
-		        <div class="col-md-3 col-sm-6 col-xs-12">
+		        <div class="col-md-2 col-sm-6 col-xs-12">
 		          	<label for="id_estado" class="control-label">Por Estado</label>
 
 		            <select name="id_estado" class="select2 form-control" id="id_estado" data-allow-clear="true" required>
@@ -75,7 +75,7 @@
                         @endforeach
 		            </select>
 		       	</div>
-		      	<div class="col-md-3 col-sm-6 col-xs-12">
+		        <div class="col-md-3 col-sm-6 col-xs-12">
 		          <label for="fechas" class="control-label">Por mes</label>
 		          <div class="input-group">
 		          	<input type='text' class='form-control dat' autocomplete="off" name='fechas' data-format="yyyy-mm" id='fechas' placeholder='Fechas' value='{{$fechas}}' />
@@ -84,17 +84,16 @@
 					</span>
 		          </div>
 		        </div>
+		        <div class="col-md-1 col-sm-6 col-xs-12 text-right" style="min-width:60px;">
+						<label class="control-label" style="visibility: hidden;">Reset</label>
+						<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/af_programadas') }}'">
+							<i class="fa fa-refresh"></i>
+						</button>
+					</div>
 	       	</div>
 			<!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
 	              <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>
 	        </div> -->
-			<div class="row">
-				<div class="col-md-12 text-right">
-					<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/af_programadas') }}'">
-						<i class="fa fa-refresh"></i>
-					</button>
-				</div>
-			</div>
       	</form>
 	</div>
 </div>
