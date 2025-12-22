@@ -143,7 +143,7 @@
                             <div class="form-group" >
                                 <div class="col-lg-6" >
                                     <label for="manual_f" class="control-label">Manual de facilitador</label>
-                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <div id="fileinput_manual_f" class="fileinput fileinput-new" data-provides="fileinput">
                                         <div class="input-group">
 
                                             <div class="form-control" data-trigger="fileinput">
@@ -163,7 +163,7 @@
 
                                 <div class="col-lg-6" >
                                     <label for="manual_p" class="control-label">Manual de participante</label>
-                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <div id="fileinput_manual_p" class="fileinput fileinput-new" data-provides="fileinput">
                                         <div class="input-group">
                                             <div class="form-control uneditable-input" data-trigger="fileinput">
                                                 <i class="glyphicon glyphicon-file fileinput-exists"></i>
@@ -183,7 +183,7 @@
                             <div class="form-group" >
                                 <div class="col-lg-6" >
                                     <label for="guia" class="control-label">Guía</label>
-                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <div id="fileinput_guia" class="fileinput fileinput-new" data-provides="fileinput">
                                         <div class="input-group">
                                             <div class="form-control uneditable-input" data-trigger="fileinput">
                                                 <i class="glyphicon glyphicon-file fileinput-exists"></i>
@@ -200,7 +200,7 @@
                                 </div>
                                 <div class="col-lg-6" >
                                     <label for="presentacion" class="control-label">Presentación</label>
-                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                    <div id="fileinput_presentacion" class="fileinput fileinput-new" data-provides="fileinput">
                                         <div class="input-group">
                                             <div class="form-control uneditable-input" data-trigger="fileinput">
                                                 <i class="glyphicon glyphicon-file fileinput-exists"></i>

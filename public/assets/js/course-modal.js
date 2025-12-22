@@ -264,7 +264,12 @@ function crearAccion(url){
     $('.read-only-docs').hide();
     document.getElementById("accion-form").reset();
     $('#categoria_id').trigger("change");
+    // reset document file inputs to empty/new state for create
     $(".fileinput-filename").empty();
+    $('#l_manual_f, #l_manual_p, #l_guia, #l_presentacion').text('');
+    $('#fileinput_manual_f, #fileinput_manual_p, #fileinput_guia, #fileinput_presentacion')
+        .removeClass('fileinput-exists')
+        .addClass('fileinput-new');
     $(".loader").addClass("hidden");
     $("#accion-form").removeClass("hidden");
     $("[name=_method]").val("POST");
@@ -453,28 +458,34 @@ function editarAccion(url){
 
 
 
-            if(data[0].file.length > 0){
+            // reset all document fields to "no file" state
+            $('#l_manual_f, #l_manual_p, #l_guia, #l_presentacion').text('');
+            $('#fileinput_manual_f, #fileinput_manual_p, #fileinput_guia, #fileinput_presentacion')
+                .removeClass('fileinput-exists')
+                .addClass('fileinput-new');
+
+            if (data[0].file && data[0].file.length > 0) {
                 $('.no-docs').hide();
-                $('.fileinput').addClass('fileinput-exists').removeClass('fileinput-new');
-                f = 0;
                 data[0].file.forEach(element => {
-                    if(element.type_id == 1){
+                    if (element.type_id == 1) {
                         $('#l_manual_f').text(element.path);
+                        $('#fileinput_manual_f').addClass('fileinput-exists').removeClass('fileinput-new');
                     }
-                    if(element.type_id == 2){
+                    if (element.type_id == 2) {
                         $('#l_manual_p').text(element.path);
+                        $('#fileinput_manual_p').addClass('fileinput-exists').removeClass('fileinput-new');
                     }
-                    if(element.type_id == 3){
+                    if (element.type_id == 3) {
                         $('#l_guia').text(element.path);
+                        $('#fileinput_guia').addClass('fileinput-exists').removeClass('fileinput-new');
                     }
-                    if(element.type_id == 4){
+                    if (element.type_id == 4) {
                         $('#l_presentacion').text(element.path);
+                        $('#fileinput_presentacion').addClass('fileinput-exists').removeClass('fileinput-new');
                     }
-                    
-                    f++;
                 });
-            }else{
-                $('.fileinput').addClass('fileinput-new').removeClass('fileinput-exists');
+            } else {
+                $('.no-docs').show();
             }
 
             $(".loader").addClass("hidden");
@@ -721,6 +732,27 @@ $(document).ready(function(){
 
     //enable navigation if inputs are not empty
     //tabCheck('0');
+
+    // update document filename labels when selecting new files
+    const docFields = [
+        { input: '#manual_f',      label: '#l_manual_f',      wrapper: '#fileinput_manual_f' },
+        { input: '#manual_p',      label: '#l_manual_p',      wrapper: '#fileinput_manual_p' },
+        { input: '#guia',          label: '#l_guia',          wrapper: '#fileinput_guia' },
+        { input: '#presentacion',  label: '#l_presentacion',  wrapper: '#fileinput_presentacion' }
+    ];
+
+    docFields.forEach(function (field) {
+        $(document).on('change', field.input, function () {
+            var name = this.files && this.files.length ? this.files[0].name : '';
+            $(field.label).text(name);
+            var $w = $(field.wrapper);
+            if (name) {
+                $w.addClass('fileinput-exists').removeClass('fileinput-new');
+            } else {
+                $w.addClass('fileinput-new').removeClass('fileinput-exists');
+            }
+        });
+    });
 
 
 });
