@@ -16,10 +16,25 @@ function refresh(){
     $(".table-col-helper").html("");
 }
 
+// helper: build a point for every x label so the dataset is contiguous
+function buildSeriesFor(label, xLabels, points, keyName){
+    // points assumed like { x: '2025-10-01', y: 3, category: 'X' } or { x, y, status }
+    const map = {};
+    points.forEach(p => {
+        if(p[keyName] === label){
+            map[p.x] = p.y;
+        }
+    });
+    // return null for missing values so Chart.js will connect across gaps when spanGaps:true
+    return xLabels.map(x => ({ x: x, y: (map[x] !== undefined ? map[x] : null) }));
+}
+
+
 function participantStatusSelect(){ //participant status select dropdown
     $.ajax({
         type:'GET',
         url: '/reports/participant-status-select',
+        dataType: 'json',
         success: function(response){
             //console.log(JSON.parse(response));
             response = JSON.parse(response);
@@ -66,10 +81,13 @@ function reportByDate(response){ //reports by date
             };
         });
     }
-    const ctx = document.getElementById('myChart');
-    new Chart(ctx, {
-        type: 'line',
+    const ctx = document.getElementById('myChart'); // DOM element
+    // or to be explicit: const ctx = document.getElementById('myChart').getContext('2d');
+
+    var chart = new Chart(ctx, {
+        type: "line",
         data: {
+            labels: response.x,
             datasets: [{
                 label: 'Cantidad de Acciones de Formacion',
                 data: lineData,
@@ -82,6 +100,7 @@ function reportByDate(response){ //reports by date
             }]
         },
         options: {
+            spanGaps: true,
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -131,11 +150,14 @@ function reportByCategory(response){
     let colorHelp = 0;
     let regHex=/^#([0-9a-f]{3}){1,2}$/i;
     response.categories.forEach(element => {
+       
         fillColor.push(
             "#000000".replace(/0/g,function(){
+
                 return (~~(Math.random()*16)).toString(16);
             })
         );
+
         // For each category, build an array of {x, y} objects for the time-based line chart
         let categoryData = response.x.map(date => {
             // Find the y value for this category and date
@@ -147,7 +169,8 @@ function reportByCategory(response){
         });
         let category = {
             label: element,
-            data: categoryData,
+            // build a point for every response.x so line is contiguous
+            data: buildSeriesFor(element, response.x, response.y, 'category'),
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
@@ -158,28 +181,6 @@ function reportByCategory(response){
         colorHelp++;
     });
 
-    /* categories = categories.filter((obj) => {
-        return obj.data.length > 0;
-    }); */
-
-    
-
-/*     response.graphData.forEach(element => {
-        fillColor.push(`#${Math.floor(Math.random() * 16777215).toString(16)}`);
-        response.y.forEach(yHelper => {
-            let category = {
-            label: yHelper.category,
-            data: yHelper.y,
-            showline: true,
-            fill: false,
-            borderColor: fillColor[colorHelp],
-            backgroundColor: fillColor[colorHelp],
-        };
-        })
-        categories.push(category);
-        colorHelp++;
-    });
- */
     console.log(categories);
     
     var chart = new Chart(ctx, {
@@ -259,9 +260,8 @@ function reportByCategory(response){
         colorHelpDoughnut++;
     });
 
-    let doughnut = $("#doughnut"); //div selector
-
-        var myDoughnutChart = new Chart(doughnut, {
+    const doughnutEl = document.getElementById('doughnut');
+    var myDoughnutChart = new Chart(doughnutEl, {
         type: "doughnut",
         data: {
             datasets: [
@@ -377,7 +377,8 @@ function reportByCourseStatus(response){ //reports by course status
         });
         let status = {
             label: element,
-            data: statusData,
+            // ensure value exists at every x -> contiguous line
+            data: buildSeriesFor(element, response.x, response.y, 'status'),
             showLine: true,
             fill: false,
             borderColor: fillColor[colorHelp],
@@ -595,15 +596,17 @@ function reportByDuration(response){ //reports by course duration
         <th>Duración Días</th>
     </tr>`);
 
-    response.spansMostDays.forEach(element => {
-        $(".course-day-span-all-time-list tbody").append(`<tr>
-            <td>${element.course.title}</td>
-            <td>${element.start_date}</td>
-            <td>${element.end_date}</td>
-            <td>${element.course.duration}</td>
-            <td>${element.max_difference}</td>
-        </tr>`);
-    });
+    if (Array.isArray(response.byDateRange)) {
+        response.byDateRange.forEach(element => {
+            $(".course-day-span-all-time-list tbody").append(`<tr>
+                <td>${element.course_title ?? ''}</td>
+                <td>${element.start_date ?? ''}</td>
+                <td>${element.end_date ?? ''}</td>
+                <td>${element.duration ?? ''}</td>
+                <td>${element.duration_days ?? ''}</td>
+            </tr>`);
+        });
+    }
 
     //Most duration hours
     $(".table-col-helper")
@@ -1020,6 +1023,7 @@ $(document).ready(function(){
             type: "POST",
             data: formData,
             url: '/reports/'+selected,
+            dataType: 'json',
             beforeSend: function(){
                 console.log('waiting for response');
                 $(".loader").removeClass("hidden");
@@ -1028,7 +1032,7 @@ $(document).ready(function(){
                 $(".loader").addClass("hidden");
                 $('.print-report').removeAttr('disabled');
                 //console.log(response);
-                response = JSON.parse(response);
+                //response = JSON.parse(response);
                 console.log(response);
                 //console.log(response.y);
                 switch (selected) {
