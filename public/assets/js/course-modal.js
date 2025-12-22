@@ -135,18 +135,24 @@ function listButtonsCheck(){
 }//end list buttons check
 
 function setCourse(deleteHelper){
+    // Always rebuild the content list from the current DOM order
     let contentData = [];
+    $(".content-list li").each(function() {
+        const text = $(this).find('.content-text').text().trim();
+        if (text) {
+            contentData.push(text);
+        }
+    });
 
-    //let deleteHelper = updateDocuments();
-
+    
+    console.log('setCourse contentData before submit:', contentData);
     console.log(deleteHelper);
 
-    $(".content-list li").each(function() { //create content list data array
-        contentData.push($(this).text().trim())
-    });
     
     let formData = new FormData ($('#accion-form').get(0));
-    formData.append('content_data',contentData);
+    // Send as a single comma-separated string, as expected by the controller
+    formData.append('content_data', contentData.join(','));
+    
     method = formData.get('_method');
 
     if(method == 'PUT'){
@@ -432,20 +438,20 @@ function editarAccion(url){
             $('#objetivo').val(data[0].objective);
 
             $('.content-list').html('');
-
-            contentData = [];
-            i = 0;
-            data[0].content.forEach(element => {
-                contentData[i] = element.text;
-                $('.content-list').append(`<li value="${i++}" class="list-element list-group-item form-inline">
-                        <span class="list-text">${element.text}</span>
-                        <span class="badge list-item-edit" aria-hidden="true"><i class="fa fa-pencil"></i></span>
-                <span class="badge list-item-delete" aria-hidden="true"><i class="fa fa-remove"></i></span>
-                    </li>`);
-               //console.log(i++ +' '+element.text);
+            const initialContent = [];
+            if (data[0].content && data[0].content.length) {
+                data[0].content.forEach(function (element) {
+                    if (element.text) {
+                        initialContent.push(element.text);
+                    }
             });
 
-            eventRefresh('Edit Modal');
+            }
+            if (typeof window.setInitialContentData === 'function') {
+                window.setInitialContentData(initialContent);
+            }
+
+
 
             if(data[0].file.length > 0){
                 $('.no-docs').hide();
