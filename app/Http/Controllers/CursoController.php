@@ -682,7 +682,7 @@ class CursoController extends Controller
                     $helper->type1 = $file->path;
                 }
                 if ($file->type_id == '2') {
-                    $helper->type4 = $file->path;
+                    $helper->type2 = $file->path;
                 }
                 if ($file->type_id == '3') {
                     $helper->type3 = $file->path;
