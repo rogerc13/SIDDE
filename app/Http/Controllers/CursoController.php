@@ -525,30 +525,35 @@ class CursoController extends Controller
             }
 
             if ($curso->delete()) {
-                if ($curso->manual_p) {
-                    $path2 = base_path() . '/public/uploads/documentos/' . $curso->manual_p;
-                    if (file_exists($path2)) {
-                        unlink($path2);
+                // Delete related uploaded files stored in storage/app (files table).
+                $courseFiles = $curso->file()->get();
+                foreach ($courseFiles as $courseFile) {
+                    $storedPath = $courseFile->path ?? ($courseFile->file_path ?? null);
+                    if (is_string($storedPath) && $storedPath !== '') {
+                        Storage::delete($storedPath);
+                    }
+
+                    $courseFile->delete();
+                }
+
+                // Clean up the course directory used by storeAs($course->code, ...)
+                if (is_string($curso->code) && $curso->code !== '') {
+                    Storage::deleteDirectory($curso->code);
+                }
+
+                // Legacy uploads stored directly in public/uploads/documentos (older flow)
+                foreach (['ficha_tecnica', 'manual_p', 'manual_f', 'guia', 'presentacion'] as $column) {
+                    $filename = $curso->{$column} ?? null;
+                    if (! is_string($filename) || $filename === '') {
+                        continue;
+                    }
+
+                    $absolutePath = base_path('public/uploads/documentos/' . $filename);
+                    if (IlluminateFile::exists($absolutePath)) {
+                        IlluminateFile::delete($absolutePath);
                     }
                 }
-                if ($curso->manual_f) {
-                    $path2 = base_path() . '/public/uploads/documentos/' . $curso->manual_f;
-                    if (file_exists($path2)) {
-                        unlink($path2);
-                    }
-                }
-                if ($curso->guia) {
-                    $path2 = base_path() . '/public/uploads/documentos/' . $curso->guia;
-                    if (file_exists($path2)) {
-                        unlink($path2);
-                    }
-                }
-                if ($curso->presentacion) {
-                    $path2 = base_path() . '/public/uploads/documentos/' . $curso->presentacion;
-                    if (file_exists($path2)) {
-                        unlink($path2);
-                    }
-                }
+
                 return Redirect::back()
                     ->with('alert', Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
             }
@@ -591,15 +596,20 @@ class CursoController extends Controller
     public function codeCheck(Request $request)
     {
 
-        if (null != $request->codeValue) {
-            $response = Course::where('code', $request->codeValue)->get();
-            if (sizeof($response) > 0) {
-                return json_encode(true);
-            }
-            return json_encode(sizeof($response));
-        } else {
-            return json_encode("Code not set");
+        $codeValue = $request->input('codeValue');
+        if ($codeValue === null || trim((string) $codeValue) === '') {
+            return json_encode(false);
         }
+
+        $query = Course::query()->where('code', $codeValue);
+
+        $ignoreId = $request->input('ignore_id');
+        if ($ignoreId !== null && is_numeric($ignoreId)) {
+            $query->where('id', '!=', (int) $ignoreId);
+        }
+
+        // Soft-deleted rows are excluded by default via SoftDeletes global scope.
+        return json_encode($query->exists());
     }
 
     public function courseDetails($id)

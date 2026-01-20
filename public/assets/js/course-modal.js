@@ -507,8 +507,12 @@ function courseCodeValidation(){ //Course Code Validation
             $('.0-tab-input.course-code').focus();
             console.log('code validation');
             let codeValue = $('.course-code').val();
+            let ignoreId = null;
+            if (($('input[name="_method"]').val() === 'PUT') && ($('.course-id').val() !== '')) {
+                ignoreId = $('.course-id').val();
+            }
             $.ajax({
-                data: {'codeValue' : codeValue},
+                data: {'codeValue' : codeValue, 'ignore_id': ignoreId},
                 type:'POST',
                 url: 'codes',
                 dataType: 'json',
