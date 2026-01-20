@@ -345,8 +345,18 @@ class ReportController extends Controller
         $labels = [];
         $byStatusByDateRange = [];
 
-        //all time by status
-        $byAllTime = Participant::with('person', 'participantStatus')->where('participant_status_id', $request->participant_status)->get();
+        $selectedStatus = ParticipantStatus::find($request->participant_status);
+
+        //all time by status (include course info for display)
+        $byAllTime = Participant::with([
+            'person',
+            'participantStatus',
+            'scheduled' => function ($query) {
+                $query->withTrashed()->with('course');
+            },
+        ])
+            ->where('participant_status_id', $request->participant_status)
+            ->get();
 
 
         //participants not in a course, always all time
@@ -401,7 +411,14 @@ class ReportController extends Controller
 
         //return json_encode($byDateRange);
 
-        return json_encode(['byAllTime' => $byAllTime, 'byStatusByDateRange' => $byStatusByDateRange, 'allStatusbyDateRange' => $allStatusbyDateRange, 'notInCourse' => $notInCourse, 'labels' => $labels,]);
+        return response()->json([
+            'selectedStatusName' => $selectedStatus?->name,
+            'byAllTime' => $byAllTime,
+            'byStatusByDateRange' => $byStatusByDateRange,
+            'allStatusbyDateRange' => $allStatusbyDateRange,
+            'notInCourse' => $notInCourse,
+            'labels' => $labels,
+        ]);
     } //end by participant status
 
     public function courseByParticipantQuantity(Request $request)

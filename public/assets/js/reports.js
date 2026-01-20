@@ -758,6 +758,30 @@ function reportByParticipantStatus(response){
     console.log("participant-by-status");
     refresh();
 
+    // Chart containers (were missing, so charts had no canvas to render into)
+    $(".row-graphs").append(`
+        <div class="panel panel-success col-md-6">
+            <div class="panel-heading">
+                <div class="panel-title">Distribución de Participantes por Estatus (Barras)</div>
+            </div>
+            <div class="panel-body">
+                <div class="h-25 col-xs-12 col-md-12 graph-container">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success col-md-6">
+            <div class="panel-heading">
+                <div class="panel-title">Distribución de Participantes por Estatus (Dona)</div>
+            </div>
+            <div class="panel-body">
+                <div class="doughnut-container">
+                    <canvas id="doughnut"></canvas>
+                </div>
+            </div>
+        </div>
+    `);
+
     let start_date = response.byStatusByDateRange[0].date;
 
     let end_date =
@@ -879,11 +903,15 @@ function reportByParticipantStatus(response){
                                                 <td>${doughnutDataStatus[3]}</td>
                                             </tr>`);
 
+    const selectedStatusName = response.selectedStatusName
+        || $('#participant_status option:selected').text()
+        || '';
+
     //list of participants per given status all time
     $(".table-col-helper").append(
         `<div class="panel panel-success participant-with-status">
         <div class="panel-heading">
-            <div class="panel-title">Lista de Participantes Con Estatus:</div>
+            <div class="panel-title">Lista de Participantes Con Estatus: ${selectedStatusName}</div>
         </div>
         <div class="panel-body with-table table-responsive">
         <table class="all-time-list-table table table-striped table-bordered table-center">
@@ -899,13 +927,19 @@ function reportByParticipantStatus(response){
                                                 <th>Nombres</th>
                                                 <th>Apellidos</th>
                                                 <th>Cédula</th>
+                                                <th>Acción de Formación</th>
+                                                <th>Fecha de Inicio</th>
                                             </tr>`);
 
     response.byAllTime.forEach((element) => {
+        const courseTitle = (element.scheduled && element.scheduled.course && element.scheduled.course.title) ? element.scheduled.course.title : 'Sin curso';
+        const startDate = (element.scheduled && element.scheduled.start_date) ? element.scheduled.start_date : '';
         $(".all-time-list-table tbody").append(`<tr>
                                     <td>${element.person.name}</td>
                                     <td>${element.person.last_name}</td>
                                     <td>${element.person.id_number}</td>
+                                    <td>${courseTitle}</td>
+                                    <td>${startDate}</td>
                                     </tr>`);
     });
 
