@@ -89,24 +89,60 @@
         }  
     }); */
 $(document).ready(function () {
-    
-    // Allow external initialization (for update view)
-    window.setInitialContentData = function(arr) {
-        contentData = Array.isArray(arr) ? arr.slice() : [];
-        editIndex = null;
-        renderContentList();
-    };
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
-    let contentData = window.initialContentData ? window.initialContentData.slice() : [];
-    let editIndex = null;
+    function getWrapperFromElement($el) {
+        const $wrapper = $el.closest('.form-group');
+        return $wrapper.length ? $wrapper : $(document.body);
+    }
 
-    function renderContentList() {
-        const $list = $(".content-list");
+    function getState($wrapper) {
+        let state = $wrapper.data('courseContentState');
+        if (!state) {
+            state = { contentData: [], editIndex: null };
+            $wrapper.data('courseContentState', state);
+        }
+        return state;
+    }
+
+    function setAddButtonMode($wrapper, mode) {
+        const $button = $wrapper.find('.add-content-btn').first();
+        if (!$button.length) {
+            return;
+        }
+
+        if (mode === 'edit') {
+            $button
+                .html('<span class="glyphicon glyphicon-floppy-disk"></span> Guardar')
+                .removeClass('btn-success')
+                .addClass('btn-warning');
+        } else {
+            $button
+                .html('<span class="glyphicon glyphicon-plus"></span> Añadir')
+                .removeClass('btn-warning')
+                .addClass('btn-success');
+        }
+    }
+
+    function renderContentList($wrapper) {
+        const state = getState($wrapper);
+        const $list = $wrapper.find('.content-list').first();
+        if (!$list.length) {
+            return;
+        }
+
         $list.empty();
-        contentData.forEach((item, idx) => {
+        state.contentData.forEach((item, idx) => {
             $list.append(`
                 <li class="list-group-item d-flex align-items-center" style="display: flex; justify-content: space-between;" data-index="${idx}">
-                    <span class="content-text">${item}</span>
+                    <span class="content-text">${escapeHtml(item)}</span>
                     <span style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
                         <span class="drag-handle" style="cursor: move; margin-right: 0.5rem;">
                             <i class="glyphicon glyphicon-menu-hamburger"></i>
@@ -124,14 +160,15 @@ $(document).ready(function () {
         }
         $list.sortable({
             handle: '.drag-handle',
-           update: function () {
+            update: function () {
                 // Rebuild contentData from current DOM order
                 const newOrder = [];
                 $list.children('li').each(function () {
-                     newOrder.push($(this).find('.content-text').text().trim());
+                    newOrder.push($(this).find('.content-text').text().trim());
                 });
-                contentData = newOrder;
-                // Keep data-index attributes in sync without re-rendering
+                state.contentData = newOrder;
+
+                // Keep data-index attributes in sync without relying on jQuery .data() cache
                 $list.children('li').each(function (idx) {
                     $(this).attr('data-index', idx);
                 });
@@ -139,60 +176,125 @@ $(document).ready(function () {
         });
     }
 
-    // Add content
-    $(document).on('click', '#add-content-btn', function () {
-        const value = $('#content-input').val().trim();
-        if (value) {
-            if (editIndex !== null) {
-                contentData[editIndex] = value;
-                editIndex = null;
-                $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
-            } else {
-                contentData.push(value);
-            }
-            $('#content-input').val('');
-            renderContentList();
+    // Allow external initialization (for update view)
+    window.setInitialContentData = function (arr) {
+        const normalized = Array.isArray(arr) ? arr.slice() : [];
+
+        // Prefer the content list inside the main course modal when it exists.
+        // This prevents rendering into the standalone update partial (also included on the index page).
+        const $modalList = $('#accion-modal').find('.content-list').first();
+        const $targetList = $modalList.length
+            ? $modalList
+            : $(".content-list").filter(function () { return $(this).closest('#accion-modal').length === 0; }).first();
+
+        const $wrapper = $targetList.length ? $targetList.closest('.form-group') : $(".content-list").first().closest('.form-group');
+        if (!$wrapper.length) {
+            return;
         }
+
+        const state = getState($wrapper);
+        state.contentData = normalized;
+        state.editIndex = null;
+        setAddButtonMode($wrapper, 'add');
+        renderContentList($wrapper);
+    };
+
+    // Add content
+    $(document).on('click', '.add-content-btn', function () {
+        const $wrapper = getWrapperFromElement($(this));
+        const state = getState($wrapper);
+        const $input = $wrapper.find('.content-input').first();
+        const value = $input.val().trim();
+
+        if (!value) {
+            return;
+        }
+
+        if (state.editIndex !== null) {
+            state.contentData[state.editIndex] = value;
+            state.editIndex = null;
+            setAddButtonMode($wrapper, 'add');
+        } else {
+            state.contentData.push(value);
+        }
+
+        $input.val('');
+        renderContentList($wrapper);
     });
 
     // Edit content
     $(document).on('click', '.edit-content-btn', function () {
-        const idx = $(this).closest('li').data('index');
-        $('#content-input').val(contentData[idx]).focus();
-        editIndex = idx;
-        $('#add-content-btn').html('<span class="glyphicon glyphicon-floppy-disk"></span> Guardar').removeClass('btn-success').addClass('btn-warning');
+        const $wrapper = getWrapperFromElement($(this));
+        const state = getState($wrapper);
+        const idx = Number($(this).closest('li').attr('data-index'));
+
+        if (!Number.isFinite(idx) || idx < 0 || idx >= state.contentData.length) {
+            return;
+        }
+
+        $wrapper.find('.content-input').first().val(state.contentData[idx]).focus();
+        state.editIndex = idx;
+        setAddButtonMode($wrapper, 'edit');
     });
 
     // Remove content
     $(document).on('click', '.remove-content-btn', function () {
-        const idx = $(this).closest('li').data('index');
-        contentData.splice(idx, 1);
-        if (editIndex === idx) {
-            $('#content-input').val('');
-            editIndex = null;
-            $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+        const $wrapper = getWrapperFromElement($(this));
+        const state = getState($wrapper);
+        const idx = Number($(this).closest('li').attr('data-index'));
+
+        if (!Number.isFinite(idx) || idx < 0 || idx >= state.contentData.length) {
+            return;
         }
-        renderContentList();
+
+        state.contentData.splice(idx, 1);
+
+        if (state.editIndex === idx) {
+            $wrapper.find('.content-input').first().val('');
+            state.editIndex = null;
+            setAddButtonMode($wrapper, 'add');
+        } else if (state.editIndex !== null && state.editIndex > idx) {
+            // Keep editIndex consistent after deleting an item before it
+            state.editIndex -= 1;
+        }
+
+        renderContentList($wrapper);
     });
 
     // Cancel edit on input blur (optional, or add a cancel button if desired)
-    $('#content-input').on('keydown', function (e) {
+    $(document).on('keydown', '.content-input', function (e) {
         if (e.key === 'Escape') {
+            const $wrapper = getWrapperFromElement($(this));
+            const state = getState($wrapper);
             $(this).val('');
-            editIndex = null;
-            $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+            state.editIndex = null;
+            setAddButtonMode($wrapper, 'add');
         }
     });
 
     // Reset on modal close
     $("#accion-modal").on("hidden.bs.modal", function () {
-        $(".content-list").children().remove();
-        $('#content-input').val('');
-        editIndex = null;
-        contentData = [];
-        $('#add-content-btn').html('<span class="glyphicon glyphicon-plus"></span> Añadir').removeClass('btn-warning').addClass('btn-success');
+        const $modal = $(this);
+        const $wrapper = $modal.find('.content-list').first().closest('.form-group');
+        if ($wrapper.length) {
+            const state = getState($wrapper);
+            state.contentData = [];
+            state.editIndex = null;
+            $wrapper.find('.content-list').first().children().remove();
+            $wrapper.find('.content-input').first().val('');
+            setAddButtonMode($wrapper, 'add');
+        }
     });
 
     // Expose contentData for form submission if needed
-    window.getContentData = function () { return contentData; };
+    window.getContentData = function () {
+        // Prefer modal (create) state if open/exists, otherwise use first content list on page.
+        const $modalWrapper = $('#accion-modal').find('.content-list').first().closest('.form-group');
+        if ($modalWrapper.length) {
+            return getState($modalWrapper).contentData;
+        }
+
+        const $wrapper = $('.content-list').first().closest('.form-group');
+        return $wrapper.length ? getState($wrapper).contentData : [];
+    };
 });

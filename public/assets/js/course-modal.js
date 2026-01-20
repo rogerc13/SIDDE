@@ -137,7 +137,7 @@ function listButtonsCheck(){
 function setCourse(deleteHelper){
     // Always rebuild the content list from the current DOM order
     let contentData = [];
-    $(".content-list li").each(function() {
+    $("#accion-modal .content-list li").each(function() {
         const text = $(this).find('.content-text').text().trim();
         if (text) {
             contentData.push(text);
@@ -276,7 +276,7 @@ function crearAccion(url){
     $("#accion-label").html("<h3>Nueva acción de formación</h3>");
     $("#accion-modal").modal();   
     $(".no-docs").hide();
-    $('.content-list').html('');
+    $('#accion-modal .content-list').html('');
 }// CREATE MODAL / CREAR ACCION DE FORMACION
 
 function detallesAccion(url){
@@ -310,16 +310,16 @@ function detallesAccion(url){
             $('#max').val(data[0].capacity[0].max);
             $('#objetivo').val(data[0].objective);
             
-            $('.content-list').html('');
+            $('#accion-modal .content-list').html('');
 
             contentData = [];
             i = 0;
             data[0].content.forEach(element => {
                 contentData[i] = element.text;
-                $('.content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
+                $('#accion-modal .content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
 
             });
-            $('.content-list')
+            $('#accion-modal .content-list')
 
             if(typeof data[0].file !== 'undefined'){
 
@@ -442,7 +442,7 @@ function editarAccion(url){
             $('#max').val(data[0].capacity[0].max);
             $('#objetivo').val(data[0].objective);
 
-            $('.content-list').html('');
+            $('#accion-modal .content-list').html('');
             const initialContent = [];
             if (data[0].content && data[0].content.length) {
                 data[0].content.forEach(function (element) {
@@ -570,7 +570,7 @@ function modalCloses(){
             
             $('.course-list').off();
         }
-        $('.content-list').html('');
+        $('#accion-modal .content-list').html('');
         tabSwitch(0);
     });//end ON modal close event
     
@@ -626,7 +626,7 @@ function eventRefresh(msg){ //content list event refresh
 
     $('.undo-btn').off().on('click',function(){ //undo deletion
         console.log(tempElement);
-        $('.content-list').append(tempElement);
+        $('#accion-modal .content-list').append(tempElement);
     });
 
     if((msg == 'Edit Modal' || msg == 'Create Modal') && ($('.list-item-edit').attr('listener') !== 'true')){
@@ -678,7 +678,7 @@ function eventRefresh(msg){ //content list event refresh
 
     $('.add-btn').off().on('click',function(){// add new element
         let listItemValue = $('.list-element').length;
-        $('.content-list').prepend(`<li value="${listItemValue}" class="list-element list-group-item form-inline">
+        $('#accion-modal .content-list').prepend(`<li value="${listItemValue}" class="list-element list-group-item form-inline">
                 <span class="list-text">
                     Nuevo contenido
                 </span>

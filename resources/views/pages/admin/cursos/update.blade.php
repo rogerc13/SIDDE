@@ -23,10 +23,10 @@
 <div class="form-group">
 	<div class="col-lg-12" >
 		<label for="contenido" class="control-label">Contenido</label>
-		<div class="input-group mb-2" id="content-input-group">
-			<input type="text" class="form-control" id="content-input" placeholder="Ingrese nuevo contenido...">
+		<div class="input-group mb-2 content-input-group">
+			<input type="text" class="form-control content-input" placeholder="Ingrese nuevo contenido...">
 			<div class="input-group-append">
-				<button class="btn btn-success" id="add-content-btn" type="button">
+				<button class="btn btn-success add-content-btn" type="button">
 					<span class="glyphicon glyphicon-plus"></span> Añadir
 				</button>
 			</div>
