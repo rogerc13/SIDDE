@@ -263,6 +263,16 @@ $(document).ready(function () {
 
     // Cancel edit on input blur (optional, or add a cancel button if desired)
     $(document).on('keydown', '.content-input', function (e) {
+        if (e.key === 'Enter') {
+            // Avoid submitting the surrounding form when adding/editing content items.
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $wrapper = getWrapperFromElement($(this));
+            $wrapper.find('.add-content-btn').first().trigger('click');
+            return;
+        }
+
         if (e.key === 'Escape') {
             const $wrapper = getWrapperFromElement($(this));
             const state = getState($wrapper);
