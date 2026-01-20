@@ -15,6 +15,7 @@ class ParticipantStatusSeeder extends Seeder
      */
     public function run()
     {
+
         ParticipantStatus::create([
             'name' => 'En Curso'
         ]);
@@ -26,6 +27,10 @@ class ParticipantStatusSeeder extends Seeder
         ]);
         ParticipantStatus::create([
             'name' => 'Cancelado'
+        ]);
+
+        ParticipantStatus::create([
+            'name' => 'En Espera De Curso'
         ]);
     }
 }
