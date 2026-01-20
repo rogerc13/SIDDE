@@ -46,6 +46,16 @@ class CheckCPStatus extends Command
                         $curso->course_status_id = CourseStatus::EN_CURSO;
                         $curso->save();
                     }
+
+                    if($curso->participants->count() > 0){
+                        foreach($curso->participants as $participant){
+                            if($participant->participant_status_id == 5){
+                                $participant->participant_status_id = 1;
+                                $participant->save();
+                            }
+                        }
+                    }
+
                 }
                 else if (today() > $curso->end_date){
                     if ($curso->course_status_id != CourseStatus::CULMINADO) {
