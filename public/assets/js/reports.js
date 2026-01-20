@@ -22,7 +22,8 @@ function buildSeriesFor(label, xLabels, points, keyName){
     const map = {};
     points.forEach(p => {
         if(p[keyName] === label){
-            map[p.x] = p.y;
+            // Treat 0 (and negative) as no-data so it doesn't render
+            map[p.x] = (typeof p.y === 'number' && p.y > 0) ? p.y : null;
         }
     });
     // return null for missing values so Chart.js will connect across gaps when spanGaps:true
@@ -36,9 +37,13 @@ function participantStatusSelect(){ //participant status select dropdown
         url: '/reports/participant-status-select',
         dataType: 'json',
         success: function(response){
-            //console.log(JSON.parse(response));
-            response = JSON.parse(response);
-            response.statuses.forEach(status => {
+            // If server returns proper JSON, jQuery already gives an object here.
+            // If it comes back as a string for some reason, fallback to parsing.
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
+
+            (response.statuses || []).forEach(status => {
                 $("#participant_status").append(
                     `<option value="${status.id}">${status.name}</option>`
                 );
@@ -49,6 +54,81 @@ function participantStatusSelect(){ //participant status select dropdown
         }
     });
 };
+
+function shouldHideLinePoints(){
+    // Hide point markers for daily granularity to keep the chart readable
+    return $('#step').val() === '1 day';
+}
+
+function shouldConnectLineGaps(){
+    // For daily charts, connect across nulls so the line reads as a trend
+    return $('#step').val() === '1 day';
+}
+
+function applySmartLineMarkers(dataset){
+    const points = Array.isArray(dataset.data) ? dataset.data : [];
+
+    const nonNullIndexes = [];
+    const values = [];
+    points.forEach((p, idx) => {
+        if (p && p.y !== null && typeof p.y === 'number') {
+            nonNullIndexes.push(idx);
+            values.push(p.y);
+        }
+    });
+
+    if (nonNullIndexes.length === 0) {
+        return {
+            ...dataset,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+        };
+    }
+
+    const firstIdx = nonNullIndexes[0];
+    const lastIdx = nonNullIndexes[nonNullIndexes.length - 1];
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+
+    let minIdx = firstIdx;
+    let maxIdx = firstIdx;
+    for (const idx of nonNullIndexes) {
+        const y = points[idx].y;
+        if (y === minVal) {
+            minIdx = idx;
+            break;
+        }
+    }
+    for (const idx of nonNullIndexes) {
+        const y = points[idx].y;
+        if (y === maxVal) {
+            maxIdx = idx;
+            break;
+        }
+    }
+
+    const markerIndexes = new Set([firstIdx, lastIdx, minIdx, maxIdx]);
+
+    return {
+        ...dataset,
+        pointRadius: (ctx) => (markerIndexes.has(ctx.dataIndex) ? 3 : 0),
+        pointHoverRadius: (ctx) => (markerIndexes.has(ctx.dataIndex) ? 5 : 0),
+        pointHitRadius: (ctx) => (markerIndexes.has(ctx.dataIndex) ? 8 : 0),
+    };
+}
+
+function getMaxYFromDatasets(datasets){
+    let maxY = 0;
+    (datasets || []).forEach(ds => {
+        const points = Array.isArray(ds.data) ? ds.data : [];
+        points.forEach(p => {
+            if (p && typeof p.y === 'number' && p.y > maxY) {
+                maxY = p.y;
+            }
+        });
+    });
+    return maxY;
+}
 
 function reportByDate(response){ //reports by date
     refresh();
@@ -84,42 +164,57 @@ function reportByDate(response){ //reports by date
     const ctx = document.getElementById('myChart'); // DOM element
     // or to be explicit: const ctx = document.getElementById('myChart').getContext('2d');
 
+    const markedDataset = applySmartLineMarkers({
+        label: 'Cantidad de Acciones de Formacion',
+        data: lineData,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderWidth: 3,
+        tension: 0.5,
+        cubicInterpolationMode: 'monotone'
+    });
+
+    const maxY = getMaxYFromDatasets([markedDataset]);
+
     var chart = new Chart(ctx, {
         type: "line",
         data: {
             labels: response.x,
-            datasets: [{
-                label: 'Cantidad de Acciones de Formacion',
-                data: lineData,
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 3,
-                tension: 0.5,
-                cubicInterpolationMode: 'monotone'
-            }]
+            datasets: [markedDataset]
         },
         options: {
-            spanGaps: true,
+            // For daily charts, connect across nulls; for others, keep gaps.
+            spanGaps: shouldConnectLineGaps(),
             responsive: true,
             maintainAspectRatio: false,
+            elements: {
+                point: {
+                    radius: 0,
+                    hoverRadius: 0
+                }
+            },
             scales: {
-                xAxes: [
-                    {
-                        type: "time",
+                x: {
+                    type: 'time',
+                    title: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Período de Tiempo",
-                        },
-                        ticks: {
-                            major: {
-                                fontStyle: "bold",
-                                fontColor: "black",
-                            },
-                        },
+                        text: 'Período de Tiempo'
                     },
-                ],
+                    time: {
+                        parser: 'YYYY-MM-DD',
+                        tooltipFormat: 'YYYY-MM-DD'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    // Add a little headroom so the max doesn't touch the top edge
+                    suggestedMax: maxY > 0 ? (maxY + 2) : 1,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
             },
         }
     });
@@ -140,7 +235,7 @@ function reportByCategory(response){
                 </div>
             </div>`);
 
-    let ctx = $("#myChart");
+    const ctx = document.getElementById('myChart');
     let categories = [];
 
     //console.log(response.categories);
@@ -181,8 +276,13 @@ function reportByCategory(response){
         colorHelp++;
     });
 
+    // Remove categories that have no non-null points (all zeros / empty)
+    categories = categories.filter(ds => Array.isArray(ds.data) && ds.data.some(p => p && p.y !== null));
+
     console.log(categories);
     
+    categories = categories.map(ds => applySmartLineMarkers(ds));
+
     var chart = new Chart(ctx, {
         type: "line",
         data: {
@@ -192,44 +292,44 @@ function reportByCategory(response){
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            elements: {
+                point: {
+                    radius: 0,
+                    hoverRadius: 0
+                }
+            },
+            // For daily charts, connect across nulls; for others, keep gaps.
+            spanGaps: shouldConnectLineGaps(),
             scales: {
-                xAxes: [
-                    {
-                        type: "time",
+                x: {
+                    type: 'time',
+                    title: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Período de Tiempo",
-                        },
-                        ticks: {
-                            //beginAtZero: true,
-                            major: {
-                                fontStyle: "bold",
-                                fontColor: "black",
-                            },
-                        },
+                        text: 'Período de Tiempo'
                     },
-                ],
-                yAxes: [
-                    {   
-                        display:true,
-                        scaleLabel:{
-                            display:true,
-                            labelString: "Cantidad de Acciones de Formación",
-                        },
-                        ticks: {
-                            beginAtZero: true,
-                            stepSize: 5,
-                        },
+                    time: {
+                        parser: 'YYYY-MM-DD',
+                        tooltipFormat: 'YYYY-MM-DD'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Cantidad de Acciones de Formación'
                     },
-                ],
+                    ticks: {
+                        stepSize: 5
+                    }
+                }
             },
-            spanGaps: true,
             showLines: true,
-            title: {
-                display: true,
-                text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                }
+            }
         },
     });
         
@@ -275,10 +375,12 @@ function reportByCategory(response){
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                }
+            }
         },
     });
 
@@ -355,7 +457,8 @@ function reportByCourseStatus(response){ //reports by course status
             </div>
             </div>`);
 
-    let ctx = $("#myChart"); //linear graph selector
+    const ctx = document.getElementById('myChart'); //linear graph selector
+
 
     //linear graph data
     let statuses = [];
@@ -385,13 +488,16 @@ function reportByCourseStatus(response){ //reports by course status
             backgroundColor: fillColor[colorHelp],
             borderWidth: 3,
         };
-        statuses.push(status);
+        statuses.push(applySmartLineMarkers(status));
         colorHelp++;
     });
+    // Remove statuses with no non-null points (all zeros / empty)
     statuses = statuses.filter((obj) => {
-        return obj.data.length > 0;
+        return Array.isArray(obj.data) && obj.data.some(p => p && p.y !== null);
     });
     //console.log(statuses);
+
+    const maxY = getMaxYFromDatasets(statuses);
 
     //doughnut data
     courseData = response.courseData;
@@ -418,46 +524,48 @@ function reportByCourseStatus(response){ //reports by course status
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            elements: {
+                point: {
+                    radius: 0,
+                    hoverRadius: 0
+                }
+            },
+            // For daily charts, connect across nulls; for others, keep gaps.
+            spanGaps: shouldConnectLineGaps(),
             scales: {
-                xAxes: [
-                    {
-                        type: "time",
+                x: {
+                    type: 'time',
+                    title: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Período de Tiempo",
-                        },
-                        ticks: {
-                            //beginAtZero: true,
-                            major: {
-                                fontStyle: "bold",
-                                fontColor: "black",
-                            },
-                        },
+                        text: 'Período de Tiempo'
                     },
-                ],
-                yAxes: [
-                    {
-                        ticks: {
-                            stepSize: 1,
-                            beginAtZero: true,
-                            min: 0,
-                            max: 4,
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Cantidad de Acciones de Formación",
-                        },
-                        /* type:'linear', */
+                    time: {
+                        parser: 'YYYY-MM-DD',
+                        tooltipFormat: 'YYYY-MM-DD'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    min: 0,
+                    // Add a little headroom so the max doesn't touch the top edge
+                    suggestedMax: maxY > 0 ? (maxY + 2) : 1,
+                    title: {
+                        display: true,
+                        text: 'Cantidad de Acciones de Formación'
                     },
-                ],
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
             },
-            spanGaps: true,
             showLines: true,
-            title: {
-                display: true,
-                text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                }
+            }
         },
     });
 
@@ -474,7 +582,7 @@ function reportByCourseStatus(response){ //reports by course status
             </div>
         </div>`);
 
-    let doughnut = $("#doughnut"); //div selector
+    const doughnut = document.getElementById('doughnut');
 
     var myDoughnutChart = new Chart(doughnut, {
         type: "doughnut",
@@ -490,10 +598,12 @@ function reportByCourseStatus(response){ //reports by course status
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                }
+            }
         },
     });
 
@@ -692,7 +802,7 @@ function reportByParticipantStatus(response){
     });
     //console.log(doughnutDataStatus);
 
-    let doughnutStatus = $("#doughnut");
+    const doughnutStatus = document.getElementById('doughnut');
     var myDoughnutChart = new Chart(doughnutStatus, {
         type: "doughnut",
         data: {
@@ -707,14 +817,16 @@ function reportByParticipantStatus(response){
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                }
+            }
         },
     });
     //bar chart
-    let barStatus = $("#myChart");
+    const barStatus = document.getElementById('myChart');
     var myDoughnutChart = new Chart(barStatus, {
         type: "bar",
         data: {
@@ -729,13 +841,15 @@ function reportByParticipantStatus(response){
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
-            },
-            legend: {
-                display: false,
-            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                },
+                legend: {
+                    display: false,
+                }
+            }
         },
     });
 
@@ -973,6 +1087,89 @@ function reportByCourseNotScheduled(response){
 $(document).ready(function(){
     $(".loader").addClass("hidden");
    $(".participant-status-container").hide();
+
+    function toYmd(date){
+        // Prefer moment if present; fallback to native Date
+        if (typeof moment === 'function') {
+            return moment(date).format('YYYY-MM-DD');
+        }
+        const d = (date instanceof Date) ? date : new Date(date);
+        return d.toISOString().slice(0, 10);
+    }
+
+    function getRangeDays(startYmd, endYmd){
+        if (!startYmd || !endYmd) {
+            return null;
+        }
+        if (typeof moment === 'function') {
+            const start = moment(startYmd, 'YYYY-MM-DD');
+            const end = moment(endYmd, 'YYYY-MM-DD');
+            if (!start.isValid() || !end.isValid()) {
+                return null;
+            }
+            return end.diff(start, 'days') + 1;
+        }
+        const start = new Date(startYmd);
+        const end = new Date(endYmd);
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+            return null;
+        }
+        const msPerDay = 24 * 60 * 60 * 1000;
+        return Math.floor((end.getTime() - start.getTime()) / msPerDay) + 1;
+    }
+
+    function updateStepOptionsBySelectedRange(){
+        const startYmd = $('#start_date').val();
+        const endYmd = $('#end_date').val();
+        const rangeDays = getRangeDays(startYmd, endYmd);
+
+        // If the range is invalid (end before start), don't lock the user out; just enable all.
+        $('#step option').prop('disabled', false);
+
+        if (rangeDays === null || rangeDays <= 0) {
+            return;
+        }
+
+        const stepMinDays = {
+            '1 day': 1,
+            '1 week': 7,
+            '15 days': 15,
+            '1 month': 30,
+            '4 months': 120,
+            '6 months': 180,
+            '1 year': 365,
+        };
+
+        $('#step option').each(function(){
+            const value = $(this).val();
+            const minDays = stepMinDays[value];
+            if (minDays !== undefined && minDays > rangeDays) {
+                $(this).prop('disabled', true);
+            }
+        });
+
+        // If current selection became invalid, reset to daily.
+        if ($('#step option:selected').prop('disabled')) {
+            $('#step').val('1 day').change();
+        }
+    }
+
+    // Set sane defaults (previously defaulted to "1 Mes")
+    if (!$('#end_date').val()) {
+        $('#end_date').val(toYmd(new Date()));
+    }
+    if (!$('#start_date').val()) {
+        if (typeof moment === 'function') {
+            $('#start_date').val(moment($('#end_date').val(), 'YYYY-MM-DD').subtract(1, 'month').format('YYYY-MM-DD'));
+        } else {
+            const end = new Date($('#end_date').val());
+            end.setMonth(end.getMonth() - 1);
+            $('#start_date').val(toYmd(end));
+        }
+    }
+
+    updateStepOptionsBySelectedRange();
+
     $('.selector').on('click',function(){
         if($(this).val() == 'participant-by-status'){
             $(".participant-status-container").show();
@@ -983,17 +1180,20 @@ $(document).ready(function(){
         }
     });
 
-    $('#date_range').off().on('change',function (e) { 
-        let optionIndex = $(this).index();
-        $('#step').val('1 day').change();
-        if(optionIndex != 5){
-            $('#step option').each(function(){
-                $(this).prop('disabled',false);
-            });
-            $('#step option').slice(optionIndex+3,7).each(function(){
-                $(this).prop('disabled', true);
-            });
-        }        
+    $('#start_date, #end_date').off().on('change', function(){
+        const start = $('#start_date').val();
+        const end = $('#end_date').val();
+
+        // If user selected an inverted range, swap to keep UX friendly
+        if (start && end) {
+            const rangeDays = getRangeDays(start, end);
+            if (rangeDays !== null && rangeDays <= 0) {
+                $('#start_date').val(end);
+                $('#end_date').val(start);
+            }
+        }
+
+        updateStepOptionsBySelectedRange();
     });
 
     $('.print-report').off().on('click',function (e){

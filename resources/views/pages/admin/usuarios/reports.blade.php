@@ -3,6 +3,7 @@
     <!-- <script src="{{asset('assets/js/chartjs/Chart.js')}}"></script>
      -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1"></script>
      <script src="{{asset('assets/js/reports.js')}}"></script>
      <link rel="stylesheet" href="{{ asset('assets/css/reports-responsive.css') }}">
 @endpush
@@ -35,19 +36,15 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-md-6">   
-                        <label for="date_range" class='control-label'>Rango de Tiempo</label>
-                        <select name="date_range" id="date_range" class="form-control">
-                            <option value="1" selected>1 Mes</option>
-                            <option value="4">4 Meses</option>
-                            <option value="6">6 Meses</option>                        
-                            <option value="12">1 año</option>
-                            <option value="all">Todo el Tiempo</option>
-                        </select>   
+                    <div class="col-md-4">
+                        <label for="start_date" class='control-label'>Desde</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" />
                     </div>
-                <!-- </div>
-                <div class="form-group"> -->
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label for="end_date" class='control-label'>Hasta</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
                         <label for="step" class='control-label'>Intervalo de Tiempo</label>
                         <select name="step" id="step" class="form-control">
                             <option value="1 day" selected>Diario</option>
@@ -57,7 +54,7 @@
                             <option value="4 months">Cada 4 meses</option>
                             <option value="6 months">Cada 6 meses</option>
                             <option value="1 year">Anual</option>
-                        </select>    
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
