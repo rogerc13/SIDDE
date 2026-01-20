@@ -26,7 +26,7 @@ class Participant extends Model
 
   protected $table = 'participants';
   protected $fillable = [
-    'person_id','status_id', 'scheduled_id','participant_status_id'
+    'person_id', 'scheduled_id','participant_status_id'
   ];
   protected $dates = [ 'deleted_at', ];
 

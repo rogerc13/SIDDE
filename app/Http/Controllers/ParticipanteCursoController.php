@@ -184,10 +184,15 @@ class ParticipanteCursoController extends Controller
         }
         $person->user()->save($usuario);
 
+
         $participant = new Participant([
-            'participant_status_id' => 1,
+            'participant_status_id' => 5,
             'scheduled_id' => $id
         ]);
+
+        if(today() >= $cursoprogramado->start_date){
+            $participant->participant_status_id = 1;
+        }
 
         $response = $person->participant()->save($participant);
 
@@ -230,9 +235,16 @@ class ParticipanteCursoController extends Controller
         //add override for prerequisite check
 
         $participantecurso = new Participant();
-        $participantecurso->participant_status_id=1;
+        $participantecurso->participant_status_id=5;
         $participantecurso->scheduled_id=$request->curso_p_id;
         $participantecurso->person_id=$request->participante;
+
+        $cursoprogramado = Scheduled::find($request->curso_p_id);
+
+        if(today() >= $cursoprogramado->start_date){
+            $participantecurso->participant_status_id = 1;
+        }
+
 
         if(!$participantecurso->save()){
             return Redirect::back()
