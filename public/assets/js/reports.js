@@ -955,32 +955,18 @@ function reportByParticipantStatus(response){
                                     </tr>`);
     });
 
-    //participants not in a course //missing last participated course if any
+    //participants not in a course (count only)
+    const notInCourseCount = (typeof response.notInCourseCount === 'number') ? response.notInCourseCount : 0;
     $(".table-col-helper").append(
         `<div class="panel panel-success participant-not-asigned">
-        <div class="panel-heading">
-            <div class="panel-title">Participantes No Asignados a Cursos</div>
-        </div>
-            <div class="panel-body with-table table-responsive"><table class="not-in-course-list-table table table-striped table-bordered table-center">
-                                <thead></thead>
-                                <tbody></tbody>
-                            </table>
+            <div class="panel-heading">
+                <div class="panel-title">Participantes No Asignados a Cursos</div>
+            </div>
+            <div class="panel-body">
+                <h4 class="text-center">${notInCourseCount}</h4>
             </div>
         </div>`
     );
-
-    $(".not-in-course-list-table thead").append(`<tr>
-                                                <th>Nombres</th>
-                                                <th>Apellidos</th>
-                                                <th>Cédula</th>
-                                            </tr>`);
-    response.notInCourse.forEach((element) => {
-        $(".not-in-course-list-table tbody").append(`<tr>
-                                    <td>${element.name}</td>
-                                    <td>${element.last_name}</td>
-                                    <td>${element.id_number}</td>
-                                    </tr>`);
-    });
     /* response.allStatusbyDateRange.forEach(element => {
                             console.log(`${element.status} : ${element.countByStatus}`);
                         }); */
