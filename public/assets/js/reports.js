@@ -955,18 +955,7 @@ function reportByParticipantStatus(response){
                                     </tr>`);
     });
 
-    //participants not in a course (count only)
-    const notInCourseCount = (typeof response.notInCourseCount === 'number') ? response.notInCourseCount : 0;
-    $(".table-col-helper").append(
-        `<div class="panel panel-success participant-not-asigned">
-            <div class="panel-heading">
-                <div class="panel-title">Participantes No Asignados a Cursos</div>
-            </div>
-            <div class="panel-body">
-                <h4 class="text-center">${notInCourseCount}</h4>
-            </div>
-        </div>`
-    );
+    // participants not in a course: no longer shown in this report
     /* response.allStatusbyDateRange.forEach(element => {
                             console.log(`${element.status} : ${element.countByStatus}`);
                         }); */

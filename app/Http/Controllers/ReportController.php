@@ -360,12 +360,7 @@ class ReportController extends Controller
             ->get();
 
 
-        //participants not in a course, always all time
-        $notInCourseCount = Person::whereDoesntHave('participant')
-            ->whereHas('user', function ($query) {
-                $query->where('role_id', 5);
-            })
-            ->count();
+        // participants not in a course: no longer included in this report
 
         //by date range by status
         $dates =  $this->range($request);
@@ -426,7 +421,6 @@ class ReportController extends Controller
             'byAllTime' => $byAllTime,
             'byStatusByDateRange' => $byStatusByDateRange,
             'allStatusbyDateRange' => $allStatusbyDateRange,
-            'notInCourseCount' => $notInCourseCount,
             'labels' => $labels,
         ]);
     } //end by participant status
