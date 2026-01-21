@@ -1003,12 +1003,16 @@ function reportByParticipantQuantity(response){
 
         $('.course-list thead').append(`<tr>
         <th>Título</th>
+        <th>Fecha de Inicio</th>
+        <th>Fecha de Culminación</th>
         <th>Cantidad de Participantes</th>
         </tr>`);
 
         response.dateRangeAmountPerCourse.forEach(element => {
             $(".course-list tbody").append(`<tr>
                 <td>${element.course}</td>
+                <td>${element.start_date || ''}</td>
+                <td>${element.end_date || ''}</td>
                 <td>${element.count}</td>
             </tr>`);
         });
@@ -1188,6 +1192,14 @@ $(document).ready(function(){
         }
     }
 
+    function updateGenerateButtonDisabledState(){
+        const today = toYmd(new Date());
+        const startYmd = $('#start_date').val();
+        const endYmd = $('#end_date').val();
+        const disable = (startYmd === today && endYmd === today);
+        $('.generate').prop('disabled', disable);
+    }
+
     // Set sane defaults (previously defaulted to "1 Mes")
     if (!$('#end_date').val()) {
         $('#end_date').val(toYmd(new Date()));
@@ -1203,6 +1215,7 @@ $(document).ready(function(){
     }
 
     updateStepOptionsBySelectedRange();
+    updateGenerateButtonDisabledState();
 
     $('.selector').on('click',function(){
         if($(this).val() == 'participant-by-status'){
@@ -1228,6 +1241,7 @@ $(document).ready(function(){
         }
 
         updateStepOptionsBySelectedRange();
+        updateGenerateButtonDisabledState();
     });
 
     $('.print-report').off().on('click',function (e){

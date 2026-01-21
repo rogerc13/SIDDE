@@ -121,21 +121,23 @@ class ReportController extends Controller
 
         $dates =  $this->range($request);
         $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
-        $i = 0;
 
-        foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+        $xAxis = [];
+        $yAxis = [];
+        $graphData = [];
+        $categories = [];
+        $courseData = [];
 
-            $xAxis[] = Carbon::parse($start_date)->format('Y-m-d');
+        $steps = max(1, count($date) - 1);
+        for ($k = 0; $k <= $steps; $k++) {
+            $xAxis[] = Carbon::parse($date[$k])->format('Y-m-d');
         }
-        foreach (Category::all() as $category) {
-            foreach ($date as $key => $value) {
 
-                $start_date = $date[$key];
-                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+        foreach (Category::all() as $category) {
+            for ($k = 0; $k <= $steps; $k++) {
+                $start_date = $date[$k];
+                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
 
                 $yAxis[] = [
                     'category' => $category->name,
@@ -206,23 +208,22 @@ class ReportController extends Controller
 
         $dates =  $this->range($request);
         $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
-        $i = 0;
 
-        foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+        $xAxis = [];
+        $byDateRange = [];
+        $statusNames = [];
+        $courseData = [];
 
-            $xAxis[] = Carbon::parse($start_date)->format('Y-m-d');
+        $steps = max(1, count($date) - 1);
+        for ($k = 0; $k <= $steps; $k++) {
+            $xAxis[] = Carbon::parse($date[$k])->format('Y-m-d');
         }
 
-        $i = 0;
-
         foreach (CourseStatus::all() as $status) {
-            foreach ($date as $key => $value) {
-                $start_date = $date[$key];
-                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+            for ($k = 0; $k <= $steps; $k++) {
+                $start_date = $date[$k];
+                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
 
                 //Data to show graphs
                 $byDateRange[] = [
@@ -367,22 +368,26 @@ class ReportController extends Controller
         //by date range by status
         $dates =  $this->range($request);
         $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
-        $i = 0;
+
+        $steps = max(1, count($date) - 1);
 
         //return json_encode($date);
         foreach (ParticipantStatus::all() as $status) {
-            foreach ($date as $key => $value) {
-                $start_date = $date[$key];
-                $end_date = $date[$day === true ? $key : ($i < $numberOfSteps ? $i = $i + 1 : $i)];
+            for ($k = 0; $k <= $steps; $k++) {
+                $start_date = $date[$k];
+                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
 
                 $allStatusbyDateRange[] = [
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'countByStatus' => Participant::where('participant_status_id', $status->id)->whereHas(
                         'scheduled',
                         function ($query) use ($start_date, $end_date) {
-                            $query->whereBetween('start_date', [$start_date, $end_date]);
+                            $query->when($start_date === $end_date, function ($q) use ($start_date) {
+                                return $q->whereDate('start_date', $start_date);
+                            }, function ($q) use ($start_date, $end_date) {
+                                return $q->whereBetween('start_date', [$start_date, $end_date]);
+                            });
                         }
                     )->count(),
                     'status' => $status->name,
@@ -392,17 +397,20 @@ class ReportController extends Controller
             $labels[] = ['label' => $status->name,];
         }
 
-        $j = 0;
-        foreach ($date as $key => $value) {
-            $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
+        for ($k = 0; $k <= $steps; $k++) {
+            $start_date = $date[$k];
+            $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
 
             $byStatusByDateRange[] = [
                 'date' => Carbon::parse($start_date)->format('Y-m-d'),
                 'countByStatus' => Participant::where('participant_status_id', $request->participant_status)->whereHas(
                     'scheduled',
                     function ($query) use ($start_date, $end_date) {
-                        $query->whereBetween('start_date', [$start_date, $end_date]);
+                        $query->when($start_date === $end_date, function ($q) use ($start_date) {
+                            return $q->whereDate('start_date', $start_date);
+                        }, function ($q) use ($start_date, $end_date) {
+                            return $q->whereBetween('start_date', [$start_date, $end_date]);
+                        });
                     }
                 )->count(),
                 'status' => $status->name,
@@ -445,7 +453,9 @@ class ReportController extends Controller
                 $dateRangeAmountPerCourse[] = [
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'scheduled_id' => $scheduled->id,
-                    'course' => $scheduled->course->title,
+                    'course' => $scheduled->course?->title ?? 'Sin título',
+                    'start_date' => $scheduled->start_date,
+                    'end_date' => $scheduled->end_date,
                     'count' => Participant::where('scheduled_id', $scheduled->id)->count()
                 ];
             }
