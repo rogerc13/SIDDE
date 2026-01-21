@@ -601,7 +601,8 @@ class CursoController extends Controller
             return json_encode(false);
         }
 
-        $query = Course::query()->where('code', $codeValue);
+        // Include soft-deleted rows so codes can't be reused.
+        $query = Course::withTrashed()->where('code', $codeValue);
 
         $ignoreId = $request->input('ignore_id');
         if ($ignoreId !== null && is_numeric($ignoreId)) {
