@@ -224,16 +224,18 @@ function reportByCategory(response){
     
     refresh();
     $(".row-graphs")
-        .append(`<div class="panel panel-success line-graph-panel col-md-6">
+        .append(`<div class="col-md-6">
+            <div class="panel panel-success line-graph-panel">
                 <div class="panel-heading">
                     <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
                 </div>
                 <div class="panel-body">
                     <div class="graph-container">
-                     <canvas id="myChart"></canvas>
+                        <canvas id="myChart"></canvas>
                     </div>
                 </div>
-            </div>`);
+            </div>
+        </div>`);
 
     const ctx = document.getElementById('myChart');
     let categories = [];
@@ -334,15 +336,17 @@ function reportByCategory(response){
     });
         
     $(".row-graphs").append(`
-        <div class="panel panel-success doughnut-panel col-md-6">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}
+        <div class="col-md-6">
+            <div class="panel panel-success doughnut-panel">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}
+                    </div>
                 </div>
-            </div>
-            <div class="panel-body">
-                <div class="  doughnut-container">
-                    <canvas id="doughnut"></canvas>
+                <div class="panel-body">
+                    <div class="doughnut-container">
+                        <canvas id="doughnut"></canvas>
+                    </div>
                 </div>
             </div>
         </div>`);
@@ -446,16 +450,18 @@ function reportByCourseStatus(response){ //reports by course status
 
     refresh();
     $(".row-graphs")
-        .append(`<div class="panel panel-success by-status-line-panel col-md-6 ">
-            <div class="panel-heading">
-                <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
-            </div>
-            <div class="panel-body">
-                <div class="h-25 col-xs-12 col-md-12 graph-container">
-                <canvas id="myChart"></canvas>
+        .append(`<div class="col-md-6">
+            <div class="panel panel-success by-status-line-panel">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                </div>
+                <div class="panel-body">
+                    <div class="h-25 col-xs-12 col-md-12 graph-container">
+                        <canvas id="myChart"></canvas>
+                    </div>
                 </div>
             </div>
-            </div>`);
+        </div>`);
 
     const ctx = document.getElementById('myChart'); //linear graph selector
 
@@ -571,13 +577,15 @@ function reportByCourseStatus(response){ //reports by course status
 
     //doughnut graph draw
     $(".row-graphs")
-        .append(`<div class="panel panel-success by-status-doughnut-panel col-md-6">
-            <div class="panel-heading">
-                <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
-            </div>
-            <div class="panel-body">
-                <div class="doughnut-container">
-                    <canvas id="doughnut"></canvas>
+        .append(`<div class="col-md-6">
+            <div class="panel panel-success by-status-doughnut-panel">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                </div>
+                <div class="panel-body">
+                    <div class="doughnut-container">
+                        <canvas id="doughnut"></canvas>
+                    </div>
                 </div>
             </div>
         </div>`);
@@ -760,23 +768,27 @@ function reportByParticipantStatus(response){
 
     // Chart containers (were missing, so charts had no canvas to render into)
     $(".row-graphs").append(`
-        <div class="panel panel-success col-md-6">
-            <div class="panel-heading">
-                <div class="panel-title">Distribución de Participantes por Estatus (Barras)</div>
-            </div>
-            <div class="panel-body">
-                <div class="h-25 col-xs-12 col-md-12 graph-container">
-                    <canvas id="myChart"></canvas>
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Participantes por Estatus (Barras)</div>
+                </div>
+                <div class="panel-body">
+                    <div class="h-25 col-xs-12 col-md-12 graph-container">
+                        <canvas id="myChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="panel panel-success col-md-6">
-            <div class="panel-heading">
-                <div class="panel-title">Distribución de Participantes por Estatus (Dona)</div>
-            </div>
-            <div class="panel-body">
-                <div class="doughnut-container">
-                    <canvas id="doughnut"></canvas>
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Participantes por Estatus (Dona)</div>
+                </div>
+                <div class="panel-body">
+                    <div class="doughnut-container">
+                        <canvas id="doughnut"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
