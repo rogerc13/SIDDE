@@ -13,7 +13,7 @@ class Participant extends Model
   const SUSPENDIDO = 2;
   const APROBADO = 3;
   const CANCELADO = 4;
-  const ESPERA = 5;
+  const PORINICIAR = 5;
 
   public static $estados = [
 
@@ -21,7 +21,7 @@ class Participant extends Model
       self::SUSPENDIDO => "Suspendido/Reprobado",
       self::APROBADO => "Aprobado",
       self::CANCELADO => "Cancelado",
-      self::ESPERA => "En Espera De Curso",
+      self::PORINICIAR => "Por Iniciar",
   ];
 
   protected $table = 'participants';
@@ -60,6 +60,6 @@ class Participant extends Model
         else if($this->participant_status_id==4)
             return "Cancelado";
         else if($this->participant_status_id==5)
-            return "En Espera De Curso";
+            return "Por Iniciar";
   }
 }
