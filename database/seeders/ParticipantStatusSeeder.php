@@ -30,7 +30,7 @@ class ParticipantStatusSeeder extends Seeder
         ]);
 
         ParticipantStatus::create([
-            'name' => 'En Espera De Curso'
+            'name' => 'Por Iniciar'
         ]);
     }
 }
