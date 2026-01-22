@@ -193,6 +193,14 @@
 						<span class="title">Reportes</span>
 					</a>
 				</li>
+				@if(Auth::user()->isAdministrador())
+					<li class="{{ Request::is('database','database/*') ? 'active' : '' }}" title="Administrador">
+						<a href="{{ route('database.index') }}">
+							<i class="entypo-tools"></i>
+							<span class="title">Administrador</span>
+						</a>
+					</li>
+				@endif
 			@endif
 			</ul>
 		</div>

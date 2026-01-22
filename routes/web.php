@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -190,6 +189,42 @@ Route::group(['middleware' => 'auth'], function ()
                         Route::get('/participant-status-select', 'App\Http\Controllers\ReportController@participantStatus');
                 });
         });
+
+                Route::get('database', 'App\Http\Controllers\Admin\DatabaseController@index')->name('database.index');
+
+                Route::get('database/capacities', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'capacities')->name('database.tables.capacities');
+                Route::get('database/categories', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'categories')->name('database.tables.categories');
+                Route::get('database/contents', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'contents')->name('database.tables.contents');
+                Route::get('database/course_status', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'course_status')->name('database.tables.course_status');
+                Route::get('database/courses', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'courses')->name('database.tables.courses');
+                Route::get('database/facilitators', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'facilitators')->name('database.tables.facilitators');
+                Route::get('database/files', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'files')->name('database.tables.files');
+                Route::get('database/id_types', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'id_types')->name('database.tables.id_types');
+                Route::get('database/modalities', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'modalities')->name('database.tables.modalities');
+                Route::get('database/participant_status', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'participant_status')->name('database.tables.participant_status');
+                Route::get('database/participants', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'participants')->name('database.tables.participants');
+                Route::get('database/people', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'people')->name('database.tables.people');
+                Route::get('database/prerequisites', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'prerequisites')->name('database.tables.prerequisites');
+                Route::get('database/roles', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'roles')->name('database.tables.roles');
+                Route::get('database/scheduled_course', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'scheduled_course')->name('database.tables.scheduled_course');
+                Route::get('database/types', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'types')->name('database.tables.types');
+                Route::get('database/users', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'users')->name('database.tables.users');
+
+                Route::delete('database/courses/{id}', 'App\Http\Controllers\Admin\DatabaseController@destroyCourse')
+                        ->whereNumber('id')
+                        ->name('database.courses.destroy');
+
+                Route::patch('database/courses/{id}', 'App\Http\Controllers\Admin\DatabaseController@updateCourse')
+                        ->whereNumber('id')
+                        ->name('database.courses.update');
+
+                Route::delete('database/courses/{id}/force', 'App\Http\Controllers\Admin\DatabaseController@forceDestroyCourse')
+                        ->whereNumber('id')
+                        ->name('database.courses.forceDestroy');
+
+                Route::patch('database/courses/{id}/restore', 'App\Http\Controllers\Admin\DatabaseController@restoreCourse')
+                        ->whereNumber('id')
+                        ->name('database.courses.restore');
     
     Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
     
