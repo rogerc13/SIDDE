@@ -34,6 +34,8 @@ class UserForm extends FormRequest
                         'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
                         'rol' => 'sometimes|required|integer|exists:roles,id',                        
                         'email' => 'required|email:rfc,filter|unique:users,email|max:'.User::MAX_LENGTH_EMAIL,
+                        'phone' => 'nullable|string|max:45',
+                        'sex' => 'required|in:Femenino,Masculino',
                         'password' => 'required|confirmed',
                         'password_confirmation' => 'required',
                        
@@ -46,6 +48,8 @@ class UserForm extends FormRequest
                         'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
                         'rol' => 'sometimes|required|integer|exists:roles,id',                        
                         'email' => 'required|email:rfc,filter|unique:users,email,'.$this->user_id.'|max:'.User::MAX_LENGTH_EMAIL,
+                        'phone' => 'nullable|string|max:45',
+                        'sex' => 'required|in:Femenino,Masculino',
                         'password' => 'sometimes|confirmed',
                         'password_confirmation' => 'required_with:password',
                        ];
