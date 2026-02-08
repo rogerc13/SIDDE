@@ -65,6 +65,21 @@
 
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6" >
+                                <label for="sex">Sexo</label>
+                                <select name="sex" id="sex" class="form-control" required="true">
+                                    <option value="" disabled selected>Seleccione...</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Masculino">Masculino</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6" >
+                                <label for="phone">Teléfono</label>
+                                <input type="text" class="form-control" name="phone" id="phone" maxlength="45">
+                            </div>
+                        </div>
+
+                        <div class="form-group" >
+                            <div class="col-lg-6 col-md-6" >
                                 <label for="password">Contraseña</label>
                                 <input class="form-control" name="password" type="password" id="password"  maxlength="100" required="true">
                             </div>   

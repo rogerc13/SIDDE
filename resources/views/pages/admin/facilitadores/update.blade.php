@@ -17,6 +17,8 @@
                 $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);
                 $('#ci').val(data.person.id_number);      
+            $('#sex').val(data.person.sex);
+            $('#phone').val(data.person.phone);
                 $('#id_type').val(data.person.id_type_id).trigger('change');      
                 $('#user_id').val(data.id);           
                 $(".loader").addClass("hidden");
