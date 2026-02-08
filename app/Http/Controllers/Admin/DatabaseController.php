@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminCourseUpdateRequest;
+use App\Http\Requests\AdminUserUpdateRequest;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Capacity;
 use App\Models\Content;
+use App\Models\Facilitator;
 use App\Models\File as CourseFile;
 use App\Models\Funciones;
 use App\Models\Modality;
@@ -21,6 +23,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View as ViewFacade;
@@ -79,10 +82,13 @@ class DatabaseController extends Controller
                     ->pluck('full_name', 'id')
                     ->all();
 
+                $roles = Role::query()->orderBy('name')->get(['id', 'name']);
+
                 return view($tableView, [
                     'table' => $table,
                     'columns' => $columns,
                     'rows' => $rows,
+                    'roles' => $roles,
                     'valueMaps' => [
                         'role_id' => $roleMap,
                         'person_id' => $personNameMap,
@@ -254,6 +260,57 @@ class DatabaseController extends Controller
             'columns' => $columns,
             'rows' => $rows,
         ]);
+    }
+
+    public function updateUser(AdminUserUpdateRequest $request, int $id): RedirectResponse
+    {
+        $authUser = Auth::user();
+
+        if (! $authUser instanceof User || ! $authUser->isAdministrador()) {
+            return redirect()->back()->with('alert', Funciones::getAlert('danger', 'Error', 'No tienes permisos para realizar esta accion.'));
+        }
+
+        $user = User::withTrashed()->findOrFail($id);
+
+        $validated = $request->validated();
+
+        $newRoleId = (int) $validated['role_id'];
+
+        $user->email = (string) $validated['email'];
+        $user->role_id = $newRoleId;
+
+        $password = $validated['password'] ?? null;
+        if (is_string($password) && $password !== '') {
+            $user->password = Hash::make($password);
+        }
+
+        if ($newRoleId === Role::FACILITADOR) {
+            $personId = (int) $user->person_id;
+
+            if ($personId > 0) {
+                $existing = Facilitator::query()
+                    ->withTrashed()
+                    ->where('person_id', $personId)
+                    ->first();
+
+                if ($existing) {
+                    if ($existing->trashed()) {
+                        $existing->restore();
+                    }
+                } else {
+                    $person = Person::query()->withTrashed()->find($personId);
+
+                    if ($person) {
+                        $facilitator = new Facilitator();
+                        $person->facilitator()->save($facilitator);
+                    }
+                }
+            }
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('alert', Funciones::getAlert('success', 'Actualizado', 'Operación exitosa.'));
     }
 
     public function updateCourse(AdminCourseUpdateRequest $request, int $id): RedirectResponse

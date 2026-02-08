@@ -210,6 +210,10 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('database/types', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'types')->name('database.tables.types');
                 Route::get('database/users', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'users')->name('database.tables.users');
 
+                Route::patch('database/users/{id}', 'App\Http\Controllers\Admin\DatabaseController@updateUser')
+                        ->whereNumber('id')
+                        ->name('database.users.update');
+
                 Route::delete('database/courses/{id}', 'App\Http\Controllers\Admin\DatabaseController@destroyCourse')
                         ->whereNumber('id')
                         ->name('database.courses.destroy');
