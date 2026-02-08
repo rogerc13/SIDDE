@@ -220,6 +220,28 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'capacities') {
+                $pageRows = collect($rows->items());
+                $courseIds = $pageRows->pluck('course_id')->filter()->unique()->values()->all();
+
+                $courseLabelMap = empty($courseIds)
+                    ? []
+                    : DB::table('courses')
+                        ->whereIn('id', $courseIds)
+                        ->selectRaw("id, CONCAT(code, ' - ', title) as label")
+                        ->pluck('label', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'course_id' => $courseLabelMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,
