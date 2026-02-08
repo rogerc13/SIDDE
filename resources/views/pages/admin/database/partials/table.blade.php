@@ -26,7 +26,13 @@
 						@foreach($rows as $row)
 							<tr>
 								@foreach($columns as $column)
-									<td>{{ data_get($row, $column) }}</td>
+									@php($rawValue = data_get($row, $column))
+									@php($valueMaps = $valueMaps ?? [])
+									@if(isset($valueMaps[$column]) && $rawValue !== null)
+										<td>{{ $valueMaps[$column][$rawValue] ?? $rawValue }}</td>
+									@else
+										<td>{{ $rawValue }}</td>
+									@endif
 								@endforeach
 							</tr>
 						@endforeach

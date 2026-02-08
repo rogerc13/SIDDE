@@ -12,7 +12,9 @@ use App\Models\File as CourseFile;
 use App\Models\Funciones;
 use App\Models\Modality;
 use App\Models\Participant;
+use App\Models\Person;
 use App\Models\Prerequisite;
+use App\Models\Role;
 use App\Models\Scheduled;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -67,6 +69,24 @@ class DatabaseController extends Controller
                     'rows' => $rows,
                     'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
                     'modalities' => Modality::query()->orderBy('name')->get(['id', 'name']),
+                ]);
+            }
+
+            if ($table === 'users') {
+                $roleMap = Role::query()->orderBy('name')->pluck('name', 'id')->all();
+                $personNameMap = Person::query()
+                    ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
+                    ->pluck('full_name', 'id')
+                    ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'role_id' => $roleMap,
+                        'person_id' => $personNameMap,
+                    ],
                 ]);
             }
 
