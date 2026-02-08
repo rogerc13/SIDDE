@@ -118,6 +118,21 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'people') {
+                $idTypeNameMap = DB::table('id_types')
+                    ->pluck('name', 'id')
+                    ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'id_type_id' => $idTypeNameMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,
