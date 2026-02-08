@@ -21,6 +21,8 @@
                 $('#email').val(data.email);
                 $('#ci').val(data.person.id_number); 
                 $('#id_type').val(data.person.id_type_id); 
+                $('#sex').val(data.person.sex);
+                $('#phone').val(data.person.phone);
                 $('#rol').val(data.role_id);
                 $('#user_id').val(data.id);                
                 $(".loader").addClass("hidden");

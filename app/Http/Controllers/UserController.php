@@ -99,6 +99,8 @@ class UserController extends Controller
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
             'id_type_id' => $request->id_type,
+            'sex' => $request->sex,
+            'phone' => $request->phone,
         );
         $person = Person::create($personData);
 
@@ -145,7 +147,9 @@ class UserController extends Controller
             'name' => $request->nombre,
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
-            'id_type_id' => $request->id_type
+            'id_type_id' => $request->id_type,
+            'sex' => $request->sex,
+            'phone' => $request->phone,
         ]);
 
         if($request->password!=''){
