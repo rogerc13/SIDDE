@@ -90,6 +90,34 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'scheduled_course') {
+                $courseLabelMap = DB::table('courses')
+                    ->selectRaw("id, CONCAT(code, ' - ', title) as label")
+                    ->pluck('label', 'id')
+                    ->all();
+
+                $facilitatorNameMap = DB::table('facilitators')
+                    ->leftJoin('people', 'facilitators.person_id', '=', 'people.id')
+                    ->selectRaw("facilitators.id as id, CONCAT(people.name, ' ', people.last_name) as full_name")
+                    ->pluck('full_name', 'id')
+                    ->all();
+
+                $statusNameMap = DB::table('course_status')
+                    ->pluck('name', 'id')
+                    ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'course_id' => $courseLabelMap,
+                        'facilitator_id' => $facilitatorNameMap,
+                        'course_status_id' => $statusNameMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,
