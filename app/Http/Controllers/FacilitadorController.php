@@ -187,7 +187,9 @@ class FacilitadorController extends Controller
 
 
         if ($usuario->delete()) {
-            //needs to also delete on facilitator table              
+            if ($usuario->person) {
+                $usuario->person->delete();
+            }
             return Redirect::back()->with('alert',Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
         }
 

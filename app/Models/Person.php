@@ -11,6 +11,23 @@ class Person extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Person $person) {
+            if ($person->isForceDeleting()) {
+                $person->facilitator()->withTrashed()->forceDelete();
+
+                return;
+            }
+
+            $person->facilitator()->delete();
+        });
+
+        static::restoring(function (Person $person) {
+            $person->facilitator()->withTrashed()->restore();
+        });
+    }
+
     protected $fillable = [
         'name',
         'last_name',
