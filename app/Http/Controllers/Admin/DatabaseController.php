@@ -133,6 +133,49 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'participants') {
+                $pageRows = collect($rows->items());
+
+                $personIds = $pageRows->pluck('person_id')->filter()->unique()->values()->all();
+                $statusIds = $pageRows->pluck('participant_status_id')->filter()->unique()->values()->all();
+                $scheduledIds = $pageRows->pluck('scheduled_id')->filter()->unique()->values()->all();
+
+                $personNameMap = empty($personIds)
+                    ? []
+                    : DB::table('people')
+                        ->whereIn('id', $personIds)
+                        ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
+                        ->pluck('full_name', 'id')
+                        ->all();
+
+                $participantStatusMap = empty($statusIds)
+                    ? []
+                    : DB::table('participant_status')
+                        ->whereIn('id', $statusIds)
+                        ->pluck('name', 'id')
+                        ->all();
+
+                $scheduledLabelMap = empty($scheduledIds)
+                    ? []
+                    : DB::table('scheduled_course')
+                        ->whereIn('scheduled_course.id', $scheduledIds)
+                        ->join('courses', 'scheduled_course.course_id', '=', 'courses.id')
+                        ->selectRaw("scheduled_course.id as id, CONCAT(scheduled_course.start_date, ' - ', courses.title) as label")
+                        ->pluck('label', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'person_id' => $personNameMap,
+                        'participant_status_id' => $participantStatusMap,
+                        'scheduled_id' => $scheduledLabelMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,

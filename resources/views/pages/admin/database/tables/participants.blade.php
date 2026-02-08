@@ -7,5 +7,5 @@
 		Volver
 	</a>
 
-	@include('pages.admin.database.partials.table', ['table' => $table, 'columns' => $columns, 'rows' => $rows])
+	@include('pages.admin.database.partials.table', ['table' => $table, 'columns' => $columns, 'rows' => $rows, 'valueMaps' => $valueMaps ?? []])
 @stop
