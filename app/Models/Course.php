@@ -4,12 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 class Course extends Model
 {
   use SoftDeletes;
+
+  protected static function booted(): void
+  {
+    static::deleting(function (Course $course) {
+      if ($course->isForceDeleting()) {
+        $course->content()->withTrashed()->forceDelete();
+        $course->capacity()->withTrashed()->forceDelete();
+
+        return;
+      }
+
+      $course->content()->delete();
+      $course->capacity()->delete();
+    });
+
+    static::restoring(function (Course $course) {
+      $course->content()->withTrashed()->restore();
+      $course->capacity()->withTrashed()->restore();
+    });
+  }
 
     const MAX_LENGTH_TITLE = 300;
     const MAX_LENGTH_OBJECTIVE = 3000;
