@@ -176,6 +176,28 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'facilitators') {
+                $pageRows = collect($rows->items());
+                $personIds = $pageRows->pluck('person_id')->filter()->unique()->values()->all();
+
+                $personNameMap = empty($personIds)
+                    ? []
+                    : DB::table('people')
+                        ->whereIn('id', $personIds)
+                        ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
+                        ->pluck('full_name', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'person_id' => $personNameMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,
