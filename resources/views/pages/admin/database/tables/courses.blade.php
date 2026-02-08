@@ -18,6 +18,8 @@
 				</div>
 
 				<div class="panel-body with-table table-responsive">
+					@php($categoryNameById = isset($categories) ? collect($categories)->pluck('name', 'id') : collect())
+					@php($modalityNameById = isset($modalities) ? collect($modalities)->pluck('name', 'id') : collect())
 					<table class="table table-striped table-bordered table-center">
 						<thead>
 							<tr>
@@ -37,9 +39,20 @@
 							@foreach($rows as $row)
 								<tr>
 									@foreach($columns as $column)
-										<td>{{ data_get($row, $column) }}</td>
+										@php($rawValue = data_get($row, $column))
+										@if($column === 'category_id')
+											@php($categoryName = (string) ($categoryNameById[(int) $rawValue] ?? $rawValue))
+											<td title="{{ $categoryName }}">{{ \Illuminate\Support\Str::limit($categoryName, 30) }}</td>
+											@elseif($column === 'objective')
+												@php($objectiveText = (string) ($rawValue ?? ''))
+												<td title="{{ $objectiveText }}">{{ \Illuminate\Support\Str::limit($objectiveText, 60) }}</td>
+										@elseif($column === 'modality_id')
+											<td>{{ (string) ($modalityNameById[(int) $rawValue] ?? $rawValue) }}</td>
+										@else
+											<td>{{ $rawValue }}</td>
+										@endif
 									@endforeach
-									<td>
+									<td style="white-space: nowrap;">
 										@php($rowId = data_get($row, 'id'))
 										@php($deletedAt = data_get($row, 'deleted_at'))
 										@if($rowId)
@@ -63,14 +76,14 @@
 												<i class="entypo-pencil"></i>
 											</a>
 											@if($deletedAt)
-												<form method="POST" action="{{ route('database.courses.restore', ['id' => $rowId]) }}" style="display:inline" onsubmit="return confirm('¿Deseas restaurar este curso?');">
-												@csrf
-												@method('PATCH')
-												<button type="submit" class="btn btn-success btn-xs" title="Restaurar curso">
-													<i class="entypo-ccw"></i>
-												</button>
-											</form>
-												<form method="POST" action="{{ route('database.courses.forceDestroy', ['id' => $rowId]) }}" style="display:inline" onsubmit="return confirm('ELIMINAR PERMANENTEMENTE: esto borrará el curso y todos los datos vinculados (programadas, inscripciones, archivos, contenidos, capacidades, prerrequisitos). ¿Deseas continuar?');">
+												<form method="POST" action="{{ route('database.courses.restore', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('¿Deseas restaurar este curso?');">
+													@csrf
+													@method('PATCH')
+													<button type="submit" class="btn btn-success btn-xs" title="Restaurar curso">
+														<i class="entypo-ccw"></i>
+													</button>
+												</form>
+												<form method="POST" action="{{ route('database.courses.forceDestroy', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('ELIMINAR PERMANENTEMENTE: esto borrará el curso y todos los datos vinculados (programadas, inscripciones, archivos, contenidos, capacidades, prerrequisitos). ¿Deseas continuar?');">
 													@csrf
 													@method('DELETE')
 													<button type="submit" class="btn btn-danger btn-xs" title="Eliminar permanentemente">
@@ -78,13 +91,13 @@
 													</button>
 												</form>
 											@else
-												<form method="POST" action="{{ route('database.courses.destroy', ['id' => $rowId]) }}" style="display:inline" onsubmit="return confirm('¿Deseas eliminar (soft delete) este curso?');">
-												@csrf
-												@method('DELETE')
-												<button type="submit" class="btn btn-danger btn-xs" title="Eliminar curso">
-													<i class="entypo-trash"></i>
-												</button>
-											</form>
+												<form method="POST" action="{{ route('database.courses.destroy', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('¿Deseas eliminar (soft delete) este curso?');">
+													@csrf
+													@method('DELETE')
+													<button type="submit" class="btn btn-danger btn-xs" title="Eliminar curso">
+														<i class="entypo-trash"></i>
+													</button>
+												</form>
 											@endif
 										@endif
 									</td>
