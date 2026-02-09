@@ -15,6 +15,109 @@ function refresh(){
     $('.row-graphs').html('');
     $(".table-col-helper").html("");
 }
+
+// -----------------------------
+// Report tables: pagination (client-side)
+// -----------------------------
+let __reportTableIdCounter = 0;
+
+function ensureTableId(tableEl){
+    if (!tableEl) {
+        return null;
+    }
+    if (tableEl.id) {
+        return tableEl.id;
+    }
+    __reportTableIdCounter += 1;
+    tableEl.id = `report-table-${__reportTableIdCounter}`;
+    return tableEl.id;
+}
+
+function getPaginationState(tableEl){
+    const pageSize = Number(tableEl.dataset.reportPageSize || 0);
+    const page = Number(tableEl.dataset.reportPage || 1);
+    return {
+        pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : null,
+        page: Number.isFinite(page) && page > 0 ? page : 1,
+    };
+}
+
+function renderTablePage(tableEl){
+    if (!tableEl || !tableEl.tBodies || !tableEl.tBodies[0]) {
+        return;
+    }
+    const state = getPaginationState(tableEl);
+    if (!state.pageSize) {
+        return;
+    }
+
+    const tbody = tableEl.tBodies[0];
+    const rows = Array.from(tbody.rows || []);
+    const totalRows = rows.length;
+    const totalPages = Math.max(1, Math.ceil(totalRows / state.pageSize));
+    const page = Math.min(Math.max(1, state.page), totalPages);
+    tableEl.dataset.reportPage = String(page);
+
+    const startIdx = (page - 1) * state.pageSize;
+    const endIdx = startIdx + state.pageSize;
+
+    rows.forEach((row, idx) => {
+        row.style.display = (idx >= startIdx && idx < endIdx) ? '' : 'none';
+    });
+
+    const pager = document.querySelector(`.report-pagination-controls[data-report-pagination-for="${CSS.escape(tableEl.id)}"]`);
+    if (pager) {
+        const label = pager.querySelector('.report-pagination-label');
+        const prevBtn = pager.querySelector('.report-pagination-prev');
+        const nextBtn = pager.querySelector('.report-pagination-next');
+
+        if (label) {
+            label.textContent = `Página ${page} de ${totalPages} (${totalRows})`;
+        }
+        if (prevBtn) {
+            prevBtn.disabled = page <= 1;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = page >= totalPages;
+        }
+    }
+}
+
+function initTablePagination(tableEl, pageSize){
+    if (!tableEl) {
+        return;
+    }
+    ensureTableId(tableEl);
+
+    const size = Number(pageSize);
+    if (!Number.isFinite(size) || size <= 0) {
+        return;
+    }
+
+    tableEl.dataset.reportPageSize = String(size);
+    if (!tableEl.dataset.reportPage) {
+        tableEl.dataset.reportPage = '1';
+    }
+
+    const existing = document.querySelector(`.report-pagination-controls[data-report-pagination-for="${CSS.escape(tableEl.id)}"]`);
+    if (!existing) {
+        const controls = document.createElement('div');
+        controls.className = 'report-pagination-controls text-center';
+        controls.setAttribute('data-report-pagination-for', tableEl.id);
+        controls.style.marginTop = '8px';
+
+        controls.innerHTML = `
+            <button type="button" class="btn btn-default btn-sm report-pagination-prev">Anterior</button>
+            <span class="report-pagination-label" style="margin: 0 10px;"></span>
+            <button type="button" class="btn btn-default btn-sm report-pagination-next">Siguiente</button>
+        `;
+
+        // Insert right after the table
+        tableEl.parentNode.insertBefore(controls, tableEl.nextSibling);
+    }
+
+    renderTablePage(tableEl);
+}
 function normalizeSortText(value){
     if (value === null || value === undefined) {
         return '';
@@ -189,6 +292,11 @@ function sortTableByColumn(tableEl, colIndex, direction){
     const frag = document.createDocumentFragment();
     decorated.forEach(item => frag.appendChild(item.row));
     tbody.appendChild(frag);
+
+    // If the table is paginated, re-render the current page
+    if (tableEl && tableEl.dataset && tableEl.dataset.reportPageSize) {
+        renderTablePage(tableEl);
+    }
 }
 
 function decorateSortableReportTables($root){
@@ -1015,11 +1123,13 @@ function reportByParticipantStatus(response){
         </div>
     `);
 
-    let start_date = response.byStatusByDateRange[0].date;
+    const start_date = (response.dateRange && response.dateRange.startDate)
+        ? response.dateRange.startDate
+        : (response.byStatusByDateRange && response.byStatusByDateRange[0] ? response.byStatusByDateRange[0].date : '');
 
-    let end_date =
-        response.byStatusByDateRange[response.byStatusByDateRange.length - 1]
-            .date;
+    const end_date = (response.dateRange && response.dateRange.endDate)
+        ? response.dateRange.endDate
+        : (response.byStatusByDateRange && response.byStatusByDateRange.length ? response.byStatusByDateRange[response.byStatusByDateRange.length - 1].date : '');
 
     //total amount of paticipants all time given status
 
@@ -1154,15 +1264,11 @@ function reportByParticipantStatus(response){
         <td>${statusCounts[statusOrder[4]] ?? 0}</td>
     </tr>`);
 
-    const selectedStatusName = response.selectedStatusName
-        || $('#participant_status option:selected').text()
-        || '';
-
-    //list of participants per given status all time
+    // list of participants (all statuses) during the selected period
     $(".table-col-helper").append(
         `<div class="panel panel-success participant-with-status">
         <div class="panel-heading">
-            <div class="panel-title">Lista de Participantes Con Estatus: ${selectedStatusName}</div>
+            <div class="panel-title">Lista de Participantes Durante el Período ${start_date} - ${end_date}</div>
         </div>
         <div class="panel-body with-table table-responsive">
         <table class="all-time-list-table table table-striped table-bordered table-center">
@@ -1175,24 +1281,30 @@ function reportByParticipantStatus(response){
     );
 
     $(".all-time-list-table thead").append(`<tr>
-                                                <th>Nombres</th>
-                                                <th>Apellidos</th>
-                                                <th>Cédula</th>
-                                                <th>Acción de Formación</th>
-                                                <th>Fecha de Inicio</th>
-                                            </tr>`);
+        <th>Nombres</th>
+        <th>Apellidos</th>
+        <th>Cédula</th>
+        <th>Estatus</th>
+        <th>Acción de Formación</th>
+        <th>Fecha de Inicio</th>
+    </tr>`);
 
-    response.byAllTime.forEach((element) => {
+    (response.byAllTime || []).forEach((element) => {
         const courseTitle = (element.scheduled && element.scheduled.course && element.scheduled.course.title) ? element.scheduled.course.title : 'Sin curso';
         const startDate = (element.scheduled && element.scheduled.start_date) ? element.scheduled.start_date : '';
+        const statusName = (element.participant_status && element.participant_status.name) ? element.participant_status.name : '';
         $(".all-time-list-table tbody").append(`<tr>
                                     <td>${element.person.name}</td>
                                     <td>${element.person.last_name}</td>
                                     <td>${element.person.id_number}</td>
+                                    <td>${statusName}</td>
                                     <td>${courseTitle}</td>
                                     <td>${startDate}</td>
                                     </tr>`);
     });
+
+    // Paginate the participant list (client-side)
+    initTablePagination(document.querySelector('.participant-with-status .all-time-list-table'), 25);
 
     // participants not in a course: no longer shown in this report
     /* response.allStatusbyDateRange.forEach(element => {
@@ -1350,7 +1462,7 @@ function reportByCourseNotScheduled(response){
 
 $(document).ready(function(){
     $(".loader").addClass("hidden");
-   $(".participant-status-container").hide();
+    $(".participant-status-container").hide();
 
     // Sorting: use event delegation so it works for dynamically generated report tables.
     $(document)
@@ -1420,6 +1532,48 @@ $(document).ready(function(){
                 e.preventDefault();
                 $(this).trigger('click');
             }
+        });
+
+    // Pagination controls (delegated so it works for dynamic tables)
+    $(document)
+        .off('click.reportPaginationPrev', '.report-pagination-prev')
+        .on('click.reportPaginationPrev', '.report-pagination-prev', function(){
+            const controls = this.closest('.report-pagination-controls');
+            if (!controls) {
+                return;
+            }
+            const tableId = controls.getAttribute('data-report-pagination-for');
+            if (!tableId) {
+                return;
+            }
+            const tableEl = document.getElementById(tableId);
+            if (!tableEl) {
+                return;
+            }
+            const current = Number(tableEl.dataset.reportPage || 1);
+            tableEl.dataset.reportPage = String(Math.max(1, current - 1));
+            renderTablePage(tableEl);
+        })
+        .off('click.reportPaginationNext', '.report-pagination-next')
+        .on('click.reportPaginationNext', '.report-pagination-next', function(){
+            const controls = this.closest('.report-pagination-controls');
+            if (!controls) {
+                return;
+            }
+            const tableId = controls.getAttribute('data-report-pagination-for');
+            if (!tableId) {
+                return;
+            }
+            const tableEl = document.getElementById(tableId);
+            if (!tableEl) {
+                return;
+            }
+            const state = getPaginationState(tableEl);
+            const tbody = tableEl.tBodies && tableEl.tBodies[0];
+            const totalRows = tbody ? (tbody.rows ? tbody.rows.length : 0) : 0;
+            const totalPages = state.pageSize ? Math.max(1, Math.ceil(totalRows / state.pageSize)) : 1;
+            tableEl.dataset.reportPage = String(Math.min(totalPages, state.page + 1));
+            renderTablePage(tableEl);
         });
 
     function toYmd(date){
@@ -1513,15 +1667,7 @@ $(document).ready(function(){
     updateStepOptionsBySelectedRange();
     updateGenerateButtonDisabledState();
 
-    $('.selector').on('click',function(){
-        if($(this).val() == 'participant-by-status'){
-            $(".participant-status-container").show();
-            //console.log('show');
-        }else{
-            $(".participant-status-container").hide();
-            //console.log("hide");
-        }
-    });
+    // Participant status selector removed from the view; keep container hidden if present.
 
     $('#start_date, #end_date').off().on('change', function(){
         const start = $('#start_date').val();
@@ -1551,7 +1697,7 @@ $(document).ready(function(){
             }
         });
 
-    participantStatusSelect(); //draws participant status selector
+    // participantStatusSelect() removed (no longer filtering by a selected status)
         //Reports by type selected
         $('.generate').click(function (e) { 
             //data to send

@@ -57,14 +57,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="col-md-6 participant-status-container">
-                        <label for="participant_status" class='control-label'>Estatus de Participantes</label>
-                        <select name="participant_status" id="participant_status" class="form-control">
-                            
-                        </select>
-                    </div>
-                </div>
             </div>
             </div> {{-- row --}}
             <button type="submit" class="generate btn btn-primary"><span>Generar Reporte</span></button> 

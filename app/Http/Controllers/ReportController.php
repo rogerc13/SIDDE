@@ -346,9 +346,13 @@ class ReportController extends Controller
         $labels = [];
         $byStatusByDateRange = [];
 
-        $selectedStatus = ParticipantStatus::find($request->participant_status);
+        // date range helper (used by frontend for titles)
+        $dateRange = [
+            'startDate' => Carbon::parse($request->start_date)->format('Y-m-d'),
+            'endDate' => Carbon::parse($request->end_date)->format('Y-m-d'),
+        ];
 
-        //all time by status (include course info for display)
+        // participants during selected range (all statuses)
         $byAllTime = Participant::with([
             'person',
             'participantStatus',
@@ -356,7 +360,13 @@ class ReportController extends Controller
                 $query->withTrashed()->with('course');
             },
         ])
-            ->where('participant_status_id', $request->participant_status)
+            ->whereHas('scheduled', function ($query) use ($dateRange) {
+                $query->when($dateRange['startDate'] === $dateRange['endDate'], function ($q) use ($dateRange) {
+                    return $q->whereDate('start_date', $dateRange['startDate']);
+                }, function ($q) use ($dateRange) {
+                    return $q->whereBetween('start_date', [$dateRange['startDate'], $dateRange['endDate']]);
+                });
+            })
             ->get();
 
 
@@ -400,24 +410,16 @@ class ReportController extends Controller
 
             $byStatusByDateRange[] = [
                 'date' => Carbon::parse($start_date)->format('Y-m-d'),
-                'countByStatus' => Participant::where('participant_status_id', $request->participant_status)->whereHas(
-                    'scheduled',
-                    function ($query) use ($start_date, $end_date) {
-                        $query->when($start_date === $end_date, function ($q) use ($start_date) {
-                            return $q->whereDate('start_date', $start_date);
-                        }, function ($q) use ($start_date, $end_date) {
-                            return $q->whereBetween('start_date', [$start_date, $end_date]);
-                        });
-                    }
-                )->count(),
-                'status' => $status->name,
+                // kept for backward compatibility (frontend uses this array to derive first/last date if needed)
+                'countByStatus' => 0,
+                'status' => null,
             ];
         }
 
         //return json_encode($byDateRange);
 
         return response()->json([
-            'selectedStatusName' => $selectedStatus?->name,
+            'dateRange' => $dateRange,
             'byAllTime' => $byAllTime,
             'byStatusByDateRange' => $byStatusByDateRange,
             'allStatusbyDateRange' => $allStatusbyDateRange,
