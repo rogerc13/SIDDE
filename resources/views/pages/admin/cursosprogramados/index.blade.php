@@ -38,7 +38,7 @@
 <div class="row filtros">
 	<div class="col-md-12">
 		<form class="form-horizontal" method="GET" action="{{ url('u/af_programadas') }}">
-			<div class="row" style="margin-bottom: 10px;">
+			<div class="form-group" style="display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 0; row-gap: 1rem; margin-bottom: 10px;">
 				<div class="col-md-3 col-sm-6 col-xs-12">
 		            <label for="titulos" class="control-label">Título</label>
 		            <input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
@@ -84,12 +84,11 @@
 					</span>
 		          </div>
 		        </div>
-		        <div class="col-md-1 col-sm-6 col-xs-12 text-right" style="min-width:60px;">
-						<label class="control-label" style="visibility: hidden;">Reset</label>
-						<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/af_programadas') }}'">
-							<i class="fa fa-refresh"></i>
-						</button>
-					</div>
+		        <div class="col-md-1 col-sm-12 col-xs-12" style="min-width:60px;">
+					<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/af_programadas') }}'">
+						<i class="fa fa-refresh"></i>
+					</button>
+				</div>
 	       	</div>
 			<!-- <div class="col-xs-12 margin-top text-center" style="margin-bottom: 10px;">
 	              <button type='submit' class='btn btn-primary'>Buscar <i class='fa fa-lg fa-search'></i></button>
