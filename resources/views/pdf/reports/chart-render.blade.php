@@ -9,15 +9,27 @@
         canvas { width: 1120px !important; height: 600px !important; }
     </style>
     @php
-        $chartJsPath = public_path('assets/js/chartjs/Chart.js');
+        $momentPath = public_path('assets/js/Moment.js');
+        $momentJs = is_file($momentPath) ? file_get_contents($momentPath) : null;
+
+        $chartJsPath = public_path('assets/js/chartjs/chart.umd.js');
         $chartJs = is_file($chartJsPath) ? file_get_contents($chartJsPath) : null;
+
+        $adapterPath = public_path('assets/js/chartjs/chartjs-adapter-moment.min.js');
+        $adapterJs = is_file($adapterPath) ? file_get_contents($adapterPath) : null;
     @endphp
+    @if($momentJs)
+        <script>{!! $momentJs !!}</script>
+    @endif
     @if($chartJs)
         <script>{!! $chartJs !!}</script>
+        @if($adapterJs)
+            <script>{!! $adapterJs !!}</script>
+        @endif
     @else
         <script>
             window.__CHART_READY = false;
-            window.__CHART_ERROR = 'No se encontró Chart.js local en public/assets/js/chartjs/Chart.js';
+            window.__CHART_ERROR = 'No se encontró Chart.js local en public/assets/js/chartjs/chart.umd.js';
         </script>
     @endif
 </head>
