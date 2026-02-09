@@ -175,6 +175,7 @@ Route::group(['middleware' => 'auth'], function ()
                         Route::get('/', function () {
                                 return view('pages.admin.usuarios.reports');
                         });
+                               Route::post('/pdf', 'App\Http\Controllers\ReportPdfController@download');
                         Route::post('/date', 'App\Http\Controllers\ReportController@byDate');
                         Route::post('/category', 'App\Http\Controllers\ReportController@byCategory');
                         Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');

@@ -1043,7 +1043,7 @@ function reportByDuration(response){ //reports by course duration
         <th>Duración Días</th>
     </tr>`);
 
-    if (Array.isArray(response.byDateRange)) {
+    if (Array.isArray(response.byDateRange) && response.byDateRange.length) {
         response.byDateRange.forEach(element => {
             $(".course-day-span-all-time-list tbody").append(`<tr>
                 <td>${element.course_title ?? ''}</td>
@@ -1053,6 +1053,10 @@ function reportByDuration(response){ //reports by course duration
                 <td>${element.duration_days ?? ''}</td>
             </tr>`);
         });
+    } else {
+        $(".course-day-span-all-time-list tbody").append(`<tr>
+            <td colspan="5">No hay Acciones de Formación que mostrar para este período</td>
+        </tr>`);
     }
 
     //Most duration hours
@@ -1828,9 +1832,100 @@ $(document).ready(function(){
         updateGenerateButtonDisabledState();
     });
 
-    $('.print-report').off().on('click',function (e){
-        window.print();
+    $('.print-report').off().on('click', function (e){
         e.preventDefault();
+
+        // Build a POST form so the browser handles the file download.
+        const $form = $('.report-form');
+        if (!$form.length) {
+            return;
+        }
+
+        const action = '/reports/pdf';
+        const data = $form.serializeArray();
+
+        function getPanelTitleFor(el){
+            if (!el) {
+                return '';
+            }
+            const panel = el.closest('.panel');
+            if (panel) {
+                const t = panel.querySelector('.panel-title');
+                if (t && t.textContent) {
+                    return t.textContent.replace(/\s+/g, ' ').trim();
+                }
+            }
+            return '';
+        }
+
+        function canvasToPngDataUrl(canvas){
+            try {
+                const w = canvas.width || 0;
+                const h = canvas.height || 0;
+                if (!w || !h) {
+                    return null;
+                }
+
+                const tmp = document.createElement('canvas');
+                tmp.width = w;
+                tmp.height = h;
+                const ctx = tmp.getContext('2d');
+                if (!ctx) {
+                    return null;
+                }
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(canvas, 0, 0);
+
+                // PNG is lossless and keeps chart text/lines crisp in PDFs.
+                return tmp.toDataURL('image/png');
+            } catch (_e) {
+                return null;
+            }
+        }
+
+        // Collect chart images in DOM order.
+        // Prefer .row-graphs, but fall back to any visible canvases inside the report container.
+        let canvases = Array.from(document.querySelectorAll('.row-graphs canvas'));
+        if (!canvases.length) {
+            canvases = Array.from(document.querySelectorAll('.report-view canvas'));
+        }
+        canvases.forEach((canvas, idx) => {
+            const img = canvasToPngDataUrl(canvas);
+            if (!img) {
+                return;
+            }
+            const title = getPanelTitleFor(canvas) || `Gráfico ${idx + 1}`;
+            data.push({ name: `charts[${idx}][title]`, value: title });
+            data.push({ name: `charts[${idx}][image]`, value: img });
+        });
+
+        // Ensure report-type is included (it is, but keep this defensive)
+        const selected = $('.selector').find(':selected').val();
+        const hasType = data.some(i => i && i.name === 'report-type');
+        if (!hasType) {
+            data.push({ name: 'report-type', value: selected });
+        }
+
+        const formEl = document.createElement('form');
+        formEl.method = 'POST';
+        formEl.action = action;
+        formEl.style.display = 'none';
+
+        data.forEach((item) => {
+            if (!item || !item.name) {
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = item.name;
+            input.value = item.value ?? '';
+            formEl.appendChild(input);
+        });
+
+        document.body.appendChild(formEl);
+        formEl.submit();
+        formEl.remove();
     });
 
     $.ajaxSetup({
