@@ -15,6 +15,227 @@ function refresh(){
     $('.row-graphs').html('');
     $(".table-col-helper").html("");
 }
+function normalizeSortText(value){
+    if (value === null || value === undefined) {
+        return '';
+    }
+    return String(value).replace(/\s+/g, ' ').trim();
+}
+
+function parseLocaleNumber(text){
+    const t0 = normalizeSortText(text);
+    if (!t0) {
+        return null;
+    }
+
+    // Remove non-numeric characters except separators and minus.
+    let t = t0.replace(/\s/g, '').replace(/[^0-9,\.\-]/g, '');
+    if (!t || t === '-' || t === '.' || t === ',') {
+        return null;
+    }
+
+    const lastDot = t.lastIndexOf('.');
+    const lastComma = t.lastIndexOf(',');
+
+    if (lastDot !== -1 && lastComma !== -1) {
+        // If both separators exist, decide which is decimal by last occurrence.
+        if (lastComma > lastDot) {
+            // 1.234,56 -> 1234.56
+            t = t.replace(/\./g, '').replace(',', '.');
+        } else {
+            // 1,234.56 -> 1234.56
+            t = t.replace(/,/g, '');
+        }
+    } else if (lastComma !== -1) {
+        // Only comma. If it looks like decimal, convert to dot; else treat as thousand sep.
+        if (/,-?\d{1,4}$/.test(t)) {
+            t = t.replace(',', '.');
+        } else if (/,\d{1,4}$/.test(t)) {
+            t = t.replace(',', '.');
+        } else {
+            t = t.replace(/,/g, '');
+        }
+    } else if (lastDot !== -1) {
+        // Only dot. If it doesn't look like decimal, treat as thousand sep.
+        if (!/\.\d{1,4}$/.test(t)) {
+            t = t.replace(/\./g, '');
+        }
+    }
+
+    const num = Number(t);
+    return Number.isFinite(num) ? num : null;
+}
+
+function parseDateValue(text){
+    const t0 = normalizeSortText(text);
+    if (!t0) {
+        return null;
+    }
+    // Take first token in case it includes time.
+    const t = t0.split(' ')[0];
+
+    // YYYY-MM-DD
+    let m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) {
+        const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        const time = d.getTime();
+        return Number.isNaN(time) ? null : time;
+    }
+
+    // DD/MM/YYYY
+    m = t.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) {
+        const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        const time = d.getTime();
+        return Number.isNaN(time) ? null : time;
+    }
+
+    // DD-MM-YYYY
+    m = t.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (m) {
+        const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+        const time = d.getTime();
+        return Number.isNaN(time) ? null : time;
+    }
+
+    return null;
+}
+
+function getCellSortValue(cell){
+    if (!cell) {
+        return '';
+    }
+    // Prefer data-sort-value if present, so views can override without changing display.
+    const attr = cell.getAttribute('data-sort-value');
+    if (attr !== null && attr !== undefined) {
+        return attr;
+    }
+    return cell.textContent;
+}
+
+function sortTableByColumn(tableEl, colIndex, direction){
+    if (!tableEl) {
+        return;
+    }
+    const tbody = tableEl.tBodies && tableEl.tBodies[0];
+    if (!tbody) {
+        return;
+    }
+    const rows = Array.from(tbody.rows || []);
+    if (rows.length <= 1) {
+        return;
+    }
+
+    const collator = (typeof Intl !== 'undefined' && Intl.Collator)
+        ? new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+        : null;
+
+    const dir = direction === 'desc' ? -1 : 1;
+
+    const decorated = rows.map((row, idx) => {
+        const cell = row.cells ? row.cells[colIndex] : null;
+        const raw = normalizeSortText(getCellSortValue(cell));
+        const num = parseLocaleNumber(raw);
+        const date = parseDateValue(raw);
+
+        return {
+            row,
+            idx,
+            raw,
+            num,
+            date,
+        };
+    });
+
+    decorated.sort((a, b) => {
+        // Empty values always sort last (both directions)
+        const aEmpty = !a.raw;
+        const bEmpty = !b.raw;
+        if (aEmpty && bEmpty) {
+            return a.idx - b.idx;
+        }
+        if (aEmpty) {
+            return 1;
+        }
+        if (bEmpty) {
+            return -1;
+        }
+
+        // If both parse as numbers, compare numbers
+        if (a.num !== null && b.num !== null) {
+            if (a.num === b.num) {
+                return a.idx - b.idx;
+            }
+            return (a.num < b.num ? -1 : 1) * dir;
+        }
+
+        // If both parse as dates, compare dates
+        if (a.date !== null && b.date !== null) {
+            if (a.date === b.date) {
+                return a.idx - b.idx;
+            }
+            return (a.date < b.date ? -1 : 1) * dir;
+        }
+
+        // Otherwise, compare as text (natural sort when available)
+        const cmp = collator ? collator.compare(a.raw, b.raw) : a.raw.localeCompare(b.raw);
+        if (cmp === 0) {
+            return a.idx - b.idx;
+        }
+        return cmp * dir;
+    });
+
+    // Re-append in sorted order
+    const frag = document.createDocumentFragment();
+    decorated.forEach(item => frag.appendChild(item.row));
+    tbody.appendChild(frag);
+}
+
+function decorateSortableReportTables($root){
+    const root = ($root && $root.length) ? $root.get(0) : document;
+    const tables = root.querySelectorAll('table');
+
+    tables.forEach(tableEl => {
+        if (tableEl.dataset && tableEl.dataset.reportSortReady === '1') {
+            return;
+        }
+        const thead = tableEl.tHead;
+        if (!thead || !thead.rows || !thead.rows.length) {
+            return;
+        }
+
+        const headerRow = thead.rows[0];
+        const ths = Array.from(headerRow.cells || []).filter(cell => cell && cell.tagName === 'TH');
+        if (ths.length === 0) {
+            return;
+        }
+
+        // Mark headers as interactive
+        ths.forEach(th => {
+            th.style.cursor = 'pointer';
+            th.setAttribute('tabindex', '0');
+            th.setAttribute('role', 'button');
+            if (!th.getAttribute('aria-sort')) {
+                th.setAttribute('aria-sort', 'none');
+            }
+            if (!th.getAttribute('title')) {
+                th.setAttribute('title', 'Click para ordenar');
+            }
+
+            // Add a sort icon indicator using existing Font Awesome (FA4 style).
+            // Only add once per header.
+            if (!th.querySelector('.report-sort-icon')) {
+                const icon = document.createElement('i');
+                icon.className = 'fa fa-sort report-sort-icon text-muted';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.style.marginLeft = '6px';
+                th.appendChild(icon);
+            }
+        });
+
+        tableEl.dataset.reportSortReady = '1';
+    });
+}
 
 // helper: build a point for every x label so the dataset is contiguous
 function buildSeriesFor(label, xLabels, points, keyName){
@@ -1113,6 +1334,76 @@ $(document).ready(function(){
     $(".loader").addClass("hidden");
    $(".participant-status-container").hide();
 
+    // Sorting: use event delegation so it works for dynamically generated report tables.
+    $(document)
+        .off('click.reportSort', '.table-col-helper table thead th')
+        .on('click.reportSort', '.table-col-helper table thead th', function(){
+            const th = this;
+            const tableEl = th.closest('table');
+            if (!tableEl) {
+                return;
+            }
+
+            // Do not interfere with DataTables (if any table gets upgraded elsewhere).
+            if (typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.dataTable) {
+                const $table = $(tableEl);
+                if ($table.hasClass('dataTable')) {
+                    return;
+                }
+            }
+
+            const headerRow = th.parentElement;
+            const ths = Array.from(headerRow.children);
+            const colIndex = ths.indexOf(th);
+            if (colIndex < 0) {
+                return;
+            }
+
+            const currentCol = tableEl.dataset.reportSortCol;
+            const currentDir = tableEl.dataset.reportSortDir;
+            const nextDir = (String(currentCol) === String(colIndex) && currentDir === 'asc') ? 'desc' : 'asc';
+
+            tableEl.dataset.reportSortCol = String(colIndex);
+            tableEl.dataset.reportSortDir = nextDir;
+
+            // Update aria-sort
+            ths.forEach(cell => {
+                if (cell && cell.tagName === 'TH') {
+                    cell.setAttribute('aria-sort', 'none');
+
+                    // Reset icons in this header row
+                    const icon = cell.querySelector('.report-sort-icon');
+                    if (icon) {
+                        icon.classList.remove('fa-sort-asc', 'fa-sort-desc');
+                        // Ensure base sort icon exists
+                        if (!icon.classList.contains('fa-sort')) {
+                            icon.classList.add('fa-sort');
+                        }
+                    }
+                }
+            });
+            th.setAttribute('aria-sort', nextDir === 'asc' ? 'ascending' : 'descending');
+
+            // Toggle icon on the active column
+            const activeIcon = th.querySelector('.report-sort-icon');
+            if (activeIcon) {
+                activeIcon.classList.remove('fa-sort');
+                activeIcon.classList.toggle('fa-sort-asc', nextDir === 'asc');
+                activeIcon.classList.toggle('fa-sort-desc', nextDir === 'desc');
+            }
+
+            sortTableByColumn(tableEl, colIndex, nextDir);
+        })
+        .off('keydown.reportSort', '.table-col-helper table thead th')
+        .on('keydown.reportSort', '.table-col-helper table thead th', function(e){
+            // Enter/Space should activate sorting for accessibility.
+            const key = e.key || e.keyCode;
+            if (key === 'Enter' || key === ' ' || key === 13 || key === 32) {
+                e.preventDefault();
+                $(this).trigger('click');
+            }
+        });
+
     function toYmd(date){
         // Prefer moment if present; fallback to native Date
         if (typeof moment === 'function') {
@@ -1301,6 +1592,9 @@ $(document).ready(function(){
                     default:
                         break;
                 }
+
+                // After the report draws its tables, mark headers as sortable.
+                decorateSortableReportTables($('.table-col-helper'));
             }, 
             error:function(response){
                 console.log("error "+response);
