@@ -1362,6 +1362,148 @@ function reportByParticipantQuantity(response){
     //doughnut all time
 }//end report by participant quantity
 
+function reportByGender(response){
+    console.log('gender');
+    refresh();
+
+    const start = (response.dateRange && response.dateRange.startDate) ? response.dateRange.startDate : '';
+    const end = (response.dateRange && response.dateRange.endDate) ? response.dateRange.endDate : '';
+    const rows = Array.isArray(response.rows) ? response.rows : [];
+    const labels = rows.map(r => r.label);
+    const data = rows.map(r => Number(r.amount || 0));
+    const total = Number(response.total || data.reduce((a,b) => a + b, 0));
+
+    $(".course-amount-number").html(
+        `<h3>Distribución de Participantes por Género durante el período ${start} - ${end} : ${total}</h3>`
+    );
+
+    // Graph containers
+    $(".row-graphs").append(`
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Participantes por Género (Barras)</div>
+                </div>
+                <div class="panel-body">
+                    <div class="h-25 col-xs-12 col-md-12 graph-container">
+                        <canvas id="genderBar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="panel-title">Distribución de Participantes por Género (Dona)</div>
+                </div>
+                <div class="panel-body">
+                    <div class="doughnut-container">
+                        <canvas id="genderDoughnut"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+
+    // Colors
+    const backgroundColors = labels.map(() =>
+        "#000000".replace(/0/g, function(){
+            return (~~(Math.random()*16)).toString(16);
+        })
+    );
+
+    // Doughnut
+    const doughnutEl = document.getElementById('genderDoughnut');
+    new Chart(doughnutEl, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data,
+                backgroundColor: backgroundColors,
+            }],
+            labels,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Participantes por Género en el Período ${start} - ${end}`,
+                }
+            }
+        }
+    });
+
+    // Bar
+    const barEl = document.getElementById('genderBar');
+    new Chart(barEl, {
+        type: 'bar',
+        data: {
+            datasets: [{
+                data,
+                backgroundColor: backgroundColors,
+            }],
+            labels,
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Distribución de Participantes por Género en el Período ${start} - ${end}`,
+                },
+                legend: {
+                    display: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                    }
+                }
+            }
+        }
+    });
+
+    // Table (fixed columns: Masculino / Femenino / Total)
+    $(".table-col-helper").append(
+        `<div class="panel panel-success" style="page-break-inside: avoid">
+            <div class="panel-heading">
+                <div class="panel-title">Cantidad de Participantes por Género durante el período ${start} - ${end}</div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+                <table class="gender-amount-table table table-striped table-bordered table-center">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>`
+    );
+
+    const male = rows.find(r => r.label === 'Masculino');
+    const female = rows.find(r => r.label === 'Femenino');
+    const maleCount = Number(male ? male.amount : 0) || 0;
+    const femaleCount = Number(female ? female.amount : 0) || 0;
+
+    $(".gender-amount-table thead").append(`<tr>
+        <th>Masculino</th>
+        <th>Femenino</th>
+        <th>Total</th>
+    </tr>`);
+
+    // Total reflects the overall amount returned by the backend (may include non-specified/custom values)
+    $(".gender-amount-table tbody").append(`<tr>
+        <td>${maleCount}</td>
+        <td>${femaleCount}</td>
+        <td>${total}</td>
+    </tr>`);
+}
+
 function reportByCourseMostScheduled(response){ //reports by course most scheduled
     console.log("most-scheduled");
     //draw list of courses
@@ -1743,6 +1885,9 @@ $(document).ready(function(){
                         break;
                     case "participant-by-quantity":
                         reportByParticipantQuantity(response);
+                        break;
+                    case "gender":
+                        reportByGender(response);
                         break;
                     case "participant-average":
                         reportByParticipantAverage(response);

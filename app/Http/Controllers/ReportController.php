@@ -427,6 +427,77 @@ class ReportController extends Controller
         ]);
     } //end by participant status
 
+    public function participantsByGender(Request $request)
+    {
+        $range = $this->range($request);
+        $startDate = $range->date[0] ?? null;
+        $endDate = ! empty($range->date) ? end($range->date) : null;
+
+        // Fallbacks (shouldn't happen due to range() defaults)
+        $startDate = $startDate ?: Carbon::now()->subMonth()->format('Y-m-d');
+        $endDate = $endDate ?: Carbon::now()->format('Y-m-d');
+
+        $counts = Participant::query()
+            ->selectRaw('people.sex as sex, COUNT(participants.id) as amount')
+            ->join('people', 'participants.person_id', '=', 'people.id')
+            ->whereHas('scheduled', function ($query) use ($startDate, $endDate) {
+                $query->when($startDate === $endDate, function ($q) use ($startDate) {
+                    return $q->whereDate('start_date', $startDate);
+                }, function ($q) use ($startDate, $endDate) {
+                    return $q->whereBetween('start_date', [$startDate, $endDate]);
+                });
+            })
+            ->groupBy('people.sex')
+            ->orderBy('people.sex')
+            ->get();
+
+        $rows = $counts->map(function ($row) {
+            $raw = is_string($row->sex) ? trim($row->sex) : null;
+
+            $label = 'No especificado';
+            if (! empty($raw)) {
+                $u = mb_strtoupper($raw);
+                if (in_array($u, ['M', 'MALE', 'MASCULINO', 'H', 'HOMBRE'], true)) {
+                    $label = 'Masculino';
+                } elseif (in_array($u, ['F', 'FEMALE', 'FEMENINO', 'MUJER'], true)) {
+                    $label = 'Femenino';
+                } else {
+                    // keep custom values visible (e.g. "Otro")
+                    $label = $raw;
+                }
+            }
+
+            return [
+                'sex' => $raw,
+                'label' => $label,
+                'amount' => (int) $row->amount,
+            ];
+        })->values();
+
+        // Combine duplicates after normalization (e.g. M + Masculino)
+        $byLabel = $rows->groupBy('label')->map(function ($group, $label) {
+            return [
+                'label' => $label,
+                'amount' => $group->sum('amount'),
+            ];
+        })->values();
+
+        // Stable ordering for common labels
+        $order = ['Femenino' => 1, 'Masculino' => 2, 'No especificado' => 99];
+        $byLabel = $byLabel->sortBy(function ($row) use ($order) {
+            return $order[$row['label']] ?? 50;
+        })->values();
+
+        return response()->json([
+            'dateRange' => [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ],
+            'total' => $byLabel->sum('amount'),
+            'rows' => $byLabel,
+        ]);
+    }
+
     public function courseByParticipantQuantity(Request $request)
     {
         //ALL TIME
