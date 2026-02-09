@@ -1123,18 +1123,36 @@ function reportByParticipantStatus(response){
             </div>
         </div>`
     );
+
+    // Build a robust status -> count map (avoid depending on label order/indexes)
+    const statusCounts = {};
+    (response.allStatusbyDateRange || []).forEach((item) => {
+        const name = item.status || item.name || item.statusName;
+        if (!name) {
+            return;
+        }
+        const n = Number(item.countByStatus ?? item.count ?? item.amount ?? 0);
+        statusCounts[name] = (statusCounts[name] || 0) + (Number.isFinite(n) ? n : 0);
+    });
+
+    // Match the statuses seeded in ParticipantStatusSeeder
+    const statusOrder = ['En Curso', 'Reprobado', 'Aprobado', 'Cancelado', 'Por Iniciar'];
+
     $(".status-amount-table thead").append(`<tr>
-                                                <th>En Curso</th>
-                                                <th>Aprobado</th>
-                                                <th>Reprobado</th>
-                                                <th>Cancelado</th>
-                                            </tr>`);
+        <th>En Curso</th>
+        <th>Reprobado</th>
+        <th>Aprobado</th>
+        <th>Cancelado</th>
+        <th>Por Iniciar</th>
+    </tr>`);
+
     $(".status-amount-table tbody").append(`<tr>
-                                                <td>${doughnutDataStatus[0]}</td>
-                                                <td>${doughnutDataStatus[2]}</td>
-                                                <td>${doughnutDataStatus[1]}</td>
-                                                <td>${doughnutDataStatus[3]}</td>
-                                            </tr>`);
+        <td>${statusCounts[statusOrder[0]] ?? 0}</td>
+        <td>${statusCounts[statusOrder[1]] ?? 0}</td>
+        <td>${statusCounts[statusOrder[2]] ?? 0}</td>
+        <td>${statusCounts[statusOrder[3]] ?? 0}</td>
+        <td>${statusCounts[statusOrder[4]] ?? 0}</td>
+    </tr>`);
 
     const selectedStatusName = response.selectedStatusName
         || $('#participant_status option:selected').text()
