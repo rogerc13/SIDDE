@@ -16,8 +16,6 @@
         "vite": "^2.9.11"
     },
     "dependencies": {
-        "chart.js": "^4.4.1",
-        "chartjs-adapter-moment": "^1.0.0",
         "puppeteer": "^21.1.1"
     }
 }
