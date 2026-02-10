@@ -66,7 +66,7 @@
                                         <span>{{$status->name}}</span></option>
                                     @endforeach
                               </select> 
-                              <span class="participant_status_helper">{{$participante->participantStatus->name}}</span>
+                              <span class="participant_status_helper badge badge-{{$participante->badgeStatus()}}">{{$participante->participantStatus->name}}</span>
                             </td>
                             @if (!Auth::User()->isFacilitador())
                             <td>

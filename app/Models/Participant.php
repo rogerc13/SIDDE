@@ -62,4 +62,35 @@ class Participant extends Model
         else if($this->participant_status_id==5)
             return "Por Iniciar";
   }
+
+  public function isPorIniciar(){
+        return $this->participant_status_id==self::PORINICIAR;
+  }
+  public function isEnCurso(){
+        return $this->participant_status_id==self::ENCURSO;
+  }
+  public function isAprobado(){
+    return $this->participant_status_id==self::APROBADO;
+  }
+
+  public function isSuspendido(){
+    return $this->participant_status_id==self::SUSPENDIDO;
+  }
+  public function isCancelado(){
+      return $this->participant_status_id==self::CANCELADO;
+  }
+
+    public function badgeStatus(){
+      if ($this->isPorIniciar())
+          return 'warning';
+      elseif ($this->isEnCurso())
+          return 'success';
+      elseif ($this->isAprobado())
+          return 'info';
+      elseif ($this->isSuspendido())
+          return 'danger';
+      elseif ($this->isCancelado())
+          return 'default';
+
+  }
 }
