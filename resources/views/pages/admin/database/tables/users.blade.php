@@ -125,22 +125,28 @@
 
 @push('JS')
 	<script>
-		$(document).on('click', '.js-user-edit', function (e) {
-			e.preventDefault();
+		(function () {
+			function replaceTrailingId(url, id) {
+				return String(url).replace(/\/(0|__ID__)$/, '/' + id);
+			}
 
-			var $btn = $(this);
-			var id = $btn.data('id');
-			var baseUrl = $btn.data('update-url');
-			var updateUrl = String(baseUrl).replace(/\b0\b/, id);
+			$(document).on('click', '.js-user-edit', function (e) {
+				e.preventDefault();
 
-			var email = $btn.data('email') || '';
-			var roleId = $btn.data('role-id');
+				var $btn = $(this);
+				var id = $btn.data('id');
+				var updateUrl = replaceTrailingId($btn.data('update-url'), id);
 
-			var $form = $('#userEditForm');
-			$form.attr('action', updateUrl);
-			$form.find('input[name="email"]').val(email);
-			$form.find('input[name="password"]').val('');
-			$form.find('select[name="role_id"]').val(String(roleId));
-		});
+				var email = $btn.data('email') || '';
+				var roleId = $btn.data('role-id');
+
+				var $form = $('#userEditForm');
+				$form.attr('action', updateUrl);
+				$('#userEditModalTitle').text('Editar usuario (ID: ' + id + ')');
+				$form.find('input[name="email"]').val(email);
+				$form.find('input[name="password"]').val('');
+				$form.find('select[name="role_id"]').val(String(roleId));
+			});
+		})();
 	</script>
 @endpush
