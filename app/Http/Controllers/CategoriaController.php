@@ -27,6 +27,7 @@ class CategoriaController extends Controller
     
     public function getAll()
     {
+        //dd("getAll");
         $user = Auth::user();
         //dd($user->cannot('getAll', Category::class));
         if($user->cannot('getAll', Category::class))
@@ -35,9 +36,18 @@ class CategoriaController extends Controller
                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
             
         }
+        $categorias = Category::orderBy("name","asc");
+        $name = filter_input(INPUT_GET, 'name', FILTER_SANITIZE_STRING);
+        if($name)
+            {
+                $categorias = $categorias->where("name","LIKE","%$name%");
+                //dd($categorias);
+            }
         
-        $categorias = Category::orderBy("name","asc")->paginate(10);
-        return view('pages.admin.categorias.index')->with('categorias',$categorias);
+        $categorias = $categorias->paginate(10);
+        return view('pages.admin.categorias.index')
+        ->with('categorias',$categorias)
+        ->with('name', $name);
     }
 
     

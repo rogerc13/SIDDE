@@ -18,7 +18,16 @@ class BrowserShotController extends Controller
 
     public function categories(Request $request){
         $categories = Category::orderBy("id","desc");
-        $categories = $categories->get();
+        
+        if((empty($request->hidden_name)) == true){
+            $categories = $categories->get();
+        }else{
+            if($request->hidden_name){
+                $categories = $categories->where('name','LIKE',"%$request->hidden_name%");
+            }
+            $categories = $categories->get();
+        }
+
         $pdf = Pdf::loadView('pdf.category',['categories' => $categories]);
         return $pdf->download('Lista de Áreas de Conocimiento.pdf');
     }

@@ -7,12 +7,34 @@
 	<a href="javascript:crearCategoria('{{url('u/areas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva Área de Conocimiento</a>
   	<form action="pdf/categories" method="GET" style='all:unset'>
 			@csrf
-			<input type="hidden" id="hidden_category" name="hidden_category" value="{{request()->id_areas}}">
-			<input type="hidden" id="hidden_title" name="hidden_title" value="{{(request()->titulos)}}">
+			<input type="hidden" id="hidden_name" name="hidden_name" value="{{request()->name}}" />
+
 			<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Áreas de Conocimientos</button> 
 	</form>
   <br>
   <br>
+  <div class="row filtros">						
+	<div class="col-md-12">
+		<form class="form-horizontal" method="GET" action="{{ url('u/areas') }}">
+			  <div class="form-group" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;">
+		      	<div class="col-md-4 col-sm-6 col-xs-12">
+		          <label for="name" class="control-label">Nombre</label>
+		          <div class="input-group">
+		          	<input type="text" class="form-control" id="name" name="name" value="{{$name}}" />
+		          	<span class="input-group-btn">
+						<button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button>
+					</span>
+		          </div>
+		        </div>
+				<div class="col-md-2 col-sm-12 col-xs-12" style="min-width:120px;">
+					<button type="button" class="btn btn-default btn-lg" onclick="window.location='{{ url('u/areas') }}'">
+						<i class="fa fa-refresh"></i>
+					</button>
+				</div>
+	       	</div>
+      	</form>	
+	</div>
+</div>
 <div class="row">						
 	<div class="col-md-12">		
     <div class="panel panel-success" data-collapsed="0">  
