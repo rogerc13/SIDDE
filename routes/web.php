@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth'], function ()
         
         Route::group(['prefix' => 'pdf'], function()
         {
+                Route::get('/categories', 'App\Http\Controllers\BrowserShotController@categories')->name('pdf.categories');
                 Route::get('/courses', 'App\Http\Controllers\BrowserShotController@courses')->name('courses');
                 Route::get('/scheduled', 'App\Http\Controllers\BrowserShotController@scheduled')->name('scheduled'); 
                 Route::get('/users', 'App\Http\Controllers\BrowserShotController@users')->name('users');

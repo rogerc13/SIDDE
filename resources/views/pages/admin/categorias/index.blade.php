@@ -5,6 +5,12 @@
 	<h3>Áreas de Conocimiento</h3>
 
 	<a href="javascript:crearCategoria('{{url('u/areas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva Área de Conocimiento</a>
+  	<form action="pdf/categories" method="GET" style='all:unset'>
+			@csrf
+			<input type="hidden" id="hidden_category" name="hidden_category" value="{{request()->id_areas}}">
+			<input type="hidden" id="hidden_title" name="hidden_title" value="{{(request()->titulos)}}">
+			<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Áreas de Conocimientos</button> 
+	</form>
   <br>
   <br>
 <div class="row">						

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Category;
 use App\Models\Course;
 use App\Models\Scheduled;
 use App\Models\User;
@@ -13,6 +15,15 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class BrowserShotController extends Controller
 {
+
+    public function categories(Request $request){
+        $categories = Category::orderBy("id","desc");
+        $categories = $categories->get();
+        $pdf = Pdf::loadView('pdf.category',['categories' => $categories]);
+        return $pdf->download('Lista de Áreas de Conocimiento.pdf');
+    }
+
+
     public function courses(Request $request){
 
         $courses = Course::with('category');

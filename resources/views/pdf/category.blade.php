@@ -1,0 +1,57 @@
+<html>
+<head>
+	<link rel="stylesheet" href="{{public_path('assets/css/bootstrap.css')}}">
+</head>
+<style>
+    .ficha-red-line{
+    border: 1px solid red;
+    }
+    th, td {
+        text-align: center;
+        
+    }
+    .table > tbody > tr > td {
+        vertical-align: middle !important;
+        font-size: 14px;
+    }
+    th{   
+        background-color: #EF3E36 !important;
+        color: white;
+
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="header">
+        <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
+        <hr class = "ficha-red-line">
+        <br>
+        <h1>S.I.D.D.E.</h1>
+    </div>
+    <br>
+    <br>
+    <div>
+        <h3>Lista de Áreas de Conocimiento</h3>
+    </div>
+    <br>
+    
+    <div class="row">  
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($categories as $category)
+                    <tr>
+                        <td>{{$category->name}}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>       
+    </div>
+</div>
+    <script src="{{public_path('assets/js/jquery-1.11.3.min.js')}}"></script>
+    <script src="{{public_path('assets/js/bootstrap.js')}}"></script>
+</html>
