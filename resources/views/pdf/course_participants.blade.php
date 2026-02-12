@@ -23,9 +23,11 @@
     <div class="header">
         <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
         <hr class = "ficha-red-line">
-        <h3>S.I.D.D.E.</h1>
+        <h2>S.I.D.D.E.</h2>
         <br>
-        <h1>{{$scheduled->course->title}}</h1>
+        <h2>{{$scheduled->course->title}}</h2>
+        <h4>Periodo: {{ \Carbon\Carbon::parse($scheduled->start_date)->format('d-m-Y') }} - {{ \Carbon\Carbon::parse($scheduled->end_date)->format('d-m-Y') }}</h4>
+        <br>
         <h3>Lista de Participantes</h3>
         <br>
     </div>
@@ -40,14 +42,20 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($scheduled->participants as $participant)
+                @if(count($scheduled->participants) == 0)
                     <tr>
-                        <td>{{$participant->person->name}}</td>
-                        <td>{{$participant->person->last_name}}</td>
-                        <td>{{$participant->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$participant->person->id_format()}}</td>
-                        <td>{{$participant->participantStatus->name}}</td>
+                        <td colspan="4">No se han encontrado resultados.</td>
                     </tr>
-                @endforeach
+                @else
+                    @foreach ($scheduled->participants as $participant)
+                        <tr>
+                            <td>{{$participant->person->name}}</td>
+                            <td>{{$participant->person->last_name}}</td>
+                            <td>{{$participant->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$participant->person->id_format()}}</td>
+                            <td>{{$participant->participantStatus->name}}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
     </div>
