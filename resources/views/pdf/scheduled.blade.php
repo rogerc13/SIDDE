@@ -44,8 +44,8 @@
                 <tr>
                     <td>{{$course->course->title}}</td>
                     <td>{{$course->facilitator->person->name}} {{$course->facilitator->person->last_name}}</td>
-                    <td>{{$course->start_date}}</td>
-                    <td>{{$course->end_date}}</td>
+                    <td>{{ \Carbon\Carbon::parse($course->start_date)->format('d-m-Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($course->end_date)->format('d-m-Y') }}</td>
                     <td>{{count($course->participants)}}/{{$course->course->capacity[0]->max}}</td>
                 </tr>
             @endforeach
