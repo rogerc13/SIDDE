@@ -21,10 +21,18 @@
 
 <h2>Acciones de formación de:</h2>
 <h3>{{$usuario->person->name}} {{$usuario->person->last_name}} - {{$usuario->role->name}}</h3>
-
-
-
-
+<br>
+<form action="{{ url('u/pdf/person_courses/' . $usuario->person->id) }}" method="GET" style='all:unset'>
+	@csrf
+	<input type="hidden" id="person_id" name="person_id" value="{{$usuario->person->id}}">
+	<input type="hidden" id="hidden_title" name="hidden_title" value="{{request()->titulos}}">
+	<input type="hidden" id="hidden_facilitator" name="hidden_facilitator" value="{{request()->id_facilitador}}">
+	<input type="hidden" id="hidden_status" name="hidden_status" value="{{request()->id_estado}}">
+	<input type="hidden" id="hidden_date" name="hidden_date" value="{{request()->fechas}}">
+	<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Acciones de Formación Programadas</button> 
+</form>
+<br>
+<br>
 <div class="row filtros">						
 	<div class="col-md-12">
 		<form class="form-horizontal">

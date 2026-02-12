@@ -274,4 +274,85 @@ class BrowserShotController extends Controller
         return $pdf->download("Mis Acciones de Formación Programadas.pdf");
         
     }
+
+    public function personCourses(Request $request) {
+        $personId = $request->person_id ?? $request->id;
+        if (!$personId) {
+            abort(404, 'ID de persona no proporcionado');
+        }
+
+        $user = User::where('person_id', $personId)->with('role', 'person')->first();
+        if (!$user) {
+            abort(404, 'Usuario no encontrado');
+        }
+
+        $isParticipant = $user->isParticipante();
+        $isFacilitator = $user->isFacilitador();
+
+        if ($isParticipant) {
+            $courses = $user->person->scheduled ?? collect();
+            $scheduledIds = $courses->pluck('id')->all();
+            if (count($scheduledIds) > 0) {
+                $scheduled = Scheduled::with('facilitator', 'course', 'participants')
+                    ->whereIn('id', $scheduledIds);
+            } else {
+                $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null);
+            }
+        } elseif ($isFacilitator) {
+            $facilitatorId = $user->person->facilitator->id ?? null;
+            $scheduled = Scheduled::with('facilitator', 'course', 'participants')
+                ->where('facilitator_id', $facilitatorId);
+        } else {
+            // Default: show nothing
+            $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null);
+        }
+
+        // Filters
+        if (
+            empty($request->hidden_title) &&
+            empty($request->hidden_facilitator) &&
+            empty($request->hidden_status) &&
+            empty($request->hidden_date)
+        ) {
+            $scheduled = $scheduled->get();
+        } else {
+            if ($request->hidden_title) {
+                $hiddenTitle = $request->hidden_title;
+                $scheduled = $scheduled->whereHas('course', function ($q) use ($hiddenTitle) {
+                    $q->where('title', 'like', '%' . $hiddenTitle . '%');
+                });
+            }
+            if ($request->hidden_facilitator) {
+                $scheduled = $scheduled->where('facilitator_id', $request->hidden_facilitator);
+            }
+            if ($request->hidden_status) {
+                $scheduled = $scheduled->where('course_status_id', $request->hidden_status);
+            }
+            if ($request->hidden_date) {
+                $fecha = new Carbon('01-' . $request->hidden_date);
+                $scheduled = $scheduled->whereMonth('start_date', $fecha->month)
+                    ->whereYear('end_date', $fecha->year);
+            }
+            $scheduled = $scheduled->get();
+        }
+
+        // Format dates as DD-MM-YYYY
+        foreach ($scheduled as $item) {
+            if ($item->start_date) {
+                $item->start_date = Carbon::parse($item->start_date)->format('d-m-Y');
+            }
+            if ($item->end_date) {
+                $item->end_date = Carbon::parse($item->end_date)->format('d-m-Y');
+            }
+        }
+
+        $pdf = Pdf::loadView('pdf.person_courses', [
+            'scheduled' => $scheduled,
+            'participant' => $isParticipant,
+            'user' => $user
+        ]);
+        $fullName = trim(($user->person->name ?? '') . ' ' . ($user->person->last_name ?? ''));
+        $fileName = 'Acciones_de_Formacion_de_' . ($fullName !== '' ? $fullName : 'usuario') . '.pdf';
+        return $pdf->download($fileName);
+    }
 }
