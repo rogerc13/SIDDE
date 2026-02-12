@@ -459,11 +459,47 @@ function getMaxYFromDatasets(datasets){
     return maxY;
 }
 
+// Format server date (server supplies YYYY-MM-DD). Returns DD-MM-YYYY for display.
+function formatServerDate(dateStr){
+    if (!dateStr && dateStr !== 0) return '';
+    try {
+        if (typeof moment === 'function') {
+            // Try strict parse for common formats; fall back to loose parse.
+            let m = moment(dateStr, ['YYYY-MM-DD','YYYY-M-DD','YYYY-MM-D','YYYY-M-D','DD-MM-YYYY','D-M-YYYY'], true);
+            if (!m.isValid()) {
+                m = moment(dateStr);
+            }
+            return m.isValid() ? m.format('DD-MM-YYYY') : String(dateStr);
+        }
+    } catch (e) {
+        // fall through to naive fallback
+    }
+
+    // Naive fallback: handle 'YYYY-MM-DD' -> 'DD-MM-YYYY'
+    const ymd = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const dmy = /^(\d{2})-(\d{2})-(\d{4})$/;
+    let m = String(dateStr).match(ymd);
+    if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+    m = String(dateStr).match(dmy);
+    if (m) return String(dateStr);
+    // Try Date parse
+    const dt = new Date(dateStr);
+    if (!Number.isNaN(dt.getTime())){
+        const dd = String(dt.getDate()).padStart(2,'0');
+        const mm = String(dt.getMonth()+1).padStart(2,'0');
+        const yy = dt.getFullYear();
+        return `${dd}-${mm}-${yy}`;
+    }
+    return String(dateStr);
+}
+
 function reportByDate(response){ //reports by date
     refresh();
+    const startDateFmt = formatServerDate(response.start_date);
+    const endDateFmt = formatServerDate(response.end_date);
     $(".row-graphs").append(`<div class="panel panel-success by-date-line">
         <div class="panel-heading">
-            <div class="panel-title">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</div>
+            <div class="panel-title">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</div>
         </div>    
         <div class="panel-body">
             <div class="h-25 col-xs-12 col-md-12 graph-container">
@@ -474,7 +510,7 @@ function reportByDate(response){ //reports by date
 
     $('.course-amount-number span').html("");
     $(".course-amount-number span").append(
-        `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${response.start_date} - ${response.end_date} : ${response.total}</h3>`
+        `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</h3>`
     );
 
     // Build array of {x, y} objects for time-based line chart, just like the other working graphs
@@ -552,11 +588,13 @@ function reportByDate(response){ //reports by date
 function reportByCategory(response){
     
     refresh();
+    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
+    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
     $(".row-graphs")
         .append(`<div class="col-md-6">
             <div class="panel panel-success line-graph-panel">
                 <div class="panel-heading">
-                    <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                    <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
                 </div>
                 <div class="panel-body">
                     <div class="graph-container">
@@ -658,7 +696,7 @@ function reportByCategory(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                    text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
                 }
             }
         },
@@ -669,7 +707,7 @@ function reportByCategory(response){
             <div class="panel panel-success doughnut-panel">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}
+                        Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${startFmt} - ${endFmt}
                     </div>
                 </div>
                 <div class="panel-body">
@@ -711,7 +749,7 @@ function reportByCategory(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                    text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
                 }
             }
         },
@@ -722,7 +760,7 @@ function reportByCategory(response){
         .append(`<div class="panel panel-success course-by-category-list" style="page-break-inside: avoid">
                     
                     <div class="panel-heading">
-                        <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                        <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
                     </div>         
                     <div class="panel-body with-table table-responsive">   
                     <table class="course-category-list table table-striped table-bordered table-center">
@@ -743,8 +781,8 @@ function reportByCategory(response){
     });
     
     $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range" style="page-break-inside: avoid">
-        <div class="panel-heading">
-            <div class="panel-title">Acciones de Formación por Áreas de Conocimiento durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+            <div class="panel-heading">
+            <div class="panel-title">Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
         </div>
             <div class="panel-body with-table table-responsive">
                 <table class="course-data-category-list table table-striped table-bordered table-center">
@@ -765,8 +803,8 @@ function reportByCategory(response){
         element.courseData.forEach(helper => {
            $(".course-data-category-list tbody").append(`<tr>
             <td>${helper.course.title}</td>
-            <td>${helper.start_date}</td>
-            <td>${helper.end_date}</td>
+            <td>${formatServerDate(helper.start_date)}</td>
+            <td>${formatServerDate(helper.end_date)}</td>
             <td>${helper.course.category.name}</td>
         </tr>`);
         })
@@ -778,11 +816,13 @@ function reportByCourseStatus(response){ //reports by course status
     console.log("status");
 
     refresh();
+    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
+    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
     $(".row-graphs")
         .append(`<div class="col-md-6">
             <div class="panel panel-success by-status-line-panel">
                 <div class="panel-heading">
-                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
                 </div>
                 <div class="panel-body">
                     <div class="h-25 col-xs-12 col-md-12 graph-container">
@@ -895,10 +935,10 @@ function reportByCourseStatus(response){ //reports by course status
                 }
             },
             showLines: true,
-            plugins: {
+                plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                    text: `Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}`,
                 }
             }
         },
@@ -909,7 +949,7 @@ function reportByCourseStatus(response){ //reports by course status
         .append(`<div class="col-md-6">
             <div class="panel panel-success by-status-doughnut-panel">
                 <div class="panel-heading">
-                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
                 </div>
                 <div class="panel-body">
                     <div class="doughnut-container">
@@ -938,7 +978,7 @@ function reportByCourseStatus(response){ //reports by course status
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}`,
+                    text: `Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}`,
                 }
             }
         },
@@ -950,7 +990,7 @@ function reportByCourseStatus(response){ //reports by course status
     $(".table-col-helper").append(
         `<div class="panel panel-success course-status-panel">
         <div class="panel-heading">
-            <div class="panel-title">Cantidad de Acciones de Formación por Estatus durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+            <div class="panel-title">Cantidad de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
         </div>
         <div class="panel-body with-table table-responsive"> 
         <table class="course-status-amount-table table table-striped table-bordered table-center">
@@ -973,7 +1013,7 @@ function reportByCourseStatus(response){ //reports by course status
     $(".table-col-helper")
         .append(`<div class="panel panel-success courses-by-date-range-status">
         <div class="panel-heading">
-            <div class="panel-title">Acciones de Formación Durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate}</div>
+            <div class="panel-title">Acciones de Formación Durante el período ${startFmt} - ${endFmt}</div>
         </div>
         <div class="panel-body with-table table-responsive">
                     <table class="course-list table table-striped table-bordered table-center">
@@ -994,12 +1034,12 @@ function reportByCourseStatus(response){ //reports by course status
     
 
     courseData.forEach((element) => {
-        element.courseData.forEach((helperA) => {
+            element.courseData.forEach((helperA) => {
             //console.log(helperA);
             $(".course-list tbody").append(`<tr>
                                             <td>${helperA.course.title}</td>
-                                            <td>${helperA.start_date}</td>
-                                            <td>${helperA.end_date}</td>
+                                            <td>${formatServerDate(helperA.start_date)}</td>
+                                            <td>${formatServerDate(helperA.end_date)}</td>
                                             <td>${helperA.course_status.name}</td>
                                         </tr>`);
         });
@@ -1012,9 +1052,11 @@ function reportByDuration(response){ //reports by course duration
     console.log("duration");
 
     refresh();
+    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
+    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
 
     $(".course-amount-number").html(
-        `<h3>Total de horas impartidas durante el período ${response.dateRange.startDate} - ${response.dateRange.endDate} : ${response.finishedByDateRange} Horas</h3>`
+        `<h3>Total de horas impartidas durante el período ${startFmt} - ${endFmt} : ${response.finishedByDateRange} Horas</h3>`
     );
 
     //tables
@@ -1047,8 +1089,8 @@ function reportByDuration(response){ //reports by course duration
         response.byDateRange.forEach(element => {
             $(".course-day-span-all-time-list tbody").append(`<tr>
                 <td>${element.course_title ?? ''}</td>
-                <td>${element.start_date ?? ''}</td>
-                <td>${element.end_date ?? ''}</td>
+                <td>${formatServerDate(element.start_date ?? '')}</td>
+                <td>${formatServerDate(element.end_date ?? '')}</td>
                 <td>${element.duration ?? ''}</td>
                 <td>${element.duration_days ?? ''}</td>
             </tr>`);
@@ -1135,6 +1177,10 @@ function reportByParticipantStatus(response){
         ? response.dateRange.endDate
         : (response.byStatusByDateRange && response.byStatusByDateRange.length ? response.byStatusByDateRange[response.byStatusByDateRange.length - 1].date : '');
 
+    // Format for display
+    const start_date_fmt = formatServerDate(start_date);
+    const end_date_fmt = formatServerDate(end_date);
+
     //total amount of paticipants all time given status
 
     //$().html(response.byAllTime.length);
@@ -1191,7 +1237,7 @@ function reportByParticipantStatus(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                    text: `Distribución de Participantes por Estatus en el Período ${start_date_fmt} - ${end_date_fmt}`,
                 }
             }
         },
@@ -1215,7 +1261,7 @@ function reportByParticipantStatus(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Participantes por Estatus en el Período ${start_date} - ${end_date}`,
+                    text: `Distribución de Participantes por Estatus en el Período ${start_date_fmt} - ${end_date_fmt}`,
                 },
                 legend: {
                     display: false,
@@ -1227,7 +1273,7 @@ function reportByParticipantStatus(response){
     $(".table-col-helper").append(
         `<div class="panel panel-success participant-during-period-with-status">
             <div class="panel-heading">
-                <div class="panel-title">Cantidad de Participantes Durante el Período ${start_date} - ${end_date}</div>
+                <div class="panel-title">Cantidad de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</div>
             </div>
             <div class="panel-body with-table table-responsive">
                 <table class="status-amount-table table table-striped table-bordered table-center">
@@ -1272,7 +1318,7 @@ function reportByParticipantStatus(response){
     $(".table-col-helper").append(
         `<div class="panel panel-success participant-with-status">
         <div class="panel-heading">
-            <div class="panel-title">Lista de Participantes Durante el Período ${start_date} - ${end_date}</div>
+            <div class="panel-title">Lista de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</div>
         </div>
         <div class="panel-body with-table table-responsive">
         <table class="all-time-list-table table table-striped table-bordered table-center">
@@ -1296,6 +1342,7 @@ function reportByParticipantStatus(response){
     (response.byAllTime || []).forEach((element) => {
         const courseTitle = (element.scheduled && element.scheduled.course && element.scheduled.course.title) ? element.scheduled.course.title : 'Sin curso';
         const startDate = (element.scheduled && element.scheduled.start_date) ? element.scheduled.start_date : '';
+        const startDateFmt = formatServerDate(startDate);
         const statusName = (element.participant_status && element.participant_status.name) ? element.participant_status.name : '';
         $(".all-time-list-table tbody").append(`<tr>
                                     <td>${element.person.name}</td>
@@ -1303,7 +1350,7 @@ function reportByParticipantStatus(response){
                                     <td>${element.person.id_number}</td>
                                     <td>${statusName}</td>
                                     <td>${courseTitle}</td>
-                                    <td>${startDate}</td>
+                                    <td>${startDateFmt}</td>
                                     </tr>`);
     });
 
@@ -1353,8 +1400,8 @@ function reportByParticipantQuantity(response){
         response.dateRangeAmountPerCourse.forEach(element => {
             $(".course-list tbody").append(`<tr>
                 <td>${element.course}</td>
-                <td>${element.start_date || ''}</td>
-                <td>${element.end_date || ''}</td>
+                <td>${formatServerDate(element.start_date || '')}</td>
+                <td>${formatServerDate(element.end_date || '')}</td>
                 <td>${element.count}</td>
             </tr>`);
         });
@@ -1372,13 +1419,15 @@ function reportByGender(response){
 
     const start = (response.dateRange && response.dateRange.startDate) ? response.dateRange.startDate : '';
     const end = (response.dateRange && response.dateRange.endDate) ? response.dateRange.endDate : '';
+    const startFmt = formatServerDate(start);
+    const endFmt = formatServerDate(end);
     const rows = Array.isArray(response.rows) ? response.rows : [];
     const labels = rows.map(r => r.label);
     const data = rows.map(r => Number(r.amount || 0));
     const total = Number(response.total || data.reduce((a,b) => a + b, 0));
 
     $(".course-amount-number").html(
-        `<h3>Distribución de Participantes por Género durante el período ${start} - ${end} : ${total}</h3>`
+        `<h3>Distribución de Participantes por Género durante el período ${startFmt} - ${endFmt} : ${total}</h3>`
     );
 
     // Graph containers
@@ -1433,7 +1482,7 @@ function reportByGender(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Participantes por Género en el Período ${start} - ${end}`,
+                    text: `Distribución de Participantes por Género en el Período ${startFmt} - ${endFmt}`,
                 }
             }
         }
@@ -1456,7 +1505,7 @@ function reportByGender(response){
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Participantes por Género en el Período ${start} - ${end}`,
+                    text: `Distribución de Participantes por Género en el Período ${startFmt} - ${endFmt}`,
                 },
                 legend: {
                     display: false,
@@ -1478,7 +1527,7 @@ function reportByGender(response){
     $(".table-col-helper").append(
         `<div class="panel panel-success" style="page-break-inside: avoid">
             <div class="panel-heading">
-                <div class="panel-title">Cantidad de Participantes por Género durante el período ${start} - ${end}</div>
+                <div class="panel-title">Cantidad de Participantes por Género durante el período ${startFmt} - ${endFmt}</div>
             </div>
             <div class="panel-body with-table table-responsive">
                 <table class="gender-amount-table table table-striped table-bordered table-center">
