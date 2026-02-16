@@ -1422,9 +1422,22 @@ function reportByGender(response){
     const startFmt = formatServerDate(start);
     const endFmt = formatServerDate(end);
     const rows = Array.isArray(response.rows) ? response.rows : [];
-    const labels = rows.map(r => r.label);
-    const data = rows.map(r => Number(r.amount || 0));
-    const total = Number(response.total || data.reduce((a,b) => a + b, 0));
+
+    // Always render both genders, even if one is zero
+    const fixedLabels = ['Masculino', 'Femenino'];
+    const rowByLabel = {};
+    rows.forEach(r => {
+        if (r && r.label) {
+            rowByLabel[r.label] = r;
+        }
+    });
+
+    const maleCount = Number((rowByLabel['Masculino'] && rowByLabel['Masculino'].amount) ? rowByLabel['Masculino'].amount : 0) || 0;
+    const femaleCount = Number((rowByLabel['Femenino'] && rowByLabel['Femenino'].amount) ? rowByLabel['Femenino'].amount : 0) || 0;
+
+    const labels = fixedLabels;
+    const data = [maleCount, femaleCount];
+    const total = maleCount + femaleCount;
 
     $(".course-amount-number").html(
         `<h3>Distribución de Participantes por Género durante el período ${startFmt} - ${endFmt} : ${total}</h3>`
@@ -1538,18 +1551,12 @@ function reportByGender(response){
         </div>`
     );
 
-    const male = rows.find(r => r.label === 'Masculino');
-    const female = rows.find(r => r.label === 'Femenino');
-    const maleCount = Number(male ? male.amount : 0) || 0;
-    const femaleCount = Number(female ? female.amount : 0) || 0;
-
     $(".gender-amount-table thead").append(`<tr>
         <th>Masculino</th>
         <th>Femenino</th>
         <th>Total</th>
     </tr>`);
 
-    // Total reflects the overall amount returned by the backend (may include non-specified/custom values)
     $(".gender-amount-table tbody").append(`<tr>
         <td>${maleCount}</td>
         <td>${femaleCount}</td>
