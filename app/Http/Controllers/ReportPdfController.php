@@ -7,10 +7,13 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class ReportPdfController extends Controller
 {
+    private const DISPLAY_DATE_FORMAT = 'd-m-Y';
+
     /**
      * @var array<int, array{title?: string, image?: string}>
      */
@@ -50,6 +53,9 @@ class ReportPdfController extends Controller
 
         [$startDate, $endDate] = $this->resolveDateRange($type, $data, $request);
 
+        $startDateDisplay = $this->formatDateForDisplay($startDate);
+        $endDateDisplay = $this->formatDateForDisplay($endDate);
+
         $pdf = Pdf::loadView('pdf.reports.report', [
             'type' => $type,
             'pages' => $pages,
@@ -57,8 +63,8 @@ class ReportPdfController extends Controller
         ])->setPaper('a4', 'portrait');
 
         $filename = $reportTitle;
-        if ($startDate !== '' && $endDate !== '') {
-            $filename .= " - {$startDate} al {$endDate}";
+        if ($startDateDisplay !== '' && $endDateDisplay !== '') {
+            $filename .= " - {$startDateDisplay} al {$endDateDisplay}";
         }
         $filename = $this->sanitizeFilename($filename).'.pdf';
 
@@ -105,6 +111,29 @@ class ReportPdfController extends Controller
         $name = trim($name, " .-\t\n\r\0\x0B");
 
         return $name !== '' ? $name : 'Reporte';
+    }
+
+    private function formatDateForDisplay(string $date): string
+    {
+        $date = trim($date);
+
+        if ($date === '') {
+            return '';
+        }
+
+        if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $date) === 1) {
+            return $date;
+        }
+
+        try {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
+                return Carbon::createFromFormat('Y-m-d', $date)->format(self::DISPLAY_DATE_FORMAT);
+            }
+
+            return Carbon::parse($date)->format(self::DISPLAY_DATE_FORMAT);
+        } catch (\Throwable) {
+            return $date;
+        }
     }
 
     private function reportDisplayName(string $type): string
@@ -239,6 +268,8 @@ class ReportPdfController extends Controller
         $y = Arr::get($data, 'y', []);
         $start = (string) Arr::get($data, 'start_date', '');
         $end = (string) Arr::get($data, 'end_date', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
         $total = (int) Arr::get($data, 'total', 0);
 
         $labels = array_map(fn ($v) => (string) $v, (array) $x);
@@ -248,7 +279,7 @@ class ReportPdfController extends Controller
             $values[] = is_numeric($count) ? (int) $count : 0;
         }
 
-        $title = "Cantidad de Acciones de Formación durante el Período {$start} - {$end} : {$total}";
+        $title = "Cantidad de Acciones de Formación durante el Período {$startDisplay} - {$endDisplay} : {$total}";
 
         $chartConfig = [
             'type' => 'line',
@@ -317,6 +348,8 @@ class ReportPdfController extends Controller
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
         $end = (string) Arr::get($range, 'endDate', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
 
         $labels = array_map(fn ($v) => (string) $v, (array) $x);
         $datasets = [];
@@ -342,7 +375,7 @@ class ReportPdfController extends Controller
             ];
         }
 
-        $lineTitle = "Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período {$start} - {$end}";
+        $lineTitle = "Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período {$startDisplay} - {$endDisplay}";
 
         $lineConfig = [
             'type' => 'line',
@@ -367,7 +400,7 @@ class ReportPdfController extends Controller
             ],
         ];
 
-        $doughnutTitle = "Distribución de Acciones de Formación por Áreas de Conocimiento durante el período {$start} - {$end}";
+        $doughnutTitle = "Distribución de Acciones de Formación por Áreas de Conocimiento durante el período {$startDisplay} - {$endDisplay}";
         $doughnutLabels = [];
         $doughnutData = [];
         $doughnutColors = [];
@@ -429,7 +462,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Acciones de Formación por Áreas de Conocimiento durante el período {$start} - {$end}",
+            'title' => "Acciones de Formación por Áreas de Conocimiento durante el período {$startDisplay} - {$endDisplay}",
             'columns' => ['Título', 'Fecha de Inicio', 'Fecha de Culminación', 'Área de Conocimiento'],
             'rows' => $rowsCourses,
         ];
@@ -454,6 +487,8 @@ class ReportPdfController extends Controller
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
         $end = (string) Arr::get($range, 'endDate', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
 
         $labels = array_map(fn ($v) => (string) $v, (array) $x);
         $datasets = [];
@@ -479,7 +514,7 @@ class ReportPdfController extends Controller
             ];
         }
 
-        $lineTitle = "Distribución de Acciones de Formación por Estatus durante el período {$start} - {$end}";
+        $lineTitle = "Distribución de Acciones de Formación por Estatus durante el período {$startDisplay} - {$endDisplay}";
 
         $lineConfig = [
             'type' => 'line',
@@ -542,7 +577,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Cantidad de Acciones de Formación por Estatus durante el período {$start} - {$end}",
+            'title' => "Cantidad de Acciones de Formación por Estatus durante el período {$startDisplay} - {$endDisplay}",
             'columns' => array_map(fn ($s) => (string) $s, $doughnutLabels),
             'rows' => [array_map(fn ($v) => (string) $v, $doughnutData)],
         ];
@@ -563,7 +598,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Acciones de Formación Durante el período {$start} - {$end}",
+            'title' => "Acciones de Formación Durante el período {$startDisplay} - {$endDisplay}",
             'columns' => ['Título', 'Fecha de Inicio', 'Fecha de Culminación', 'Estatus'],
             'rows' => $courseRows,
         ];
@@ -579,6 +614,8 @@ class ReportPdfController extends Controller
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
         $end = (string) Arr::get($range, 'endDate', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
         $total = (string) Arr::get($data, 'finishedByDateRange', '0');
 
         $pages = [];
@@ -603,7 +640,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Total de horas impartidas durante el período {$start} - {$end} : {$total} Horas",
+            'title' => "Total de horas impartidas durante el período {$startDisplay} - {$endDisplay} : {$total} Horas",
             'columns' => ['Título', 'Fecha de Inicio', 'Fecha Fin', 'Duración Horas', 'Duración Días'],
             'rows' => $firstTableRows,
         ];
@@ -633,6 +670,8 @@ class ReportPdfController extends Controller
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
         $end = (string) Arr::get($range, 'endDate', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
 
         $rows = (array) Arr::get($data, 'allStatusbyDateRange', []);
         $labels = (array) Arr::get($data, 'labels', []);
@@ -664,7 +703,7 @@ class ReportPdfController extends Controller
             $colors[] = $palette[$i % count($palette)];
         }
 
-        $title = "Distribución de Participantes por Estatus en el Período {$start} - {$end}";
+        $title = "Distribución de Participantes por Estatus en el Período {$startDisplay} - {$endDisplay}";
 
         $barConfig = [
             'type' => 'bar',
@@ -723,7 +762,7 @@ class ReportPdfController extends Controller
         $statusOrder = ['En Curso', 'Reprobado', 'Aprobado', 'Cancelado', 'Por Iniciar'];
         $pages[] = [
             'kind' => 'table',
-            'title' => "Cantidad de Participantes Durante el Período {$start} - {$end}",
+            'title' => "Cantidad de Participantes Durante el Período {$startDisplay} - {$endDisplay}",
             'columns' => $statusOrder,
             'rows' => [[
                 (string) ($statusTotals[$statusOrder[0]] ?? 0),
@@ -753,7 +792,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Lista de Participantes Durante el Período {$start} - {$end}",
+            'title' => "Lista de Participantes Durante el Período {$startDisplay} - {$endDisplay}",
             'columns' => ['Nombres', 'Apellidos', 'Cédula', 'Estatus', 'Acción de Formación', 'Fecha de Inicio'],
             'rows' => $participantRows,
         ];
@@ -802,13 +841,15 @@ class ReportPdfController extends Controller
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
         $end = (string) Arr::get($range, 'endDate', '');
+        $startDisplay = $this->formatDateForDisplay($start);
+        $endDisplay = $this->formatDateForDisplay($end);
 
         $rows = (array) Arr::get($data, 'rows', []);
         $labels = array_map(fn ($r) => (string) ($r['label'] ?? ''), $rows);
         $values = array_map(fn ($r) => (int) ($r['amount'] ?? 0), $rows);
         $total = (int) Arr::get($data, 'total', array_sum($values));
 
-        $title = "Distribución de Participantes por Género en el Período {$start} - {$end}";
+        $title = "Distribución de Participantes por Género en el Período {$startDisplay} - {$endDisplay}";
 
         $palette = ['#1f77b4', '#ff7f0e', '#7f7f7f'];
         $colors = [];
@@ -875,7 +916,7 @@ class ReportPdfController extends Controller
 
         $pages[] = [
             'kind' => 'table',
-            'title' => "Cantidad de Participantes por Género durante el período {$start} - {$end} : {$total}",
+            'title' => "Cantidad de Participantes por Género durante el período {$startDisplay} - {$endDisplay} : {$total}",
             'columns' => ['Masculino', 'Femenino', 'Total'],
             'rows' => [[(string) $maleCount, (string) $femaleCount, (string) $total]],
         ];
