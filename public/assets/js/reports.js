@@ -818,6 +818,27 @@ function reportByCourseStatus(response){ //reports by course status
     refresh();
     const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
     const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
+
+    const COURSE_STATUS_COLORS = {
+        'por iniciar': '#FAD839',
+        'por dictar': '#FAD839',
+        'en curso': '#21A9E1',
+        'cancelado': '#CC2424',
+        'culminado': '#00A651',
+    };
+
+    const normalizeCourseStatusKey = (value) => {
+        return String(value ?? '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
+
+    const getCourseStatusColor = (statusName) => {
+        const key = normalizeCourseStatusKey(statusName);
+        return COURSE_STATUS_COLORS[key] || '#999999';
+    };
     $(".row-graphs")
         .append(`<div class="col-md-6">
             <div class="panel panel-success by-status-line-panel">
@@ -837,14 +858,8 @@ function reportByCourseStatus(response){ //reports by course status
 
     //linear graph data
     let statuses = [];
-    let fillColor = [];
-    let colorHelp = 0;
     response.statuses.forEach((element) => {
-        fillColor.push(
-            "#000000".replace(/0/g,function(){
-                return (~~(Math.random()*16)).toString(16);
-            })
-        );
+        const statusColor = getCourseStatusColor(element);
         // For each status, build an array of {x, y} objects for the time-based line chart
         let statusData = response.x.map(date => {
             let found = response.y.find(obj => obj.status === element && obj.x === date);
@@ -859,12 +874,11 @@ function reportByCourseStatus(response){ //reports by course status
             data: buildSeriesFor(element, response.x, response.y, 'status'),
             showLine: true,
             fill: false,
-            borderColor: fillColor[colorHelp],
-            backgroundColor: fillColor[colorHelp],
+            borderColor: statusColor,
+            backgroundColor: statusColor,
             borderWidth: 3,
         };
         statuses.push(applySmartLineMarkers(status));
-        colorHelp++;
     });
     // Remove statuses with no non-null points (all zeros / empty)
     statuses = statuses.filter((obj) => {
@@ -880,13 +894,11 @@ function reportByCourseStatus(response){ //reports by course status
     let doughnutData = [];
     let doughnutLabels = [];
     let doughnutBackgroundColor = [];
-    let colorHelpDoughnut = 0;
 
     courseData.forEach((element) => {
         doughnutData.push(element.amount);
         doughnutLabels.push(element.statusName);
-        doughnutBackgroundColor.push(fillColor[colorHelpDoughnut]);
-        colorHelpDoughnut++;
+        doughnutBackgroundColor.push(getCourseStatusColor(element.statusName));
     });
 
     //linear graph draw
