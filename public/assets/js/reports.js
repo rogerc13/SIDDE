@@ -1153,6 +1153,29 @@ function reportByParticipantStatus(response){
     console.log("participant-by-status");
     refresh();
 
+    const PARTICIPANT_STATUS_COLORS = {
+        'en curso': '#00A651',
+        'aprobado': '#21A9E1',
+        'reprobado': '#CC2424',
+        'suspendido': '#CC2424',
+        'cancelado': '#F0F0F1',
+        'por iniciar': '#FAD839',
+        'en espera de curso': '#FAD839',
+    };
+
+    const normalizeParticipantStatusKey = (value) => {
+        return String(value ?? '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
+
+    const getParticipantStatusColor = (statusName) => {
+        const key = normalizeParticipantStatusKey(statusName);
+        return PARTICIPANT_STATUS_COLORS[key] || '#999999';
+    };
+
     // Chart containers (were missing, so charts had no canvas to render into)
     $(".row-graphs").append(`
         <div class="col-md-6">
@@ -1222,12 +1245,7 @@ function reportByParticipantStatus(response){
         doughnutDataStatus.push(amountHelperStatus);
         doughnutLabelsStatus.push(element.label);
         amountHelperStatus = 0;
-        doughnutBackgroundColorStatus.push(
-            "#000000".replace(/0/g,function(){
-               
-                return (~~(Math.random()*16)).toString(16);
-            })
-        );
+        doughnutBackgroundColorStatus.push(getParticipantStatusColor(element.label));
     });
     //console.log(doughnutDataStatus);
 
