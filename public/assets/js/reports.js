@@ -1502,11 +1502,13 @@ function reportByGender(response){
     `);
 
     // Colors
-    const backgroundColors = labels.map(() =>
-        "#000000".replace(/0/g, function(){
-            return (~~(Math.random()*16)).toString(16);
-        })
-    );
+    const GENDER_COLORS = {
+        'Masculino': '#42B6E6',
+        'Femenino': '#D44545',
+    };
+
+    const backgroundColors = labels.map((label) => GENDER_COLORS[label] || '#999999');
+    const borderColors = labels.map((label) => GENDER_COLORS[label] || '#999999');
 
     // Doughnut
     const doughnutEl = document.getElementById('genderDoughnut');
@@ -1516,6 +1518,8 @@ function reportByGender(response){
             datasets: [{
                 data,
                 backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1,
             }],
             labels,
         },
@@ -1539,6 +1543,8 @@ function reportByGender(response){
             datasets: [{
                 data,
                 backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1,
             }],
             labels,
         },
