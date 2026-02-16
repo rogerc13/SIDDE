@@ -10,7 +10,11 @@
         $("#usuario-modal").modal();
     }
     
-</script>
+        // Prevent non-numeric input in phone field
+        $(document).on('input', '#phone', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
 @endpush
 
 <div class="modal fade" id="usuario-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -74,7 +78,7 @@
                             </div>
                             <div class="col-lg-6 col-md-6" >
                                 <label for="phone">Teléfono</label>
-                                <input type="text" class="form-control" name="phone" id="phone" maxlength="45">
+                                <input type="tel" class="form-control" name="phone" id="phone" maxlength="45" pattern="[0-9]+" inputmode="numeric">
                             </div>
                         </div>
 
