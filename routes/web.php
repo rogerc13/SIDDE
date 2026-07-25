@@ -99,6 +99,16 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::delete('/{id}', 'App\Http\Controllers\CategoriaController@delete');
         });
 
+        Route::group(['prefix' => 'ubicaciones'], function()
+        {
+                Route::get('/', 'App\Http\Controllers\LocationController@getAll')->name("ubicaciones");
+                Route::get('/count', 'App\Http\Controllers\LocationController@count');
+                Route::get('/{id}', 'App\Http\Controllers\LocationController@get');
+                Route::post('/', 'App\Http\Controllers\LocationController@store');
+                Route::put('/{id}', 'App\Http\Controllers\LocationController@update');
+                Route::delete('/{id}', 'App\Http\Controllers\LocationController@delete');
+        });
+
         Route::group(['prefix' => 'acciones_formacion'], function()
         {
                 Route::get('/', 'App\Http\Controllers\CursoController@getAll')->name("acciones");
@@ -144,6 +154,12 @@ Route::group(['middleware' => 'auth'], function ()
                 //Route::put('/{id}/participantes/{participanteId}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
+
+                Route::get('/{id}/sesiones', 'App\Http\Controllers\CourseSessionController@index');
+                Route::get('/{id}/sesiones/data', 'App\Http\Controllers\CourseSessionController@data');
+                Route::post('/{id}/sesiones', 'App\Http\Controllers\CourseSessionController@store');
+                Route::put('/sesiones/{sessionId}', 'App\Http\Controllers\CourseSessionController@update');
+                Route::delete('/sesiones/{sessionId}', 'App\Http\Controllers\CourseSessionController@destroy');
 
                 
                 
