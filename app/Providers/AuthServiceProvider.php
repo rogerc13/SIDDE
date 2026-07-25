@@ -10,12 +10,14 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Scheduled;
 use App\Models\Participant;
+use App\Models\Location;
 
 use App\Policies\UserPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\CoursePolicy;
 use App\Policies\ScheduledPolicy;
 use App\Policies\ParticipantPolicy;
+use App\Policies\LocationPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -31,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         Course::class => CoursePolicy::class,
         Scheduled::class => ScheduledPolicy::class,
         Participant::class => ParticipantPolicy::class,
+        Location::class => LocationPolicy::class,
     ];
 
     /**
