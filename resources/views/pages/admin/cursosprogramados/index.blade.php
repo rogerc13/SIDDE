@@ -179,14 +179,18 @@
 								  <!-- <a  title="Más Información" href="javascript:detallesAccion('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a> -->
-								  @can('getAllPorCurso','App\Participant')
-									  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
-									      <i class="entypo-users"></i>
-									  </a>
-									  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{$cursop->atMaxCapacity() ? 'disabled' :''}}">
-									      <i class="entypo-user-add"></i>
-									  </a>
-								  @endcan
+							  @can('getAllPorCurso','App\Participant')
+								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
+								      <i class="entypo-users"></i>
+								  </a>
+								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{$cursop->atMaxCapacity() ? 'disabled' :''}}">
+								      <i class="entypo-user-add"></i>
+								  </a>
+							  @endcan
+
+							  <a  title="Sesiones" href="{{url('u/af_programadas/'.$cursop->id.'/sesiones')}}" class="btn btn-info btn-xs">
+							      <i class="entypo-calendar"></i>
+							  </a>
 
 								  <a  title="Editar Programación" href="javascript:editarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-default btn-xs {{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' :''}}">
 								      <i class="entypo-pencil"></i>
