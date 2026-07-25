@@ -128,14 +128,22 @@
 					</ul>
 				</li> --}}
 
-			@can('getAll','App\Category')
-				<li class="{{ Request::is('u/areas') ? 'active' : '' }} " title="Gestión de Áreas de Conocimiento">
-					<a href="{{url("u/areas")}}">
-						<i class="entypo-tag"></i>
-						<span class="title">Áreas de Conocimiento</span>
-					</a>
-				</li>
-			@endcan
+		@can('getAll','App\Category')
+			<li class="{{ Request::is('u/areas') ? 'active' : '' }} " title="Gestión de Áreas de Conocimiento">
+				<a href="{{url("u/areas")}}">
+					<i class="entypo-tag"></i>
+					<span class="title">Áreas de Conocimiento</span>
+				</a>
+			</li>
+		@endcan
+		@can('getAll','App\Models\Location')
+			<li class="{{ Request::is('u/ubicaciones') ? 'active' : '' }}" title="Gestión de Ubicaciones">
+				<a href="{{url("u/ubicaciones")}}">
+					<i class="entypo-location"></i>
+					<span class="title">Ubicaciones</span>
+				</a>
+			</li>
+		@endcan
 			@can('getAll','App\Course')
 				<li class="{{ Request::is('u/acciones_formacion') ? 'active' : '' }}  " title="Gestión de Acciones de Formación">
 					<a href="{{url("u/acciones_formacion")}}">
