@@ -36,6 +36,11 @@ class Scheduled extends Model
     return $this->hasMany(Participant::class);
   }
 
+  public function sessions()
+  {
+    return $this->hasMany(CourseSession::class);
+  }
+
   public function persons(){
     return $this->belongsToMany(Person::class,'participants');
   }
@@ -52,6 +57,16 @@ class Scheduled extends Model
       return false;
     }
     
+  }
+
+  public function totalSessionHours()
+  {
+    return $this->sessions->sum(fn($s) => $s->durationHours());
+  }
+
+  public function remainingHours()
+  {
+    return $this->course->duration - $this->totalSessionHours();
   }
   
   public function isPorDictar(){
