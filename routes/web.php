@@ -29,7 +29,7 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
-Route::get('prerequisite-test', 'App\Http\Controllers\CursoController@prerequisiteTest');
+
 Route::get('assign-test', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
 Route::get('download/{id}/{type}','App\Http\Controllers\CursoController@download');
@@ -102,7 +102,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'acciones_formacion'], function()
         {
                 Route::get('/', 'App\Http\Controllers\CursoController@getAll')->name("acciones");
-                Route::get('/count', 'App\Http\Controllers\CursoController@count');
                 Route::get('/{id}', 'App\Http\Controllers\CursoController@get');
 
                 Route::get('/details/{id}', 'App\Http\Controllers\CursoController@courseDetails'); //get course details with relationships
@@ -168,7 +167,7 @@ Route::group(['middleware' => 'auth'], function ()
     {
 
         Route::get('/{id}', 'App\Http\Controllers\CursoController@getAccionFormacion'); //view Ficha Tecnica
-        Route::get('/documentos/{id}/{d}', 'App\Http\Controllers\CursoController@descargarDoc');
+
         Route::get('/{id}/documents', 'App\Http\Controllers\CursoController@downloadAllFiles');
 
     });

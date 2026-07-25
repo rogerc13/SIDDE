@@ -28,11 +28,6 @@ class CoursePolicy
         return $user->isAdministrador() || $user->isTecEducativa();
     }
 
-    public function count(User $user)
-    {
-        return $user->isAdministrador() || $user->isTecEducativa();
-    }
-
     public function update(User $user)
     {
       return $user->isAdministrador() || $user->isTecEducativa();
@@ -41,11 +36,6 @@ class CoursePolicy
     public function delete(User $user)
     {
         return $user->isAdministrador() || $user->isTecEducativa();
-    }
-
-    public function descargarDoc(User $user)
-    {
-        return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador();
     }
 
     public function downloadAllFiles(User $user){

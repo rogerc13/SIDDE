@@ -28,9 +28,12 @@ class CursoController extends Controller
     public function get($id)
     {
         $user = Auth::user();
-        //$curso = Course::find($id);
+        if ($user->cannot('get', Course::class)) {
+            return json_encode([]);
+        }
+
         $curso = Course::with(['Content', 'File', 'Capacity', 'prerequisite'])->where('id', $id)->get();
-        if (!$curso || $user->cannot('get', Course::class)) {
+        if (!$curso) {
             return json_encode([]);
         }
 
@@ -40,6 +43,9 @@ class CursoController extends Controller
     public function getAccionFormacion($id)
     {
         $user = Auth::user();
+        if (!$user || $user->cannot('getAccionFormacion', Course::class)) {
+            return redirect()->route('login');
+        }
         $curso = Course::with(['capacity', 'modality', 'content', 'category'])->where('id', $id)->first();
         if ($curso == null) {
             return Redirect::back()
@@ -55,79 +61,17 @@ class CursoController extends Controller
         }
     } //view Ficha Tecnica
 
-    public function descargarDoc($id, $d)
+    public function getAll(Request $request)
     {
 
         $user = Auth::user();
-
-        if ($user->cannot('descargarDoc', Course::class)) {
-            return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
-        }
-
-        $curso = Course::find($id);
-
-        if ($curso == null) {
-            return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error", "La acción de formación no pudo ser encontrada"));
-        }
-
-
-        $path = base_path() . '/public/uploads/documentos/';
-
-        if ($d == 0) {
-            if ($curso->ficha_tecnica) {
-                $path2 = base_path() . '/public/uploads/documentos/' . $curso->ficha_tecnica;
-
-                if (file_exists($path2)) {
-
-                    return response()->download($path2, "Ficha tecnica." . pathinfo($curso->ficha_tecnica, PATHINFO_EXTENSION));
-                }
-            }
-        } elseif ($d == 1) {
-            if ($curso->manual_p) {
-                $path2 = base_path() . '/public/uploads/documentos/' . $curso->manual_p;
-                if (file_exists($path2)) {
-                    return response()->download($path2, "Manual de participante." . pathinfo($curso->manual_p, PATHINFO_EXTENSION));
-                }
-            }
-        } elseif ($d == 2) {
-            if ($curso->manual_f) {
-                $path2 = base_path() . '/public/uploads/documentos/' . $curso->manual_f;
-                if (file_exists($path2)) {
-                    return response()->download($path2, "Manual de facilitador." . pathinfo($curso->manual_f, PATHINFO_EXTENSION));
-                }
-            }
-        } elseif ($d == 3) {
-            if ($curso->guia) {
-                $path2 = base_path() . '/public/uploads/documentos/' . $curso->guia;
-                if (file_exists($path2)) {
-                    return response()->download($path2, "Guía de dotación" . pathinfo($curso->guia, PATHINFO_EXTENSION));
-                }
-            }
-        } elseif ($d == 4) {
-            if ($curso->presentacion) {
-                $path2 = base_path() . '/public/uploads/documentos/' . $curso->presentacion;
-                if (file_exists($path2)) {
-                    return response()->download($path2, "Presentacion" . pathinfo($curso->presentacion, PATHINFO_EXTENSION));
-                }
-            }
-        }
-        return Redirect::back();
-    }
-
-    public function getAll()
-    {
-
-        $user = Auth::user();
-        //return json_encode($user->cannot('getAll', Course::class));
         if ($user->cannot('getAll', Course::class)) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $titulos = filter_input(INPUT_GET, 'titulos', FILTER_SANITIZE_STRING);
-        $id_areas = filter_input(INPUT_GET, 'id_areas', FILTER_SANITIZE_NUMBER_INT);
+        $titulos = $request->input('titulos');
+        $id_areas = $request->input('id_areas');
 
 
         $lista = $categorias = Category::orderBy("name", "asc");
@@ -152,103 +96,6 @@ class CursoController extends Controller
             ->with('busqueda_area', $id_areas)
             ->with('modalities', $modalities);
     }
-
-
-    public function store(CursoForm $request)
-    {
-
-        $user = Auth::user();
-
-        if ($user->can('store', Course::class)) {
-
-
-            $curso = new Course();
-            $curso->codigo = rand(1000, 9999);
-            $curso->titulo = $request->title;
-            $curso->categoria_id = $request->categoria_id;
-            $curso->modalidad_id = $request->modalidad_id;
-            $curso->duracion = $request->duracion;
-            $curso->dirigido = $request->dirigido;
-            $curso->min = $request->min;
-            $curso->max = $request->max;
-            $curso->objetivo = $request->objetivo;
-            $curso->contenido = $request->contenido;
-
-            $path = base_path() . '/public/uploads/documentos';
-
-            if ($request->file('manual_p')) {
-
-                $arhcivotemporal_1 = tempnam($path, "");
-                $infotemporal_1 = pathinfo($arhcivotemporal_1);
-                $nombertemporal_1 = $infotemporal_1['filename'];
-                $info_1 = pathinfo($request->file('manual_p')->getClientOriginalName());
-                $extension_1 = $info_1['extension'];
-                $docTempName_1 = 'm_p' . $nombertemporal_1 . "." . $extension_1;
-                unlink($arhcivotemporal_1);
-
-                $curso->manual_p = $docTempName_1;
-            }
-            if ($request->file('manual_f')) {
-
-                $arhcivotemporal_2 = tempnam($path, "");
-                $infotemporal_2 = pathinfo($arhcivotemporal_2);
-                $nombertemporal_2 = $infotemporal_2['filename'];
-                $info_2 = pathinfo($request->file('manual_f')->getClientOriginalName());
-                $extension_2 = $info_2['extension'];
-                $docTempName_2 = 'm_f' . $nombertemporal_2 . "." . $extension_2;
-                unlink($arhcivotemporal_2);
-
-                $curso->manual_f = $docTempName_2;
-            }
-            if ($request->file('guia')) {
-                $arhcivotemporal_3 = tempnam($path, "");
-                $infotemporal_3 = pathinfo($arhcivotemporal_3);
-                $nombertemporal_3 = $infotemporal_3['filename'];
-                $info_3 = pathinfo($request->file('guia')->getClientOriginalName());
-                $extension_3 = $info_3['extension'];
-                $docTempName_3 = 'g_' . $nombertemporal_3 . "." . $extension_3;
-                unlink($arhcivotemporal_3);
-
-                $curso->guia = $docTempName_3;
-            }
-            if ($request->file('presentacion')) {
-                $arhcivotemporal_4 = tempnam($path, "");
-                $infotemporal_4 = pathinfo($arhcivotemporal_4);
-                $nombertemporal_4 = $infotemporal_4['filename'];
-                $info_4 = pathinfo($request->file('presentacion')->getClientOriginalName());
-                $extension_4 = $info_4['extension'];
-                $docTempName_4 = 'p_' . $nombertemporal_4 . "." . $extension_4;
-                unlink($arhcivotemporal_4);
-
-                $curso->presentacion = $docTempName_4;
-            }
-
-
-            if ($curso->save()) {
-                if ($request->file('manual_p')) {
-                    $request->file('manual_p')->move($path, $docTempName_1);
-                }
-                if ($request->file('manual_f')) {
-                    $request->file('manual_f')->move($path, $docTempName_2);
-                }
-                if ($request->file('guia')) {
-                    $request->file('guia')->move($path, $docTempName_3);
-                }
-                if ($request->file('presentacion')) {
-                    $request->file('presentacion')->move($path, $docTempName_4);
-                }
-                return Redirect::back()
-                    ->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
-            }
-
-
-            return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
-        }
-
-        return Redirect::back()
-            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
-    } //end store course
 
 
     public function setCourse(CursoForm $request)
@@ -338,8 +185,6 @@ class CursoController extends Controller
         return json_encode($response);
     } //end setCourse()
 
-    public function count() {}
-
     public function update(CursoForm $request, $id)
     {
         //return json_encode(isset($request->prerequisite));
@@ -406,7 +251,7 @@ class CursoController extends Controller
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 $path[0]  = ['file_path' => $request->file('manual_f')->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')->getClientOriginalExtension()), 'type_id' => 1];
-            } else if (($file->type_id == 1) && ($deleteHelper->facilitator === true)) {
+            } else if (isset($deleteHelper) && ($file->type_id == 1) && ($deleteHelper->facilitator === true)) {
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 //return json_encode($response = "file 1 deleted");
@@ -416,7 +261,7 @@ class CursoController extends Controller
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 $path[1] = ['file_path' => $request->file('manual_p')->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')->getClientOriginalExtension()), 'type_id' => 2];
-            } else if (($file->type_id == 2) && ($deleteHelper->manual === true)) {
+            } else if (isset($deleteHelper) && ($file->type_id == 2) && ($deleteHelper->manual === true)) {
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 //return json_encode($response = "file 2 deleted");
@@ -425,7 +270,7 @@ class CursoController extends Controller
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 $path[2] = ['file_path' => $request->file('guia')->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')->getClientOriginalExtension()), 'type_id' => 3];
-            } else if (($file->type_id == 3) && ($deleteHelper->guide === true)) {
+            } else if (isset($deleteHelper) && ($file->type_id == 3) && ($deleteHelper->guide === true)) {
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 //return json_encode($response = "file 3 deleted");
@@ -434,7 +279,7 @@ class CursoController extends Controller
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 $path[3] = ['file_path' => $request->file('presentacion')->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')->getClientOriginalExtension()), 'type_id' => 4];
-            } else if (($file->type_id == 4) && ($deleteHelper->presentation === true)) {
+            } else if (isset($deleteHelper) && ($file->type_id == 4) && ($deleteHelper->presentation === true)) {
                 $file->delete();
                 $result[] = Storage::delete($file->path);
                 //return json_encode($response = "file 4 deleted");
@@ -473,25 +318,27 @@ class CursoController extends Controller
             $response[] = $curso->content()->saveMany($contentData);
         }
 
-        $response[] = $curso->file()->saveMany($path);
+        if (count($path) > 0) {
+            $response[] = $curso->file()->saveMany($path);
+        }
         if (isset($result)) {
             $response[] = $result;
         }
-        $response = $curso->capacity()->update(['min' => $request->min, 'max' => $request->max]);
 
+        $capacityUpdated = $curso->capacity()->update(['min' => $request->min, 'max' => $request->max]);
         if ($curso->prerequisite->count() > 0) {
-            $response = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
+            $prerequisiteUpdated = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
         } else {
             $prerequisite = new Prerequisite([
                 'prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
                 'course_code' => $request->codigo
             ]);
-            $response = $curso->prerequisite()->save($prerequisite);
+            $prerequisiteUpdated = $curso->prerequisite()->save($prerequisite);
         }
 
-        //$response[] = $path;
+        $success = $curso->exists && $capacityUpdated && $prerequisiteUpdated;
 
-        return json_encode($success = true);
+        return json_encode($success);
 
 
         //if update errors out return session flash alert
@@ -568,30 +415,33 @@ class CursoController extends Controller
 
     public function downloadAllFiles($id)
     {
-        //return ($id);
+        $user = Auth::user();
+        if (!$user || $user->cannot('downloadAllFiles', Course::class)) {
+            return redirect()->back();
+        }
         $courseFiles = File::where('course_id', $id)->get();
 
         $files = [];
-        foreach ($courseFiles as $count => $courseFile) {
-            $files[$courseFile->id] = base_path() . "/storage/app/" . $courseFile->file_path;
+        foreach ($courseFiles as $courseFile) {
+            $files[$courseFile->id] = base_path() . "/storage/app/" . $courseFile->path;
         }
 
-        return $files;
+        if (empty($files)) {
+            return redirect()->back();
+        }
 
         $zip = new ZipArchive;
 
-        //saves file to public/uploads/zip/course_code
-        $zipFile = base_path() . "/public/uploads/zip/" . Course::find($id)->code . ".zip"; //change to pc's download folder?
+        $zipFile = base_path() . "/public/uploads/zip/" . Course::find($id)->code . ".zip";
 
-        if ($zip->open($zipFile, ZipArchive::CREATE) == TRUE) { //opens file stream, creates zip file
+        if ($zip->open($zipFile, ZipArchive::CREATE) == TRUE) {
             foreach ($files as $key => $value) {
-                $relativeName = str_replace($courseFile->id, $key, basename($value));
-                $zip->addFile($value, $relativeName);
+                $zip->addFile($value, basename($value));
             }
-            $zip->close(); //closes the stream
+            $zip->close();
         }
         return response()->download($zipFile);
-    } //end downloadAllFiles
+    }
 
     public function codeCheck(Request $request)
     {
@@ -645,27 +495,6 @@ class CursoController extends Controller
 
         //return Redirect::back()->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
     } //end onCourseSubmitAlert
-
-    private function updateFile($course, $file, $type)
-    {
-        $filePaths = [];
-        $fileType = [
-            0 => 'manual_f',
-            1 => 'manual_p',
-            2 => 'guia',
-            3 => 'presentacion'
-        ];
-
-        if ($file->isValid()) {
-            if ($file == $fileType[$type]) {
-                Storage::delete($file);
-            }
-        }
-        $response = $course->courseFile()->createMany($filePaths);
-        if ($response) {
-            return json_encode($response);
-        }
-    }
 
     public function prerequisiteList()
     { //draws course prerequiste selector
@@ -734,42 +563,4 @@ class CursoController extends Controller
         }
     }
 
-    public function prerequisiteTest()
-    {
-
-
-        //$prerequisite = new Prerequisite(['prerequisite' => '2546','course_code' => '12345']);
-        /* $response = Course::create(['code' => '12345',
-            'title' => 'test',
-            'objective' =>'test',
-            'duration' => '0',
-            'addressed' => 'test',
-            'modality_id' =>'1',
-            'category_id' => '1']); */
-
-        //dd($course);
-        //dd($prerequisite);
-
-        //$response->prerequisite()->save($prerequisite);
-
-        //$course = Course::find('6');
-        //dd($course);
-        //dd($course->prerequisite[0]->courseName());
-
-        //dd($course);
-
-        //$response = $course->prerequisite()->update(['prerequisite' => '2603']);
-
-        //dd($response);
-
-        //get prerequisite course details
-        //$curso = Course::with(['File','Capacity','Prerequisite','Content'])->where('id','6')->get();
-        //$curso = Prerequisite::where('course_code','test')->get();
-        //return ($curso[0]->courseName());
-
-        //check if course has prerequisites
-        //$course = Course::find(5);
-        //return ($course->prerequisite->count());
-
-    }
 }

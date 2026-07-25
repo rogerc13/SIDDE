@@ -2,41 +2,60 @@
 
 namespace Database\Factories;
 
+use App\Models\Person;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    protected $model = User::class;
+
+    public function definition(): array
     {
+        $person = Person::factory()->create();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'role_id' => 1,
+            'person_id' => $person->id,
+            'email' => fake()->unique()->safeEmail(),
+            'password' => bcrypt('password'),
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return static
-     */
-    public function unverified()
+    public function administrador(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'email_verified_at' => null,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 1,
+        ]);
+    }
+
+    public function tecEducativa(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 2,
+        ]);
+    }
+
+    public function programador(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 3,
+        ]);
+    }
+
+    public function facilitador(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 4,
+        ]);
+    }
+
+    public function participante(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 5,
+        ]);
     }
 }

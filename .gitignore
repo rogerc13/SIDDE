@@ -17,3 +17,5 @@ yarn-error.log
 /.vscode
 /public/downloads/uploads/documentos
 /public/downloads/uploads/zip
+/planning.md
+/public/downloads/uploads
