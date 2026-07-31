@@ -6,48 +6,44 @@ use Illuminate\Support\HtmlString;
 
 class Form
 {
-    public static function __callStatic($method, $parameters)
+    public static function label($name, $value, $options = []): HtmlString
     {
-        $instance = new static();
-        return $instance->$method(...$parameters);
-    }
-
-    public function label($name, $value, $options = []): HtmlString
-    {
-        $options = $this->htmlAttributes($options);
         $for = $options['for'] ?? $name;
         unset($options['for']);
+        $options = self::htmlAttributes($options);
 
         return new HtmlString('<label for="' . e($for) . '"' . $options . '>' . e($value) . '</label>');
     }
 
-    public function text($name, $value = null, $options = []): HtmlString
+    public static function text($name, $value = null, $options = []): HtmlString
     {
-        return $this->input('text', $name, $value, $options);
+        return self::input('text', $name, $value, $options);
     }
 
-    public function email($name, $value = null, $options = []): HtmlString
+    public static function email($name, $value = null, $options = []): HtmlString
     {
-        return $this->input('email', $name, $value, $options);
+        return self::input('email', $name, $value, $options);
     }
 
-    public function number($name, $value = null, $options = []): HtmlString
+    public static function number($name, $value = null, $options = []): HtmlString
     {
-        return $this->input('number', $name, $value, $options);
+        return self::input('number', $name, $value, $options);
     }
 
-    public function textarea($name, $value = null, $options = []): HtmlString
+    public static function textarea($name, $value = null, $options = []): HtmlString
     {
-        $options = $this->htmlAttributes($options);
+        $id = $options['id'] ?? str_replace(['[', ']'], ['-', ''], $name);
+        $options = self::htmlAttributes($options);
         $name = e($name);
         $value = e($value);
 
-        return new HtmlString('<textarea name="' . $name . '"' . $options . '>' . $value . '</textarea>');
+        return new HtmlString('<textarea id="' . e($id) . '" name="' . $name . '"' . $options . '>' . $value . '</textarea>');
     }
 
-    public function select($name, $list = [], $selected = null, $selectAttrs = []): HtmlString
+    public static function select($name, $list = [], $selected = null, $selectAttrs = []): HtmlString
     {
-        $selectAttrs = $this->htmlAttributes($selectAttrs);
+        $id = $selectAttrs['id'] ?? str_replace(['[', ']'], ['-', ''], $name);
+        $selectAttrs = self::htmlAttributes($selectAttrs);
         $name = e($name);
 
         $options = '';
@@ -56,27 +52,28 @@ class Form
             $options .= '<option value="' . e($value) . '"' . $isSelected . '>' . e($display) . '</option>';
         }
 
-        return new HtmlString('<select name="' . $name . '"' . $selectAttrs . '>' . $options . '</select>');
+        return new HtmlString('<select id="' . e($id) . '" name="' . $name . '"' . $selectAttrs . '>' . $options . '</select>');
     }
 
-    public function submit($value = null, $options = []): HtmlString
+    public static function submit($value = null, $options = []): HtmlString
     {
-        $options = $this->htmlAttributes($options);
+        $options = self::htmlAttributes($options);
         $value = e($value);
 
         return new HtmlString('<button type="submit"' . $options . '>' . $value . '</button>');
     }
 
-    protected function input($type, $name, $value = null, $options = []): HtmlString
+    protected static function input($type, $name, $value = null, $options = []): HtmlString
     {
-        $options = $this->htmlAttributes($options);
+        $id = $options['id'] ?? str_replace(['[', ']'], ['-', ''], $name);
+        $options = self::htmlAttributes($options);
         $name = e($name);
         $value = e($value);
 
-        return new HtmlString('<input type="' . $type . '" name="' . $name . '" value="' . $value . '"' . $options . '>');
+        return new HtmlString('<input type="' . $type . '" id="' . e($id) . '" name="' . $name . '" value="' . $value . '"' . $options . '>');
     }
 
-    protected function htmlAttributes(array $attributes): string
+    protected static function htmlAttributes(array $attributes): string
     {
         $html = '';
         foreach ($attributes as $key => $value) {
