@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { loginAs } from './helpers/auth';
+import path from 'path';
 
 const unique = () => Date.now();
 
@@ -330,5 +331,155 @@ test.describe('Courses - Soft-Deleted Code', () => {
         await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
         await fillTab2(page, { objetivo: 'Test objective' });
         await submitAndExpectError(page);
+    });
+});
+
+test.describe('Courses - Documents / File Upload', () => {
+    const fixturePath = path.resolve(__dirname, 'fixtures/test-document.pdf');
+
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    test('docs section is visible on tab 4 for new course', async ({ page }) => {
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `ND${unique()}`, titulo: 'No Docs Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        const docsVisible = await page.evaluate(() => {
+            return (window as any).jQuery('#docs').is(':visible');
+        });
+        expect(docsVisible).toBe(true);
+    });
+
+    test('file input elements exist on tab 4', async ({ page }) => {
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `FI${unique()}`, titulo: 'File Input Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('#manual_f')).toBeAttached();
+        await expect(page.locator('#manual_p')).toBeAttached();
+        await expect(page.locator('#guia')).toBeAttached();
+        await expect(page.locator('#presentacion')).toBeAttached();
+    });
+
+    test('creates a course with a file upload', async ({ page }) => {
+        const testCode = `FU${unique()}`;
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: testCode, titulo: 'File Upload Course', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+
+        const filenameVisible = await page.evaluate(() => {
+            const span = document.getElementById('l_manual_f');
+            return span ? span.textContent : '';
+        });
+        expect(filenameVisible).toContain('test-document.pdf');
+
+        await page.evaluate(() => (window as any).setCourse({}));
+
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('creates a course with multiple file uploads', async ({ page }) => {
+        const testCode = `MF${unique()}`;
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: testCode, titulo: 'Multi File Course', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#manual_f').prop('disabled', false);
+            $('#manual_p').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.setInputFiles('#manual_p', fixturePath);
+
+        const manualFName = await page.evaluate(() => {
+            const span = document.getElementById('l_manual_f');
+            return span ? span.textContent : '';
+        });
+        const manualPName = await page.evaluate(() => {
+            const span = document.getElementById('l_manual_p');
+            return span ? span.textContent : '';
+        });
+        expect(manualFName).toContain('test-document.pdf');
+        expect(manualPName).toContain('test-document.pdf');
+
+        await page.evaluate(() => (window as any).setCourse({}));
+
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('fileinput transitions to exists state after file upload', async ({ page }) => {
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `FR${unique()}`, titulo: 'File Remove Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        const hasFile = await page.evaluate(() => {
+            return (window as any).jQuery('#fileinput_manual_f').hasClass('fileinput-exists');
+        });
+        expect(hasFile).toBe(true);
+    });
+
+    test('fileinput shows filename span after upload', async ({ page }) => {
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `FN${unique()}`, titulo: 'Filename Span Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        const filename = await page.evaluate(() => {
+            const span = document.getElementById('l_manual_f');
+            return span ? span.textContent : '';
+        });
+        expect(filename).toContain('test-document.pdf');
+
+        const inputHidden = await page.evaluate(() => {
+            const input = document.getElementById('manual_f') as HTMLInputElement;
+            return input && input.files ? input.files.length : 0;
+        });
+        expect(inputHidden).toBe(1);
     });
 });
