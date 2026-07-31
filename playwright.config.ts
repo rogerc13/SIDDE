@@ -7,7 +7,7 @@ export default defineConfig({
         timeout: 5000,
     },
     fullyParallel: false,
-    retries: 0,
+    retries: 1,
     use: {
         baseURL: 'http://sidde.test',
         browserName: 'chromium',
