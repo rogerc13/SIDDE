@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Curso;
+use App\Models\Course;
 
 class CursoForm extends FormRequest
 {
@@ -26,35 +26,34 @@ class CursoForm extends FormRequest
     {
         switch($this->method())
         {
-            /*
             case 'POST':
-                return [                        
-                        'titulo' => 'required|string|max:'.Curso::MAX_LENGTH_TITULO,
-                        'categoria_id' => 'required|integer|exists:categoria,id',
-                        'modalidad' => 'required|string|max:'.Curso::MAX_LENGTH_MODALIDAD,
-                        'duracion' => 'required|numeric',
-                        'dirigido' => 'required|string|max:'.Curso::MAX_LENGTH_DIRIGIDO,
-                        'contenido' => 'required|string|max:'.Curso::MAX_LENGTH_CONTENIDO,
-                        'objetivo' => 'required|string|max:'.Curso::MAX_LENGTH_OBJETIVO,                        
-                        'min' => 'required|integer|min:1|max:'.$this->max,
-                        'max' => 'required|integer|min:'.$this->min,
-                        
-                       ]; 
-                       
+                return [
+                        'codigo' => 'required|string|max:300',
+                        'titulo' => 'required|string|max:'.Course::MAX_LENGTH_TITLE,
+                        'categoria_id' => 'required|integer|exists:categories,id',
+                        'modalidad_id' => 'required|integer|exists:modalities,id',
+                        'duracion' => 'required|numeric|min:1',
+                        'dirigido' => 'required|string|max:'.Course::MAX_LENGTH_ADDRESSED,
+                        'objetivo' => 'required|string|max:'.Course::MAX_LENGTH_OBJECTIVE,
+                        'min' => 'required|integer|min:1',
+                        'max' => 'required|integer|min:1',
+                       ];
+
             case 'PUT':
                 return [
-                        'titulo' => 'required|string|max:'.Curso::MAX_LENGTH_TITULO,
-                        'categoria_id' => 'required|integer|exists:categoria,id',
-                        'modalidad' => 'required|string|max:'.Curso::MAX_LENGTH_MODALIDAD,
-                        'duracion' => 'required|numeric',
-                        'dirigido' => 'required|string|max:'.Curso::MAX_LENGTH_DIRIGIDO,
-                        'contenido' => 'required|string|max:'.Curso::MAX_LENGTH_CONTENIDO,
-                        'objetivo' => 'required|string|max:'.Curso::MAX_LENGTH_OBJETIVO,                        
-                        'min' => 'required|integer|min:1|max:'.$this->max,
-                        'max' => 'required|integer|min:'.$this->min,
+                        'codigo' => 'required|string|max:300',
+                        'titulo' => 'required|string|max:'.Course::MAX_LENGTH_TITLE,
+                        'categoria_id' => 'required|integer|exists:categories,id',
+                        'modalidad_id' => 'required|integer|exists:modalities,id',
+                        'duracion' => 'required|numeric|min:1',
+                        'dirigido' => 'required|string|max:'.Course::MAX_LENGTH_ADDRESSED,
+                        'objetivo' => 'required|string|max:'.Course::MAX_LENGTH_OBJECTIVE,
+                        'min' => 'required|integer|min:1',
+                        'max' => 'required|integer|min:1',
                        ];
-            */
-            default:return[];
+
+            default:
+                return [];
         }
     }
     
