@@ -9,16 +9,16 @@
         "barryvdh/laravel-dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "itsgoingd/clockwork": "^5.1",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.9",
+        "laravel/tinker": "^2.10",
         "laravel/ui": "^4.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
         "laravel-lang/lang": "^11.0",
         "laravel/sail": "^1.26",
-        "mockery/mockery": "^1.4.4",
+        "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
         "phpunit/phpunit": "^11.0",
         "spatie/laravel-ignition": "^2.4"
