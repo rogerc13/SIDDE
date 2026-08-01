@@ -15,7 +15,7 @@ class CoursePolicy
     }
 
     public function getAccionFormacion(User $user){
-        return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador();
+        return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador() || $user->isParticipante();
     }
 
     public function getAll(User $user)

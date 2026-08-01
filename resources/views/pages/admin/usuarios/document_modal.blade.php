@@ -1,4 +1,6 @@
 <script>
+    const isParticipant = {{ Auth::user()->isParticipante() ? 'true' : 'false' }};
+
     function documentModal(url){
         
         $("#document-modal").modal();
@@ -9,7 +11,7 @@
         })
         .done(function(data){
             data = JSON.parse(data);
-            let courseId = data.files[0].course_id;
+            let courseId = data.files.length > 0 ? data.files[0].course_id : null;
             
             
             let files = {
@@ -37,14 +39,21 @@
                 }
             });
 
+            let buttons = '';
+            if (!isParticipant) {
+                buttons += `<a class="btn btn-default ${(files.type1 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/1')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Facilitador</a>`;
+            }
+            buttons += `<a class="btn btn-default ${(files.type2 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/2')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Participante</a>`;
+            if (!isParticipant) {
+                buttons += `<a class="btn btn-default ${(files.type3 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/3')}}" role="button"><i class="fa fa-file-pdf-o"></i> Guia</a>`;
+                buttons += `<a class="btn btn-default ${(files.type4 ? '' : 'disabled')}" href="{{url('download/${courseId}/4')}}" role="button"><i class="fa fa-file-pdf-o"></i> Presentacion</a>`;
+            }
+
             $('.loader').removeClass('hidden');
             $('.loader').addClass('hidden');
             $('.modal-body').html(`
                 <div class="btn-group row course-file-btn" >
-                        <a class="btn btn-default ${(files.type1 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/1')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Facilitador</a>
-                        <a class="btn btn-default ${(files.type2 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/2')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Usuario</a>
-                        <a class="btn btn-default ${(files.type3 ? '' : 'disabled')}" style='margin-right:5px' href="{{url('download/${courseId}/3')}}" role="button"><i class="fa fa-file-pdf-o"></i> Guia</a>
-                        <a class="btn btn-default ${(files.type4 ? '' : 'disabled')}" href="{{url('download/${courseId}/4')}}" role="button"><i class="fa fa-file-pdf-o"></i> Presentacion</a>    
+                    ${buttons}
                 </div>
             `);
         })

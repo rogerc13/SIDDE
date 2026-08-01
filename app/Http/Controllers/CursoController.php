@@ -510,10 +510,24 @@ class CursoController extends Controller
 
     public function download($id, $type)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         if ($type == '0') {
             $files = File::where('course_id', $id)->orderBy('type_id', 'Asc')->get();
+
+            if ($user->isParticipante()) {
+                $files = $files->filter(fn($file) => $file->type_id == 2);
+            }
+
             return json_encode(['files' => $files]);
         } else {
+
+            if ($user->isParticipante() && $type !== '2') {
+                abort(403, 'No tienes permiso para descargar este documento.');
+            }
 
             $files = File::where('course_id', $id)->get();
             $helper = new stdClass();

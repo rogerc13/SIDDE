@@ -16,11 +16,14 @@
 
         <div class="collapse download-collapse" id="download-collapse">
             <div class="btn-group row course-file-btn" style='margin:10px 0 10px 0'>
+                @if(!Auth::user()->isParticipante())
                 <a class="btn btn-default {{(isset($files[0])) ? '' : 'disabled'}}" style='margin-right:5px' href="{{url('download/'.$curso->id.'/1')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Facilitador</a>
-                <a class="btn btn-default {{(isset($files[1])) ? '' : 'disabled'}}"  style='margin-right:5px' href="{{url('download/'.$curso->id.'/2')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Usuario</a>
+                @endif
+                <a class="btn btn-default {{(isset($files[1])) ? '' : 'disabled'}}"  style='margin-right:5px' href="{{url('download/'.$curso->id.'/2')}}" role="button"><i class="fa fa-file-pdf-o"></i> Manual de Participante</a>
+                @if(!Auth::user()->isParticipante())
                 <a class="btn btn-default {{(isset($files[2])) ? '' : 'disabled'}}"  style='margin-right:5px' href="{{url('download/'.$curso->id.'/3')}}" role="button"><i class="fa fa-file-pdf-o"></i> Guia</a>
                 <a class="btn btn-default {{(isset($files[3])) ? '' : 'disabled'}}" href="{{url('download/'.$curso->id.'/4')}}" role="button"><i class="fa fa-file-pdf-o"></i> Presentacion</a>
-                
+                @endif
             </div>
         </div>
 

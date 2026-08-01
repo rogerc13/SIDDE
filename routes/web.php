@@ -32,11 +32,11 @@ Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
 Route::get('assign-test', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
-Route::get('download/{id}/{type}','App\Http\Controllers\CursoController@download');
-
 
 Route::group(['middleware' => 'auth'], function ()
 {
+    Route::get('download/{id}/{type}', 'App\Http\Controllers\CursoController@download');
+
     Route::group(['prefix' => 'u'], function()
     {
         Route::post('/codes', 'App\Http\Controllers\CursoController@codeCheck'); //ajax call to check if code already exists
