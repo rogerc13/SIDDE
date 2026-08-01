@@ -183,7 +183,7 @@
 								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-users"></i>
 								  </a>
-								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{$cursop->atMaxCapacity() ? 'disabled' :''}}">
+								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' :''}}">
 								      <i class="entypo-user-add"></i>
 								  </a>
 							  @endcan

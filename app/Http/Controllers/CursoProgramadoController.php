@@ -354,7 +354,14 @@ class CursoProgramadoController extends Controller
         $scheduledId = $request->scheduled_id;
         
         $scheduledCourse = Scheduled::with('course')->find($scheduledId);
-        //return response()->json($scheduledCourse);
+
+        if (!$scheduledCourse->isPorDictar()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden asignar participantes a una acción de formación que no esté por dictar.'
+            ]);
+        }
+
         $courseMaxCapacity = $scheduledCourse->course->capacity[0]->max;
 
         //check current amount of participants

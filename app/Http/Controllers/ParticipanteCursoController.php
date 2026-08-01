@@ -163,6 +163,10 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado se encuentra a su máxima capacidad."));
         }
+        if(!$cursoprogramado->isPorDictar()){
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "No se pueden registrar participantes en una acción de formación que no esté por dictar."));
+        }
         $usuario = new User([
             'role_id' => 5,
             'email' => $request->email,
@@ -223,7 +227,13 @@ class ParticipanteCursoController extends Controller
             return Redirect::back()
                      ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
         }
-        
+
+        $cursoprogramadoCheck = Scheduled::find($request->curso_p_id);
+        if ($cursoprogramadoCheck && !$cursoprogramadoCheck->isPorDictar()) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "No se pueden asignar participantes a una acción de formación que no esté por dictar."));
+        }
+
         $validacion= Participant::where('scheduled_id',$request->curso_p_id)
                                         ->where('person_id',$request->participante)
                                         ->count();

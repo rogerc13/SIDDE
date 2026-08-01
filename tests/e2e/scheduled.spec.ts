@@ -17,6 +17,65 @@ async function selectSelect2ById(page: any, selectId: string) {
     await page.waitForTimeout(200);
 }
 
+function formatDate(d: Date): string {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+async function scheduleFutureCourse(page: any) {
+    await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
+    await page.waitForSelector('#programar-form:not(.hidden)');
+
+    await selectSelect2ById(page, 'titulo');
+    await selectSelect2ById(page, 'facilitador');
+
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() + 30);
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 45);
+
+    const startStr = formatDate(startDate);
+    const endStr = formatDate(endDate);
+
+    await page.evaluate(({ start, end }: { start: string; end: string }) => {
+        const jq = (window as any).jQuery;
+        jq('#fecha_i').val(start).trigger('change');
+        jq('#fecha_f').val(end).trigger('change');
+    }, { start: startStr, end: endStr });
+
+    await page.click('#accion-aceptar');
+    await page.waitForLoadState('load');
+    await expect(page.locator('.alert-success').first()).toBeVisible();
+}
+
+async function scheduleActiveCourse(page: any) {
+    await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
+    await page.waitForSelector('#programar-form:not(.hidden)');
+
+    await selectSelect2ById(page, 'titulo');
+    await selectSelect2ById(page, 'facilitador');
+
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 30);
+
+    const startStr = formatDate(today);
+    const endStr = formatDate(endDate);
+
+    await page.evaluate(({ start, end }: { start: string; end: string }) => {
+        const jq = (window as any).jQuery;
+        jq('#fecha_i').val(start).trigger('change');
+        jq('#fecha_f').val(end).trigger('change');
+    }, { start: startStr, end: endStr });
+
+    await page.click('#accion-aceptar');
+    await page.waitForLoadState('load');
+    await expect(page.locator('.alert-success').first()).toBeVisible();
+}
+
 test.describe('Scheduled Courses CRUD', () => {
     test.beforeEach(async ({ page }) => {
         await loginAs(page, 'admin');
@@ -108,6 +167,114 @@ test.describe('Scheduled Courses CRUD', () => {
                 await page.waitForLoadState('load');
                 await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
             }
+        }
+    });
+});
+
+test.describe('Participant Assignment', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/af_programadas');
+    });
+
+    test('assigns a participant to a POR_DICTAR course', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const assignLink = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignLink).not.toHaveClass(/disabled/);
+        await assignLink.click();
+
+        await page.waitForSelector('#asignar-modal.in');
+        await page.waitForFunction(() => {
+            const select = document.getElementById('participante') as HTMLSelectElement;
+            return select && select.options.length > 1;
+        }, { timeout: 5000 });
+
+        await selectSelect2ById(page, 'participante');
+        await page.click('#usuario-aceptar');
+        await page.waitForLoadState('load');
+        await expect(page.locator('.alert-success').first()).toBeVisible();
+    });
+
+    test('shows disabled assign button for En Curso course', async ({ page }) => {
+        await scheduleActiveCourse(page);
+        await page.goto('/u/af_programadas?id_estado=2');
+        const assignButton = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignButton).toHaveClass(/disabled/);
+    });
+
+    test('shows disabled assign button for Culminado course', async ({ page }) => {
+        await page.goto('/u/af_programadas?id_estado=3');
+        const assignButton = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignButton).toHaveClass(/disabled/);
+    });
+
+    test('assignList returns error for En Curso course', async ({ page }) => {
+        await scheduleActiveCourse(page);
+        await page.goto('/u/af_programadas?id_estado=2');
+        const assignButton = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignButton).toBeVisible({ timeout: 5000 });
+        const href = await assignButton.getAttribute('href');
+        const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
+        expect(urlMatch).toBeTruthy();
+
+        if (urlMatch) {
+            await page.evaluate(({ url, id }: { url: string; id: string }) => {
+                (window as any).asignarParticipanteLista(url, id);
+            }, { url: urlMatch[1], id: urlMatch[2] });
+
+            await page.waitForSelector('#asignar-modal.in');
+            await page.waitForTimeout(1500);
+
+            const errorText = await page.locator('.capacity-error-text').textContent();
+            expect(errorText).toContain('No se pueden asignar participantes');
+        }
+    });
+
+    test('assignList returns error for Culminado course', async ({ page }) => {
+        await page.goto('/u/af_programadas?id_estado=3');
+        const assignButton = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignButton).toBeVisible({ timeout: 5000 });
+        const href = await assignButton.getAttribute('href');
+        const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
+        expect(urlMatch).toBeTruthy();
+
+        if (urlMatch) {
+            await page.evaluate(({ url, id }: { url: string; id: string }) => {
+                (window as any).asignarParticipanteLista(url, id);
+            }, { url: urlMatch[1], id: urlMatch[2] });
+
+            await page.waitForSelector('#asignar-modal.in');
+            await page.waitForTimeout(1500);
+
+            const errorText = await page.locator('.capacity-error-text').textContent();
+            expect(errorText).toContain('No se pueden asignar participantes');
+        }
+    });
+
+    test('blocks POST assignment to En Curso course', async ({ page }) => {
+        await scheduleActiveCourse(page);
+        await page.goto('/u/af_programadas?id_estado=2');
+        const assignButton = page.locator('a[title="Asignar participante"]').first();
+        await expect(assignButton).toBeVisible({ timeout: 5000 });
+        const href = await assignButton.getAttribute('href');
+        const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
+        expect(urlMatch).toBeTruthy();
+
+        if (urlMatch) {
+            await page.evaluate(({ url, id }: { url: string; id: string }) => {
+                (window as any).asignarParticipanteLista(url, id);
+            }, { url: urlMatch[1], id: urlMatch[2] });
+
+            await page.waitForSelector('#asignar-modal.in');
+            await page.waitForTimeout(1500);
+
+            await page.evaluate(() => {
+                const form = document.getElementById('asignar-form') as HTMLFormElement;
+                if (form) form.submit();
+            });
+            await page.waitForLoadState('load');
+            await expect(page.locator('.alert-danger').first()).toBeVisible();
         }
     });
 });
