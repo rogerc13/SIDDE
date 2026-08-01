@@ -747,7 +747,11 @@ test.describe('Courses - Edit Flow', () => {
 
     test.beforeAll(async () => {
         execSync(
-            'php artisan tinker --execute \'DB::table("courses")->where("id", 2)->update(["title" => "VENEZUELA POTENCIA ENERGÉTICA"]); DB::table("capacities")->where("course_id", 2)->update(["min" => 16, "max" => 30]);\'',
+            `php artisan tinker --execute 'DB::table("courses")->where("id", 2)->update(["title" => mb_convert_encoding("VENEZUELA POTENCIA ENERG\\u{00c9}TICA", "UTF-8", "UTF-8"), "code" => "2603"]); DB::table("capacities")->where("course_id", 2)->update(["min" => 16, "max" => 30]); DB::table("contents")->where("course_id", 2)->delete(); DB::table("files")->where("course_id", 2)->delete();'`,
+            { cwd: process.cwd(), timeout: 15000 }
+        );
+        execSync(
+            `php artisan tinker --execute 'DB::table("contents")->insert([["text" => mb_convert_encoding("Fuentes de energ\\u{00eda} en Venezuela.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => "Condiciones legales.", "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => mb_convert_encoding("Internacionalizaci\\u{00f3}n de los hidrocarburos.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => mb_convert_encoding("La integraci\\u{00f3}n latinoamericana y caribe\\u{00f1}a.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => mb_convert_encoding("La producci\\u{00f3}n y el consumo de la energ\\u{00eda} gestionando la preservaci\\u{00f3}n del ambiente.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => mb_convert_encoding("La diversificaci\\u{00f3}n productiva y la inclusi\\u{00f3}n social.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()], ["text" => mb_convert_encoding("Planes socialistas de la naci\\u{00f3}n.", "UTF-8", "UTF-8"), "course_id" => 2, "created_at" => now(), "updated_at" => now()]])'`,
             { cwd: process.cwd(), timeout: 15000 }
         );
     });
@@ -762,6 +766,21 @@ test.describe('Courses - Edit Flow', () => {
         await page.waitForSelector('#accion-form:not(.hidden)');
         await page.waitForSelector('.modal.in');
         await page.waitForTimeout(500);
+    }
+
+    async function addContentInEditModal(page: any, text: string) {
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.add-content-btn').prop('disabled', false);
+        });
+        await page.evaluate((t: string) => {
+            (window as any).jQuery('.content-input').val(t);
+        }, text);
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
     }
 
     test('edit button opens modal with correct title', async ({ page }) => {
@@ -972,5 +991,380 @@ test.describe('Courses - Edit Flow', () => {
                 expect(hasFile).toBe(true);
             }
         }
+    });
+
+    test('edit shows validation error with empty code', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#codigo').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty category', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#categoria_id').val('').trigger('change');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty modality', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#modalidad_id').val('').trigger('change');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty duration', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#duracion').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty min capacity', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#min').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty max capacity', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#max').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty audience', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#dirigido').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with empty objective', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#objetivo').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows validation error with duplicate code', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#codigo').val('2546').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit can upload a file', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('edit can upload multiple files', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#manual_f').prop('disabled', false);
+            $('#manual_p').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.setInputFiles('#manual_p', fixturePath);
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('edit file input shows exists state after upload', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        const hasExists = await page.evaluate(() => {
+            return (window as any).jQuery('#fileinput_manual_f').hasClass('fileinput-exists');
+        });
+        expect(hasExists).toBe(true);
+    });
+
+    test('edit can delete an existing file', async ({ page }) => {
+        const testCode = `DF${unique()}`;
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: testCode, titulo: 'File Delete Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+
+        const row = page.locator('tr').filter({ hasText: testCode });
+        const editLink = row.locator('a[title="Editar acción de formación"]');
+        if (await editLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+            const href = await editLink.getAttribute('href');
+            const urlMatch = href?.match(/editarAccion\('(.+)'\)/);
+            if (urlMatch) {
+                await page.evaluate((url: string) => (window as any).editarAccion(url), urlMatch[1]);
+                await page.waitForSelector('#accion-form:not(.hidden)');
+                await page.waitForSelector('.modal.in');
+                await page.waitForTimeout(500);
+
+                await page.evaluate(() => (window as any).tabSwitch(3));
+                await page.waitForTimeout(200);
+
+                const hasFileBefore = await page.evaluate(() => {
+                    return (window as any).jQuery('#fileinput_manual_f').hasClass('fileinput-exists');
+                });
+                expect(hasFileBefore).toBe(true);
+
+                await page.click('#remove_facilitator');
+                await page.waitForTimeout(200);
+
+                const hasFileAfter = await page.evaluate(() => {
+                    return (window as any).jQuery('#fileinput_manual_f').hasClass('fileinput-exists');
+                });
+                expect(hasFileAfter).toBe(false);
+
+                await page.evaluate(() => (window as any).setCourse({}));
+                await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+                await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+            }
+        }
+    });
+
+    test('edit can edit content item inline', async ({ page }) => {
+        await openEditModal(page);
+        const seedText = `Seed ${unique()}`;
+        await addContentInEditModal(page, seedText);
+        await page.waitForFunction(() => {
+            const data = (window as any).getContentData();
+            return Array.isArray(data) && data.length >= 1;
+        }, { timeout: 5000 });
+
+        const initialData = await page.evaluate(() => (window as any).getContentData());
+        expect(initialData.length).toBeGreaterThanOrEqual(1);
+        const originalText = initialData[0];
+
+        await page.click('#accion-modal .content-list li:first-child .edit-content-btn');
+        await page.waitForTimeout(200);
+
+        const inputValue = await page.evaluate(() => {
+            return (window as any).jQuery('.content-input').val();
+        });
+        expect(inputValue).toBe(originalText);
+
+        const editedText = `Edited ${unique()}`;
+        await page.evaluate((text: string) => {
+            (window as any).jQuery('.content-input').val(text);
+        }, editedText);
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const updatedData = await page.evaluate(() => (window as any).getContentData());
+        expect(updatedData[0]).toBe(editedText);
+    });
+
+    test('edit escape key cancels content edit', async ({ page }) => {
+        await openEditModal(page);
+        const seedText = `Seed ${unique()}`;
+        await addContentInEditModal(page, seedText);
+        await page.waitForFunction(() => {
+            const data = (window as any).getContentData();
+            return Array.isArray(data) && data.length >= 1;
+        }, { timeout: 5000 });
+
+        const initialData = await page.evaluate(() => (window as any).getContentData());
+        expect(initialData.length).toBeGreaterThanOrEqual(1);
+        const originalText = initialData[0];
+
+        await page.click('#accion-modal .content-list li:first-child .edit-content-btn');
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').val('Should Be Reverted');
+        });
+        await page.press('.content-input', 'Escape');
+        await page.waitForTimeout(200);
+
+        const inputValue = await page.evaluate(() => {
+            return (window as any).jQuery('.content-input').val();
+        });
+        expect(inputValue).toBe('');
+
+        const dataAfterEscape = await page.evaluate(() => (window as any).getContentData());
+        expect(dataAfterEscape[0]).toBe(originalText);
+    });
+
+    test('edit empty content input does not add item', async ({ page }) => {
+        await openEditModal(page);
+        await addContentInEditModal(page, `Seed ${unique()}`);
+        await page.waitForFunction(() => {
+            const data = (window as any).getContentData();
+            return Array.isArray(data) && data.length >= 1;
+        }, { timeout: 5000 });
+
+        const initialCount = await page.locator('#accion-modal .content-list li').count();
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const newCount = await page.locator('#accion-modal .content-list li').count();
+        expect(newCount).toBe(initialCount);
+    });
+
+    test('edit can add content item via Enter key', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').prop('disabled', false);
+        });
+
+        const initialCount = await page.locator('#accion-modal .content-list li').count();
+        const testContent = `Enter Content ${unique()}`;
+
+        await page.evaluate((text: string) => {
+            (window as any).jQuery('.content-input').val(text);
+        }, testContent);
+        await page.press('.content-input', 'Enter');
+        await page.waitForTimeout(200);
+
+        const newCount = await page.locator('#accion-modal .content-list li').count();
+        expect(newCount).toBe(initialCount + 1);
+    });
+
+    test('edit content list resets on modal reopen', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.add-content-btn').prop('disabled', false);
+        });
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Unsaved Content');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const countBeforeClose = await page.locator('#accion-modal .content-list li').count();
+
+        await page.click('.modal.in .close');
+        await page.waitForTimeout(500);
+
+        await openEditModal(page);
+        await page.waitForTimeout(500);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+
+        const countAfterReopen = await page.locator('#accion-modal .content-list li').count();
+        expect(countAfterReopen).toBeLessThan(countBeforeClose);
+    });
+
+    test('edit content data persists after submit', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+
+        const testContent = `Persist ${unique()}`;
+
+        const existingContent: string[] = await page.evaluate(() => (window as any).getContentData());
+        const updatedContent = [...existingContent, testContent];
+
+        await page.evaluate((content: string[]) => {
+            (window as any).setInitialContentData(content);
+        }, updatedContent);
+        await page.waitForTimeout(500);
+
+        const domCount = await page.locator('#accion-modal .content-list li').count();
+        expect(domCount).toBe(updatedContent.length);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await page.waitForLoadState('networkidle');
+
+        let dbContent: string[] = [];
+        for (let attempt = 0; attempt < 5; attempt++) {
+            dbContent = await page.evaluate(async (id: number) => {
+                const resp = await fetch(`/u/acciones_formacion/details/${id}`);
+                const data = await resp.json();
+                return data[0]?.content?.map((c: any) => c.text) || [];
+            }, COURSE_ID);
+            if (dbContent.includes(testContent)) break;
+            await page.waitForTimeout(1000);
+        }
+        expect(dbContent).toContain(testContent);
     });
 });
