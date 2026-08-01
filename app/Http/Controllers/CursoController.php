@@ -32,7 +32,7 @@ class CursoController extends Controller
             return json_encode([]);
         }
 
-        $curso = Course::with(['Content', 'File', 'Capacity', 'prerequisite'])->where('id', $id)->get();
+        $curso = Course::with(['content', 'file', 'capacity', 'prerequisite'])->where('id', $id)->get();
         if (!$curso) {
             return json_encode([]);
         }
@@ -466,7 +466,7 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Course::with(['File', 'Capacity', 'Prerequisite.prerequisite', 'Content'])/* ->with('File') */
+        $curso = Course::with(['File', 'Capacity', 'Prerequisite.prerequisite', 'content'])/* ->with('File') */
             //->with('Capacity')
             //->with('prerequisite.prerequisite')
             //->with(DB::raw(Course::where('id', Prerequisite::where('course_id', $id)->select('prerequisite_id'))->select('title')->get()))
