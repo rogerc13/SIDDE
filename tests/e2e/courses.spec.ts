@@ -483,3 +483,260 @@ test.describe('Courses - Documents / File Upload', () => {
         expect(inputHidden).toBe(1);
     });
 });
+
+test.describe('Courses - Content List', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    async function navigateToTab3(page: any) {
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `CL${unique()}`, titulo: 'Content List Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.add-content-btn').prop('disabled', false);
+        });
+    }
+
+    test('content list is empty by default', async ({ page }) => {
+        await navigateToTab3(page);
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(0);
+    });
+
+    test('add content item via button click', async ({ page }) => {
+        await navigateToTab3(page);
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Introduction to Python');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(1);
+        const text = await page.locator('#accion-modal .content-list li .content-text').first().textContent();
+        expect(text).toBe('Introduction to Python');
+    });
+
+    test('add content item via Enter key', async ({ page }) => {
+        await navigateToTab3(page);
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Data Types and Variables');
+        });
+        await page.click('.content-input');
+        await page.press('.content-input', 'Enter');
+        await page.waitForTimeout(200);
+
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(1);
+        const text = await page.locator('#accion-modal .content-list li .content-text').first().textContent();
+        expect(text).toBe('Data Types and Variables');
+    });
+
+    test('add multiple content items', async ({ page }) => {
+        await navigateToTab3(page);
+
+        for (const item of ['Module 1', 'Module 2', 'Module 3']) {
+            await page.evaluate((text: string) => {
+                (window as any).jQuery('.content-input').val(text);
+            }, item);
+            await page.click('.add-content-btn');
+            await page.waitForTimeout(100);
+        }
+
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(3);
+
+        const texts = await page.locator('#accion-modal .content-list li .content-text').allTextContents();
+        expect(texts).toEqual(['Module 1', 'Module 2', 'Module 3']);
+    });
+
+    test('edit content item', async ({ page }) => {
+        await navigateToTab3(page);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Original Content');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        await page.click('.edit-content-btn');
+        await page.waitForTimeout(100);
+
+        const inputValue = await page.evaluate(() => {
+            return (window as any).jQuery('.content-input').val();
+        });
+        expect(inputValue).toBe('Original Content');
+
+        const buttonText = await page.evaluate(() => {
+            return (window as any).jQuery('.add-content-btn').text().trim();
+        });
+        expect(buttonText).toContain('Guardar');
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Updated Content');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const text = await page.locator('#accion-modal .content-list li .content-text').first().textContent();
+        expect(text).toBe('Updated Content');
+    });
+
+    test('remove content item', async ({ page }) => {
+        await navigateToTab3(page);
+
+        for (const item of ['Item A', 'Item B', 'Item C']) {
+            await page.evaluate((text: string) => {
+                (window as any).jQuery('.content-input').val(text);
+            }, item);
+            await page.click('.add-content-btn');
+            await page.waitForTimeout(100);
+        }
+
+        let listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(3);
+
+        await page.click('#accion-modal .content-list li:first-child .remove-content-btn');
+        await page.waitForTimeout(200);
+
+        listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(2);
+
+        const texts = await page.locator('#accion-modal .content-list li .content-text').allTextContents();
+        expect(texts).toEqual(['Item B', 'Item C']);
+    });
+
+    test('empty input does not add content', async ({ page }) => {
+        await navigateToTab3(page);
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(0);
+    });
+
+    test('Escape key cancels edit mode', async ({ page }) => {
+        await navigateToTab3(page);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Persistent Content');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        await page.click('.edit-content-btn');
+        await page.waitForTimeout(100);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Should Not Save');
+        });
+        await page.press('.content-input', 'Escape');
+        await page.waitForTimeout(200);
+
+        const buttonText = await page.evaluate(() => {
+            return (window as any).jQuery('.add-content-btn').text().trim();
+        });
+        expect(buttonText).toContain('Añadir');
+
+        const text = await page.locator('#accion-modal .content-list li .content-text').first().textContent();
+        expect(text).toBe('Persistent Content');
+    });
+
+    test('content list resets when modal closes', async ({ page }) => {
+        await navigateToTab3(page);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('Should Clear');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        let listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(1);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#accion-modal').modal('hide');
+        });
+        await page.waitForTimeout(500);
+
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `CR${unique()}`, titulo: 'Reset Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+        });
+
+        listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBe(0);
+    });
+
+    test('content data is submitted with course creation', async ({ page }) => {
+        const testCode = `CD${unique()}`;
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: testCode, titulo: 'Content Data Course', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.add-content-btn').prop('disabled', false);
+        });
+
+        for (const item of ['Intro', 'Body', 'Conclusion']) {
+            await page.evaluate((text: string) => {
+                (window as any).jQuery('.content-input').val(text);
+            }, item);
+            await page.click('.add-content-btn');
+            await page.waitForTimeout(100);
+        }
+
+        const contentData = await page.evaluate(() => {
+            return (window as any).getContentData();
+        });
+        expect(contentData).toEqual(['Intro', 'Body', 'Conclusion']);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+});
+
+test.describe('Courses - Objective', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    test('objective textarea has maxlength of 3000', async ({ page }) => {
+        await openCourseModal(page);
+        const maxlength = await page.evaluate(() => {
+            const textarea = document.getElementById('objetivo') as HTMLTextAreaElement;
+            return textarea ? textarea.maxLength : -1;
+        });
+        expect(maxlength).toBe(3000);
+    });
+
+    test('objective accepts long text within limit', async ({ page }) => {
+        const longText = 'A'.repeat(2500);
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: `OT${unique()}`, titulo: 'Objective Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: longText });
+
+        const value = await page.evaluate(() => {
+            return (window as any).jQuery('#objetivo').val();
+        });
+        expect(value).toBe(longText);
+    });
+});
