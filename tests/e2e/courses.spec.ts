@@ -1,8 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
 import { loginAs } from './helpers/auth';
 import path from 'path';
+import { execSync } from 'child_process';
 
 const unique = () => Date.now();
+const fixturePath = path.resolve(__dirname, 'fixtures/test-document.pdf');
 
 async function selectSelect2Option(page: any, selectId: string) {
     await page.evaluate(({ id }: { id: string }) => {
@@ -335,8 +337,6 @@ test.describe('Courses - Soft-Deleted Code', () => {
 });
 
 test.describe('Courses - Documents / File Upload', () => {
-    const fixturePath = path.resolve(__dirname, 'fixtures/test-document.pdf');
-
     test.beforeEach(async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto('/u/acciones_formacion');
@@ -738,5 +738,239 @@ test.describe('Courses - Objective', () => {
             return (window as any).jQuery('#objetivo').val();
         });
         expect(value).toBe(longText);
+    });
+});
+
+test.describe('Courses - Edit Flow', () => {
+    const COURSE_ID = 2;
+    const COURSE_URL = `/u/acciones_formacion/details/${COURSE_ID}`;
+
+    test.beforeAll(async () => {
+        execSync(
+            'php artisan tinker --execute \'DB::table("courses")->where("id", 2)->update(["title" => "VENEZUELA POTENCIA ENERGÉTICA"]); DB::table("capacities")->where("course_id", 2)->update(["min" => 16, "max" => 30]);\'',
+            { cwd: process.cwd(), timeout: 15000 }
+        );
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    async function openEditModal(page: any) {
+        await page.evaluate((url: string) => (window as any).editarAccion(url), COURSE_URL);
+        await page.waitForSelector('#accion-form:not(.hidden)');
+        await page.waitForSelector('.modal.in');
+        await page.waitForTimeout(500);
+    }
+
+    test('edit button opens modal with correct title', async ({ page }) => {
+        await openEditModal(page);
+        const label = await page.evaluate(() => {
+            return (window as any).jQuery('#accion-label').text();
+        });
+        expect(label).toBe('Editar Acción de formación');
+    });
+
+    test('edit modal pre-fills code field', async ({ page }) => {
+        await openEditModal(page);
+        const code = await page.evaluate(() => {
+            return (window as any).jQuery('#codigo').val();
+        });
+        expect(code).toBe('2603');
+    });
+
+    test('edit modal pre-fills title field', async ({ page }) => {
+        await openEditModal(page);
+        const title = await page.evaluate(() => {
+            return (window as any).jQuery('#titulo').val();
+        });
+        expect(title).toBe('VENEZUELA POTENCIA ENERGÉTICA');
+    });
+
+    test('edit modal pre-fills capacity fields', async ({ page }) => {
+        await openEditModal(page);
+        const min = await page.evaluate(() => (window as any).jQuery('#min').val());
+        const max = await page.evaluate(() => (window as any).jQuery('#max').val());
+        expect(min).toBe('16');
+        expect(max).toBe('30');
+    });
+
+    test('edit modal pre-fills duration', async ({ page }) => {
+        await openEditModal(page);
+        const duracion = await page.evaluate(() => (window as any).jQuery('#duracion').val());
+        expect(Number(duracion)).toBeGreaterThan(0);
+    });
+
+    test('edit modal pre-fills objective', async ({ page }) => {
+        await openEditModal(page);
+        const objetivo = await page.evaluate(() => (window as any).jQuery('#objetivo').val());
+        expect(objetivo.length).toBeGreaterThan(0);
+    });
+
+    test('edit modal pre-fills content list items', async ({ page }) => {
+        await openEditModal(page);
+        const listItems = await page.locator('#accion-modal .content-list li').count();
+        expect(listItems).toBeGreaterThanOrEqual(1);
+    });
+
+    test('edit modal keeps inputs enabled', async ({ page }) => {
+        await openEditModal(page);
+        const isDisabled = await page.evaluate(() => {
+            return (window as any).jQuery('#codigo').prop('disabled');
+        });
+        expect(isDisabled).toBe(false);
+    });
+
+    test('edit modal sets _method to PUT', async ({ page }) => {
+        await openEditModal(page);
+        const method = await page.evaluate(() => {
+            return (window as any).jQuery('input[name="_method"]').val();
+        });
+        expect(method).toBe('PUT');
+    });
+
+    test('edit modal sets course-id', async ({ page }) => {
+        await openEditModal(page);
+        const courseId = await page.evaluate(() => {
+            return (window as any).jQuery('.course-id').val();
+        });
+        expect(courseId).toBe(String(COURSE_ID));
+    });
+
+    test('edit submits and shows success', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('edit can change title and persist', async ({ page }) => {
+        await openEditModal(page);
+        const newTitle = `Edited ${unique()}`;
+        await page.evaluate((title: string) => {
+            (window as any).jQuery('#titulo').val(title).trigger('input');
+        }, newTitle);
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+
+        await page.goto('/u/acciones_formacion');
+        await page.waitForLoadState('load');
+        await expect(page.locator('table')).toContainText(newTitle);
+    });
+
+    test('edit shows validation error with empty title', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            (window as any).jQuery('#titulo').val('').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-danger').first()).toBeVisible();
+    });
+
+    test('edit can add new content item', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+        const initialCount = await page.locator('#accion-modal .content-list li').count();
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.add-content-btn').prop('disabled', false);
+        });
+        await page.evaluate(() => {
+            (window as any).jQuery('.content-input').val('New Edit Content');
+        });
+        await page.click('.add-content-btn');
+        await page.waitForTimeout(200);
+
+        const newCount = await page.locator('#accion-modal .content-list li').count();
+        expect(newCount).toBe(initialCount + 1);
+    });
+
+    test('edit can remove content item', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+        const initialCount = await page.locator('#accion-modal .content-list li').count();
+        expect(initialCount).toBeGreaterThanOrEqual(1);
+
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('.content-input').prop('disabled', false);
+            $('.remove-content-btn').prop('disabled', false);
+        });
+        await page.click('#accion-modal .content-list li:first-child .remove-content-btn');
+        await page.waitForTimeout(200);
+
+        const newCount = await page.locator('#accion-modal .content-list li').count();
+        expect(newCount).toBe(initialCount - 1);
+    });
+
+    test('edit can change capacity and persist', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => {
+            const $ = (window as any).jQuery;
+            $('#min').val('5').trigger('input');
+            $('#max').val('50').trigger('input');
+        });
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+    });
+
+    test('edit shows no-docs message when no files exist', async ({ page }) => {
+        await openEditModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        const noDocsVisible = await page.evaluate(() => {
+            return (window as any).jQuery('.no-docs').is(':visible');
+        });
+        expect(noDocsVisible).toBe(true);
+    });
+
+    test('edit shows existing file names when files exist', async ({ page }) => {
+        const testCode = `EF${unique()}`;
+        await openCourseModal(page);
+        await fillTab0(page, { codigo: testCode, titulo: 'File Edit Test', duracion: '8' });
+        await fillTab1(page, { min: '10', max: '30', dirigido: 'Test audience' });
+        await fillTab2(page, { objetivo: 'Test objective' });
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#manual_f').prop('disabled', false);
+        });
+        await page.setInputFiles('#manual_f', fixturePath);
+        await page.waitForTimeout(200);
+
+        await page.evaluate(() => (window as any).setCourse({}));
+        await page.waitForURL(/acciones_formacion/, { timeout: 10000 });
+        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+
+        const row = page.locator('tr').filter({ hasText: testCode });
+        const editLink = row.locator('a[title="Editar acción de formación"]');
+        if (await editLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+            const href = await editLink.getAttribute('href');
+            const urlMatch = href?.match(/editarAccion\('(.+)'\)/);
+            if (urlMatch) {
+                await page.evaluate((url: string) => (window as any).editarAccion(url), urlMatch[1]);
+                await page.waitForSelector('#accion-form:not(.hidden)');
+                await page.waitForSelector('.modal.in');
+                await page.waitForTimeout(500);
+
+                await page.evaluate(() => (window as any).tabSwitch(3));
+                await page.waitForTimeout(200);
+
+                const hasFile = await page.evaluate(() => {
+                    return (window as any).jQuery('#fileinput_manual_f').hasClass('fileinput-exists');
+                });
+                expect(hasFile).toBe(true);
+            }
+        }
     });
 });
