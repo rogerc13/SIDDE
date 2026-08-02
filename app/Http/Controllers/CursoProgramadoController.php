@@ -11,10 +11,12 @@ use App\Models\Funciones;
 use App\Models\Participant;
 use App\Models\Person;
 use App\Models\Prerequisite;
+use App\Models\CourseSession;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\CursoProgramadoForm;
+use App\Http\Requests\CourseScheduleForm;
 use App\Models\Facilitator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -461,5 +463,74 @@ class CursoProgramadoController extends Controller
         return Redirect::back()
             ->with("alert", Funciones::getAlert("danger", "Error al Intentar Cancelar", "No tienes permisos para realizar esta acción."));
     }//end cancel af programadas / courses
+
+    public function schedule(CourseScheduleForm $request)
+    {
+        $user = Auth::user();
+
+        if ($user->cannot('store', Scheduled::class)) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
+        }
+
+        $course = Course::find($request->titulo);
+
+        // Create scheduled course
+        $scheduled = new Scheduled();
+        $scheduled->course_id = $request->titulo;
+        $scheduled->facilitator_id = $request->facilitador;
+        $dates = collect($request->sessions);
+        $scheduled->start_date = $dates->min('session_date');
+        $scheduled->end_date = $dates->max('session_date');
+
+        if (today() < $scheduled->start_date)
+            $scheduled->course_status_id = CourseStatus::POR_DICTAR;
+        else if (today() <= $scheduled->end_date)
+            $scheduled->course_status_id = CourseStatus::EN_CURSO;
+
+        if ($scheduled->save()) {
+            // Create sessions
+            foreach ($request->sessions as $session) {
+                CourseSession::create([
+                    'scheduled_course_id' => $scheduled->id,
+                    'location_id' => $session['location_id'],
+                    'session_date' => $session['session_date'],
+                    'start_time' => $session['start_time'],
+                    'end_time' => $session['end_time'],
+                    'notes' => $session['notes'] ?? null,
+                ]);
+            }
+
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("success", "Curso Programado Exitosamente", "Operación Exitosa."));
+        }
+
+        return Redirect::back()
+            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Programar Curso", "Operación Errónea."));
+    }
+
+    public function getBlockedSlots(Request $request)
+    {
+        $start = $request->input('start');
+        $end = $request->input('end');
+
+        $sessions = CourseSession::with('location')
+            ->whereBetween('session_date', [$start, $end])
+            ->whereNull('deleted_at')
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'id' => 'blocked-' . $s->id,
+                    'title' => $s->location->name . ' (Ocupado)',
+                    'start' => $s->session_date . 'T' . $s->start_time,
+                    'end' => $s->session_date . 'T' . $s->end_time,
+                    'color' => '#999',
+                    'location_id' => $s->location_id,
+                    'rendering' => 'background',
+                ];
+            });
+
+        return response()->json($sessions);
+    }
 
 }
