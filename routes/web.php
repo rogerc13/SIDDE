@@ -155,11 +155,8 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
 
-                Route::get('/{id}/sesiones', 'App\Http\Controllers\CourseSessionController@index');
-                Route::get('/{id}/sesiones/data', 'App\Http\Controllers\CourseSessionController@data');
-                Route::post('/{id}/sesiones', 'App\Http\Controllers\CourseSessionController@store');
-                Route::put('/sesiones/{sessionId}', 'App\Http\Controllers\CourseSessionController@update');
-                Route::delete('/sesiones/{sessionId}', 'App\Http\Controllers\CourseSessionController@destroy');
+                Route::post('/schedule', 'App\Http\Controllers\CursoProgramadoController@schedule');
+                Route::get('/blocked-slots', 'App\Http\Controllers\CursoProgramadoController@getBlockedSlots');
 
                 
                 
