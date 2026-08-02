@@ -1,0 +1,12 @@
+[     107ms] [LOG] 🔍 Browser logger active (MCP server detected). Posting to: http://sidde.test/_boost/browser-logs @ http://sidde.test/u/af_programadas:90
+[   16860ms] TypeError: $(...).timepicker is not a function
+    at HTMLDivElement.<anonymous> (http://sidde.test/u/af_programadas:2313:31)
+    at HTMLDivElement.dispatch (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:8549)
+    at r.handle (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:5252)
+    at Object.trigger (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:7650)
+    at HTMLDivElement.<anonymous> (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:15517)
+    at m.each (http://sidde.test/assets/js/jquery-1.11.3.min.js:2:2975)
+    at m.fn.init.each (http://sidde.test/assets/js/jquery-1.11.3.min.js:2:835)
+    at m.fn.init.trigger (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:15493)
+    at HTMLDivElement.<anonymous> (http://sidde.test/assets/js/bootstrap.js:1012:44)
+    at HTMLDivElement.d (http://sidde.test/assets/js/jquery-1.11.3.min.js:4:14933)

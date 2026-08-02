@@ -1,0 +1,370 @@
+- generic [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - generic [ref=f5e4]:
+      - banner [ref=f5e5]:
+        - link [ref=f5e7] [cursor=pointer]:
+          - /url: http://sidde.test/home
+        - link "" [ref=f5e9] [cursor=pointer]:
+          - /url: "#"
+        - text: 
+      - link "Roger Canache Administrador" [ref=f5e13] [cursor=pointer]:
+        - /url: "#"
+        - strong [ref=f5e14]: Roger Canache
+        - generic [ref=f5e15]: Administrador
+      - list [ref=f5e16]:
+        - listitem [ref=f5e17]:
+          - generic [ref=f5e18]:
+            - generic [ref=f5e19]: 
+            - text: Buscar acciones de formación
+            - generic [ref=f5e20]:
+              - link "" [ref=f5e21] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - button [ref=f5e23] [cursor=pointer]
+              - text: 
+        - listitem "Gestión de Áreas de Conocimiento" [ref=f5e24]:
+          - link " Áreas de Conocimiento" [ref=f5e25] [cursor=pointer]:
+            - /url: http://sidde.test/u/areas
+            - generic [ref=f5e26]: 
+            - text: Áreas de Conocimiento
+        - listitem "Gestión de Ubicaciones" [ref=f5e27]:
+          - link " Ubicaciones" [ref=f5e28] [cursor=pointer]:
+            - /url: http://sidde.test/u/ubicaciones
+            - generic [ref=f5e29]: 
+            - text: Ubicaciones
+        - listitem "Gestión de Acciones de Formación" [ref=f5e30]:
+          - link " Gestión de A.F" [ref=f5e31] [cursor=pointer]:
+            - /url: http://sidde.test/u/acciones_formacion
+            - generic [ref=f5e32]: 
+            - text: Gestión de A.F
+        - listitem "Acciones de Formación Programadas" [ref=f5e33]:
+          - link " A.F Programadas" [ref=f5e34] [cursor=pointer]:
+            - /url: http://sidde.test/u/af_programadas
+            - generic [ref=f5e35]: 
+            - text: A.F Programadas
+        - listitem "Gestión de Usuarios" [ref=f5e36]:
+          - link " Usuarios" [ref=f5e37] [cursor=pointer]:
+            - /url: http://sidde.test/u/usuarios
+            - generic [ref=f5e38]: 
+            - text: Usuarios
+        - listitem "Gestión de Facilitadores" [ref=f5e39]:
+          - link " Facilitadores" [ref=f5e40] [cursor=pointer]:
+            - /url: http://sidde.test/u/facilitadores
+            - generic [ref=f5e41]: 
+            - text: Facilitadores
+        - listitem "Gestión de Participantes" [ref=f5e42]:
+          - link " Participantes" [ref=f5e43] [cursor=pointer]:
+            - /url: http://sidde.test/u/participantes
+            - generic [ref=f5e44]: 
+            - text: Participantes
+        - listitem "Reportes" [ref=f5e45]:
+          - link " Reportes" [ref=f5e46] [cursor=pointer]:
+            - /url: http://sidde.test/reports
+            - generic [ref=f5e47]: 
+            - text: Reportes
+        - listitem "Administrador" [ref=f5e48]:
+          - link " Administrador" [ref=f5e49] [cursor=pointer]:
+            - /url: http://sidde.test/database
+            - generic [ref=f5e50]: 
+            - text: Administrador
+    - generic [ref=f5e51]:
+      - heading "Acciones de Formación Programadas" [level=3] [ref=f5e52]
+      - link "Programar Acción de Formación" [ref=f5e53] [cursor=pointer]:
+        - /url: javascript:programarAccion('http://sidde.test/u/af_programadas')
+        - generic [ref=f5e54]: 
+        - text: Programar Acción de Formación
+      - button " Descargar Lista de Acciones de Formación Programadas" [ref=f5e56] [cursor=pointer]:
+        - generic [ref=f5e57]: 
+        - text: Descargar Lista de Acciones de Formación Programadas
+      - generic [ref=f5e61]:
+        - generic [ref=f5e62]:
+          - generic [ref=f5e63]: Título
+          - textbox "Título" [ref=f5e64]
+        - generic [ref=f5e65]:
+          - generic [ref=f5e66]: Facilitador
+          - generic [ref=f5e67]:
+            - link "Todos " [ref=f5e287] [cursor=pointer]:
+              - /url: javascript:void(0)
+              - generic [ref=f5e69]: Todos
+              - text: 
+            - generic [ref=f5e70]: Facilitador
+            - button "Todos" [ref=f5e71] [cursor=pointer]
+            - text: 
+        - generic [ref=f5e72]:
+          - generic [ref=f5e73]: Por Estado
+          - generic [ref=f5e74]:
+            - link "Todos " [ref=f5e288] [cursor=pointer]:
+              - /url: javascript:void(0)
+              - generic [ref=f5e76]: Todos
+              - text: 
+            - generic [ref=f5e77]: Por Estado
+            - button "Todos" [ref=f5e78] [cursor=pointer]
+            - text: 
+        - generic [ref=f5e79]:
+          - generic [ref=f5e80]: Por mes
+          - generic [ref=f5e81]:
+            - textbox "Por mes" [ref=f5e82]:
+              - /placeholder: Fechas
+            - button "" [ref=f5e84] [cursor=pointer]
+        - button "" [ref=f5e87] [cursor=pointer]
+      - generic [ref=f5e90]:
+        - generic [ref=f5e91]:
+          - generic [ref=f5e92]: Acciones de Formación Programadas
+          - table [ref=f5e95]:
+            - rowgroup [ref=f5e96]:
+              - row [ref=f5e97]:
+                - columnheader "Título" [ref=f5e98]
+                - columnheader "Facilitador" [ref=f5e99]
+                - columnheader "Fecha I." [ref=f5e100]
+                - columnheader "Fecha C." [ref=f5e101]
+                - columnheader "Registrados" [ref=f5e102]
+                - columnheader "Estado" [ref=f5e103]
+                - columnheader "" [ref=f5e104]
+            - rowgroup [ref=f5e106]:
+              - row [ref=f5e107]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e108]
+                - cell "Test Facilitador" [ref=f5e109]
+                - cell "31-08-2026" [ref=f5e110]
+                - cell "15-09-2026" [ref=f5e111]
+                - cell "1/30" [ref=f5e112]
+                - cell "Por Dictar" [ref=f5e113]
+                - cell [ref=f5e115]:
+                  - link "" [ref=f5e116] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/36/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/36/asignarParticipante','36')
+                  - link "" [ref=f5e118] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/36')
+                  - link "" [ref=f5e120] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/36')
+                  - link "" [ref=f5e122] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/36')
+              - row [ref=f5e124]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e125]
+                - cell "Test Facilitador" [ref=f5e126]
+                - cell "01-08-2026" [ref=f5e127]
+                - cell "31-08-2026" [ref=f5e128]
+                - cell "0/30" [ref=f5e129]
+                - cell "En Curso" [ref=f5e130]
+                - cell [ref=f5e132]:
+                  - link "" [ref=f5e133] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/29/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/29/asignarParticipante','29')
+                  - link "" [ref=f5e135] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/29')
+                  - link "" [ref=f5e137] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/29')
+                  - link "" [ref=f5e139] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/29')
+              - row [ref=f5e141]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e142]
+                - cell "Test Facilitador" [ref=f5e143]
+                - cell "01-08-2026" [ref=f5e144]
+                - cell "31-08-2026" [ref=f5e145]
+                - cell "0/30" [ref=f5e146]
+                - cell "En Curso" [ref=f5e147]
+                - cell [ref=f5e149]:
+                  - link "" [ref=f5e150] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/30/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/30/asignarParticipante','30')
+                  - link "" [ref=f5e152] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/30')
+                  - link "" [ref=f5e154] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/30')
+                  - link "" [ref=f5e156] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/30')
+              - row [ref=f5e158]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e159]
+                - cell "Test Facilitador" [ref=f5e160]
+                - cell "01-08-2026" [ref=f5e161]
+                - cell "31-08-2026" [ref=f5e162]
+                - cell "0/30" [ref=f5e163]
+                - cell "En Curso" [ref=f5e164]
+                - cell [ref=f5e166]:
+                  - link "" [ref=f5e167] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/31/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/31/asignarParticipante','31')
+                  - link "" [ref=f5e169] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/31')
+                  - link "" [ref=f5e171] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/31')
+                  - link "" [ref=f5e173] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/31')
+              - row [ref=f5e175]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e176]
+                - cell "Test Facilitador" [ref=f5e177]
+                - cell "01-08-2026" [ref=f5e178]
+                - cell "31-08-2026" [ref=f5e179]
+                - cell "0/30" [ref=f5e180]
+                - cell "En Curso" [ref=f5e181]
+                - cell [ref=f5e183]:
+                  - link "" [ref=f5e184] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/33/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/33/asignarParticipante','33')
+                  - link "" [ref=f5e186] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/33')
+                  - link "" [ref=f5e188] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/33')
+                  - link "" [ref=f5e190] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/33')
+              - row [ref=f5e192]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e193]
+                - cell "Test Facilitador" [ref=f5e194]
+                - cell "01-08-2026" [ref=f5e195]
+                - cell "31-08-2026" [ref=f5e196]
+                - cell "0/30" [ref=f5e197]
+                - cell "En Curso" [ref=f5e198]
+                - cell [ref=f5e200]:
+                  - link "" [ref=f5e201] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/34/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/34/asignarParticipante','34')
+                  - link "" [ref=f5e203] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/34')
+                  - link "" [ref=f5e205] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/34')
+                  - link "" [ref=f5e207] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/34')
+              - row [ref=f5e209]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e210]
+                - cell "Test Facilitador" [ref=f5e211]
+                - cell "01-08-2026" [ref=f5e212]
+                - cell "31-08-2026" [ref=f5e213]
+                - cell "0/30" [ref=f5e214]
+                - cell "En Curso" [ref=f5e215]
+                - cell [ref=f5e217]:
+                  - link "" [ref=f5e218] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/35/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/35/asignarParticipante','35')
+                  - link "" [ref=f5e220] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/35')
+                  - link "" [ref=f5e222] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/35')
+                  - link "" [ref=f5e224] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/35')
+              - row [ref=f5e226]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e227]
+                - cell "Test Facilitador" [ref=f5e228]
+                - cell "01-08-2026" [ref=f5e229]
+                - cell "31-08-2026" [ref=f5e230]
+                - cell "0/30" [ref=f5e231]
+                - cell "En Curso" [ref=f5e232]
+                - cell [ref=f5e234]:
+                  - link "" [ref=f5e235] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/37/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/37/asignarParticipante','37')
+                  - link "" [ref=f5e237] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/37')
+                  - link "" [ref=f5e239] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/37')
+                  - link "" [ref=f5e241] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/37')
+              - row [ref=f5e243]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e244]
+                - cell "Test Facilitador" [ref=f5e245]
+                - cell "01-08-2026" [ref=f5e246]
+                - cell "31-08-2026" [ref=f5e247]
+                - cell "0/30" [ref=f5e248]
+                - cell "En Curso" [ref=f5e249]
+                - cell [ref=f5e251]:
+                  - link "" [ref=f5e252] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/38/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/38/asignarParticipante','38')
+                  - link "" [ref=f5e254] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/38')
+                  - link "" [ref=f5e256] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/38')
+                  - link "" [ref=f5e258] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/38')
+              - row [ref=f5e260]:
+                - cell "Ética, Valores y Compromiso Organizacional" [ref=f5e261]
+                - cell "Test Facilitador" [ref=f5e262]
+                - cell "01-08-2026" [ref=f5e263]
+                - cell "31-08-2026" [ref=f5e264]
+                - cell "0/30" [ref=f5e265]
+                - cell "En Curso" [ref=f5e266]
+                - cell [ref=f5e268]:
+                  - link "" [ref=f5e269] [cursor=pointer]:
+                    - /url: http://sidde.test/u/af_programadas/39/participantes
+                  - link "":
+                    - /url: javascript:asignarParticipanteLista('http://sidde.test/u/af_programadas/39/asignarParticipante','39')
+                  - link "" [ref=f5e271] [cursor=pointer]:
+                    - /url: javascript:editarPrograma('http://sidde.test/u/af_programadas/39')
+                  - link "" [ref=f5e273] [cursor=pointer]:
+                    - /url: javascript:eliminarPrograma('http://sidde.test/u/af_programadas/39')
+                  - link "" [ref=f5e275] [cursor=pointer]:
+                    - /url: javascript:cancelPrograma('http://sidde.test/u/af_programadas/cancel/39')
+        - navigation [ref=f5e278]:
+          - list [ref=f5e279]:
+            - listitem "« Anterior":
+              - generic [ref=f5e280]: ‹
+            - listitem:
+              - generic [ref=f5e281]: "1"
+            - listitem:
+              - link "2" [ref=f5e282] [cursor=pointer]:
+                - /url: http://sidde.test/u/af_programadas?page=2
+            - listitem:
+              - link "Siguiente »" [ref=f5e283] [cursor=pointer]:
+                - /url: http://sidde.test/u/af_programadas?page=2
+                - text: ›
+      - contentinfo [ref=f5e284]:
+        - text: © 2023
+        - strong [ref=f5e285]: SIDDE
+  - generic:
+    - dialog [active] [ref=f5e289]:
+      - document [ref=f5e290]:
+        - generic [ref=f5e291]:
+          - generic [ref=f5e292]:
+            - button "Close" [ref=f5e293] [cursor=pointer]: ×
+            - heading "Programar Acción de Formación" [level=4] [ref=f5e294]
+          - text: 
+          - list [ref=f5e295]:
+            - listitem [ref=f5e296]:
+              - generic [ref=f5e297]: "1"
+              - generic [ref=f5e298]: Datos Generales
+            - listitem [ref=f5e299]:
+              - generic [ref=f5e300]: "2"
+              - generic [ref=f5e301]: Sesiones
+            - listitem [ref=f5e302]:
+              - generic [ref=f5e303]: "3"
+              - generic [ref=f5e304]: Revisar y Confirmar
+          - generic [ref=f5e305]:
+            - generic [ref=f5e306]:
+              - text:    
+              - generic [ref=f5e307]:
+                - generic [ref=f5e309]:
+                  - paragraph [ref=f5e310]: Seleccione un rango de fechas/horas en el calendario para agregar una sesión.
+                  - table [ref=f5e312]:
+                    - rowgroup [ref=f5e313]:
+                      - row [ref=f5e314]:
+                        - cell "‹›today" [ref=f5e315]:
+                          - generic [ref=f5e316]: ‹
+                          - generic [ref=f5e317]: ›
+                          - text: today
+                        - cell [ref=f5e318]:
+                          - heading [level=2] [ref=f5e320]
+                        - cell "monthweekday" [ref=f5e321]
+                - generic [ref=f5e322]:
+                  - generic [ref=f5e323]:
+                    - heading "Sesiones Agregadas" [level=5] [ref=f5e324]
+                    - paragraph [ref=f5e326]: No hay sesiones agregadas. Seleccione fechas en el calendario.
+                  - generic [ref=f5e327]:
+                    - heading "Control de Duración" [level=5] [ref=f5e328]
+                    - generic [ref=f5e329]:
+                      - progressbar: 0%
+                    - strong [ref=f5e332]: "Horas restantes: 8 horas"
+            - generic [ref=f5e333]:
+              - text: 
+              - button "Siguiente " [ref=f5e334] [cursor=pointer]:
+                - text: Siguiente
+                - generic [ref=f5e335]: 
+              - text: 
+              - button "Cancelar" [ref=f5e336] [cursor=pointer]
+    - text:     
+  - status [ref=f5e338]

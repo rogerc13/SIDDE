@@ -487,10 +487,16 @@ class CursoProgramadoController extends Controller
         $scheduled->start_date = $dates->min('session_date');
         $scheduled->end_date = $dates->max('session_date');
 
-        if (today() < $scheduled->start_date)
+        $today = Carbon::today();
+        $start = Carbon::parse($scheduled->start_date);
+        $end = Carbon::parse($scheduled->end_date);
+
+        if ($today < $start)
             $scheduled->course_status_id = CourseStatus::POR_DICTAR;
-        else if (today() <= $scheduled->end_date)
+        else if ($today <= $end)
             $scheduled->course_status_id = CourseStatus::EN_CURSO;
+        else
+            $scheduled->course_status_id = CourseStatus::CULMINADO;
 
         if ($scheduled->save()) {
             // Create sessions

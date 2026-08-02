@@ -17,16 +17,18 @@
     .session-row { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px; margin-bottom: 10px; position: relative; }
     .session-row .remove-session { position: absolute; top: 8px; right: 8px; }
     .duration-progress { margin-top: 10px; }
-    #wizard-calendar { min-height: 400px; }
+    #wizard-calendar { min-height: 300px; max-height: 400px; overflow-y: auto; }
     .fc-event { cursor: pointer; }
     .blocked-event { background: #999 !important; border-color: #999 !important; cursor: not-allowed !important; }
     .review-table td { vertical-align: middle !important; }
     #duration-warning { display: none; }
     .modal-xl { width: 90%; max-width: 900px; }
+    .modal-body { max-height: 70vh; overflow-y: auto; }
 </style>
 @endpush
 
 @push('JS')
+<script src="{{url('assets/js/bootstrap-timepicker.min.js')}}"></script>
 <script>
 var wizardSessions = [];
 var courseDuration = 0;
@@ -84,6 +86,20 @@ function wizardGoToStep(step) {
     }
     $('.wizard-steps li:eq(' + (step - 1) + ')').addClass('active');
 
+    if (step === 1) {
+        $('#wizard-btn-prev').hide();
+        $('#wizard-btn-next').show();
+        $('#wizard-btn-submit').hide();
+    } else if (step === 2) {
+        $('#wizard-btn-prev').show();
+        $('#wizard-btn-next').show();
+        $('#wizard-btn-submit').hide();
+    } else if (step === 3) {
+        $('#wizard-btn-prev').show();
+        $('#wizard-btn-next').hide();
+        $('#wizard-btn-submit').show();
+    }
+
     if (step === 2) {
         initWizardCalendar();
     } else if (step === 3) {
@@ -118,7 +134,7 @@ function wizardPrev(step) {
 
 function initWizardCalendar() {
     if (window.wizardCalendar) {
-        window.wizardCalendar.fullCalendar('destroy');
+        $('#wizard-calendar').fullCalendar('destroy');
     }
 
     window.wizardCalendar = $('#wizard-calendar').fullCalendar({
@@ -144,9 +160,11 @@ function initWizardCalendar() {
                     color: '#5bc0de'
                 };
             });
+            var startStr = start.getFullYear() + '-' + ('0' + (start.getMonth()+1)).slice(-2) + '-' + ('0' + start.getDate()).slice(-2);
+            var endStr = end.getFullYear() + '-' + ('0' + (end.getMonth()+1)).slice(-2) + '-' + ('0' + end.getDate()).slice(-2);
             $.get('{{ url("u/af_programadas/blocked-slots") }}', {
-                start: start.format('YYYY-MM-DD'),
-                end: end.format('YYYY-MM-DD')
+                start: startStr,
+                end: endStr
             }, function(blocked) {
                 events = events.concat(blocked);
                 callback(events);
@@ -164,9 +182,13 @@ function initWizardCalendar() {
 function openAddSessionModal(start, end) {
     $('#add-session-form')[0].reset();
     $('#add-session-location').val('').trigger('change');
-    $('#add-session-start').val(start.format('HH:mm'));
-    $('#add-session-end').val(end.format('HH:mm'));
-    $('#add-session-date').val(start.format('YYYY-MM-DD'));
+    var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+    var sh = pad(start.getHours()), sm = pad(start.getMinutes());
+    var eh = pad(end.getHours()), em = pad(end.getMinutes());
+    var sy = start.getFullYear(), smo = pad(start.getMonth()+1), sd = pad(start.getDate());
+    $('#add-session-start').val(sh + ':' + sm);
+    $('#add-session-end').val(eh + ':' + em);
+    $('#add-session-date').val(sy + '-' + smo + '-' + sd);
     $('#add-session-modal').modal('show');
     $('#add-session-location').select2({ allowClear: true, placeholder: 'Seleccionar ubicación' });
 }
@@ -212,9 +234,6 @@ function saveSessionFromModal() {
 
     $('#add-session-modal').modal('hide');
     renderSessionList();
-    if (window.wizardCalendar) {
-        window.wizardCalendar.fullCalendar('refetchEvents');
-    }
 }
 
 function computeDurationHours(start, end) {
@@ -229,9 +248,6 @@ function computeDurationHours(start, end) {
 function removeWizardSession(id) {
     wizardSessions = wizardSessions.filter(function(s) { return s.id !== id; });
     renderSessionList();
-    if (window.wizardCalendar) {
-        window.wizardCalendar.fullCalendar('refetchEvents');
-    }
 }
 
 function renderSessionList() {
@@ -330,8 +346,8 @@ function submitWizardSchedule() {
             return {
                 location_id: s.location_id,
                 session_date: s.session_date,
-                start_time: s.start_time + ':00',
-                end_time: s.end_time + ':00',
+                start_time: s.start_time,
+                end_time: s.end_time,
                 notes: s.notes || ''
             };
         })
@@ -523,6 +539,7 @@ function submitWizardSchedule() {
                 <h4 class="modal-title">Agregar Sesión</h4>
             </div>
             <div class="modal-body">
+                <form id="add-session-form">
                 <div class="form-group">
                     <div class="col-lg-12 col-md-12">
                         <label for="add-session-location">Ubicación</label>
@@ -556,6 +573,7 @@ function submitWizardSchedule() {
                         <textarea id="add-session-notes" class="form-control" rows="2" maxlength="500"></textarea>
                     </div>
                 </div>
+                </form>
             </div>
             <div class="modal-footer" style="text-align: center;">
                 <button type="button" class="btn btn-primary" onclick="saveSessionFromModal()">Agregar</button>
