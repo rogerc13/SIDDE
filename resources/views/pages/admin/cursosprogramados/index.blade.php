@@ -183,12 +183,12 @@
 								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-users"></i>
 								  </a>
-								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' :''}}">
+								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar() || count($cursop->sessions) == 0) ? 'disabled' :''}}">
 								      <i class="entypo-user-add"></i>
 								  </a>
 							  @endcan
 
-							  <a  title="Sesiones" href="{{url('u/af_programadas/'.$cursop->id.'/sesiones')}}" class="btn btn-info btn-xs">
+							  <a  title="Sesiones" href="{{url('u/af_programadas/'.$cursop->id.'/sesiones')}}" class="btn btn-info btn-xs {{ count($cursop->sessions) == 0 ? 'disabled' : '' }}">
 							      <i class="entypo-calendar"></i>
 							  </a>
 
