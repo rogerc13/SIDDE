@@ -19,4 +19,4 @@ yarn-error.log
 /public/downloads/uploads/zip
 /planning.md
 /public/downloads/uploads
-/test-results
+/test-results.playwright-mcp/
