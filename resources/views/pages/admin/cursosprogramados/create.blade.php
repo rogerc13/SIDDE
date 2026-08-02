@@ -1,29 +1,40 @@
 @push('CSS')
+<link rel="stylesheet" href="{{url('assets/js/fullcalendar/fullcalendar.css')}}">
 <style>
-    .wizard-steps { list-style: none; padding: 0; margin: 0 0 20px; display: flex; justify-content: center; gap: 0; }
-    .wizard-steps li { flex: 1; text-align: center; position: relative; padding: 10px 0; }
-    .wizard-steps li .step-number { display: inline-block; width: 32px; height: 32px; line-height: 32px; border-radius: 50%; background: #ddd; color: #999; font-weight: bold; margin-bottom: 5px; }
+    .wizard-steps { list-style: none; padding: 0; margin: 0 0 10px; display: flex; justify-content: center; gap: 0; }
+    .wizard-steps li { flex: 1; text-align: center; position: relative; padding: 6px 0; }
+    .wizard-steps li .step-number { display: inline-block; width: 24px; height: 24px; line-height: 24px; border-radius: 50%; background: #ddd; color: #999; font-weight: bold; margin-bottom: 3px; }
     .wizard-steps li.active .step-number { background: #3498db; color: #fff; }
     .wizard-steps li.completed .step-number { background: #27ae60; color: #fff; }
-    .wizard-steps li .step-label { display: block; font-size: 12px; color: #999; }
+    .wizard-steps li .step-label { display: block; font-size: 11px; color: #999; }
     .wizard-steps li.active .step-label { color: #333; font-weight: bold; }
     .wizard-steps li.completed .step-label { color: #27ae60; }
-    .wizard-steps li::after { content: ''; position: absolute; top: 25px; left: 50%; width: 100%; height: 2px; background: #ddd; z-index: -1; }
+    .wizard-steps li::after { content: ''; position: absolute; top: 19px; left: 50%; width: 100%; height: 2px; background: #ddd; z-index: -1; }
     .wizard-steps li:last-child::after { display: none; }
     .wizard-steps li.completed::after { background: #27ae60; }
     .wizard-steps li.active::after { background: #3498db; }
     .wizard-step-panel { display: none; }
     .wizard-step-panel.active { display: block; }
-    .session-row { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px; margin-bottom: 10px; position: relative; }
-    .session-row .remove-session { position: absolute; top: 8px; right: 8px; }
-    .duration-progress { margin-top: 10px; }
-    #wizard-calendar { min-height: 300px; max-height: 400px; overflow-y: auto; }
+    #wizard-calendar { height: 100%; }
     .fc-event { cursor: pointer; }
     .blocked-event { background: #999 !important; border-color: #999 !important; cursor: not-allowed !important; }
     .review-table td { vertical-align: middle !important; }
     #duration-warning { display: none; }
-    .modal-xl { width: 90%; max-width: 900px; }
-    .modal-body { max-height: 70vh; overflow-y: auto; }
+    .modal-xl { width: 95%; max-width: 1400px; }
+    .step2-layout { display: flex; gap: 20px; height: calc(90vh - 250px); min-height: 400px; }
+    .step2-calendar { flex: 3; min-width: 0; display: flex; flex-direction: column; }
+    .step2-calendar .calendar-env { flex: 1; min-height: 0; }
+    .step2-sidebar { flex: 2; min-width: 280px; display: flex; flex-direction: column; overflow: hidden; }
+    .step2-sidebar-header { flex-shrink: 0; margin-bottom: 12px; }
+    .step2-sessions-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+    .sessions-table { font-size: 13px; }
+    .sessions-table th, .sessions-table td { vertical-align: middle !important; padding: 8px 10px; }
+    .sessions-table .actions { white-space: nowrap; width: 60px; }
+    .sessions-table .actions .btn { padding: 2px 6px; }
+    .duration-progress { margin-top: 8px; }
+    #wizard-modal .modal-content { display: flex; flex-direction: column; height: calc(90vh - 40px); }
+    #wizard-modal form#wizard-form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    #wizard-modal .modal-body { flex: 1; overflow-y: auto; min-height: 0; }
 </style>
 @endpush
 
@@ -53,7 +64,6 @@ function programarAccion(url){
 
     $('#wizard-titulo').on('change', function() {
         var selected = $(this).find('option:selected');
-        var catData = selected.closest('optgroup').data('duration');
         courseDuration = parseInt(selected.data('duration')) || 0;
         $('#duration-info').text('Duración del curso: ' + courseDuration + ' horas');
         updateDurationBar();
@@ -70,7 +80,7 @@ function resetWizard() {
     $('.wizard-steps li').removeClass('active completed');
     $('.wizard-steps li:eq(0)').addClass('active');
     wizardSessions = [];
-    renderSessionList();
+    renderSessionTable();
     if (window.wizardCalendar) {
         window.wizardCalendar.fullCalendar('destroy');
         window.wizardCalendar = null;
@@ -101,7 +111,7 @@ function wizardGoToStep(step) {
     }
 
     if (step === 2) {
-        initWizardCalendar();
+        setTimeout(function() { initWizardCalendar(); }, 100);
     } else if (step === 3) {
         renderReviewPanel();
     }
@@ -146,28 +156,54 @@ function initWizardCalendar() {
         maxTime: '22:00:00',
         selectable: true,
         selectHelper: true,
+        selectMinDistance: 5,
         select: function(start, end) {
             openAddSessionModal(start, end);
             window.wizardCalendar.fullCalendar('unselect');
         },
         events: function(start, end, callback) {
-            var events = wizardSessions.map(function(s) {
+            var sessionEvents = wizardSessions.map(function(s) {
+                var parts = s.session_date.split('-');
+                var sParts = s.start_time.split(':');
+                var eParts = s.end_time.split(':');
+                var startDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), parseInt(sParts[0]), parseInt(sParts[1]));
+                var endDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), parseInt(eParts[0]), parseInt(eParts[1]));
                 return {
                     id: 'session-' + s.id,
                     title: s.location_name,
-                    start: s.session_date + 'T' + s.start_time,
-                    end: s.session_date + 'T' + s.end_time,
-                    color: '#5bc0de'
+                    start: startDate,
+                    end: endDate,
+                    color: '#5bc0de',
+                    allDay: false
                 };
             });
             var startStr = start.getFullYear() + '-' + ('0' + (start.getMonth()+1)).slice(-2) + '-' + ('0' + start.getDate()).slice(-2);
             var endStr = end.getFullYear() + '-' + ('0' + (end.getMonth()+1)).slice(-2) + '-' + ('0' + end.getDate()).slice(-2);
-            $.get('{{ url("u/af_programadas/blocked-slots") }}', {
-                start: startStr,
-                end: endStr
-            }, function(blocked) {
-                events = events.concat(blocked);
-                callback(events);
+            $.ajax({
+                url: '{{ url("u/af_programadas/blocked-slots") }}',
+                type: 'GET',
+                dataType: 'json',
+                data: {
+                    start: startStr,
+                    end: endStr
+                },
+                success: function(blocked) {
+                    var fixedBlocked = (Array.isArray(blocked) ? blocked : []).map(function(e) {
+                        return {
+                            id: e.id,
+                            title: e.title,
+                            start: new Date(e.start),
+                            end: e.end ? new Date(e.end) : null,
+                            rendering: e.rendering,
+                            color: e.color
+                        };
+                    });
+                    var allEvents = sessionEvents.concat(fixedBlocked);
+                    callback(allEvents);
+                },
+                error: function() {
+                    callback(sessionEvents);
+                }
             });
         },
         eventRender: function(event, element) {
@@ -179,9 +215,19 @@ function initWizardCalendar() {
     });
 }
 
-function openAddSessionModal(start, end) {
+function refreshCalendarEvents() {
+    if (!window.wizardCalendar) return;
+    var currentDate = $('#wizard-calendar').fullCalendar('getDate');
+    window.wizardCalendar.fullCalendar('destroy');
+    initWizardCalendar();
+    $('#wizard-calendar').fullCalendar('gotoDate', currentDate);
+}
+
+function openAddSessionModal(start, end, editId) {
     $('#add-session-form')[0].reset();
     $('#add-session-location').val('').trigger('change');
+    $('#add-session-edit-id').val('');
+
     var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
     var sh = pad(start.getHours()), sm = pad(start.getMinutes());
     var eh = pad(end.getHours()), em = pad(end.getMinutes());
@@ -189,8 +235,34 @@ function openAddSessionModal(start, end) {
     $('#add-session-start').val(sh + ':' + sm);
     $('#add-session-end').val(eh + ':' + em);
     $('#add-session-date').val(sy + '-' + smo + '-' + sd);
-    $('#add-session-modal').modal('show');
-    $('#add-session-location').select2({ allowClear: true, placeholder: 'Seleccionar ubicación' });
+
+    if (editId) {
+        $('#add-session-edit-id').val(editId);
+        $('#add-session-modal .modal-title').text('Editar Sesión');
+    } else {
+        $('#add-session-modal .modal-title').text('Agregar Sesión');
+    }
+
+    $('#add-session-modal').modal({ backdrop: false, keyboard: true });
+}
+
+function openEditSessionModal(id) {
+    var session = wizardSessions.find(function(s) { return s.id === id; });
+    if (!session) return;
+
+    var dateParts = session.session_date.split('-');
+    var startDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+    var startParts = session.start_time.split(':');
+    startDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]));
+    var endDate = new Date(startDate.getTime());
+    var endParts = session.end_time.split(':');
+    endDate.setHours(parseInt(endParts[0]), parseInt(endParts[1]));
+
+    openAddSessionModal(startDate, endDate, id);
+    setTimeout(function() {
+        $('#add-session-location').val(session.location_id).trigger('change');
+        $('#add-session-notes').val(session.notes || '');
+    }, 100);
 }
 
 function saveSessionFromModal() {
@@ -200,6 +272,7 @@ function saveSessionFromModal() {
     var startTime = $('#add-session-start').val();
     var endTime = $('#add-session-end').val();
     var notes = $('#add-session-notes').val();
+    var editId = $('#add-session-edit-id').val();
 
     if (!locationId || !sessionDate || !startTime || !endTime) {
         alert('Todos los campos obligatorios deben ser completados.');
@@ -214,26 +287,43 @@ function saveSessionFromModal() {
     var durHours = computeDurationHours(startTime, endTime);
 
     var totalHours = durHours;
-    wizardSessions.forEach(function(s) { totalHours += s.duration_hours; });
+    wizardSessions.forEach(function(s) {
+        if (editId && s.id === parseInt(editId)) return;
+        totalHours += s.duration_hours;
+    });
     if (totalHours > courseDuration) {
         alert('Excede la duración total del curso (' + courseDuration + ' horas). Restante: ' + (courseDuration - (totalHours - durHours)) + ' horas.');
         return;
     }
 
-    sessionCounter++;
-    wizardSessions.push({
-        id: sessionCounter,
-        location_id: locationId,
-        location_name: locationName,
-        session_date: sessionDate,
-        start_time: startTime,
-        end_time: endTime,
-        duration_hours: durHours,
-        notes: notes
-    });
+    if (editId) {
+        var idx = wizardSessions.findIndex(function(s) { return s.id === parseInt(editId); });
+        if (idx >= 0) {
+            wizardSessions[idx].location_id = locationId;
+            wizardSessions[idx].location_name = locationName;
+            wizardSessions[idx].session_date = sessionDate;
+            wizardSessions[idx].start_time = startTime;
+            wizardSessions[idx].end_time = endTime;
+            wizardSessions[idx].duration_hours = durHours;
+            wizardSessions[idx].notes = notes;
+        }
+    } else {
+        sessionCounter++;
+        wizardSessions.push({
+            id: sessionCounter,
+            location_id: locationId,
+            location_name: locationName,
+            session_date: sessionDate,
+            start_time: startTime,
+            end_time: endTime,
+            duration_hours: durHours,
+            notes: notes
+        });
+    }
 
     $('#add-session-modal').modal('hide');
-    renderSessionList();
+    renderSessionTable();
+    refreshCalendarEvents();
 }
 
 function computeDurationHours(start, end) {
@@ -247,23 +337,39 @@ function computeDurationHours(start, end) {
 
 function removeWizardSession(id) {
     wizardSessions = wizardSessions.filter(function(s) { return s.id !== id; });
-    renderSessionList();
+    renderSessionTable();
+    refreshCalendarEvents();
 }
 
-function renderSessionList() {
-    var $list = $('#wizard-sessions-list');
-    $list.empty();
+function formatTime12(t) {
+    var parts = t.split(':');
+    var h = parseInt(parts[0]), m = parts[1];
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + ampm;
+}
+
+function renderSessionTable() {
+    var $tbody = $('#wizard-sessions-tbody');
+    $tbody.empty();
+    $('#sessions-count-label').text(wizardSessions.length);
     if (wizardSessions.length === 0) {
-        $list.append('<p class="text-muted">No hay sesiones agregadas. Seleccione fechas en el calendario.</p>');
+        $tbody.append('<tr><td colspan="7" class="text-muted text-center">No hay sesiones agregadas. Seleccione fechas en el calendario.</td></tr>');
     } else {
-        wizardSessions.forEach(function(s) {
-            $list.append(
-                '<div class="session-row">' +
-                '<button type="button" class="btn btn-danger btn-xs remove-session" onclick="removeWizardSession(' + s.id + ')"><i class="entypo-trash"></i></button>' +
-                '<strong>' + s.location_name + '</strong><br>' +
-                '<small>' + s.session_date + ' | ' + s.start_time + ' - ' + s.end_time + ' (' + s.duration_hours + ' hrs)</small>' +
-                (s.notes ? '<br><small class="text-muted">' + s.notes + '</small>' : '') +
-                '</div>'
+        wizardSessions.forEach(function(s, i) {
+            $tbody.append(
+                '<tr>' +
+                '<td class="text-center">' + (i + 1) + '</td>' +
+                '<td>' + s.location_name + '</td>' +
+                '<td>' + s.session_date + '</td>' +
+                '<td>' + formatTime12(s.start_time) + '</td>' +
+                '<td>' + formatTime12(s.end_time) + '</td>' +
+                '<td class="text-center">' + s.duration_hours + ' hrs</td>' +
+                '<td class="actions">' +
+                    '<button type="button" class="btn btn-info btn-xs" onclick="openEditSessionModal(' + s.id + ')" title="Editar"><i class="entypo-pencil"></i></button> ' +
+                    '<button type="button" class="btn btn-danger btn-xs" onclick="removeWizardSession(' + s.id + ')" title="Eliminar"><i class="entypo-trash"></i></button>' +
+                '</td>' +
+                '</tr>'
             );
         });
     }
@@ -316,14 +422,6 @@ function renderReviewPanel() {
     updateDurationBar();
 
     $('#review-duration-bar').css('width', (courseDuration > 0 ? Math.min((totalHours / courseDuration) * 100, 100) : 0) + '%');
-}
-
-function formatTime12(t) {
-    var parts = t.split(':');
-    var h = parseInt(parts[0]), m = parts[1];
-    var ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return h + ':' + m + ' ' + ampm;
 }
 
 function submitWizardSchedule() {
@@ -396,7 +494,7 @@ function submitWizardSchedule() {
                 <span class="sr-only">Cargando...</span>
             </div>
 
-            <ul class="wizard-steps" style="margin: 15px 20px 0;">
+            <ul class="wizard-steps" style="margin: 8px 20px 0;">
                 <li class="active">
                     <span class="step-number">1</span>
                     <span class="step-label">Datos Generales</span>
@@ -453,29 +551,51 @@ function submitWizardSchedule() {
                         </div>
                     </div>
 
-                    {{-- STEP 2: Calendar Sessions --}}
+                    {{-- STEP 2: Calendar Sessions (side-by-side layout) --}}
                     <div class="wizard-step-panel" id="panel-step2">
-                        <div class="row">
+                        <div class="row" style="margin-bottom: 10px;">
                             <div class="col-md-12">
-                                <p class="text-muted">Seleccione un rango de fechas/horas en el calendario para agregar una sesión.</p>
-                                <div id="wizard-calendar"></div>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-top: 15px;">
-                            <div class="col-md-8">
-                                <h5>Sesiones Agregadas</h5>
-                                <div id="wizard-sessions-list">
-                                    <p class="text-muted">No hay sesiones agregadas.</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>Control de Duración</h5>
                                 <div class="progress duration-progress">
                                     <div id="duration-bar" class="progress-bar" role="progressbar" style="width: 0%">
                                         <span id="duration-bar-text">0%</span>
                                     </div>
                                 </div>
-                                <div id="duration-status"></div>
+                                <div id="duration-status" style="margin-top: 5px;"></div>
+                            </div>
+                        </div>
+                        <div class="step2-layout">
+                            <div class="step2-calendar">
+                                <p class="text-muted" style="margin-bottom: 8px;">Seleccione un rango de fechas/horas en el calendario para agregar una sesión.</p>
+                                <div class="calendar-env">
+                                    <div id="wizard-calendar"></div>
+                                </div>
+                            </div>
+                            <div class="step2-sidebar">
+                                <div class="step2-sidebar-header">
+                                    <div style="margin-bottom: 12px;">
+                                        <button type="button" class="btn btn-primary btn-sm btn-block" onclick="openAddSessionModal(new Date(), new Date())">
+                                            <i class="entypo-plus"></i> Agregar Sesión
+                                        </button>
+                                    </div>
+                                    <h5>Sesiones (<span id="sessions-count-label">0</span>)</h5>
+                                </div>
+                                <div class="step2-sessions-scroll">
+                                    <table class="table table-striped table-bordered sessions-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">#</th>
+                                                <th>Ubicación</th>
+                                                <th>Fecha</th>
+                                                <th>Hora</th>
+                                                <th class="text-center">Dur.</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="wizard-sessions-tbody">
+                                            <tr><td colspan="6" class="text-muted text-center">No hay sesiones agregadas.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -530,7 +650,7 @@ function submitWizardSchedule() {
     </div>
 </div>
 
-{{-- Add Session Modal (triggered from calendar select) --}}
+{{-- Add Session Modal (triggered from calendar select or add button) --}}
 <div class="modal fade" id="add-session-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -539,6 +659,7 @@ function submitWizardSchedule() {
                 <h4 class="modal-title">Agregar Sesión</h4>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="add-session-edit-id" value="">
                 <form id="add-session-form">
                 <div class="form-group">
                     <div class="col-lg-12 col-md-12">
@@ -599,6 +720,10 @@ $('#add-session-modal').on('shown.bs.modal', function() {
 
 $('#add-session-modal').on('hidden.bs.modal', function() {
     $('#add-session-location').select2('destroy');
+    $('.modal-backdrop').not('.in').remove();
+    if ($('#wizard-modal').hasClass('in')) {
+        $('body').addClass('modal-open');
+    }
 });
 
 $('#wizard-modal').on('shown.bs.modal', function() {

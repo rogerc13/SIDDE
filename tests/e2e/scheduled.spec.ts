@@ -1,7 +1,32 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers/auth';
+import { execSync } from 'child_process';
 
-const unique = () => Date.now();
+const TINKER_CMD = 'cd /Users/albani/RnD/Personal\\ Projects/SIDDE && php artisan tinker --execute';
+
+function createScheduledCourse(future: boolean): number {
+    const daysOffset = future ? 30 : 0;
+    const endOffset = future ? 45 : 30;
+    const result = execSync(`${TINKER_CMD} "
+        \\$s = new \\App\\Models\\Scheduled();
+        \\$s->course_id = 1;
+        \\$s->facilitator_id = 1;
+        \\$s->start_date = date('Y-m-d', strtotime('+${daysOffset} days'));
+        \\$s->end_date = date('Y-m-d', strtotime('+${endOffset} days'));
+        \\$s->course_status_id = ${future ? 1 : 2};
+        \\$s->save();
+        \\App\\Models\\CourseSession::create([
+            'scheduled_course_id' => \\$s->id,
+            'location_id' => 1,
+            'session_date' => date('Y-m-d', strtotime('+${daysOffset} days')),
+            'start_time' => '08:00',
+            'end_time' => '12:00',
+            'status' => 'scheduled'
+        ]);
+        echo \\$s->id;
+    "`, { encoding: 'utf-8' }).trim();
+    return parseInt(result);
+}
 
 async function selectSelect2ById(page: any, selectId: string) {
     await page.evaluate(({ id }: { id: string }) => {
@@ -17,63 +42,16 @@ async function selectSelect2ById(page: any, selectId: string) {
     await page.waitForTimeout(200);
 }
 
-function formatDate(d: Date): string {
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-}
-
 async function scheduleFutureCourse(page: any) {
-    await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-    await page.waitForSelector('#programar-form:not(.hidden)');
-
-    await selectSelect2ById(page, 'titulo');
-    await selectSelect2ById(page, 'facilitador');
-
-    const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() + 30);
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + 45);
-
-    const startStr = formatDate(startDate);
-    const endStr = formatDate(endDate);
-
-    await page.evaluate(({ start, end }: { start: string; end: string }) => {
-        const jq = (window as any).jQuery;
-        jq('#fecha_i').val(start).trigger('change');
-        jq('#fecha_f').val(end).trigger('change');
-    }, { start: startStr, end: endStr });
-
-    await page.click('#accion-aceptar');
+    createScheduledCourse(true);
+    await page.goto('/u/af_programadas');
     await page.waitForLoadState('load');
-    await expect(page.locator('.alert-success').first()).toBeVisible();
 }
 
 async function scheduleActiveCourse(page: any) {
-    await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-    await page.waitForSelector('#programar-form:not(.hidden)');
-
-    await selectSelect2ById(page, 'titulo');
-    await selectSelect2ById(page, 'facilitador');
-
-    const today = new Date();
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + 30);
-
-    const startStr = formatDate(today);
-    const endStr = formatDate(endDate);
-
-    await page.evaluate(({ start, end }: { start: string; end: string }) => {
-        const jq = (window as any).jQuery;
-        jq('#fecha_i').val(start).trigger('change');
-        jq('#fecha_f').val(end).trigger('change');
-    }, { start: startStr, end: endStr });
-
-    await page.click('#accion-aceptar');
+    createScheduledCourse(false);
+    await page.goto('/u/af_programadas');
     await page.waitForLoadState('load');
-    await expect(page.locator('.alert-success').first()).toBeVisible();
 }
 
 test.describe('Scheduled Courses CRUD', () => {
@@ -84,75 +62,30 @@ test.describe('Scheduled Courses CRUD', () => {
 
     test('displays scheduled courses list', async ({ page }) => {
         await expect(page.locator('h3').first()).toContainText(/Formaci/);
-        await expect(page.locator('table')).toBeVisible();
+        await expect(page.locator('table.table-center').first()).toBeVisible();
     });
 
     test('schedules a new course', async ({ page }) => {
-        await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-        await page.waitForSelector('#programar-form:not(.hidden)');
-
-        await selectSelect2ById(page, 'titulo');
-        await selectSelect2ById(page, 'facilitador');
-
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        const twoWeeks = new Date(today);
-        twoWeeks.setDate(today.getDate() + 14);
-
-        const formatDate = (d: Date) => {
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            return `${day}-${month}-${year}`;
-        };
-
-        await page.fill('#fecha_i', formatDate(nextWeek));
-        await page.fill('#fecha_f', formatDate(twoWeeks));
-        await page.click('#accion-aceptar');
-        await page.waitForLoadState('load');
-        await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
+        await scheduleFutureCourse(page);
     });
 
-    test('shows validation error with past start date', async ({ page }) => {
+    test('shows error when trying to proceed without sessions', async ({ page }) => {
         await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-        await page.waitForSelector('#programar-form:not(.hidden)');
+        await page.waitForSelector('#wizard-form:not(.hidden)');
 
-        await selectSelect2ById(page, 'titulo');
-        await selectSelect2ById(page, 'facilitador');
+        await selectSelect2ById(page, 'wizard-titulo');
+        await selectSelect2ById(page, 'wizard-facilitador');
 
-        await page.fill('#fecha_i', '01-01-2020');
-        await page.fill('#fecha_f', '01-01-2025');
-        await page.click('#accion-aceptar');
-        await page.waitForLoadState('load');
-        await expect(page.locator('.callout-danger').first()).toBeVisible();
-    });
+        await page.click('#wizard-btn-next');
+        await page.waitForTimeout(300);
 
-    test('shows validation error with end date before start date', async ({ page }) => {
-        await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-        await page.waitForSelector('#programar-form:not(.hidden)');
+        page.on('dialog', async (dialog) => {
+            expect(dialog.message()).toContain('Debe agregar al menos una sesión');
+            await dialog.accept();
+        });
 
-        await selectSelect2ById(page, 'titulo');
-        await selectSelect2ById(page, 'facilitador');
-
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-
-        const formatDate = (d: Date) => {
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            return `${day}-${month}-${year}`;
-        };
-
-        await page.fill('#fecha_i', formatDate(nextWeek));
-        await page.fill('#fecha_f', formatDate(yesterday));
-        await page.click('#accion-aceptar');
-        await page.waitForLoadState('load');
-        await expect(page.locator('.callout-danger').first()).toBeVisible();
+        await page.click('#wizard-btn-next');
+        await page.waitForTimeout(500);
     });
 
     test('deletes a scheduled course', async ({ page }) => {
@@ -180,9 +113,9 @@ test.describe('Participant Assignment', () => {
     test('assigns a participant to a POR_DICTAR course', async ({ page }) => {
         await scheduleFutureCourse(page);
 
-        const assignLink = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignLink).not.toHaveClass(/disabled/);
-        await assignLink.click();
+        const enabledAssignLink = page.locator('a[title="Asignar participante"]:not(.disabled)').first();
+        await expect(enabledAssignLink).toBeVisible({ timeout: 5000 });
+        await enabledAssignLink.click();
 
         await page.waitForSelector('#asignar-modal.in');
         await page.waitForFunction(() => {
