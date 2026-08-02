@@ -34,7 +34,8 @@
     .duration-progress { margin-top: 8px; }
     #wizard-modal .modal-content { display: flex; flex-direction: column; height: calc(90vh - 40px); }
     #wizard-modal form#wizard-form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
-    #wizard-modal .modal-body { flex: 1; overflow-y: auto; min-height: 0; }
+    #wizard-modal .modal-body { flex: 1; overflow: hidden; min-height: 0; }
+    #panel-step3 { overflow-y: auto; }
 </style>
 @endpush
 
