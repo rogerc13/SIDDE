@@ -38,7 +38,7 @@ class Scheduled extends Model
 
   public function sessions()
   {
-    return $this->hasMany(CourseSession::class);
+    return $this->hasMany(CourseSession::class, 'scheduled_course_id');
   }
 
   public function persons(){
