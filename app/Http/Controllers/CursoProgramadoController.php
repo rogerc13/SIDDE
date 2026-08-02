@@ -12,6 +12,7 @@ use App\Models\Participant;
 use App\Models\Person;
 use App\Models\Prerequisite;
 use App\Models\CourseSession;
+use App\Models\Location;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -68,6 +69,8 @@ class CursoProgramadoController extends Controller
 
         $cursos = Scheduled::orderBy("start_date","desc")->with(['course','facilitator','courseStatus']);
         $estados = CourseStatus::orderBy('name','asc')->get();
+        $categoriasAcciones = Category::with('courses')->get();
+        $locations = Location::orderBy('name', 'asc')->get();
         
 
         if($titulos){
@@ -96,7 +99,8 @@ class CursoProgramadoController extends Controller
                 ->with('participantes',$participantes)
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
-                ->with('fechas',$fecha)->with('estados',$estados)->with('id_estado',$id_estado);
+                ->with('fechas',$fecha)->with('estados',$estados)->with('id_estado',$id_estado)
+                ->with('categoriasAcciones',$categoriasAcciones)->with('locations',$locations);
     }
 
     public function store(CursoProgramadoForm $request)
