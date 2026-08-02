@@ -1,0 +1,184 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - generic [ref=f6e4]:
+      - banner [ref=f6e5]:
+        - link [ref=f6e7] [cursor=pointer]:
+          - /url: http://sidde.test/home
+        - link "" [ref=f6e9] [cursor=pointer]:
+          - /url: "#"
+        - text: 
+      - link "Roger Canache Administrador" [ref=f6e13] [cursor=pointer]:
+        - /url: "#"
+        - strong [ref=f6e14]: Roger Canache
+        - generic [ref=f6e15]: Administrador
+      - list [ref=f6e16]:
+        - listitem [ref=f6e17]:
+          - generic [ref=f6e18]:
+            - generic [ref=f6e19]: 
+            - text: Buscar acciones de formación
+            - generic [ref=f6e20]:
+              - link "" [ref=f6e21] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - button [ref=f6e23] [cursor=pointer]
+              - text: 
+        - listitem "Gestión de Áreas de Conocimiento" [ref=f6e24]:
+          - link " Áreas de Conocimiento" [ref=f6e25] [cursor=pointer]:
+            - /url: http://sidde.test/u/areas
+            - generic [ref=f6e26]: 
+            - text: Áreas de Conocimiento
+        - listitem "Gestión de Ubicaciones" [ref=f6e27]:
+          - link " Ubicaciones" [ref=f6e28] [cursor=pointer]:
+            - /url: http://sidde.test/u/ubicaciones
+            - generic [ref=f6e29]: 
+            - text: Ubicaciones
+        - listitem "Gestión de Acciones de Formación" [ref=f6e30]:
+          - link " Gestión de A.F" [ref=f6e31] [cursor=pointer]:
+            - /url: http://sidde.test/u/acciones_formacion
+            - generic [ref=f6e32]: 
+            - text: Gestión de A.F
+        - listitem "Acciones de Formación Programadas" [ref=f6e33]:
+          - link " A.F Programadas" [ref=f6e34] [cursor=pointer]:
+            - /url: http://sidde.test/u/af_programadas
+            - generic [ref=f6e35]: 
+            - text: A.F Programadas
+        - listitem "Gestión de Usuarios" [ref=f6e36]:
+          - link " Usuarios" [ref=f6e37] [cursor=pointer]:
+            - /url: http://sidde.test/u/usuarios
+            - generic [ref=f6e38]: 
+            - text: Usuarios
+        - listitem "Gestión de Facilitadores" [ref=f6e39]:
+          - link " Facilitadores" [ref=f6e40] [cursor=pointer]:
+            - /url: http://sidde.test/u/facilitadores
+            - generic [ref=f6e41]: 
+            - text: Facilitadores
+        - listitem "Gestión de Participantes" [ref=f6e42]:
+          - link " Participantes" [ref=f6e43] [cursor=pointer]:
+            - /url: http://sidde.test/u/participantes
+            - generic [ref=f6e44]: 
+            - text: Participantes
+        - listitem "Reportes" [ref=f6e45]:
+          - link " Reportes" [ref=f6e46] [cursor=pointer]:
+            - /url: http://sidde.test/reports
+            - generic [ref=f6e47]: 
+            - text: Reportes
+        - listitem "Administrador" [ref=f6e48]:
+          - link " Administrador" [ref=f6e49] [cursor=pointer]:
+            - /url: http://sidde.test/database
+            - generic [ref=f6e50]: 
+            - text: Administrador
+    - generic [ref=f6e51]:
+      - heading "Ubicaciones" [level=3] [ref=f6e52]
+      - link "Nueva Ubicación" [ref=f6e53] [cursor=pointer]:
+        - /url: javascript:crearLocation('http://sidde.test/u/ubicaciones')
+        - generic [ref=f6e54]: 
+        - text: Nueva Ubicación
+      - generic [ref=f6e58]:
+        - generic [ref=f6e59]:
+          - generic [ref=f6e60]: Nombre
+          - generic [ref=f6e61]:
+            - textbox "Nombre" [ref=f6e62]
+            - button "" [ref=f6e64] [cursor=pointer]
+        - button "" [ref=f6e67] [cursor=pointer]
+      - generic [ref=f6e70]:
+        - generic [ref=f6e71]:
+          - generic [ref=f6e72]: Ubicaciones
+          - table [ref=f6e75]:
+            - rowgroup [ref=f6e76]:
+              - row [ref=f6e77]:
+                - columnheader "Nombre" [ref=f6e78]
+                - columnheader "" [ref=f6e79]
+            - rowgroup [ref=f6e81]:
+              - row [ref=f6e82]:
+                - cell "DupLoc 1785537324414" [ref=f6e83]
+                - cell [ref=f6e84]:
+                  - link "" [ref=f6e85] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/4')
+                  - link "" [ref=f6e87] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/4')
+              - row [ref=f6e89]:
+                - cell "DupLoc 1785537693256" [ref=f6e90]
+                - cell [ref=f6e91]:
+                  - link "" [ref=f6e92] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/6')
+                  - link "" [ref=f6e94] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/6')
+              - row [ref=f6e96]:
+                - cell "DupLoc 1785538182060" [ref=f6e97]
+                - cell [ref=f6e98]:
+                  - link "" [ref=f6e99] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/9')
+                  - link "" [ref=f6e101] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/9')
+              - row [ref=f6e103]:
+                - cell "DupLoc 1785538424558" [ref=f6e104]
+                - cell [ref=f6e105]:
+                  - link "" [ref=f6e106] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/12')
+                  - link "" [ref=f6e108] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/12')
+              - row [ref=f6e110]:
+                - cell "DupLoc 1785538615392" [ref=f6e111]
+                - cell [ref=f6e112]:
+                  - link "" [ref=f6e113] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/14')
+                  - link "" [ref=f6e115] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/14')
+              - row [ref=f6e117]:
+                - cell "DupLoc 1785539601544" [ref=f6e118]
+                - cell [ref=f6e119]:
+                  - link "" [ref=f6e120] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/17')
+                  - link "" [ref=f6e122] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/17')
+              - row [ref=f6e124]:
+                - cell "DupLoc 1785541699371" [ref=f6e125]
+                - cell [ref=f6e126]:
+                  - link "" [ref=f6e127] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/20')
+                  - link "" [ref=f6e129] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/20')
+              - row [ref=f6e131]:
+                - cell "DupLoc 1785542211919" [ref=f6e132]
+                - cell [ref=f6e133]:
+                  - link "" [ref=f6e134] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/23')
+                  - link "" [ref=f6e136] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/23')
+              - row [ref=f6e138]:
+                - cell "DupLoc 1785543849892" [ref=f6e139]
+                - cell [ref=f6e140]:
+                  - link "" [ref=f6e141] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/26')
+                  - link "" [ref=f6e143] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/26')
+              - row [ref=f6e145]:
+                - cell "DupLoc 1785547897939" [ref=f6e146]
+                - cell [ref=f6e147]:
+                  - link "" [ref=f6e148] [cursor=pointer]:
+                    - /url: javascript:editarLocation('http://sidde.test/u/ubicaciones/29')
+                  - link "" [ref=f6e150] [cursor=pointer]:
+                    - /url: javascript:eliminarLocation('http://sidde.test/u/ubicaciones/29')
+        - navigation [ref=f6e153]:
+          - list [ref=f6e154]:
+            - listitem "« Anterior":
+              - generic [ref=f6e155]: ‹
+            - listitem:
+              - generic [ref=f6e156]: "1"
+            - listitem:
+              - link "2" [ref=f6e157] [cursor=pointer]:
+                - /url: http://sidde.test/u/ubicaciones?page=2
+            - listitem:
+              - link "3" [ref=f6e158] [cursor=pointer]:
+                - /url: http://sidde.test/u/ubicaciones?page=3
+            - listitem:
+              - link "4" [ref=f6e159] [cursor=pointer]:
+                - /url: http://sidde.test/u/ubicaciones?page=4
+            - listitem:
+              - link "Siguiente »" [ref=f6e160] [cursor=pointer]:
+                - /url: http://sidde.test/u/ubicaciones?page=2
+                - text: ›
+      - contentinfo [ref=f6e161]:
+        - text: © 2023
+        - strong [ref=f6e162]: SIDDE
+  - status [ref=f6e163]
+  - generic:  

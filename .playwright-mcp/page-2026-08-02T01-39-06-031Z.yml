@@ -1,0 +1,74 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - generic [ref=f2e4]:
+      - banner [ref=f2e5]:
+        - link [ref=f2e7] [cursor=pointer]:
+          - /url: http://sidde.test/home
+        - link "" [ref=f2e9] [cursor=pointer]:
+          - /url: "#"
+        - text: 
+      - link "Roger Canache Administrador" [ref=f2e13] [cursor=pointer]:
+        - /url: "#"
+        - strong [ref=f2e14]: Roger Canache
+        - generic [ref=f2e15]: Administrador
+      - list [ref=f2e16]:
+        - listitem [ref=f2e17]:
+          - generic [ref=f2e18]:
+            - generic [ref=f2e19]: 
+            - text: Buscar acciones de formación
+            - generic [ref=f2e20]:
+              - link "" [ref=f2e21] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - button [ref=f2e23] [cursor=pointer]
+              - text: 
+        - listitem "Gestión de Áreas de Conocimiento" [ref=f2e24]:
+          - link " Áreas de Conocimiento" [ref=f2e25] [cursor=pointer]:
+            - /url: http://sidde.test/u/areas
+            - generic [ref=f2e26]: 
+            - text: Áreas de Conocimiento
+        - listitem "Gestión de Ubicaciones" [ref=f2e27]:
+          - link " Ubicaciones" [ref=f2e28] [cursor=pointer]:
+            - /url: http://sidde.test/u/ubicaciones
+            - generic [ref=f2e29]: 
+            - text: Ubicaciones
+        - listitem "Gestión de Acciones de Formación" [ref=f2e30]:
+          - link " Gestión de A.F" [ref=f2e31] [cursor=pointer]:
+            - /url: http://sidde.test/u/acciones_formacion
+            - generic [ref=f2e32]: 
+            - text: Gestión de A.F
+        - listitem "Acciones de Formación Programadas" [ref=f2e33]:
+          - link " A.F Programadas" [ref=f2e34] [cursor=pointer]:
+            - /url: http://sidde.test/u/af_programadas
+            - generic [ref=f2e35]: 
+            - text: A.F Programadas
+        - listitem "Gestión de Usuarios" [ref=f2e36]:
+          - link " Usuarios" [ref=f2e37] [cursor=pointer]:
+            - /url: http://sidde.test/u/usuarios
+            - generic [ref=f2e38]: 
+            - text: Usuarios
+        - listitem "Gestión de Facilitadores" [ref=f2e39]:
+          - link " Facilitadores" [ref=f2e40] [cursor=pointer]:
+            - /url: http://sidde.test/u/facilitadores
+            - generic [ref=f2e41]: 
+            - text: Facilitadores
+        - listitem "Gestión de Participantes" [ref=f2e42]:
+          - link " Participantes" [ref=f2e43] [cursor=pointer]:
+            - /url: http://sidde.test/u/participantes
+            - generic [ref=f2e44]: 
+            - text: Participantes
+        - listitem "Reportes" [ref=f2e45]:
+          - link " Reportes" [ref=f2e46] [cursor=pointer]:
+            - /url: http://sidde.test/reports
+            - generic [ref=f2e47]: 
+            - text: Reportes
+        - listitem "Administrador" [ref=f2e48]:
+          - link " Administrador" [ref=f2e49] [cursor=pointer]:
+            - /url: http://sidde.test/database
+            - generic [ref=f2e50]: 
+            - text: Administrador
+    - generic [ref=f2e51]:
+      - heading "Bienvenido a" [level=1] [ref=f2e53]
+      - contentinfo [ref=f2e54]:
+        - text: © 2023
+        - strong [ref=f2e55]: SIDDE
+  - status [ref=f2e56]
