@@ -42,6 +42,51 @@ async function selectSelect2ById(page: any, selectId: string) {
     await page.waitForTimeout(200);
 }
 
+function seedWizardData(): void {
+    execSync(`${TINKER_CMD} "
+        \\$cat = \\App\\Models\\Category::create(['name' => 'WizardTestCat_' . uniqid()]);
+        \\$mod = \\App\\Models\\Modality::create(['name' => 'WizardTestMod_' . uniqid()]);
+        \\$course = \\App\\Models\\Course::create([
+            'code' => 'WZ-' . rand(1000, 9999),
+            'title' => 'Wizard Test Course',
+            'category_id' => \\$cat->id,
+            'modality_id' => \\$mod->id,
+            'objective' => 'test',
+            'duration' => 8,
+            'addressed' => 'test'
+        ]);
+        \\$person =         \\App\\Models\\Capacity::create(['course_id' => \\$course->id, 'min' => 1, 'max' => 30]);
+        \\App\\Models\\Person::create([
+            'name' => 'Wizard',
+            'last_name' => 'Test',
+            'id_number' => rand(1000000, 9999999),
+            'id_type_id' => 1
+        ]);
+        \\$fac = \\App\\Models\\Facilitator::create(['person_id' => \\$person->id]);
+        \\App\\Models\\User::create([
+            'role_id' => 4,
+            'person_id' => \\$person->id,
+            'email' => 'wizard_' . rand(1000, 9999) . '@test.com',
+            'password' => bcrypt('123456')
+        ]);
+        \\App\\Models\\Location::create(['name' => 'WizardTestLocation_' . uniqid()]);
+        echo \\$course->id;
+    "`, { encoding: 'utf-8' });
+}
+
+async function selectOptionByText(page: any, selectId: string, text: string) {
+    await page.evaluate(({ id, text }: { id: string; text: string }) => {
+        const el = document.getElementById(id) as HTMLSelectElement;
+        if (!el) return;
+        const option = Array.from(el.querySelectorAll('option')).find((o) => o.textContent?.includes(text)) as HTMLOptionElement | undefined;
+        if (option) {
+            el.value = option.value;
+            (window as any).jQuery(`#${id}`).trigger('change');
+        }
+    }, { id: selectId, text });
+    await page.waitForTimeout(200);
+}
+
 async function scheduleFutureCourse(page: any) {
     createScheduledCourse(true);
     await page.goto('/u/af_programadas');
@@ -86,6 +131,59 @@ test.describe('Scheduled Courses CRUD', () => {
 
         await page.click('#wizard-btn-next');
         await page.waitForTimeout(500);
+    });
+
+    test('schedules a new course through the wizard UI with 12-hour times', async ({ page }) => {
+        seedWizardData();
+        await page.goto('/u/af_programadas');
+        await page.waitForLoadState('load');
+
+        page.on('dialog', async (dialog) => {
+            await dialog.accept();
+        });
+
+        await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
+        await page.waitForSelector('#wizard-form:not(.hidden)');
+
+        await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
+        await selectSelect2ById(page, 'wizard-facilitador');
+
+        await page.click('#wizard-btn-next');
+        await page.waitForSelector('#panel-step2.active');
+
+        await page.click('button[onclick^="openAddSessionModal"]');
+        await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
+
+        await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
+
+        await page.evaluate(() => {
+            (window as any).jQuery('#add-session-date').val('2026-08-14');
+            (window as any).jQuery('#add-session-start').val('8:00 AM');
+            (window as any).jQuery('#add-session-end').val('10:00 AM');
+        });
+        await page.waitForTimeout(200);
+
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(500);
+
+        const row = page.locator('#wizard-sessions-tbody tr', { hasText: 'WizardTestLocation' });
+        await expect(row).toBeVisible();
+        await expect(row).toContainText('8:00 AM');
+        await expect(row).toContainText('10:00 AM');
+        await expect(row).toContainText('2 hrs');
+
+        await page.click('#wizard-btn-next');
+        await page.waitForSelector('#panel-step3.active');
+
+        await expect(page.locator('#review-sessions-tbody')).toContainText('WizardTestLocation');
+        await expect(page.locator('#review-sessions-tbody')).toContainText('8:00 AM');
+        await expect(page.locator('#review-total-hours')).toContainText('2 / 8 horas');
+
+        await page.click('#wizard-btn-submit');
+        await page.waitForLoadState('load');
+
+        const scheduledRow = page.locator('table.table-center tbody tr', { hasText: 'Wizard Test Course' }).first();
+        await expect(scheduledRow).toBeVisible({ timeout: 5000 });
     });
 
     test('deletes a scheduled course', async ({ page }) => {

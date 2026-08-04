@@ -270,8 +270,8 @@ function saveSessionFromModal() {
     var locationId = $('#add-session-location').val();
     var locationName = $('#add-session-location option:selected').text();
     var sessionDate = $('#add-session-date').val();
-    var startTime = $('#add-session-start').val();
-    var endTime = $('#add-session-end').val();
+    var startTime = to24h($('#add-session-start').val());
+    var endTime = to24h($('#add-session-end').val());
     var notes = $('#add-session-notes').val();
     var editId = $('#add-session-edit-id').val();
 
@@ -280,7 +280,7 @@ function saveSessionFromModal() {
         return;
     }
 
-    if (startTime >= endTime) {
+    if (timeToMinutes(startTime) >= timeToMinutes(endTime)) {
         alert('La hora de fin debe ser posterior a la hora de inicio.');
         return;
     }
@@ -327,13 +327,35 @@ function saveSessionFromModal() {
     refreshCalendarEvents();
 }
 
+function to24h(time) {
+    var m = String(time).match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!m) return time;
+    var hour = parseInt(m[1], 10);
+    var minute = m[2];
+    var period = m[3].toUpperCase();
+    if (period === 'PM' && hour !== 12) hour += 12;
+    if (period === 'AM' && hour === 12) hour = 0;
+    return ('0' + hour).slice(-2) + ':' + minute;
+}
+
+function to12h(time) {
+    var parts = String(time).split(':');
+    if (parts.length < 2) return time;
+    var hour = parseInt(parts[0], 10);
+    var minute = parts[1];
+    var period = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12 || 12;
+    return hour + ':' + minute + ' ' + period;
+}
+
+function timeToMinutes(time) {
+    var parts = String(time).split(':');
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+
 function computeDurationHours(start, end) {
-    var parts = start.split(':');
-    var sh = parseInt(parts[0]), sm = parseInt(parts[1]);
-    parts = end.split(':');
-    var eh = parseInt(parts[0]), em = parseInt(parts[1]);
-    var diff = (eh * 60 + em) - (sh * 60 + sm);
-    return Math.round((diff / 60) * 4) / 4;
+    var diff = timeToMinutes(end) - timeToMinutes(start);
+    return Math.max(Math.round((diff / 60) * 4) / 4, 0);
 }
 
 function removeWizardSession(id) {
@@ -343,11 +365,7 @@ function removeWizardSession(id) {
 }
 
 function formatTime12(t) {
-    var parts = t.split(':');
-    var h = parseInt(parts[0]), m = parts[1];
-    var ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return h + ':' + m + ' ' + ampm;
+    return to12h(t);
 }
 
 function renderSessionTable() {
