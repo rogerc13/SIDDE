@@ -295,6 +295,10 @@ function initWizardCalendar() {
         $('#wizard-calendar').fullCalendar('destroy');
     }
 
+    var calContainer = $('.step2-calendar');
+    var helperText = calContainer.children('p').first();
+    var calHeight = calContainer.height() - (helperText.length ? helperText.outerHeight(true) + 8 : 0);
+
     window.wizardCalendar = $('#wizard-calendar').fullCalendar({
         header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
         defaultView: 'agendaWeek',
@@ -302,6 +306,7 @@ function initWizardCalendar() {
         allDaySlot: false,
         minTime: '06:00:00',
         maxTime: '22:00:00',
+        contentHeight: calHeight,
         selectable: true,
         selectHelper: true,
         selectMinDistance: 5,
