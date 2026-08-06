@@ -55,8 +55,8 @@ function seedWizardData(): void {
             'duration' => 8,
             'addressed' => 'test'
         ]);
-        \\$person =         \\App\\Models\\Capacity::create(['course_id' => \\$course->id, 'min' => 1, 'max' => 30]);
-        \\App\\Models\\Person::create([
+        \\$capacity = \\App\\Models\\Capacity::create(['course_id' => \\$course->id, 'min' => 1, 'max' => 30]);
+        \\$person = \\App\\Models\\Person::create([
             'name' => 'Wizard',
             'last_name' => 'Test',
             'id_number' => rand(1000000, 9999999),
@@ -78,7 +78,8 @@ async function selectOptionByText(page: any, selectId: string, text: string) {
     await page.evaluate(({ id, text }: { id: string; text: string }) => {
         const el = document.getElementById(id) as HTMLSelectElement;
         if (!el) return;
-        const option = Array.from(el.querySelectorAll('option')).find((o) => o.textContent?.includes(text)) as HTMLOptionElement | undefined;
+        const matches = Array.from(el.querySelectorAll('option')).filter((o) => o.textContent?.includes(text)) as HTMLOptionElement[];
+        const option = matches[matches.length - 1];
         if (option) {
             el.value = option.value;
             (window as any).jQuery(`#${id}`).trigger('change');
@@ -151,7 +152,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.click('#wizard-btn-next');
         await page.waitForSelector('#panel-step2.active');
 
-        await page.click('button[onclick^="openAddSessionModal"]');
+        await page.click('button[onclick^="openNewSessionModal"]');
         await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
 
         await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
@@ -180,6 +181,11 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(page.locator('#review-total-hours')).toContainText('2 / 8 horas');
 
         await page.click('#wizard-btn-submit');
+        await page.waitForSelector('#wizard-modal', { state: 'hidden' });
+        await page.waitForLoadState('load');
+
+        await page.fill('#titulos', 'Wizard Test Course');
+        await page.click('form[action*="af_programadas"] button[type="submit"]');
         await page.waitForLoadState('load');
 
         const scheduledRow = page.locator('table.table-center tbody tr', { hasText: 'Wizard Test Course' }).first();

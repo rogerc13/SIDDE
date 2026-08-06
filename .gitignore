@@ -3,6 +3,7 @@
 /public/hot
 /public/storage
 /public/avatars
+/public/uploads/
 /storage/*.key
 /storage/fonts/
 /vendor
@@ -19,4 +20,5 @@ yarn-error.log
 /public/downloads/uploads/zip
 /planning.md
 /public/downloads/uploads
-/test-results.playwright-mcp/
+/test-results/
+/.playwright-mcp/
