@@ -214,6 +214,9 @@ function resetWizard() {
     $('#duration-info').text('');
     clearInlineAlert('wizard-alert');
     clearInlineAlert('wizard-submit-alert');
+    $('#wizard-btn-prev').hide();
+    $('#wizard-btn-next').show();
+    $('#wizard-btn-submit').prop('disabled', true).hide();
     renderSessionTable();
     if (window.wizardCalendar) {
         window.wizardCalendar.fullCalendar('destroy');
