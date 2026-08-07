@@ -167,18 +167,55 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.click('#add-session-modal .modal-footer button.btn-primary');
         await page.waitForTimeout(500);
 
-        const row = page.locator('#wizard-sessions-tbody tr', { hasText: 'WizardTestLocation' });
-        await expect(row).toBeVisible();
-        await expect(row).toContainText('8:00 AM');
-        await expect(row).toContainText('10:00 AM');
-        await expect(row).toContainText('2 hrs');
+        const row1 = page.locator('#wizard-sessions-tbody tr', { hasText: '8:00 AM' });
+        await expect(row1).toBeVisible();
+        await expect(row1).toContainText('10:00 AM');
+        await expect(row1).toContainText('2 hrs');
+
+        await page.click('button[onclick^="openNewSessionModal"]');
+        await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
+        await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
+        await page.evaluate(() => {
+            (window as any).jQuery('#add-session-date').val('2026-08-14');
+            (window as any).jQuery('#add-session-start').val('10:00 AM');
+            (window as any).jQuery('#add-session-end').val('12:00 PM');
+        });
+        await page.waitForTimeout(200);
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(500);
+
+        await page.click('button[onclick^="openNewSessionModal"]');
+        await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
+        await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
+        await page.evaluate(() => {
+            (window as any).jQuery('#add-session-date').val('2026-08-15');
+            (window as any).jQuery('#add-session-start').val('1:00 PM');
+            (window as any).jQuery('#add-session-end').val('3:00 PM');
+        });
+        await page.waitForTimeout(200);
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(500);
+
+        await page.click('button[onclick^="openNewSessionModal"]');
+        await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
+        await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
+        await page.evaluate(() => {
+            (window as any).jQuery('#add-session-date').val('2026-08-15');
+            (window as any).jQuery('#add-session-start').val('3:00 PM');
+            (window as any).jQuery('#add-session-end').val('5:00 PM');
+        });
+        await page.waitForTimeout(200);
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(500);
+
+        const allRows = page.locator('#wizard-sessions-tbody tr');
+        await expect(allRows).toHaveCount(4);
 
         await page.click('#wizard-btn-next');
         await page.waitForSelector('#panel-step3.active');
 
         await expect(page.locator('#review-sessions-tbody')).toContainText('WizardTestLocation');
-        await expect(page.locator('#review-sessions-tbody')).toContainText('8:00 AM');
-        await expect(page.locator('#review-total-hours')).toContainText('2 / 8 horas');
+        await expect(page.locator('#review-total-hours')).toContainText('8 / 8 horas');
 
         await page.click('#wizard-btn-submit');
         await page.waitForSelector('#wizard-modal', { state: 'hidden' });

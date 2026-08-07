@@ -670,6 +670,13 @@ function updateDurationBar() {
     } else {
         $('#duration-status').html('<span class="text-danger"><strong>Excedido por ' + Math.abs(remaining) + ' horas</strong></span>');
     }
+
+    var $submitBtn = $('#wizard-btn-submit');
+    if (assigned === courseDuration && wizardSessions.length > 0) {
+        $submitBtn.prop('disabled', false);
+    } else {
+        $submitBtn.prop('disabled', true);
+    }
 }
 
 function renderReviewPanel() {
