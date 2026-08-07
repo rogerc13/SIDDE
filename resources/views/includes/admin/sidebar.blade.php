@@ -137,10 +137,10 @@
 			</li>
 		@endcan
 		@can('getAll','App\Models\Location')
-			<li class="{{ Request::is('u/ubicaciones') ? 'active' : '' }}" title="Gestión de Ubicaciones">
+			<li class="{{ Request::is('u/ubicaciones') ? 'active' : '' }}" title="Gestión de Aulas">
 				<a href="{{url("u/ubicaciones")}}">
 					<i class="entypo-location"></i>
-					<span class="title">Ubicaciones</span>
+					<span class="title">Gestión de Aulas</span>
 				</a>
 			</li>
 		@endcan
