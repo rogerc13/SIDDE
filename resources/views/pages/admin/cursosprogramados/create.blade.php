@@ -356,11 +356,13 @@ function initWizardCalendar() {
             return '+' + n + ' más';
         },
         select: function(start, end) {
-            openAddSessionModal(start.toDate(), end.toDate());
+            var s = new Date(start.year(), start.month(), start.date(), start.hours(), start.minutes(), 0);
+            var e = new Date(end.year(), end.month(), end.date(), end.hours(), end.minutes(), 0);
+            openAddSessionModal(s, e);
             window.wizardCalendar.fullCalendar('unselect');
         },
         dayClick: function(date) {
-            var start = date.toDate();
+            var start = new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes(), 0);
             var end = new Date(start.getTime() + 2 * 3600 * 1000);
             openAddSessionModal(start, end);
         },
