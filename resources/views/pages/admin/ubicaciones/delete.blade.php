@@ -43,6 +43,7 @@
             </div>
             <div class="modal-body">
                 <p>¿Está seguro que desea eliminar esta aula?</p>
+                <p class="text-danger"><small>Si posee sesiones asignadas, no podrá ser eliminado.</small></p>
             </div>
             <div class="modal-footer">
                 <form class="form-horizontal hidden" method="POST" id='location-form-delete'>
