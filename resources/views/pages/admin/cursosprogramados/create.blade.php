@@ -955,8 +955,19 @@ function submitWizardSchedule() {
                         <label for="add-session-location">Ubicación</label>
                         <select id="add-session-location" class="form-control" required>
                             <option></option>
-                            @foreach($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                            @php
+                                $groupedLocations = $locations->groupBy(function ($location) {
+                                    $building = $location->floor->building->name ?? 'Sin edificio';
+                                    $floor = $location->floor->name ?? 'Sin piso';
+                                    return $building . ' > ' . $floor;
+                                });
+                            @endphp
+                            @foreach($groupedLocations as $group => $groupLocations)
+                                <optgroup label="{{ $group }}">
+                                    @foreach($groupLocations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                    @endforeach
+                                </optgroup>
                             @endforeach
                         </select>
                     </div>
