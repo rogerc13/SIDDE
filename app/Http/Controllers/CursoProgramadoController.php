@@ -511,6 +511,12 @@ class CursoProgramadoController extends Controller
                 ]);
             }
 
+            if ($request->expectsJson()) {
+                session()->flash("alert", Funciones::getAlert("success", "Curso Programado Exitosamente", "Operación Exitosa."));
+
+                return response()->json(['success' => true]);
+            }
+
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("success", "Curso Programado Exitosamente", "Operación Exitosa."));
         }

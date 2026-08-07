@@ -756,10 +756,7 @@ function submitWizardSchedule() {
             'X-Requested-With': 'XMLHttpRequest'
         },
         success: function(response) {
-            showInlineAlert('wizard-submit-alert', 'success', 'Curso programado exitosamente. Recargando...');
-            setTimeout(function() {
-                window.location.reload();
-            }, 1200);
+            window.location.href = '{{ url("u/af_programadas") }}';
         },
         error: function(xhr) {
             $submitBtn.prop('disabled', false);
