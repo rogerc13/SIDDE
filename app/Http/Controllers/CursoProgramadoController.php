@@ -70,7 +70,7 @@ class CursoProgramadoController extends Controller
         $cursos = Scheduled::orderBy("start_date","desc")->with(['course','facilitator','courseStatus','sessions']);
         $estados = CourseStatus::orderBy('name','asc')->get();
         $categoriasAcciones = Category::with('courses')->get();
-        $locations = Location::orderBy('name', 'asc')->get();
+        $locations = Location::with('floor.building')->orderBy('name', 'asc')->get();
         
 
         if($titulos){
