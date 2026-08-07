@@ -359,8 +359,7 @@ function initWizardCalendar() {
             window.wizardCalendar.fullCalendar('unselect');
         },
         dayClick: function(date) {
-            var d = date.toDate();
-            var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0, 0);
+            var start = date.toDate();
             var end = new Date(start.getTime() + 2 * 3600 * 1000);
             openAddSessionModal(start, end);
         },
