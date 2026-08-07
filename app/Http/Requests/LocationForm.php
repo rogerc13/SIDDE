@@ -24,20 +24,21 @@ class LocationForm extends FormRequest
      */
     public function rules()
     {
-        switch($this->method())
-        {
-            
+        switch ($this->method()) {
+
             case 'POST':
-                return [                        
-                        'nombre'=>'required|string|max:'.Location::MAX_LENGTH_NAME.'|unique:locations,name',
-                       ]; 
-                
+                return [
+                    'nombre' => 'required|string|max:' . Location::MAX_LENGTH_NAME . '|unique:locations,name',
+                    'floor_id' => 'required|integer|exists:floors,id',
+                ];
+
             case 'PUT':
                 return [
-                        'nombre'=>'required|string|max:'.Location::MAX_LENGTH_NAME,
-                       
-                       ];
-            default:return[];
+                    'nombre' => 'required|string|max:' . Location::MAX_LENGTH_NAME,
+                    'floor_id' => 'required|integer|exists:floors,id',
+                ];
+            default:
+                return [];
         }
     }
 

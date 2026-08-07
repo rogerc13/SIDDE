@@ -103,10 +103,21 @@ Route::group(['middleware' => 'auth'], function ()
         {
                 Route::get('/', 'App\Http\Controllers\LocationController@getAll')->name("ubicaciones");
                 Route::get('/count', 'App\Http\Controllers\LocationController@count');
+                Route::get('/select', 'App\Http\Controllers\LocationController@getForSelect');
                 Route::get('/{id}', 'App\Http\Controllers\LocationController@get');
                 Route::post('/', 'App\Http\Controllers\LocationController@store');
                 Route::put('/{id}', 'App\Http\Controllers\LocationController@update');
                 Route::delete('/{id}', 'App\Http\Controllers\LocationController@delete');
+
+                Route::get('/building/{id}', 'App\Http\Controllers\LocationController@getBuilding');
+                Route::post('/building', 'App\Http\Controllers\LocationController@storeBuilding');
+                Route::put('/building/{id}', 'App\Http\Controllers\LocationController@updateBuilding');
+                Route::delete('/building/{id}', 'App\Http\Controllers\LocationController@deleteBuilding');
+
+                Route::get('/floor/{id}', 'App\Http\Controllers\LocationController@getFloor');
+                Route::post('/floor', 'App\Http\Controllers\LocationController@storeFloor');
+                Route::put('/floor/{id}', 'App\Http\Controllers\LocationController@updateFloor');
+                Route::delete('/floor/{id}', 'App\Http\Controllers\LocationController@deleteFloor');
         });
 
         Route::group(['prefix' => 'acciones_formacion'], function()

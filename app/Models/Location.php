@@ -15,9 +15,15 @@ class Location extends Model
 
   protected $table = 'locations';
   protected $fillable = [
+    'floor_id',
     'name',
   ];
-  protected $dates = [ 'deleted_at', ];
+  protected $dates = ['deleted_at'];
+
+  public function floor()
+  {
+    return $this->belongsTo(Floor::class);
+  }
 
   public function sessions()
   {
