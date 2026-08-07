@@ -49,7 +49,7 @@ class ScheduleTest extends TestCase
 
     private function makeLocation(): Location
     {
-        return Location::create(['name' => 'Aula ' . uniqid()]);
+        return \App\Models\Location::factory()->create();
     }
 
     private function payload(Course $course, Facilitator $facilitator, Location $location, array $sessions = []): array
