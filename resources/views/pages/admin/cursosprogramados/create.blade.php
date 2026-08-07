@@ -329,6 +329,7 @@ function initWizardCalendar() {
     var calHeight = calContainer.height() - (helperText.length ? helperText.outerHeight(true) + 8 : 0);
 
     window.wizardCalendar = $('#wizard-calendar').fullCalendar({
+        timezone: 'America/Caracas',
         header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
         defaultView: 'agendaWeek',
         slotMinutes: 15,
