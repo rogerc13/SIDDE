@@ -21,7 +21,8 @@
 	<script src="{{url('assets/js/raphael-min.js')}}"></script>
 	<script src="{{url('assets/js/morris.min.js')}}"></script> --}}
 	<script src="{{url('assets/js/toastr.js')}}"></script>
-	<script src="{{url('assets/js/fullcalendar/fullcalendar.min.js')}}"></script>
+	<script src="{{url('assets/js/fullcalendar-2/lib/moment.min.js')}}"></script>
+	<script src="{{url('assets/js/fullcalendar-2/fullcalendar.min.js')}}"></script>
 	<script src="{{url('assets/js/neon-chat.js')}}"></script>
 	<script src="{{url('assets/js/zurb-responsive-tables/responsive-tables.js')}}"></script>
 

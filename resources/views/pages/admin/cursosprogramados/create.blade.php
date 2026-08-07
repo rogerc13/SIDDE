@@ -1,5 +1,5 @@
 @push('CSS')
-<link rel="stylesheet" href="{{url('assets/js/fullcalendar/fullcalendar.css')}}">
+<link rel="stylesheet" href="{{url('assets/js/fullcalendar-2/fullcalendar.min.css')}}">
 <style>
     .wizard-steps { list-style: none; padding: 0; margin: 0 0 10px; display: flex; justify-content: center; gap: 0; }
     .wizard-steps li { flex: 1; text-align: center; position: relative; padding: 6px 0; }
@@ -18,6 +18,7 @@
     #wizard-calendar { height: 100%; }
     .fc-event { cursor: pointer; }
     .blocked-event { background: #999 !important; border-color: #999 !important; cursor: not-allowed !important; }
+    .blocked-event-fac { background: #e67e22 !important; border-color: #e67e22 !important; cursor: not-allowed !important; background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.15) 5px, rgba(255,255,255,0.15) 10px) !important; }
     .review-table td { vertical-align: middle !important; }
     #duration-warning { display: none; }
     .modal-xl { width: 95%; max-width: 1400px; }
@@ -165,7 +166,22 @@ function findBlockedOverlap(locationId, sessionDate, startTime, endTime) {
     var eMin = timeToMinutes(endTime);
     for (var i = 0; i < blockedSlotsCache.length; i++) {
         var b = blockedSlotsCache[i];
+        if (b.type !== 'location') continue;
         if (parseInt(b.location_id, 10) !== parseInt(locationId, 10)) continue;
+        if (b.session_date !== sessionDate) continue;
+        var bsMin = timeToMinutes(b.start_time);
+        var beMin = timeToMinutes(b.end_time);
+        if (sMin < beMin && eMin > bsMin) return b;
+    }
+    return null;
+}
+
+function findFacilitatorOverlap(sessionDate, startTime, endTime) {
+    var sMin = timeToMinutes(startTime);
+    var eMin = timeToMinutes(endTime);
+    for (var i = 0; i < blockedSlotsCache.length; i++) {
+        var b = blockedSlotsCache[i];
+        if (b.type !== 'facilitator') continue;
         if (b.session_date !== sessionDate) continue;
         var bsMin = timeToMinutes(b.start_time);
         var beMin = timeToMinutes(b.end_time);
@@ -198,7 +214,15 @@ function programarAccion(url){
         updateDurationBar();
     });
 
-    $('#wizard-facilitador').select2({ allowClear: true, placeholder: 'Seleccionar facilitador' });
+    $('#wizard-facilitador').on('change', function() {
+        refreshCalendarEvents();
+    });
+
+    $('#calendar-location-filter').select2({ allowClear: true, placeholder: 'Todas las ubicaciones' });
+    $('#calendar-location-filter').on('change', function() {
+        refreshCalendarEvents();
+        renderLocationLegend();
+    });
 }
 
 function resetWizard() {
@@ -217,6 +241,8 @@ function resetWizard() {
     $('#wizard-btn-prev').hide();
     $('#wizard-btn-next').show();
     $('#wizard-btn-submit').prop('disabled', true).hide();
+    $('#calendar-location-filter').val('').trigger('change');
+    $('#location-color-legend').empty().hide();
     renderSessionTable();
     if (window.wizardCalendar) {
         window.wizardCalendar.fullCalendar('destroy');
@@ -329,16 +355,19 @@ function initWizardCalendar() {
             return '+' + n + ' más';
         },
         select: function(start, end) {
-            openAddSessionModal(start, end);
+            openAddSessionModal(start.toDate(), end.toDate());
             window.wizardCalendar.fullCalendar('unselect');
         },
         dayClick: function(date) {
-            var start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 0, 0);
+            var d = date.toDate();
+            var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0, 0);
             var end = new Date(start.getTime() + 2 * 3600 * 1000);
             openAddSessionModal(start, end);
         },
-        events: function(start, end, callback) {
+        events: function(start, end, timezone, callback) {
+            var filterLocationId = $('#calendar-location-filter').val();
             var sessionEvents = wizardSessions.map(function(s) {
+                if (filterLocationId && parseInt(s.location_id) !== parseInt(filterLocationId)) return null;
                 var parts = s.session_date.split('-');
                 var sParts = s.start_time.split(':');
                 var eParts = s.end_time.split(':');
@@ -352,34 +381,45 @@ function initWizardCalendar() {
                     color: getLocationColor(s.location_id),
                     allDay: false
                 };
-            });
-            var startStr = start.getFullYear() + '-' + ('0' + (start.getMonth()+1)).slice(-2) + '-' + ('0' + start.getDate()).slice(-2);
-            var endStr = end.getFullYear() + '-' + ('0' + (end.getMonth()+1)).slice(-2) + '-' + ('0' + end.getDate()).slice(-2);
+            }).filter(function(e) { return e !== null; });
+            var startStr = start.format('YYYY-MM-DD');
+            var endStr = end.format('YYYY-MM-DD');
+            var facilitatorId = $('#wizard-facilitador').val();
             $.ajax({
                 url: '{{ url("u/af_programadas/blocked-slots") }}',
                 type: 'GET',
                 dataType: 'json',
                 data: {
                     start: startStr,
-                    end: endStr
+                    end: endStr,
+                    facilitator_id: facilitatorId || ''
                 },
                 success: function(blocked) {
                     blockedSlotsCache = [];
                     var fixedBlocked = (Array.isArray(blocked) ? blocked : []).map(function(e) {
+                        var isFilteredMatch = filterLocationId && e.type === 'location' && parseInt(e.location_id) === parseInt(filterLocationId);
+                        var isFilteredOut = filterLocationId && e.type === 'location' && parseInt(e.location_id) !== parseInt(filterLocationId);
+                        if (isFilteredOut) return null;
+
                         var item = {
                             id: e.id,
-                            title: e.title,
+                            title: isFilteredMatch ? e.title + ' (Ocupado)' : e.title,
                             start: new Date(e.start),
                             end: e.end ? new Date(e.end) : null,
-                            rendering: e.rendering,
-                            color: e.color,
-                            location_id: e.location_id
+                            color: isFilteredMatch ? getLocationColor(e.location_id) : e.color,
+                            location_id: e.location_id,
+                            type: e.type
                         };
+                        if (!isFilteredMatch) {
+                            item.rendering = 'background';
+                        }
                         if (e.start) {
                             var startParts = e.start.split('T');
                             var endStr = e.end ? e.end.split('T')[1] : startParts[1];
                             blockedSlotsCache.push({
                                 location_id: e.location_id,
+                                facilitator_id: e.facilitator_id || null,
+                                type: e.type || 'location',
                                 session_date: startParts[0],
                                 start_time: startParts[1] ? startParts[1].slice(0, 5) : '00:00',
                                 end_time: endStr ? endStr.slice(0, 5) : '23:59',
@@ -387,7 +427,7 @@ function initWizardCalendar() {
                             });
                         }
                         return item;
-                    });
+                    }).filter(function(e) { return e !== null; });
                     var allEvents = sessionEvents.concat(fixedBlocked);
                     callback(allEvents);
                 },
@@ -400,7 +440,11 @@ function initWizardCalendar() {
         eventRender: function(event, element) {
             element.attr('title', event.title);
             if (event.rendering === 'background') {
-                element.addClass('blocked-event');
+                if (event.type === 'facilitator') {
+                    element.addClass('blocked-event-fac');
+                } else {
+                    element.addClass('blocked-event');
+                }
             }
         }
     });
@@ -412,6 +456,22 @@ function refreshCalendarEvents() {
     window.wizardCalendar.fullCalendar('destroy');
     initWizardCalendar();
     $('#wizard-calendar').fullCalendar('gotoDate', currentDate);
+}
+
+function renderLocationLegend() {
+    var $legend = $('#location-color-legend');
+    var filterLocationId = $('#calendar-location-filter').val();
+    if (!filterLocationId) {
+        $legend.empty().hide();
+        return;
+    }
+    var color = getLocationColor(filterLocationId);
+    var locationName = $('#calendar-location-filter option:selected').text();
+    $legend.html(
+        '<span style="display:inline-block;width:12px;height:12px;background:' + color + ';border-radius:2px;margin-right:4px;vertical-align:middle;"></span>' +
+        '<span style="vertical-align:middle;">' + locationName + '</span>' +
+        '<span style="margin-left:6px;color:#999;font-size:10px;">● Bloques = ocupado</span>'
+    ).show();
 }
 
 function openNewSessionModal() {
@@ -428,6 +488,13 @@ function openAddSessionModal(start, end, editId) {
     clearFieldErrors('#add-session-form');
     clearInlineAlert('add-session-alert');
     overlapPendingConfirm = false;
+
+    var filterLocationId = $('#calendar-location-filter').val();
+    if (filterLocationId && !editId) {
+        $('#add-session-location').val(filterLocationId).trigger('change');
+    } else {
+        $('#add-session-location').val('').trigger('change');
+    }
 
     var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
     var sh = pad(start.getHours()), sm = pad(start.getMinutes());
@@ -514,6 +581,13 @@ function saveSessionFromModal() {
         return;
     }
     overlapPendingConfirm = false;
+
+    var facOverlap = findFacilitatorOverlap(sessionDate, startTime, endTime);
+    if (facOverlap) {
+        showInlineAlert('add-session-alert', 'danger',
+            'El facilitador seleccionado ya tiene una sesión programada en este horario: ' + facOverlap.title + '.');
+        return;
+    }
 
     if (editId) {
         var idx = wizardSessions.findIndex(function(s) { return s.id === parseInt(editId); });
@@ -882,6 +956,27 @@ function submitWizardSchedule() {
                             </div>
                             <div class="step2-sidebar">
                                 <div class="step2-sidebar-header">
+                                    <div style="margin-bottom: 10px;">
+                                        <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px;">Filtrar por ubicación</label>
+                                        <select id="calendar-location-filter" class="form-control input-sm">
+                                            <option value="">Todas las ubicaciones</option>
+                                            @php
+                                                $groupedFilterLocations = $locations->groupBy(function ($location) {
+                                                    $building = $location->floor->building->name ?? 'Sin edificio';
+                                                    $floor = $location->floor->name ?? 'Sin piso';
+                                                    return $building . ' > ' . $floor;
+                                                });
+                                            @endphp
+                                            @foreach($groupedFilterLocations as $group => $groupLocations)
+                                                <optgroup label="{{ $group }}">
+                                                    @foreach($groupLocations as $location)
+                                                        <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                                    @endforeach
+                                                </optgroup>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div id="location-color-legend" style="margin-bottom: 10px; font-size: 11px; display: none;"></div>
                                     <div style="margin-bottom: 12px;">
                                         <button type="button" class="btn btn-primary btn-sm btn-block" onclick="openNewSessionModal()">
                                             <i class="entypo-plus"></i> Agregar Sesión

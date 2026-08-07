@@ -529,24 +529,57 @@ class CursoProgramadoController extends Controller
     {
         $start = $request->input('start');
         $end = $request->input('end');
+        $facilitatorId = $request->input('facilitator_id');
 
-        $sessions = CourseSession::with('location')
+        $sessions = CourseSession::with(['location' => function ($q) {
+            $q->withTrashed();
+        }])
             ->whereBetween('session_date', [$start, $end])
             ->whereNull('deleted_at')
-            ->get()
-            ->map(function ($s) {
+            ->get();
+
+        $locationBlocks = $sessions->filter(function ($s) {
+            return $s->location !== null;
+        })->map(function ($s) {
+            return [
+                'id' => 'blocked-loc-' . $s->id,
+                'title' => ($s->location->name ?? 'Ubicación') . ' (Ocupado)',
+                'start' => $s->session_date . 'T' . $s->start_time,
+                'end' => $s->session_date . 'T' . $s->end_time,
+                'color' => '#999',
+                'location_id' => $s->location_id,
+                'type' => 'location',
+                'rendering' => 'background',
+            ];
+        });
+
+        $facilitatorBlocks = collect();
+        if ($facilitatorId) {
+            $facilitatorSessions = $sessions->filter(function ($s) use ($facilitatorId) {
+                return $s->scheduled && $s->scheduled->facilitator_id == $facilitatorId;
+            });
+
+            $facilitator = Facilitator::with('person')->find($facilitatorId);
+            $facilitatorName = $facilitator && $facilitator->person
+                ? $facilitator->person->name . ' ' . $facilitator->person->last_name
+                : 'Facilitador';
+
+            $facilitatorBlocks = $facilitatorSessions->map(function ($s) use ($facilitatorName) {
                 return [
-                    'id' => 'blocked-' . $s->id,
-                    'title' => $s->location->name . ' (Ocupado)',
+                    'id' => 'blocked-fac-' . $s->id,
+                    'title' => $facilitatorName . ' (Facilitador - Ocupado)',
                     'start' => $s->session_date . 'T' . $s->start_time,
                     'end' => $s->session_date . 'T' . $s->end_time,
-                    'color' => '#999',
+                    'color' => '#e67e22',
                     'location_id' => $s->location_id,
+                    'facilitator_id' => $s->scheduled->facilitator_id,
+                    'type' => 'facilitator',
                     'rendering' => 'background',
                 ];
             });
+        }
 
-        return response()->json($sessions);
+        return response()->json($locationBlocks->merge($facilitatorBlocks)->values());
     }
 
 }

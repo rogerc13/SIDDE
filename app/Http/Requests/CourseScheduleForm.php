@@ -101,6 +101,23 @@ class CourseScheduleForm extends FormRequest
                     return;
                 }
             }
+
+            // Validate facilitator is not already booked at the same time
+            foreach ($this->sessions as $session) {
+                $facilitatorConflict = CourseSession::whereHas('scheduled', function ($q) use ($session) {
+                        $q->where('facilitator_id', $this->facilitator);
+                    })
+                    ->where('session_date', $session['session_date'])
+                    ->where('start_time', '<', $session['end_time'])
+                    ->where('end_time', '>', $session['start_time'])
+                    ->whereNull('deleted_at')
+                    ->count();
+
+                if ($facilitatorConflict > 0) {
+                    $validator->errors()->add('sessions', 'El facilitador seleccionado ya tiene una sesión programada el día ' . $session['session_date'] . ' en este horario.');
+                    return;
+                }
+            }
         });
     }
 }

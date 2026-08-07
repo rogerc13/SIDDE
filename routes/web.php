@@ -144,13 +144,17 @@ Route::group(['middleware' => 'auth'], function ()
         {
                 Route::get('/', 'App\Http\Controllers\CursoProgramadoController@getAll')->name("programadas");
                 Route::get('/count', 'App\Http\Controllers\CursoProgramadoController@count');
-                Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
                 Route::post('/', 'App\Http\Controllers\CursoProgramadoController@store');
+
+                Route::post('/schedule', 'App\Http\Controllers\CursoProgramadoController@schedule');
+                Route::get('/blocked-slots', 'App\Http\Controllers\CursoProgramadoController@getBlockedSlots');
+                Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
+
+                Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
                 Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@update');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');
                 Route::put('/cancel/{id}', 'App\Http\Controllers\CursoProgramadoController@cancel');
 
-                Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
                 Route::post('/{id}/af_programadas/participantes/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
 
@@ -165,9 +169,6 @@ Route::group(['middleware' => 'auth'], function ()
                 //Route::put('/{id}/participantes/{participanteId}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
-
-                Route::post('/schedule', 'App\Http\Controllers\CursoProgramadoController@schedule');
-                Route::get('/blocked-slots', 'App\Http\Controllers\CursoProgramadoController@getBlockedSlots');
 
                 
                 
