@@ -540,6 +540,9 @@ function saveSessionFromModal() {
     $('#add-session-modal').modal('hide');
     renderSessionTable();
     refreshCalendarEvents();
+    if (getCurrentStep() === 3) {
+        renderReviewPanel();
+    }
 }
 
 function applyDurationChip(hours) {
