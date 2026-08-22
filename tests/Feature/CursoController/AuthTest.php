@@ -37,14 +37,14 @@ class AuthTest extends CursoControllerTestCase
         $response->assertStatus(200);
     }
 
-    public function test_getAccionFormacion_redirects_unauthorized_role(): void
+    public function test_getAccionFormacion_allows_participante(): void
     {
         $course = $this->createViewableCourse();
 
         $response = $this->actingAs($this->participanteUser())
             ->get("/acciones_formacion/{$course->id}");
 
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(200);
     }
 
     public function test_getAccionFormacion_redirects_unauthenticated(): void

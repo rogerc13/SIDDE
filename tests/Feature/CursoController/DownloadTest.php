@@ -68,7 +68,8 @@ class DownloadTest extends CursoControllerTestCase
 
         File::create(['path' => 'DL-001/manual_f.pdf', 'type_id' => 1, 'course_id' => $course->id]);
 
-        $response = $this->get("/download/{$course->id}/1");
+        $response = $this->actingAs($this->adminUser())
+            ->get("/download/{$course->id}/1");
 
         $response->assertHeader('Content-Disposition');
 
@@ -89,7 +90,8 @@ class DownloadTest extends CursoControllerTestCase
 
         $file = File::create(['path' => 'test.pdf', 'type_id' => 1, 'course_id' => $course->id]);
 
-        $response = $this->get("/download/{$course->id}/0");
+        $response = $this->actingAs($this->adminUser())
+            ->get("/download/{$course->id}/0");
 
         $response->assertJsonFragment(['id' => $file->id]);
     }
