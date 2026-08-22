@@ -10,19 +10,10 @@ class Participant extends Model
   use SoftDeletes;
 
   const ENCURSO = 1;
-  const SUSPENDIDO = 2;
+  const REPROBADO = 2;
   const APROBADO = 3;
   const CANCELADO = 4;
   const PORINICIAR = 5;
-
-  public static $estados = [
-
-      self::ENCURSO => "En Curso",
-      self::SUSPENDIDO => "Suspendido/Reprobado",
-      self::APROBADO => "Aprobado",
-      self::CANCELADO => "Cancelado",
-      self::PORINICIAR => "Por Iniciar",
-  ];
 
   protected $table = 'participants';
   protected $fillable = [
@@ -49,18 +40,8 @@ class Participant extends Model
     return $this->belongsToMany(Course::class);
   }  */
 
-  public function getEstado()
-  {
-        if($this->participant_status_id==1)
-            return "En Curso";
-        else if($this->participant_status_id==2)
-            return "Suspendido/Reprobado";
-        else if($this->participant_status_id==3)
-            return "Aprobado";
-        else if($this->participant_status_id==4)
-            return "Cancelado";
-        else if($this->participant_status_id==5)
-            return "Por Iniciar";
+  public function isReprobado(){
+    return $this->participant_status_id==self::REPROBADO;
   }
 
   public function isPorIniciar(){
@@ -73,9 +54,6 @@ class Participant extends Model
     return $this->participant_status_id==self::APROBADO;
   }
 
-  public function isSuspendido(){
-    return $this->participant_status_id==self::SUSPENDIDO;
-  }
   public function isCancelado(){
       return $this->participant_status_id==self::CANCELADO;
   }
@@ -87,7 +65,7 @@ class Participant extends Model
           return 'success';
       elseif ($this->isAprobado())
           return 'info';
-      elseif ($this->isSuspendido())
+      elseif ($this->isReprobado())
           return 'danger';
       elseif ($this->isCancelado())
           return 'default';

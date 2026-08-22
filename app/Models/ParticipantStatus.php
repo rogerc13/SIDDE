@@ -9,7 +9,7 @@ class ParticipantStatus extends Model
 {
     use HasFactory;
 
-    protected $fillabled = ['name'];
+    protected $fillable = ['name'];
 
     protected $table = 'participant_status';
 

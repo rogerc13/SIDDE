@@ -3,12 +3,30 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Participant;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ParticipantPolicy
 {
     use HandlesAuthorization;
-    
+
+    public function updateStatus(User $user, Participant $participant)
+    {
+        if ($user->isAdministrador() || $user->isProgramador()) {
+            return true;
+        }
+
+        if (!$user->isFacilitador()) {
+            return false;
+        }
+
+        $scheduled = $participant->scheduled()->withTrashed()->first();
+
+        return $scheduled
+            && $user->can('evaluate', $scheduled)
+            && ($scheduled->isEnCurso() || $scheduled->isCulminado());
+    }
+
     public function get(User $user)
     {
        return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();

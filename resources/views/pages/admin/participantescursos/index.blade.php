@@ -10,18 +10,15 @@
   <br>
   @if (!Auth::user()->isFacilitador())
     <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
-    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>        
-  @else
-    @if ($cursoprogramado->isEnCurso() || $cursoprogramado->isCulminado())
-      <div class="btn btn-success evaluate-button"><i class="fa fa-check" aria-hidden="true"></i><span> Evaluar Participantes</span></div>
-    @else
-      <div class="btn btn-success disabled" aria-disabled="true"><i class="fa fa-check" aria-hidden="true"></i><span> Evaluar Participantes</span></div>
-    @endif
+    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>
+  @elseif ($canEvaluate)
+    <span class="text-muted"><i class="fa fa-info-circle" aria-hidden="true"></i> Cambia el estado de cada participante para evaluarlo. Los cambios se guardan automáticamente.</span>
   @endif
   <a href="{{url('u/pdf/participants/'.$cursoprogramado->id)}}" class="btn btn-success"><i class="fa fa-file-pdf-o " aria-hidden="true"></i> Imprimir Lista de Participantes</a>
   <br>
   <br>
-<div class="row">						
+  <div id="evaluation-feedback" class="alert hidden" role="alert"></div>
+<div class="row">
 	<div class="col-md-12">
 
       <div class="panel panel-success" data-collapsed="0">  
@@ -58,21 +55,26 @@
                             <td><span class="">{{$participante->person->last_name}}</span></td>
                             <td><span class="">{{$participante->person->id_type_id == 1 ? 'V' : 'E'}}-{{$participante->person->id_format()}}</span></td>
                             <td>
-                              <select name="participant_status" id="participant_status" class="participant_status form-control" disabled>
+                              <select name="participant_status[{{$participante->id}}]" class="participant_status form-control"
+                                    data-participant-id="{{$participante->id}}"
+                                    data-current-status-id="{{$participante->participant_status_id}}"
+                                    data-url="{{url('u/af_programadas/estado-participantes/'.$participante->id)}}"
+                                    @if (!$canEvaluate)
+                                    disabled
+                                    @endif>
                                     @foreach ($statuses as $status)
-                                        <option course_id="{{$cursoprogramado->id}}" participant_id="{{$participante->id}}" value="{{$status->id}}" 
+                                        <option value="{{$status->id}}"
                                             @if ($status->id == $participante->participant_status_id)
-                                            selected 
-                                        @endif>
-                                        <span>{{$status->name}}</span></option>
+                                            selected
+                                        @endif>{{$status->name}}</option>
                                     @endforeach
-                              </select> 
+                              </select>
                               <span class="participant_status_helper badge badge-{{$participante->badgeStatus()}}">{{$participante->participantStatus->name}}</span>
                             </td>
                             @if (!Auth::User()->isFacilitador())
                             <td>
                               
-                                <a  title="Editar Estado del Participante" href="javascript:editarEstado('{{url('u/af_programadas/estado-participantes/'.$participante->id)}}')" class="btn btn-default btn-xs">
+                                <a  title="Editar Estado del Participante" href="javascript:editarEstado({{$participante->id}})" class="btn btn-default btn-xs">
                                     <i class="entypo-pencil"></i>
                                 </a>
                                 <a  title="Eliminar Participante" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">

@@ -1,31 +1,18 @@
 @push('JS')
 <script>
-    function editarEstado(url){
-        $(".loader").removeClass("hidden");
+    function editarEstado(participantId){
         $("#estado-form").addClass("hidden");
+        $(".loader").addClass("hidden");
         $("[name=_method]").val("PUT");
         $("#estado-label").html("Editar estado del participante");
-        $("#estado-form").attr("action", url); 
-        
-        
-        //console.log(url)      
-        //let participanteId = (url.split("/").pop());
-        //console.log(participanteId);
 
+        var $rowSelect = $('.participant_status[data-participant-id="'+participantId+'"]');
+        $("#estado-form").attr("action", $rowSelect.data('url'));
+        $('#estado').val($rowSelect.val());
 
-        $.get(url,function(data,status){
-                data=JSON.parse(data);
-                $('#estado').val(data.participant_status_id);
-                //console.log(data);
-                $(".loader").addClass("hidden");
-                $("#estado-form").removeClass("hidden");
-                
-            });
-
+        $("#estado-form").removeClass("hidden");
         $("#estado-modal").modal();
-
     }
-    
 </script>
 @endpush
 
@@ -50,7 +37,7 @@
                         <div class="form-group" >
                             <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3" >
                                 {{ Form::label('estado', 'Estado') }}
-                                {{ Form::select('estado',$estados, null , array('class' => 'form-control','required')) }}
+                                {{ Form::select('estado',$statuses->pluck('name','id'), null , array('class' => 'form-control','required')) }}
                             </div>                      
                         </div>    
                 </div>     

@@ -28,24 +28,26 @@ class UserForm extends FormRequest
         {
             
             case 'POST':
-                return [                        
+                return [
                         'nombre' => 'required|string|max:'.User::MAX_LENGTH_NAME,
-                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME, 
+                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME,
                         'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
-                        'rol' => 'sometimes|required|integer|exists:roles,id',                        
+                        'id_type' => 'required|integer|exists:id_types,id',
+                        'rol' => 'sometimes|required|integer|exists:roles,id',
                         'email' => 'required|email:rfc,filter|unique:users,email|max:'.User::MAX_LENGTH_EMAIL,
                         'phone' => 'nullable|string|max:45',
                         'sex' => 'required|in:Femenino,Masculino',
                         'password' => 'required|confirmed',
                         'password_confirmation' => 'required',
-                       
 
-                       ]; 
+
+                       ];
             case 'PUT':
                 return [
                         'nombre' => 'required|string|max:'.User::MAX_LENGTH_NAME,
-                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME, 
+                        'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME,
                         'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
+                        'id_type' => 'required|integer|exists:id_types,id',
                         'rol' => 'sometimes|required|integer|exists:roles,id',                        
                         'email' => 'required|email:rfc,filter|unique:users,email,'.$this->user_id.'|max:'.User::MAX_LENGTH_EMAIL,
                         'phone' => 'nullable|string|max:45',

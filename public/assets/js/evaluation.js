@@ -1,77 +1,75 @@
-function evaluate(data){
-    //console.log(data);
+(function () {
+    var feedbackTimer = null;
 
-    if(data.length === 0){
-        return;
+    function showFeedback(type, message) {
+        var $feedback = $('#evaluation-feedback');
+        $feedback.removeClass('hidden alert-success alert-danger alert-warning')
+            .addClass('alert-' + type)
+            .text(message);
+
+        if (feedbackTimer) {
+            clearTimeout(feedbackTimer);
+        }
+        feedbackTimer = setTimeout(function () {
+            $feedback.addClass('hidden');
+        }, 4000);
     }
-    //console.log(data[0].scheduled_id);
-    /* console.log(data);
-    b = data.reduce(function(x,y){
-            if(!x.some(function(el){return el.participant_id === y.participant_id;})) x.push(y);
-            return x;
-        },[]);
-        console.log(b); */
-    
-    $.ajax({
-            type: "POST",
-            url: "/evaluation",
-            data: {'data':data},
-            dataType: "json",
-            success: function (response) {
-                //console.log(response);
-                success = true;
-                method = "";
-                window.location =
-                    /* data[0].scheduled_id+ */ "onSubmitAlert/" + success;
-            },
-            error: function (response) {
-                //console.log(response);
-                success = false;
-                method = "";
-                window.location = /* data[0].scheduled_id+ */"onSubmitAlert/" + success;
-            }
-        });
-}
 
-$(document).ready(function(){
-    $.ajaxSetup({
-            headers:{
-                'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+    function evaluate($select) {
+        var url = $select.data('url');
+        var previousStatusId = String($select.data('current-status-id'));
+        var newStatusId = String($select.val());
+
+        if (newStatusId === previousStatusId) {
+            return;
+        }
+
+        $select.prop('disabled', true);
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: {
+                _method: 'PUT',
+                estado: newStatusId
+            },
+            dataType: "json"
+        }).done(function () {
+            $select.data('current-status-id', newStatusId);
+            $select.prop('disabled', false);
+            showFeedback('success', 'Evaluación guardada correctamente.');
+        }).fail(function (response) {
+            $select.val(previousStatusId);
+            $select.prop('disabled', false);
+
+            var message = 'No se pudo guardar la evaluación. Intente nuevamente.';
+            if (response.responseJSON && response.responseJSON.message) {
+                message = response.responseJSON.message;
+            }
+            showFeedback('danger', message);
+        });
+    }
+
+    $(document).ready(function () {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        $('.participant_status').hide();
-        $('.participant_status_helper').show();
-        $('.evaluate-button').on('click',function(e){
-            $(".return-button").prop('disabled',true);
-            if($('.participant_status').prop('disabled') == true){
-                $('.participant_status').show();
-                $('.participant_status_helper').hide();
-                $('.evaluate-button span').html(' Finalizar Evaluación');
-                $('.participant_status').each(function(){
-                    $('.participant_status').prop('disabled', false);
-                });
-            }else{
-                $('.participant_status').hide();
-                $('.participant_status_helper').show();
-                $('.participant_status').each(function(){
-                    $(this).prop('disabled', true);
-                });
-                $('.evaluate-button span').html(' Evaluar Participantes');
-                evaluate(data);
+
+        $('.participant_status').each(function () {
+            var $select = $(this);
+            if ($select.prop('disabled')) {
+                $select.hide();
+                $select.siblings('.participant_status_helper').show();
+            } else {
+                $select.show();
+                $select.siblings('.participant_status_helper').hide();
             }
-            e.preventDefault();
         });
-        let data = [];
-        let b;
-     /* $('.participant_status option').on('click',function(e){
-        data.push({'scheduled_id':$(this).attr('course_id'),'participant_id':$(this).attr('participant_id'),'status_id':$(this).val()});
-    }) */
-     $('.participant_status').on('click',function(e){
-         //console.log($(this.options[this.selectedIndex]).attr("course_id"));
-         data.push({
-            scheduled_id: $(this.options[this.selectedIndex]).attr("course_id"),
-            participant_id: $(this.options[this.selectedIndex]).attr("participant_id"),
-            status_id: $(this).val(),
+
+        $(document).on('change', '.participant_status:not(:disabled)', function () {
+            evaluate($(this));
         });
-     })
-});
+    });
+})();

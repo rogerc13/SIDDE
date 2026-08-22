@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Scheduled;
-use App\Models\Course;
-use App\Models\Person;
-use App\Models\User;
 use App\Models\Participant;
 use App\Models\ParticipantStatus;
 use App\Models\Funciones;
 use App\Models\IdType;
+use App\Models\Person;
+use App\Models\Role;
+use App\Models\User;
 
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\UserForm;
@@ -19,73 +19,8 @@ use Illuminate\Support\Facades\Auth;
 
 class ParticipanteCursoController extends Controller
 {
-    public function get($participanteId)
-    {
-
-        $user = Auth::user();
-        $participantecurso = Participant::find($participanteId);
-        if(!$participantecurso || $user->cannot('get', Participant::class))
-        {
-            return json_encode([]);
-        }
-        return json_encode($participantecurso);
-    }
-    
-    public function getAll()
-    {
-
-        $user = Auth::user();
-
-        if($user->cannot('getAll',Participant::class))
-        {
-            return Redirect::back()
-                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
-
-        }
-         
-        return view('pages.admin.participantes.index')
-                ->with('users',$users->paginate(10));
-
-    }
-
     public function getAllPorCurso($id)
     {
-        
-        $user = Auth::user();
-
-        if($user->cannot('getAllPorCurso',Participant::class))
-        {
-            return Redirect::back()
-                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
-
-        }
-
-        $cursoprogramado = Scheduled::find($id);
-
-        if (!$cursoprogramado)
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
-
-        $participantes = Participant::with('person')->where('scheduled_id',$id);
-        $pts = $participantes->pluck('person_id');        
-
-
-        $participantes2 = User::where('role_id','5')
-                    ->whereNotIn('person_id',$pts)
-                    ->get();
-
-
-        
-        return view('pages.admin.participantescursos.index')
-                ->with('participantes',$participantes->paginate(10))
-                ->with('cursoprogramado',$cursoprogramado)
-                ->with('participantes2',$participantes2)
-                ->with('estados', Participant::$estados)->with('statuses',ParticipantStatus::all())->with('types',IdType::all());
-
-    }//getAllPorCurso
-
-    public function getAllEvaluation($id){ //not used
-        
         $user = Auth::user();
 
         if ($user->cannot('getAllPorCurso', Participant::class)) {
@@ -93,82 +28,51 @@ class ParticipanteCursoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $cursoprogramado = Scheduled::find($id);
+        $cursoprogramado = Scheduled::with(['course.capacity'])->find($id);
 
-        if (!$cursoprogramado)
+        if (!$cursoprogramado) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
+        }
 
-        $participants = Participant::with('person')->withTrashed()->where('scheduled_id', $id);
-        $pts = $participants->pluck('person_id');
+        $participantes = Participant::with(['person', 'participantStatus'])
+            ->where('scheduled_id', $id);
 
+        $puedeEvaluar = $user->can('evaluate', $cursoprogramado)
+            && ($cursoprogramado->isEnCurso() || $cursoprogramado->isCulminado());
 
-        $participantes2 = User::where('role_id', '5')
-        ->whereNotIn('person_id', $pts)
-        ->get();
-
-        return view('pages.admin.usuarios.evaluation')
-        ->with('participants', $participants->paginate(10))
+        return view('pages.admin.participantescursos.index')
+            ->with('participantes', $participantes->paginate(10))
             ->with('cursoprogramado', $cursoprogramado)
-            ->with('participantes2', $participantes2)
-            ->with('statuses', ParticipantStatus::all());
-    }//end get all evaluation
+            ->with('statuses', ParticipantStatus::orderBy('id')->get())
+            ->with('canEvaluate', $puedeEvaluar)
+            ->with('types', IdType::all());
+    }//getAllPorCurso
 
-    public function participantEvaluationStatus(Request $request){
-        
-
-        if(isset($request->data)){
-            
-            foreach ($request->data as $key => $value) {
-                
-                $data = array('participant_status_id' => $request->data[$key]['status_id']);
-                //return json_encode($request->data[$key]['scheduled_id']);
-                Participant::where('scheduled_id',$request->data[$key]['scheduled_id'])->where('id',$request->data[$key]['participant_id'])->update($data);
-            } 
-            return json_encode($response = array('success'=>'Evaluación Completada'));
-        }else{
-            return json_encode($response = array('error'=>'No Se ejecutó la Evaluación'));
-        }
-    } //end participantEvaluationStatus
-
-    public function onEvaluationSubmitAlert($request)
-    { //redirects on evaluation submit
-        //return json_encode("submit");
-        //return $request;
-        if (isset($request)) {
-            return redirect("/u/af_programadas/" . $request . '/participantes')->with("alert", Funciones::getAlert("success", "Evaluación Completada.", "Operación Exitosa."));
-        } else {
-            return redirect("/u/af_programadas/" . $request . '/participantes')->with("alert", Funciones::getAlert("danger", "Error al Intentar Evaluar", "Operación Errónea."));
-        }
-
-    }//end onCourseSubmitAlert
-
-    public function store(UserForm $request,$id)
+    public function store(UserForm $request, $id)
     {
-
-      
         $user = Auth::user();
-        if($user->cannot('store',Participant::class))
-        {
+        if ($user->cannot('store', Participant::class)) {
             return Redirect::back()
-                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
-
 
         $cursoprogramado = Scheduled::find($id);
-        if (!$cursoprogramado)
+        if (!$cursoprogramado) {
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
-        if($cursoprogramado->atMaxCapacity()){
+                ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
+        }
+        if ($cursoprogramado->atMaxCapacity()) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado se encuentra a su máxima capacidad."));
         }
-        if(!$cursoprogramado->isPorDictar()){
+        if (!$cursoprogramado->isPorDictar()) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "No se pueden registrar participantes en una acción de formación que no esté por dictar."));
         }
+
         $usuario = new User([
-            'role_id' => 5,
+            'role_id' => Role::PARTICIPANTE,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
@@ -178,157 +82,154 @@ class ParticipanteCursoController extends Controller
             'last_name' => $request->apellido,
             'id_number' => $request->ci,
             'id_type_id' => $request->id_type,
+            'sex' => $request->sex,
+            'phone' => $request->phone,
         );
         $person = Person::create($personData);
-        //$success = $person->save();
-        //dd($person);
-        if(!$person){
+
+        if (!$person) {
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error", "No se pudo crear el participante"));
+                ->with("alert", Funciones::getAlert("danger", "Error", "No se pudo crear el participante"));
         }
         $person->user()->save($usuario);
 
-
         $participant = new Participant([
-            'participant_status_id' => 5,
+            'participant_status_id' => Participant::PORINICIAR,
             'scheduled_id' => $id
         ]);
 
-        if(today() >= $cursoprogramado->start_date){
-            $participant->participant_status_id = 1;
+        if (today() >= $cursoprogramado->start_date) {
+            $participant->participant_status_id = Participant::ENCURSO;
         }
 
         $response = $person->participant()->save($participant);
 
-        if(!$response){
+        if (!$response) {
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error", "El participante ha sido creado exitosamente, pero ha ocurrido un error al intentar registrarlo en la acción de formación. Intente asignarlo a través de la opción asignar participante"));
+                ->with("alert", Funciones::getAlert("danger", "Error", "El participante ha sido creado exitosamente, pero ha ocurrido un error al intentar registrarlo en la acción de formación. Intente asignarlo a través de la opción asignar participante"));
         }
 
-
         return Redirect::back()
-            ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
-
+            ->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
     }
 
 
-    public function asignarParticipante(Request $request,$id)
+    public function asignarParticipante(Request $request, $id)
     {
-
         $this->validate($request, [
             'participante' => 'required|integer|exists:people,id',
             'curso_p_id' => 'required|integer|exists:scheduled_course,id',
         ]);
 
-
         $user = Auth::user();
-        if($user->cannot('store',Participant::class))
-        {
+        if ($user->cannot('store', Participant::class)) {
             return Redirect::back()
-                     ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $cursoprogramadoCheck = Scheduled::find($request->curso_p_id);
-        if ($cursoprogramadoCheck && !$cursoprogramadoCheck->isPorDictar()) {
+        if ((int)$id !== (int)$request->curso_p_id) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "La acción de formación indicada no coincide con la solicitud."));
+        }
+
+        $cursoprogramado = Scheduled::find($request->curso_p_id);
+
+        if (!$cursoprogramado->isPorDictar()) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "No se pueden asignar participantes a una acción de formación que no esté por dictar."));
         }
 
-        $validacion= Participant::where('scheduled_id',$request->curso_p_id)
-                                        ->where('person_id',$request->participante)
-                                        ->count();
-                                        
-        //check if participant is not al    ready in current course
-
-        //add prerequisite check
-        //Participant::where();
-        //add override for prerequisite check
-
-        $participantecurso = new Participant();
-        $participantecurso->participant_status_id=5;
-        $participantecurso->scheduled_id=$request->curso_p_id;
-        $participantecurso->person_id=$request->participante;
-
-        $cursoprogramado = Scheduled::find($request->curso_p_id);
-
-        if(today() >= $cursoprogramado->start_date){
-            $participantecurso->participant_status_id = 1;
+        if ($cursoprogramado->atMaxCapacity()) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado se encuentra a su máxima capacidad."));
         }
 
+        $yaAsignado = Participant::where('scheduled_id', $request->curso_p_id)
+            ->where('person_id', $request->participante)
+            ->exists();
 
-        if(!$participantecurso->save()){
+        if ($yaAsignado) {
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error", "El participante no pudo ser asignado. Intente nuevamente"));
+                ->with("alert", Funciones::getAlert("danger", "Error", "El participante ya se encuentra asignado a esta acción de formación."));
+        }
+
+        $participantecurso = new Participant();
+        $participantecurso->participant_status_id = Participant::PORINICIAR;
+        $participantecurso->scheduled_id = $request->curso_p_id;
+        $participantecurso->person_id = $request->participante;
+
+        if (today() >= $cursoprogramado->start_date) {
+            $participantecurso->participant_status_id = Participant::ENCURSO;
+        }
+
+        if (!$participantecurso->save()) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "El participante no pudo ser asignado. Intente nuevamente"));
         }
 
         return Redirect::back()
-            ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
-
-    }
-    
-    public function count()
-    {
-        //
+            ->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
     }
 
     public function update(Request $request, $id)
     {
-
-        $user=Auth::user();
+        $validated = $request->validate([
+            'estado' => 'required|integer|exists:participant_status,id',
+        ]);
 
         $participantecurso = Participant::find($id);
-        
-        if (!$participantecurso)
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El participante seleccionado no existe."));
- 
-        
-        if ($user->cannot('update', Participant::class))
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
-        
 
-        $participantecurso->participant_status_id = $request->estado;
+        if (!$participantecurso) {
+            return $this->statusUpdateResponse($request, "danger", "Error al intentar editar", "El participante seleccionado no existe.");
+        }
 
-             
-        if(!$participantecurso->save())
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
-    
-        return Redirect::back()
-            ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
+        if (Auth::user()->cannot('updateStatus', $participantecurso)) {
+            return $this->statusUpdateResponse($request, "danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion.");
+        }
+
+        $participantecurso->participant_status_id = $validated['estado'];
+
+        if (!$participantecurso->save()) {
+            return $this->statusUpdateResponse($request, "danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos.");
+        }
+
+        return $this->statusUpdateResponse($request, "success", "Editado exitosamente", "Operación exitosa.");
     }
-    
+
+    private function statusUpdateResponse(Request $request, string $type, string $title, string $message)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => $type === "success",
+                'title' => $title,
+                'message' => $message,
+            ], $type === "success" ? 200 : 403);
+        }
+
+        return Redirect::back()
+            ->with("alert", Funciones::getAlert($type, $title, $message));
+    }
+
     public function delete($id)
     {
-        
         $user = Auth::user();
-        if($user->cannot('delete',Participant::class))
-        {
+        if ($user->cannot('delete', Participant::class)) {
             return Redirect::back()
-                    ->with("alert", Funciones::getAlert("danger","Error al Intentar Acceder","No tienes permisos para realizar esta acción."));
-
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
         $particpantecurso = Participant::find($id);
 
-    
-        if($particpantecurso==null)
-        {
+        if ($particpantecurso == null) {
             return Redirect::back()
-               ->with("alert",Funciones::getAlert("danger", "Error al intentar eliminar", "El participante seleccionado no existe."));
-
+                ->with("alert", Funciones::getAlert("danger", "Error al intentar eliminar", "El participante seleccionado no existe."));
         }
 
-
-        if ($particpantecurso->delete()) {              
-          
-            return Redirect::back()->with('alert',Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
-
+        if ($particpantecurso->delete()) {
+            return Redirect::back()->with('alert', Funciones::getAlert("success", "Eliminado exitosamente", "Operación exitosa."));
         }
 
         return Redirect::back()
-                ->with('alert',Funciones::getAlert("danger", "Error al intentar eliminar", "Operacion errónea."));
-
+            ->with('alert', Funciones::getAlert("danger", "Error al intentar eliminar", "Operacion errónea."));
     }
 }

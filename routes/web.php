@@ -159,20 +159,11 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::post('/{id}/af_programadas/participantes/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
 
-                Route::get('/{id}/evaluacion', 'App\Http\Controllers\ParticipanteCursoController@getAllEvaluation');
-                Route::get('/{id}/onSubmitAlert/{request}', 'App\Http\Controllers\ParticipanteCursoController@onEvaluationSubmitAlert');
-                //Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
                 Route::get('/{id}/participantes', 'App\Http\Controllers\ParticipanteCursoController@getAllPorCurso');
-               // Route::get('/count', 'ParticipanteCursoController@count');
-                Route::get('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@get');
                 Route::post('/{id}/participantes', 'App\Http\Controllers\ParticipanteCursoController@store');
                 Route::post('/{id}/asignarParticipante', 'App\Http\Controllers\ParticipanteCursoController@asignarParticipante');
-                //Route::put('/{id}/participantes/{participanteId}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::put('/estado-participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@update');
                 Route::delete('/participantes/{id}', 'App\Http\Controllers\ParticipanteCursoController@delete');
-
-                
-                
 
         });
 
@@ -258,11 +249,5 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::patch('database/courses/{id}/restore', 'App\Http\Controllers\Admin\DatabaseController@restoreCourse')
                         ->whereNumber('id')
                         ->name('database.courses.restore');
-    
-    Route::post('/evaluation', 'App\Http\Controllers\ParticipanteCursoController@participantEvaluationStatus');
-    
-    
-
-    
 });
 
