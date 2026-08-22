@@ -20,7 +20,7 @@
 @endpush
 	<h3>Acciones de Formación Programadas</h3>
 	@can('store','App\Scheduled')
-		<a href="javascript:programarAccion('{{url('u/af_programadas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
+		<a href="{{ url('u/af_programadas/crear') }}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
 		<form action="pdf/scheduled" method="GET" style='all:unset'>
 			@csrf
 			<input type="hidden" id="hidden_title" name="hidden_title" value="{{request()->titulos}}">
@@ -176,9 +176,9 @@
                                     </span>
 								</td>
 								<td>
-								  <!-- <a  title="Más Información" href="javascript:detallesAccion('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-info btn-xs">
+								  <a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
-								  </a> -->
+								  </a>
 							  @can('getAllPorCurso','App\Participant')
 								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-users"></i>
@@ -188,7 +188,7 @@
 								  </a>
 							  @endcan
 
-								  <a  title="Editar Programación" href="javascript:editarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-default btn-xs {{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' :''}}">
+								  <a  title="Editar Programación" href="{{url('u/af_programadas/'.$cursop->id.'/editar')}}" class="btn btn-default btn-xs {{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' :''}}">
 								      <i class="entypo-pencil"></i>
 								  </a>
 
@@ -212,9 +212,6 @@
 @stop
 
 @section('modals')
-    @include('pages.admin.cursosprogramados.create')
-    @include('pages.admin.cursosprogramados.update')
-    @include('pages.admin.cursosprogramados.details')
     @include('pages.admin.cursosprogramados.delete')
     @include('pages.admin.cursosprogramados.cancel')
     @include('pages.admin.cursosprogramados.asignar')

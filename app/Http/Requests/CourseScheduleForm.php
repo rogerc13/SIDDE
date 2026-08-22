@@ -20,7 +20,9 @@ class CourseScheduleForm extends FormRequest
         return [
             'titulo' => 'required|integer|exists:courses,id',
             'facilitador' => 'required|integer|exists:facilitators,id',
+            'scheduled_id' => 'nullable|integer|exists:scheduled_course,id',
             'sessions' => 'required|array|min:1',
+            'sessions.*.id' => 'nullable|integer|exists:course_sessions,id',
             'sessions.*.location_id' => 'required|integer|exists:locations,id',
             'sessions.*.session_date' => 'required|date|date_format:Y-m-d',
             'sessions.*.start_time' => 'required|date_format:H:i',
@@ -59,17 +61,20 @@ class CourseScheduleForm extends FormRequest
                 return;
             }
 
-            // Validate total duration does not exceed course duration
+            // Validate total duration matches the course duration exactly
             $totalMinutes = 0;
             foreach ($this->sessions as $session) {
                 $start = Carbon::parse($session['start_time']);
                 $end = Carbon::parse($session['end_time']);
                 $totalMinutes += $start->diffInMinutes($end);
             }
-            $totalHours = $totalMinutes / 60;
+            $totalHours = round($totalMinutes / 60, 2);
+            $missingHours = round($course->duration - $totalHours, 2);
 
-            if ($totalHours > $course->duration) {
+            if ($missingHours < 0) {
                 $validator->errors()->add('sessions', 'La duración total de las sesiones (' . $totalHours . ' horas) excede la duración del curso (' . $course->duration . ' horas).');
+            } elseif ($missingHours > 0) {
+                $validator->errors()->add('sessions', 'La duración total de las sesiones (' . $totalHours . ' horas) es menor a la duración del curso (' . $course->duration . ' horas). Faltan ' . $missingHours . ' hora(s) por asignar.');
             }
 
             // Validate no overlapping sessions at the same location
@@ -93,10 +98,13 @@ class CourseScheduleForm extends FormRequest
                     ->where('session_date', $session['session_date'])
                     ->where('start_time', '<', $session['end_time'])
                     ->where('end_time', '>', $session['start_time'])
-                    ->whereNull('deleted_at')
-                    ->count();
+                    ->whereNull('deleted_at');
 
-                if ($conflict > 0) {
+                if ($this->scheduled_id) {
+                    $conflict->where('scheduled_course_id', '!=', $this->scheduled_id);
+                }
+
+                if ($conflict->count() > 0) {
                     $validator->errors()->add('sessions', 'La ubicación ' . $session['location_id'] . ' ya tiene una sesión programada el día ' . $session['session_date'] . ' en este horario.');
                     return;
                 }
@@ -110,10 +118,13 @@ class CourseScheduleForm extends FormRequest
                     ->where('session_date', $session['session_date'])
                     ->where('start_time', '<', $session['end_time'])
                     ->where('end_time', '>', $session['start_time'])
-                    ->whereNull('deleted_at')
-                    ->count();
+                    ->whereNull('deleted_at');
 
-                if ($facilitatorConflict > 0) {
+                if ($this->scheduled_id) {
+                    $facilitatorConflict->where('scheduled_course_id', '!=', $this->scheduled_id);
+                }
+
+                if ($facilitatorConflict->count() > 0) {
                     $validator->errors()->add('sessions', 'El facilitador seleccionado ya tiene una sesión programada el día ' . $session['session_date'] . ' en este horario.');
                     return;
                 }

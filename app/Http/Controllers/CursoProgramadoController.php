@@ -16,7 +16,6 @@ use App\Models\Location;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use App\Http\Requests\CursoProgramadoForm;
 use App\Http\Requests\CourseScheduleForm;
 use App\Models\Facilitator;
 use Carbon\Carbon;
@@ -103,77 +102,205 @@ class CursoProgramadoController extends Controller
                 ->with('categoriasAcciones',$categoriasAcciones)->with('locations',$locations);
     }
 
-    public function store(CursoProgramadoForm $request)
+    private function getLocationsForScheduling()
     {
-        
-        $user=Auth::user();
+        $from = Carbon::today()->subMonths(3)->toDateString();
+        $to = Carbon::today()->addMonths(3)->toDateString();
 
-        if ($user->can('store', Scheduled::class)){
+        return Location::with('floor.building')
+            ->withCount(['sessions' => function ($q) use ($from, $to) {
+                $q->whereBetween('session_date', [$from, $to]);
+            }])
+            ->orderByDesc('sessions_count')
+            ->orderBy('name', 'asc')
+            ->get();
+    }
 
-            $cursoprogramado = new Scheduled();
+    public function createSchedule()
+    {
+        $user = Auth::user();
 
-            $cursoprogramado->course_id = $request->titulo;
-            $cursoprogramado->facilitator_id = $request->facilitador;
-            $cursoprogramado->start_date = date("Y-m-d", strtotime($request->fecha_i));
-            $cursoprogramado->end_date = date("Y-m-d", strtotime($request->fecha_f));
-
-            if (today() < $cursoprogramado->start_date)
-                $cursoprogramado->course_status_id=CourseStatus::POR_DICTAR;
-            else if (today() <= $cursoprogramado->end_date)
-                $cursoprogramado->course_status_id=CourseStatus::EN_CURSO;
-            //dd($cursoprogramado);
-            
-            if($cursoprogramado->save()){
-                return Redirect::back()
-                        ->with("alert",Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
-
-            }
-
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar programar Curso", "Operacion Erronea."));
-
+        if ($user->cannot('store', Scheduled::class)) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
+        $facilitadores = User::where('role_id', 4)->with('person')->get();
+        $categoriasAcciones = Category::with('courses')->get();
+        $locations = $this->getLocationsForScheduling();
 
+        return view('pages.admin.cursosprogramados.schedule')
+            ->with('mode', 'create')
+            ->with('scheduledId', null)
+            ->with('selectedCourseId', null)
+            ->with('selectedFacilitatorId', null)
+            ->with('courseDuration', 0)
+            ->with('existingSessions', [])
+            ->with('facilitadores', $facilitadores)
+            ->with('categoriasAcciones', $categoriasAcciones)
+            ->with('locations', $locations);
     }
 
-
-
-    public function count()
+    public function editSchedule($id)
     {
-        //
+        $user = Auth::user();
+
+        if ($user->cannot('update', Scheduled::class)) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
+        }
+
+        $scheduled = Scheduled::with(['course', 'facilitator', 'sessions.location' => function ($q) {
+            $q->withTrashed();
+        }])->find($id);
+
+        if (!$scheduled) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "El curso seleccionado no existe."));
+        }
+
+        $facilitadores = User::where('role_id', 4)->with('person')->get();
+        $categoriasAcciones = Category::with('courses')->get();
+        $locations = $this->getLocationsForScheduling();
+
+        $existingSessions = $scheduled->sessions->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'location_id' => $s->location_id,
+                'location_name' => $s->location ? $s->location->name : '',
+                'session_date' => $s->session_date,
+                'start_time' => $s->start_time,
+                'end_time' => $s->end_time,
+                'duration_hours' => $s->durationHours(),
+                'notes' => $s->notes,
+            ];
+        })->values()->all();
+
+        return view('pages.admin.cursosprogramados.schedule')
+            ->with('mode', 'edit')
+            ->with('scheduledId', $scheduled->id)
+            ->with('selectedCourseId', $scheduled->course_id)
+            ->with('selectedFacilitatorId', $scheduled->facilitator_id)
+            ->with('courseDuration', $scheduled->course->duration)
+            ->with('statusName', $scheduled->courseStatus->name)
+            ->with('statusBadge', $scheduled->badgeStatus())
+            ->with('existingSessions', $existingSessions)
+            ->with('facilitadores', $facilitadores)
+            ->with('categoriasAcciones', $categoriasAcciones)
+            ->with('locations', $locations);
     }
 
-    public function update(CursoProgramadoForm $request, $id)
+    public function viewSchedule($id)
     {
-        $user=Auth::user();
-        //dd($request);        
+        $user = Auth::user();
 
-        $cursoProg = Scheduled::find($id);
-        //return json_encode("update");
+        if ($user->cannot('get', Scheduled::class)) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
+        }
 
+        $scheduled = Scheduled::with(['course.capacity', 'facilitator.person', 'sessions.location' => function ($q) {
+            $q->withTrashed();
+        }])->find($id);
 
-        if (!$cursoProg)
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso seleccionado no existe."));
+        if (!$scheduled) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Ver", "El curso seleccionado no existe."));
+        }
 
-        if ($user->cannot('update',Scheduled::class))
-            return Redirect()::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
+        $existingSessions = $scheduled->sessions->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'location_id' => $s->location_id,
+                'location_name' => $s->location ? $s->location->name : '',
+                'session_date' => $s->session_date,
+                'start_time' => $s->start_time,
+                'end_time' => $s->end_time,
+                'duration_hours' => $s->durationHours(),
+                'notes' => $s->notes,
+            ];
+        })->values()->all();
 
-            $cursoProg->facilitator_id = $request->facilitador;
-            $cursoProg->start_date = date("Y-m-d", strtotime($request->fecha_i));
-            $cursoProg->end_date = date("Y-m-d", strtotime($request->fecha_f));
+        $capacity = $scheduled->course->capacity->first();
 
-        if(!$cursoProg->save())
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
+        return view('pages.admin.cursosprogramados.details')
+            ->with('scheduled', $scheduled)
+            ->with('existingSessions', $existingSessions)
+            ->with('totalHours', collect($existingSessions)->sum('duration_hours'))
+            ->with('capacityMax', $capacity ? $capacity->max : null)
+            ->with('participantsCount', $scheduled->participants()->count());
+    }
 
-        return Redirect::back()
-            ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
+    public function updateSchedule(CourseScheduleForm $request, $id)
+    {
+        $user = Auth::user();
 
+        if ($user->cannot('update', Scheduled::class)) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'No tienes permisos para realizar esta acción.'], 403);
+            }
+
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "No tienes permisos para realizar esta acción."));
+        }
+
+        $scheduled = Scheduled::find($id);
+
+        if (!$scheduled) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'El curso seleccionado no existe.'], 404);
+            }
+
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "El curso seleccionado no existe."));
+        }
+
+        $course = Course::findOrFail($request->titulo);
+
+        $dates = collect($request->sessions);
+        $scheduled->facilitator_id = $request->facilitador;
+        $scheduled->start_date = $dates->min('session_date');
+        $scheduled->end_date = $dates->max('session_date');
+        $scheduled->save();
+
+        $incomingIds = collect($request->sessions)->pluck('id')->filter()->values()->all();
+
+        if (empty($incomingIds)) {
+            $scheduled->sessions()->delete();
+        } else {
+            $scheduled->sessions()->whereNotIn('id', $incomingIds)->delete();
+        }
+
+        foreach ($request->sessions as $session) {
+            $attributes = [
+                'location_id' => $session['location_id'],
+                'session_date' => $session['session_date'],
+                'start_time' => $session['start_time'],
+                'end_time' => $session['end_time'],
+                'notes' => $session['notes'] ?? null,
+            ];
+
+            if (!empty($session['id'])) {
+                $existing = CourseSession::find($session['id']);
+
+                if ($existing && $existing->scheduled_course_id == $scheduled->id) {
+                    $existing->update($attributes);
+                    continue;
+                }
+            }
+
+            $attributes['scheduled_course_id'] = $scheduled->id;
+            CourseSession::create($attributes);
+        }
+
+        if ($request->expectsJson()) {
+            session()->flash("alert", Funciones::getAlert("success", "Curso Actualizado Exitosamente", "Operación Exitosa."));
+
+            return response()->json(['success' => true]);
+        }
+
+        return Redirect::to(url('u/af_programadas'))
+            ->with("alert", Funciones::getAlert("success", "Curso Actualizado Exitosamente", "Operación Exitosa."));
     }
 
     public function delete($id)
@@ -530,13 +657,19 @@ class CursoProgramadoController extends Controller
         $start = $request->input('start');
         $end = $request->input('end');
         $facilitatorId = $request->input('facilitator_id');
+        $excludeId = $request->input('exclude_scheduled_id');
 
         $sessions = CourseSession::with(['location' => function ($q) {
             $q->withTrashed();
         }])
             ->whereBetween('session_date', [$start, $end])
-            ->whereNull('deleted_at')
-            ->get();
+            ->whereNull('deleted_at');
+
+        if ($excludeId) {
+            $sessions->where('scheduled_course_id', '!=', $excludeId);
+        }
+
+        $sessions = $sessions->get();
 
         $locationBlocks = $sessions->filter(function ($s) {
             return $s->location !== null;

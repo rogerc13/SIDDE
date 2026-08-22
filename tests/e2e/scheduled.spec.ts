@@ -116,8 +116,8 @@ test.describe('Scheduled Courses CRUD', () => {
     });
 
     test('shows error when trying to proceed without sessions', async ({ page }) => {
-        await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-        await page.waitForSelector('#wizard-form:not(.hidden)');
+        await page.goto('/u/af_programadas/crear');
+        await page.waitForSelector('#wizard-form');
 
         await selectSelect2ById(page, 'wizard-titulo');
         await selectSelect2ById(page, 'wizard-facilitador');
@@ -143,8 +143,8 @@ test.describe('Scheduled Courses CRUD', () => {
             await dialog.accept();
         });
 
-        await page.evaluate((url: string) => (window as any).programarAccion(url), '/u/af_programadas');
-        await page.waitForSelector('#wizard-form:not(.hidden)');
+        await page.goto('/u/af_programadas/crear');
+        await page.waitForSelector('#wizard-form');
 
         await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
         await selectSelect2ById(page, 'wizard-facilitador');

@@ -73,7 +73,7 @@ class ScheduleTest extends TestCase
 
     public function test_admin_can_schedule_a_course_with_sessions(): void
     {
-        $course = $this->makeCourse(['duration' => 8]);
+        $course = $this->makeCourse(['duration' => 2]);
         $facilitator = $this->makeFacilitator();
         $location = $this->makeLocation();
         $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
@@ -157,9 +157,26 @@ class ScheduleTest extends TestCase
         $this->assertDatabaseCount('course_sessions', 0);
     }
 
-    public function test_schedule_rejects_overlapping_sessions_at_same_location(): void
+    public function test_schedule_rejects_undersized_session_total(): void
     {
         $course = $this->makeCourse(['duration' => 8]);
+        $facilitator = $this->makeFacilitator();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+
+        $location = $this->makeLocation();
+
+        $response = $this->actingAs($user)
+            ->from('/u/af_programadas')
+            ->post('/u/af_programadas/schedule', $this->payload($course, $facilitator, $location));
+
+        $response->assertSessionHasErrors('sessions');
+        $this->assertDatabaseCount('scheduled_course', 0);
+        $this->assertDatabaseCount('course_sessions', 0);
+    }
+
+    public function test_schedule_rejects_overlapping_sessions_at_same_location(): void
+    {
+        $course = $this->makeCourse(['duration' => 4]);
         $facilitator = $this->makeFacilitator();
         $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
 
@@ -193,7 +210,7 @@ class ScheduleTest extends TestCase
 
     public function test_schedule_rejects_conflict_with_existing_session(): void
     {
-        $course = $this->makeCourse(['duration' => 8]);
+        $course = $this->makeCourse(['duration' => 2]);
         $facilitator = $this->makeFacilitator();
         $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
 
@@ -233,7 +250,7 @@ class ScheduleTest extends TestCase
 
     public function test_unauthorized_role_cannot_schedule(): void
     {
-        $course = $this->makeCourse();
+        $course = $this->makeCourse(['duration' => 2]);
         $facilitator = $this->makeFacilitator();
         $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::PARTICIPANTE]);
 

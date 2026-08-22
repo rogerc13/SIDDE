@@ -143,15 +143,16 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'af_programadas'], function()
         {
                 Route::get('/', 'App\Http\Controllers\CursoProgramadoController@getAll')->name("programadas");
-                Route::get('/count', 'App\Http\Controllers\CursoProgramadoController@count');
-                Route::post('/', 'App\Http\Controllers\CursoProgramadoController@store');
+                Route::get('/crear', 'App\Http\Controllers\CursoProgramadoController@createSchedule')->name("af_programadas.create");
+                Route::get('/{id}/editar', 'App\Http\Controllers\CursoProgramadoController@editSchedule')->name("af_programadas.edit");
+                Route::get('/{id}/ver', 'App\Http\Controllers\CursoProgramadoController@viewSchedule')->name("af_programadas.show");
 
                 Route::post('/schedule', 'App\Http\Controllers\CursoProgramadoController@schedule');
                 Route::get('/blocked-slots', 'App\Http\Controllers\CursoProgramadoController@getBlockedSlots');
                 Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
                 Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
-                Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@update');
+                Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@updateSchedule');
                 Route::delete('/{id}', 'App\Http\Controllers\CursoProgramadoController@delete');
                 Route::put('/cancel/{id}', 'App\Http\Controllers\CursoProgramadoController@cancel');
 
