@@ -6,9 +6,11 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Scheduled;
 use App\Models\User;
+use App\Models\Funciones;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -16,7 +18,17 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class BrowserShotController extends Controller
 {
 
+    private function denyRoster()
+    {
+        return Redirect::back()
+            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
+    }
+
     public function categories(Request $request){
+        if (Auth::user()->cannot('getAll', Category::class)) {
+            return $this->denyRoster();
+        }
+
         $categories = Category::orderBy("id","desc");
         
         if((empty($request->hidden_name)) == true){
@@ -34,6 +46,9 @@ class BrowserShotController extends Controller
 
 
     public function courses(Request $request){
+        if (Auth::user()->cannot('getAll', Course::class)) {
+            return $this->denyRoster();
+        }
 
         $courses = Course::with('category');
         
@@ -57,6 +72,9 @@ class BrowserShotController extends Controller
     }
 
     public function scheduled(Request $request){
+        if (Auth::user()->cannot('getAll', Scheduled::class)) {
+            return $this->denyRoster();
+        }
 
         $scheduled = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
         
@@ -90,6 +108,10 @@ class BrowserShotController extends Controller
     }
 
     public function users(Request $request){
+        if (Auth::user()->cannot('getAll', User::class)) {
+            return $this->denyRoster();
+        }
+
         $users = User::with('role')->with('person')->orderBy("id","asc");
         
         if((empty($request->hidden_name) && empty($request->hidden_surname) && empty($request->hidden_id) && empty($request->hidden_role)) == true){
@@ -126,6 +148,10 @@ class BrowserShotController extends Controller
     }
 
     public function facilitators(Request $request){
+        if (Auth::user()->cannot('getAllFacilitador', User::class)) {
+            return $this->denyRoster();
+        }
+
         $facilitators = User::with('role')->with('person')->where('role_id','4');
         
         if((empty($request->hidden_name) && empty($request->hidden_surname) && empty($request->hidden_id)) == true){
@@ -161,6 +187,10 @@ class BrowserShotController extends Controller
     }
 
     public function participants(Request $request){
+        if (Auth::user()->cannot('getAllParticipante', User::class)) {
+            return $this->denyRoster();
+        }
+
         $participants = User::where('role_id',5);
 
         if((empty($request->hidden_name) && empty($request->hidden_surname) && empty($request->hidden_id)) == true){
@@ -195,13 +225,20 @@ class BrowserShotController extends Controller
     }
 
     public function reportCourse(Request $request){
+        if (Auth::user()->cannot('getAll', Scheduled::class)) {
+            return $this->denyRoster();
+        }
+
         $path = public_path('storage/Reporte - Acciones de Formación.pdf');
 
         return response()->download($path)->deleteFileAfterSend(true);
     }
 
     public function courseParticipants($id){ //prints list of participants in a given course
-        //dd($id);
+        if (Auth::user()->cannot('getAllPorCurso', \App\Models\Participant::class)) {
+            return $this->denyRoster();
+        }
+
         $scheduled = Scheduled::with('course')->with('facilitator')->with('participants.person')->with('participants.participantStatus')->find($id);
         //dd($scheduled->participants[0]->person->name);
         $pdf = Pdf::loadView('pdf.course_participants',['scheduled' => $scheduled]);

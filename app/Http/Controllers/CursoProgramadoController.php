@@ -484,9 +484,26 @@ class CursoProgramadoController extends Controller
 
     public function assignList(Request $request){
 
+        $user = Auth::user();
+        if ($user->cannot('store', Participant::class)) {
+            $message = "No tienes permisos para realizar esta acción.";
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 403);
+            }
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", $message));
+        }
+
         $scheduledId = $request->scheduled_id;
-        
+
         $scheduledCourse = Scheduled::with('course')->find($scheduledId);
+
+        if (!$scheduledCourse) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La acción de formación programada no pudo ser encontrada.'
+            ]);
+        }
 
         if (!$scheduledCourse->isPorDictar()) {
             return response()->json([
