@@ -19,12 +19,11 @@ class ReportMiddleware
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-        if($user->isFacilitador() || $user->isParticipante()){
+
+        if (! $user || $user->isFacilitador() || $user->isParticipante()) {
             return redirect('home');
-        }else{
-            return $next($request);
         }
-        
-        
+
+        return $next($request);
     }
 }

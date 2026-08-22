@@ -176,16 +176,6 @@ class ReportPdfController extends Controller
             return (array) $result->getData(true);
         }
 
-        if (is_string($result)) {
-            $decoded = json_decode($result, true);
-
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        if (is_array($result)) {
-            return $result;
-        }
-
         return [];
     }
 
