@@ -355,15 +355,49 @@ class ReportController extends Controller
         ]);
     } //end course duration
 
-    public function byCanceled()
+    public function byCanceled(Request $request)
     {
         //Canceled Courses
-        $canceledCourse = Scheduled::withTrashed()->where('course_status_id', CourseStatus::CANCELADO)->with('course')->get();
-        return $canceledCourse;
+        $range = $this->range($request);
+        $startDate = $range->date[0];
+        $endDate = end($range->date);
+
+        $data = Scheduled::withTrashed()
+            ->where('course_status_id', CourseStatus::CANCELADO)
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->with('course.category')
+            ->orderByDesc('start_date')
+            ->get()
+            ->map(fn ($scheduled) => [
+                'id' => $scheduled->id,
+                'code' => $scheduled->course?->code ?? '',
+                'title' => $scheduled->course?->title ?? 'Sin título',
+                'category' => $scheduled->course?->category?->name ?? '',
+                'start_date' => $scheduled->start_date,
+                'end_date' => $scheduled->end_date,
+                'deleted_at' => $scheduled->deleted_at,
+            ])
+            ->values();
+
+        return response()->json([
+            'dateRange' => [
+                'startDate' => Carbon::parse($startDate)->format('Y-m-d'),
+                'endDate' => Carbon::parse($endDate)->format('Y-m-d'),
+            ],
+            'total' => count($data),
+            'data' => $data,
+        ]);
     }
 
     public function participantsByStatus(Request $request)
     {
+
+        $request->validate([
+            'status_id' => 'nullable|integer|exists:participant_status,id',
+        ], [
+            'status_id.exists' => 'El estatus de participante seleccionado no existe.',
+        ]);
+        $statusFilter = $request->input('status_id');
 
         // date buckets + defaults shared with every other report
         $dates =  $this->range($request);
@@ -387,6 +421,9 @@ class ReportController extends Controller
                 $query->withTrashed()->with('course');
             },
         ])
+            ->when($statusFilter, function ($query) use ($statusFilter) {
+                return $query->where('participant_status_id', (int) $statusFilter);
+            })
             ->whereHas('scheduled', function ($query) use ($dateRange) {
                 $query->when($dateRange['startDate'] === $dateRange['endDate'], function ($q) use ($dateRange) {
                     return $q->whereDate('start_date', $dateRange['startDate']);

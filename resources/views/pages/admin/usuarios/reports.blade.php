@@ -25,12 +25,21 @@
                             <option value="status">Cantidad de Acciones de Formación Por Estatus</option>
                             <option value="most-scheduled">Acciónes de Formación más Programadas</option>
                             <option value="not-scheduled">Acciones de Formación No Programadas</option>
+                            <option value="canceled">Acciones de Formación Canceladas</option>
                             <option value="participant-by-quantity">Acciones de Formación por Cantidad de Participantes</option>
                             <option value="duration">Duración de Acciones de Formación</option>
                             <option value="participant-by-status">Estatus de Participantes</option>
+                            <option value="participant-average">Promedio de Participantes</option>
                             <option value="gender">Distribución de Participantes por Género</option>
-                            {{-- <option value="participant-average">Promedio de Participantes</option> --}}
-                            
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group participant-status-container">
+                    <div class="col-md-6">
+                        <label for="participant_status" class='control-label'>Filtrar por Estatus</label>
+                        <select name="status_id" id="participant_status" class="form-control">
+                            <option value="">Todos los estatus</option>
                         </select>
                     </div>
                 </div>

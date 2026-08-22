@@ -378,7 +378,7 @@ class ReportTest extends TestCase
         $this->assertNotContains($scheduled->course->id, $ids);
     }
 
-    public function test_canceled_endpoint_returns_canceled_scheduled_models(): void
+    public function test_canceled_endpoint_returns_normalized_rows_in_range(): void
     {
         $cat = $this->makeCategory('Cat C');
         $canceled = $this->makeScheduled($cat, CourseStatus::CANCELADO, now()->subDay()->toDateString());
@@ -387,10 +387,18 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/canceled');
 
         $response->assertOk();
-        $data = $this->decodeAsCurrentContract($response);
-        $ids = array_column($data, 'id');
+        $data = $response->json();
+
+        foreach (['dateRange', 'total', 'data'] as $key) {
+            $this->assertArrayHasKey($key, $data);
+        }
+        $ids = array_column($data['data'], 'id');
         $this->assertContains($canceled->id, $ids);
         $this->assertNotContains($active->id, $ids);
+
+        $row = collect($data['data'])->firstWhere('id', $canceled->id);
+        $this->assertSame('Cat C', $row['category']);
+        $this->assertSame(1, $data['total']);
     }
 
     public function test_participant_status_select_returns_statuses(): void
@@ -400,5 +408,70 @@ class ReportTest extends TestCase
         $response->assertOk();
         $names = array_column($response->json('statuses'), 'name');
         $this->assertContains('Aprobado', $names);
+    }
+
+    public function test_participant_average_shape_and_values(): void
+    {
+        $cat = $this->makeCategory('Cat Avg');
+        $s1 = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->addParticipant($s1, Participant::APROBADO);
+        $this->addParticipant($s1, Participant::REPROBADO);
+        $this->addParticipant($s1);
+        $s2 = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->addParticipant($s2, Participant::APROBADO);
+
+        $response = $this->actingAs($this->admin())->post('/reports/participant-average', $this->inRangeDates());
+
+        $response->assertOk();
+        $data = $response->json();
+
+        $this->assertArrayHasKey('data', $data);
+        $this->assertIsArray($data['data']);
+        $this->assertCount(2, $data['data']);
+
+        $row1 = collect($data['data'])->firstWhere('scheduled_id', $s1->id);
+        $this->assertSame(1, $row1['approved']);
+        $this->assertSame(1, $row1['failed']);
+        $this->assertSame(3, $row1['total']);
+
+        $row2 = collect($data['data'])->firstWhere('scheduled_id', $s2->id);
+        $this->assertSame(1, $row2['approved']);
+        $this->assertSame(0, $row2['failed']);
+    }
+
+    public function test_participant_average_returns_empty_data_when_no_runs(): void
+    {
+        $response = $this->actingAs($this->admin())->post('/reports/participant-average', $this->inRangeDates());
+
+        $response->assertOk();
+        $this->assertSame([], $response->json('data'));
+    }
+
+    public function test_participants_by_status_filters_by_status_param(): void
+    {
+        $cat = $this->makeCategory('Cat F');
+        $scheduled = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->addParticipant($scheduled, Participant::APROBADO);
+        $this->addParticipant($scheduled, Participant::REPROBADO);
+
+        $payload = [
+            'start_date' => now()->subDays(10)->toDateString(),
+            'end_date' => now()->toDateString(),
+            'status_id' => Participant::APROBADO,
+        ];
+
+        $filtered = $this->actingAs($this->admin())
+            ->post('/reports/participant-by-status', $payload)
+            ->assertOk()
+            ->json();
+
+        $this->assertCount(1, $filtered['byAllTime']);
+        $this->assertSame(Participant::APROBADO, $filtered['byAllTime'][0]['participant_status_id']);
+
+        // invalid status id is rejected
+        $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/participant-by-status', array_merge($payload, ['status_id' => 999]))
+            ->assertStatus(422);
     }
 }

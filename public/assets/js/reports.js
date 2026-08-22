@@ -1649,7 +1649,135 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
 
 function reportByParticipantAverage(response){
     console.log("participant-average");
+    refresh();
+    const rows = Array.isArray(response.data) ? response.data : [];
+    if (rows.length === 0) {
+        $(".course-amount-number").append(
+            "<h3>No existen Acciones de Formación en el período</h3>"
+        );
+        return;
+    }
+
+    // group per-course rows into their date buckets
+    const buckets = new Map();
+    rows.forEach((row) => {
+        if (!buckets.has(row.date)) buckets.set(row.date, []);
+        buckets.get(row.date).push(row);
+    });
+    const dates = Array.from(buckets.keys()).sort();
+    const round2 = (v) => Math.round(v * 100) / 100;
+    const seriesFor = (field) => dates.map((d) => {
+        const group = buckets.get(d);
+        const avg = group.reduce((s, r) => s + (Number(r[field]) || 0), 0) / group.length;
+        return { x: d, y: round2(avg) };
+    });
+
+    const overallAvgTotal = round2(rows.reduce((s, r) => s + (Number(r.total) || 0), 0) / rows.length);
+
+    $(".row-graphs").append(`<div class="panel panel-success by-average-line">
+        <div class="panel-heading">
+            <div class="panel-title">Promedio de Participantes por Acción de Formación durante el Período</div>
+        </div>
+        <div class="panel-body">
+            <div class="col-xs-12 col-md-12 graph-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>`);
+
+    $('.course-amount-number span').html("");
+    $(".course-amount-number span").append(
+        `<h3 class="text-center">Promedio de Participantes por Acción de Formación: ${overallAvgTotal}</h3>`
+    );
+
+    const palette = [
+        { label: 'Promedio de Participantes', key: 'total', color: 'rgb(75, 192, 192)' },
+        { label: 'Promedio Aprobados', key: 'approved', color: 'rgb(54, 162, 235)' },
+        { label: 'Promedio Reprobados', key: 'failed', color: 'rgb(255, 99, 132)' },
+    ];
+    const datasets = palette.map(p => applySmartLineMarkers({
+        label: p.label,
+        data: seriesFor(p.key),
+        fill: false,
+        borderColor: p.color,
+        backgroundColor: p.color.replace('rgb(', 'rgba(').replace(')', ', 0.2)'),
+        borderWidth: 3,
+        tension: 0.5,
+    }));
+
+    const maxY = getMaxYFromDatasets(datasets);
+
+    new Chart(document.getElementById('myChart'), {
+        type: "line",
+        data: { labels: dates, datasets: datasets },
+        options: {
+            spanGaps: shouldConnectLineGaps(),
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    title: { display: true, text: 'Período de Tiempo' },
+                    time: { parser: 'YYYY-MM-DD', tooltipFormat: 'YYYY-MM-DD' }
+                },
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: maxY > 0 ? (maxY + 1) : 1,
+                    ticks: { precision: 0 }
+                }
+            },
+        }
+    });
 }//end report by participant average
+
+function reportByCanceled(response){
+    console.log("canceled");
+    refresh();
+    const list = Array.isArray(response.data) ? response.data : [];
+    if (list.length !== 0) {
+        $(".course-amount-number").append(
+            `<h3>Cantidad de Acciones de Formación Canceladas: ${response.total ?? list.length}</h3>`
+        );
+
+        $(".table-col-helper").append(`<div class="panel panel-success">
+            <div class="panel-heading">
+                <div class="panel-title">
+                    Acciones de Formación Canceladas
+                </div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+                <table class="course-list table table-striped table-bordered table-center">
+                    <thead>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>`);
+
+        $(".course-list thead").append(`<tr>
+                                        <th>Código</th>
+                                        <th>Título</th>
+                                        <th>Area de Conocimiento</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                    </tr>`);
+
+        list.forEach((element) => {
+            $(".course-list tbody").append(`<tr>
+                                        <td>${element.code}</td>
+                                        <td>${element.title}</td>
+                                        <td>${element.category}</td>
+                                        <td>${formatServerDate(element.start_date)}</td>
+                                        <td>${formatServerDate(element.end_date)}</td>
+                                    </tr>`);
+        });
+    } else {
+        $(".course-amount-number").append(
+            "<h3>No existen Acciones de Formación Canceladas en el período</h3>"
+        );
+    }
+}
 
 function reportByCourseNotScheduled(response){
     console.log("not-scheduled");
@@ -2020,17 +2148,34 @@ $(document).ready(function(){
         formEl.remove();
     });
 
+    // re-run the report when a status filter is chosen
+    $(document).on('change', '#participant_status', function () {
+        if ($('.selector').find(':selected').val() === 'participant-by-status') {
+            $('.generate').trigger('click');
+        }
+    });
+
     $.ajaxSetup({
             headers:{
                 'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
             }
         });
 
-    // participantStatusSelect() removed (no longer filtering by a selected status)
-        //Reports by type selected
-        $('.generate').click(function (e) { 
+    // participant status filter: only shown for the participant-by-status report
+    let participantStatusOptionsLoaded = false;
+
+    //Reports by type selected
+    $('.generate').click(function (e) {
             //data to send
             let selected = $('.selector').find(':selected').val();
+
+            const showStatusFilter = selected === 'participant-by-status';
+            $('.participant-status-container').toggle(showStatusFilter);
+            if (showStatusFilter && !participantStatusOptionsLoaded) {
+                participantStatusSelect();
+                participantStatusOptionsLoaded = true;
+            }
+
             let formData = $('.report-form').serialize();
             //reset graph container
             $('.graph-container').children().remove();
@@ -2084,6 +2229,9 @@ $(document).ready(function(){
                         break;
                     case "not-scheduled":
                         reportByCourseNotScheduled(response);
+                        break;
+                    case "canceled":
+                        reportByCanceled(response);
                         break;
                     default:
                         break;

@@ -41,6 +41,8 @@ class ReportPdfController extends Controller
             'duration',
             'participant-by-status',
             'gender',
+            'canceled',
+            'participant-average',
         ];
 
         abort_unless(in_array($type, $allowed, true), 422, 'Tipo de reporte inválido.');
@@ -144,9 +146,11 @@ class ReportPdfController extends Controller
             'status' => 'Cantidad de Acciones de Formación Por Estatus',
             'most-scheduled' => 'Acciónes de Formación más Programadas',
             'not-scheduled' => 'Acciones de Formación No Programadas',
+            'canceled' => 'Acciones de Formación Canceladas',
             'participant-by-quantity' => 'Acciones de Formación por Cantidad de Participantes',
             'duration' => 'Duración de Acciones de Formación',
             'participant-by-status' => 'Estatus de Participantes',
+            'participant-average' => 'Promedio de Participantes',
             'gender' => 'Distribución de Participantes por Género',
             default => 'Reportes',
         };
@@ -168,6 +172,8 @@ class ReportPdfController extends Controller
             'participant-by-quantity' => $controller->courseByParticipantQuantity($request),
             'gender' => $controller->participantsByGender($request),
             'most-scheduled' => $controller->mostScheduled($request),
+            'canceled' => $controller->byCanceled($request),
+            'participant-average' => $controller->participantAverage($request),
             'not-scheduled' => $controller->notScheduled($request),
             default => [],
         };
@@ -194,6 +200,8 @@ class ReportPdfController extends Controller
             'participant-by-quantity' => $this->pagesByParticipantQuantity($data),
             'gender' => $this->pagesByGender($data),
             'most-scheduled' => $this->pagesByMostScheduled($data),
+            'canceled' => $this->pagesByCanceled($data),
+            'participant-average' => $this->pagesByParticipantAverage($data),
             'not-scheduled' => $this->pagesByNotScheduled($data),
             default => [],
         };
@@ -942,6 +950,9 @@ class ReportPdfController extends Controller
     /**
      * @return array<int, array<string, mixed>>
      */
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function pagesByNotScheduled(array $data): array
     {
         $items = (array) Arr::get($data, 'data', []);
@@ -967,5 +978,149 @@ class ReportPdfController extends Controller
             'columns' => ['Código', 'Título', 'Área de Conocimiento'],
             'rows' => $rows,
         ]];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function pagesByCanceled(array $data): array
+    {
+        $items = (array) Arr::get($data, 'data', []);
+
+        if (count($items) === 0) {
+            return [[
+                'kind' => 'table',
+                'title' => 'Acciones de Formación Canceladas',
+                'columns' => ['Mensaje'],
+                'rows' => [['No existen Acciones de Formación Canceladas en el período']],
+            ]];
+        }
+
+        $rows = [];
+        foreach ($items as $s) {
+            $rows[] = [
+                (string) ($s['code'] ?? ''),
+                (string) ($s['title'] ?? ''),
+                (string) ($s['category'] ?? ''),
+                $this->formatDateForDisplay((string) ($s['start_date'] ?? '')),
+                $this->formatDateForDisplay((string) ($s['end_date'] ?? '')),
+            ];
+        }
+
+        return [[
+            'kind' => 'table',
+            'title' => 'Acciones de Formación Canceladas (Total: '.count($items).')',
+            'columns' => ['Código', 'Título', 'Área de Conocimiento', 'Inicio', 'Fin'],
+            'rows' => $rows,
+        ]];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function pagesByParticipantAverage(array $data): array
+    {
+        $rows = (array) Arr::get($data, 'data', []);
+
+        if (count($rows) === 0) {
+            return [[
+                'kind' => 'table',
+                'title' => 'Promedio de Participantes por Acción de Formación',
+                'columns' => ['Mensaje'],
+                'rows' => [['No existen Acciones de Formación en el período']],
+            ]];
+        }
+
+        // group per-course rows into their date buckets and average them
+        $buckets = [];
+        foreach ($rows as $row) {
+            $buckets[(string) ($row['date'] ?? '')][] = $row;
+        }
+        ksort($buckets);
+
+        $round2 = fn ($v) => round((float) $v, 2);
+        $labels = array_keys($buckets);
+        $avgOf = fn (array $group, string $field) => $round2(
+            array_sum(array_map(fn ($r) => (float) Arr::get($r, $field, 0), $group)) / count($group)
+        );
+
+        $avgTotal = array_map(fn ($d) => $avgOf($buckets[$d], 'total'), $labels);
+        $avgApproved = array_map(fn ($d) => $avgOf($buckets[$d], 'approved'), $labels);
+        $avgFailed = array_map(fn ($d) => $avgOf($buckets[$d], 'failed'), $labels);
+
+        $overallAvgTotal = $round2(
+            array_sum(array_map(fn ($r) => (float) ($r['total'] ?? 0), $rows)) / count($rows)
+        );
+        $overallAvgApproved = $round2(
+            array_sum(array_map(fn ($r) => (float) ($r['approved'] ?? 0), $rows)) / count($rows)
+        );
+        $overallAvgFailed = $round2(
+            array_sum(array_map(fn ($r) => (float) ($r['failed'] ?? 0), $rows)) / count($rows)
+        );
+
+        $title = 'Promedio de Participantes por Acción de Formación';
+        $lineConfig = [
+            'type' => 'line',
+            'data' => [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Promedio Total',
+                        'data' => $avgTotal,
+                        'borderColor' => 'rgb(75, 192, 192)',
+                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                        'fill' => false,
+                        'tension' => 0.5,
+                    ],
+                    [
+                        'label' => 'Promedio Aprobados',
+                        'data' => $avgApproved,
+                        'borderColor' => 'rgb(54, 162, 235)',
+                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                        'fill' => false,
+                        'tension' => 0.5,
+                    ],
+                    [
+                        'label' => 'Promedio Reprobados',
+                        'data' => $avgFailed,
+                        'borderColor' => 'rgb(255, 99, 132)',
+                        'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                        'fill' => false,
+                        'tension' => 0.5,
+                    ],
+                ],
+            ],
+            'options' => [
+                'responsive' => false,
+                'plugins' => [
+                    'legend' => ['display' => true],
+                    'title' => ['display' => true, 'text' => $title],
+                ],
+                'scales' => [
+                    'y' => [
+                        'beginAtZero' => true,
+                        'ticks' => ['precision' => 0],
+                    ],
+                ],
+            ],
+        ];
+
+        $pages = [];
+
+        $pages[] = $this->consumeProvidedChart($title)
+            ?? (($img = $this->safeRenderChart($lineConfig)) ? ['kind' => 'chart', 'title' => $title, 'image' => $img] : $this->chartFailurePage($title));
+
+        $tableRows = [];
+        foreach ($labels as $i => $d) {
+            $tableRows[] = [$this->formatDateForDisplay($d), (string) $avgTotal[$i], (string) $avgApproved[$i], (string) $avgFailed[$i]];
+        }
+        $pages[] = [
+            'kind' => 'table',
+            'title' => "Promedios por Período (General: {$overallAvgTotal} participantes, {$overallAvgApproved} aprobados, {$overallAvgFailed} reprobados)",
+            'columns' => ['Período', 'Prom. Participantes', 'Prom. Aprobados', 'Prom. Reprobados'],
+            'rows' => $tableRows,
+        ];
+
+        return $pages;
     }
 }
