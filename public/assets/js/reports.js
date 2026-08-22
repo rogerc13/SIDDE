@@ -11,7 +11,8 @@
         //show list of courses or people if necessary
         //print report
 function refresh(){
-    $(".course-amount-number").html("");
+    // keep the inner span: several renderers write summaries into it
+    $(".course-amount-number").html("<span></span>");
     $('.row-graphs').html('');
     $(".table-col-helper").html("");
 }
@@ -520,10 +521,8 @@ function reportByDate(response){ //reports by date
         let xArr = response.x.map(val => Array.isArray(val) ? val[0] : val);
         lineData = xArr.map((date, idx) => {
             let yVal = response.y[idx];
-            return {
-                x: date,
-                y: (typeof yVal === 'number' && yVal !== 0) ? yVal : null
-            };
+            // keep zeros: empty days are part of the story for a per-day count
+            return { x: date, y: (typeof yVal === 'number') ? yVal : null };
         });
     }
     const ctx = document.getElementById('myChart'); // DOM element
@@ -605,51 +604,42 @@ function reportByCategory(response){
         </div>`);
 
     const ctx = document.getElementById('myChart');
+
+    // Fixed categorical palette: stable across renders and shared by every
+    // chart in this report (random colors collided and changed per render).
+    const CATEGORY_PALETTE = [
+        '#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F',
+        '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC',
+        '#86BCB6', '#D37295', '#FABFD2', '#B6992D', '#499894',
+        '#D4A6C8', '#1170AA', '#7FBFF2', '#57606C', '#FC7D0B',
+    ];
+    const paletteColor = (i) => CATEGORY_PALETTE[i % CATEGORY_PALETTE.length];
+
+    // Only categories with at least one run in the period get charted; zeros
+    // remain visible in the summary table below.
+    const activeCategoryNames = response.categories.filter((name) =>
+        response.courseData.some((c) => c.categoryName === name && Number(c.amount) > 0)
+    );
+
     let categories = [];
+    activeCategoryNames.forEach((element, idx) => {
+        const color = paletteColor(idx);
 
-    //console.log(response.categories);
-
-    //line graph data
-    let fillColor = [];
-    let colorHelp = 0;
-    let regHex=/^#([0-9a-f]{3}){1,2}$/i;
-    response.categories.forEach(element => {
-       
-        fillColor.push(
-            "#000000".replace(/0/g,function(){
-
-                return (~~(Math.random()*16)).toString(16);
-            })
-        );
-
-        // For each category, build an array of {x, y} objects for the time-based line chart
-        let categoryData = response.x.map(date => {
-            // Find the y value for this category and date
-            let found = response.y.find(obj => obj.category === element && obj.x === date);
-            return {
-                x: date,
-                y: found ? (found.y === 0 ? null : found.y) : null
-            };
-        });
         let category = {
             label: element,
-            // build a point for every response.x so line is contiguous
             data: buildSeriesFor(element, response.x, response.y, 'category'),
             showLine: true,
             fill: false,
-            borderColor: fillColor[colorHelp],
-            backgroundColor: fillColor[colorHelp],
+            borderColor: color,
+            backgroundColor: color,
             borderWidth: 3,
         };
         categories.push(category);
-        colorHelp++;
     });
 
     // Remove categories that have no non-null points (all zeros / empty)
     categories = categories.filter(ds => Array.isArray(ds.data) && ds.data.some(p => p && p.y !== null));
 
-    console.log(categories);
-    
     categories = categories.map(ds => applySmartLineMarkers(ds));
 
     var chart = new Chart(ctx, {
@@ -718,17 +708,19 @@ function reportByCategory(response){
             </div>
         </div>`);
 
-    //doughnut data
+    //doughnut data — only categories with runs in the period
     let doughnutData = [];
     let doughnutLabels = [];
     let doughnutBackgroundColor = [];
-    let colorHelpDoughnut = 0;
 
-    response.courseData.forEach(element => {
+    response.courseData.forEach((element) => {
+        if (Number(element.amount) === 0) {
+            return;
+        }
+        const idx = activeCategoryNames.indexOf(element.categoryName);
         doughnutData.push(element.amount);
         doughnutLabels.push(element.categoryName);
-        doughnutBackgroundColor.push(fillColor[colorHelpDoughnut]);
-        colorHelpDoughnut++;
+        doughnutBackgroundColor.push(paletteColor(idx >= 0 ? idx : doughnutLabels.length - 1));
     });
 
     const doughnutEl = document.getElementById('doughnut');
@@ -775,7 +767,7 @@ function reportByCategory(response){
         <th>Cantidad de Acciones de Formación</th>
     </tr>`);
 
-    response.courseData.forEach(element => {
+    response.courseData.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0)).forEach(element => {
         $(".course-category-list tbody").append(`<tr><td>${element.categoryName}</td>
                                                      <td>${element.amount}</td></tr>`);
     });
@@ -1014,10 +1006,7 @@ function reportByCourseStatus(response){ //reports by course status
     );
 
     $(".course-status-amount-table thead").append(`<tr>
-                                                <th>Por Dictar</th>
-                                                <th>En Curso</th>
-                                                <th>Culminado</th>
-                                                <th>Cancelado</th>
+                                                ${response.statuses.map(s => `<th>${s}</th>`).join('')}
                                             </tr>`);
 
      $(".course-status-amount-table tbody").append(`<tr></tr>`);
@@ -1058,6 +1047,9 @@ function reportByCourseStatus(response){ //reports by course status
 
         $('.course-status-amount-table tbody tr').append(`<td>${element.amount}</td>`);
     });
+
+    // Paginate the (potentially long) per-run detail table
+    initTablePagination(document.querySelector('.courses-by-date-range-status .course-list'), 25);
 }//end report by course status
 
 function reportByDuration(response){ //reports by course duration
@@ -1072,11 +1064,11 @@ function reportByDuration(response){ //reports by course duration
     );
 
     //tables
-    //Spans Most Days ALL TIME
+    //Finished runs within the period (Culminado only)
     $(".table-col-helper")
         .append(`<div class="panel panel-success courses-by-day-span">
             <div class="panel-heading">
-                <div class="panel-title">Acciones de Formacion según cantidad de horas y días que abarcan</div>
+                <div class="panel-title">Acciones de Formación Culminadas en el período según cantidad de horas y días que abarcan</div>
             </div>
             <div class="panel-body with-table table-responsive">
             <table class="course-day-span-all-time-list table table-striped table-bordered table-center">
@@ -1113,11 +1105,11 @@ function reportByDuration(response){ //reports by course duration
         </tr>`);
     }
 
-    //Most duration hours
+    //Most duration hours — all-time, independent of the selected period
     $(".table-col-helper")
         .append(`<div class="panel panel-success courses-by-hours">
         <div class="panel-heading">
-            <div class="panel-title">Acciones de Formacion según cantidad de horas</div>
+            <div class="panel-title">Cursos con más horas de duración (Histórico)</div>
         </div>
         <div class="panel-body with-table table-responsive">
         <table class="course-most-duration-all-time-list table table-striped table-bordered table-center">
@@ -1296,6 +1288,15 @@ function reportByParticipantStatus(response){
                 legend: {
                     display: false,
                 }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                    }
+                }
             }
         },
     });
@@ -1369,20 +1370,26 @@ function reportByParticipantStatus(response){
         <th>Fecha de Inicio</th>
     </tr>`);
 
-    (response.byAllTime || []).forEach((element) => {
-        const courseTitle = (element.scheduled && element.scheduled.course && element.scheduled.course.title) ? element.scheduled.course.title : 'Sin curso';
-        const startDate = (element.scheduled && element.scheduled.start_date) ? element.scheduled.start_date : '';
-        const startDateFmt = formatServerDate(startDate);
-        const statusName = (element.participant_status && element.participant_status.name) ? element.participant_status.name : '';
+    if (!(response.byAllTime || []).length) {
         $(".all-time-list-table tbody").append(`<tr>
-                                    <td>${element.person.name}</td>
-                                    <td>${element.person.last_name}</td>
-                                    <td>${element.person.id_number}</td>
-                                    <td>${statusName}</td>
-                                    <td>${courseTitle}</td>
-                                    <td>${startDateFmt}</td>
-                                    </tr>`);
-    });
+            <td colspan="6">No hay participantes en el período o con el estatus seleccionado</td>
+        </tr>`);
+    } else {
+        (response.byAllTime || []).forEach((element) => {
+            const courseTitle = (element.scheduled && element.scheduled.course && element.scheduled.course.title) ? element.scheduled.course.title : 'Sin curso';
+            const startDate = (element.scheduled && element.scheduled.start_date) ? element.scheduled.start_date : '';
+            const startDateFmt = formatServerDate(startDate);
+            const statusName = (element.participant_status && element.participant_status.name) ? element.participant_status.name : '';
+            $(".all-time-list-table tbody").append(`<tr>
+                                        <td>${element.person.name}</td>
+                                        <td>${element.person.last_name}</td>
+                                        <td>${element.person.id_number}</td>
+                                        <td>${statusName}</td>
+                                        <td>${courseTitle}</td>
+                                        <td>${startDateFmt}</td>
+                                        </tr>`);
+        });
+    }
 
     // Paginate the participant list (client-side)
     initTablePagination(document.querySelector('.participant-with-status .all-time-list-table'), 25);
@@ -1399,10 +1406,17 @@ function reportByParticipantQuantity(response){
     //reports by participant quantity
     console.log("participant-by-quantity");
     refresh();
-    //amount of participants all time
-    //$('').html(`Cantidad Total de Participantes: ${response.amountAllTime[0].amount}`)
-    //list of courses per participant in a date range
-    if (response.dateRangeAmountPerCourse != 0) {
+
+    // runs without participants carry no signal for this comparison
+    const withParticipants = response.dateRangeAmountPerCourse != 0
+        ? response.dateRangeAmountPerCourse.filter((element) => Number(element.count) > 0)
+        : [];
+
+    if (withParticipants.length !== 0) {
+        $(".course-amount-number span").html(
+            `<h3>Acciones de Formación con Participantes en el período: ${withParticipants.length}</h3>`
+        );
+
         //draw list
         $(".table-col-helper").append(`<div class="panel panel-success">
             <div class="panel-heading">
@@ -1427,7 +1441,7 @@ function reportByParticipantQuantity(response){
         <th>Cantidad de Participantes</th>
         </tr>`);
 
-        response.dateRangeAmountPerCourse.forEach(element => {
+        withParticipants.forEach(element => {
             $(".course-list tbody").append(`<tr>
                 <td>${element.course}</td>
                 <td>${formatServerDate(element.start_date || '')}</td>
@@ -1438,9 +1452,6 @@ function reportByParticipantQuantity(response){
     } else {
         $('.course-amount-number').append('<h3>No existen Acciones de Formación con participantes asignados en este período de tiempo</h3>');
     }
-
-    //graphs
-    //doughnut all time
 }//end report by participant quantity
 
 function reportByGender(response){
@@ -1604,14 +1615,18 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
     console.log("most-scheduled");
     //draw list of courses
     refresh();
-    
+
+    // sort by scheduled-run count, descending (a "most scheduled" ranking)
+    const amountOf = (el) => Number(response.amountData[el.id] ?? 0);
+    const sorted = [...response.courseData].sort((a, b) => amountOf(b) - amountOf(a));
+
     $(".table-col-helper").append(`<div class="panel panel-success">
     <div class="panel-heading">
-        <div class="panel-title">Acciones de Formación más programadas</div>
+        <div class="panel-title">Acciones de Formación más programadas (Histórico)</div>
     </div>
         <div class="panel-body with-table table-responsive">
         <table class="course-list table table-striped table-bordered table-center">
-                
+
                 <thead>
                 </thead>
                 <tbody>
@@ -1627,14 +1642,9 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
     </tr>`);
 
     let totalAmountOfCourses = 0;
-    response.courseData.forEach((element) => {
-        let amount;
-        for (const property in response.amountData) {
-            if (property == element.id) {
-                amount = response.amountData[property];
-            }
-        }
-        $(".course-list tbody").append(`<tr>                    
+    sorted.forEach((element) => {
+        const amount = amountOf(element) || 0;
+        $(".course-list tbody").append(`<tr>
                                     <td>${element.code}</td>
                                     <td>${element.title}</td>
                                     <td>${amount}
@@ -1642,7 +1652,7 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
         totalAmountOfCourses = totalAmountOfCourses + amount;
     });
 
-    $(".course-amount-number span").html(
+    $('.course-amount-number span').html(
         `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
     );
 }//end report by course most scheduled
@@ -1651,9 +1661,12 @@ function reportByParticipantAverage(response){
     console.log("participant-average");
     refresh();
     const rows = Array.isArray(response.data) ? response.data : [];
+    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
+    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
+
     if (rows.length === 0) {
         $(".course-amount-number").append(
-            "<h3>No existen Acciones de Formación en el período</h3>"
+            `<h3>No existen Acciones de Formación en el período ${startFmt} - ${endFmt}</h3>`
         );
         return;
     }
@@ -1676,7 +1689,7 @@ function reportByParticipantAverage(response){
 
     $(".row-graphs").append(`<div class="panel panel-success by-average-line">
         <div class="panel-heading">
-            <div class="panel-title">Promedio de Participantes por Acción de Formación durante el Período</div>
+            <div class="panel-title">Promedio de Participantes por Acción de Formación durante el Período ${startFmt} - ${endFmt}</div>
         </div>
         <div class="panel-body">
             <div class="col-xs-12 col-md-12 graph-container">
@@ -1734,15 +1747,18 @@ function reportByCanceled(response){
     console.log("canceled");
     refresh();
     const list = Array.isArray(response.data) ? response.data : [];
+    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
+    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
+
     if (list.length !== 0) {
-        $(".course-amount-number").append(
-            `<h3>Cantidad de Acciones de Formación Canceladas: ${response.total ?? list.length}</h3>`
+        $(".course-amount-number span").html(
+            `<h3>Cantidad de Acciones de Formación Canceladas ${startFmt} - ${endFmt}: ${response.total ?? list.length}</h3>`
         );
 
         $(".table-col-helper").append(`<div class="panel panel-success">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Acciones de Formación Canceladas
+                    Acciones de Formación Canceladas durante el período ${startFmt} - ${endFmt}
                 </div>
             </div>
             <div class="panel-body with-table table-responsive">
@@ -1774,7 +1790,7 @@ function reportByCanceled(response){
         });
     } else {
         $(".course-amount-number").append(
-            "<h3>No existen Acciones de Formación Canceladas en el período</h3>"
+            `<h3>No existen Acciones de Formación Canceladas en el período ${startFmt} - ${endFmt}</h3>`
         );
     }
 }

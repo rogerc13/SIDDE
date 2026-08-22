@@ -197,14 +197,15 @@ class ReportTest extends TestCase
         $response->assertOk();
         $data = $this->decodeAsCurrentContract($response);
 
-        foreach (['byAllTime', 'finishedTotal', 'mostDuration', 'byDateRange', 'finishedByDateRange', 'spansMostDays', 'dateRange'] as $key) {
+        foreach (['byAllTime', 'finishedTotal', 'mostDuration', 'byDateRange', 'finishedByDateRange', 'dateRange'] as $key) {
             $this->assertArrayHasKey($key, $data);
         }
         // only CULMINADO runs count towards finished hours
         $this->assertSame(8, $data['finishedByDateRange']);
         $this->assertCount(1, $data['byDateRange']);
         $this->assertSame($finished->id, $data['byDateRange'][0]['scheduled_id']);
-        $this->assertNotEmpty($data['spansMostDays']);
+        // spansMostDays was removed: computed a full-table load and no client consumed it
+        $this->assertArrayNotHasKey('spansMostDays', $data);
     }
 
     public function test_invalid_dates_are_rejected(): void

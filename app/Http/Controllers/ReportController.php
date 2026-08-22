@@ -294,15 +294,6 @@ class ReportController extends Controller
         $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
         $finishedTotal = Scheduled::where('course_status_id', CourseStatus::CULMINADO)->with('course')->get()->pluck('course.duration')->sum();
         $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration', 'desc')->get();
-        // Span per run computed app-side: DATEDIFF() is not portable across DB engines.
-        $spansMostDays = Scheduled::with('course')->get()
-            ->each(function ($scheduled) {
-                $scheduled->max_difference = Carbon::parse($scheduled->start_date)
-                    ->startOfDay()
-                    ->diffInDays(Carbon::parse($scheduled->end_date)->startOfDay());
-            })
-            ->sortByDesc('max_difference')
-            ->values();
 
         // DATE RANGE (query only once for the full range)
         $dates = $this->range($request);
@@ -350,7 +341,6 @@ class ReportController extends Controller
             'mostDuration' => $mostDuration,
             'byDateRange' => $scheduledList,
             'finishedByDateRange' => $dateHelper,
-            'spansMostDays' => $spansMostDays,
             'dateRange' => $dateRangeHelper
         ]);
     } //end course duration
@@ -657,7 +647,13 @@ class ReportController extends Controller
             }
         }
 
-        return response()->json(['data' => $data]);
+        return response()->json([
+            'dateRange' => [
+                'startDate' => Carbon::parse($date[0])->format('Y-m-d'),
+                'endDate' => Carbon::parse(end($date))->format('Y-m-d'),
+            ],
+            'data' => $data,
+        ]);
     } //end participant average
 
     public function notScheduled(Request $request)
