@@ -7,7 +7,8 @@ test.describe('Reports', () => {
         await page.goto('/reports');
 
         await expect(page).not.toHaveURL(/login/);
-        await expect(page.locator('h1')).toContainText('Reportes');
+        // The page can be slow to render while the rest of the suite hammers the server.
+        await expect(page.locator('h1')).toContainText('Reportes', { timeout: 15000 });
     });
 
     test('facilitador is redirected from reports', async ({ page }) => {

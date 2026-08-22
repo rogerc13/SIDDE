@@ -18,6 +18,7 @@ use App\Http\Requests\CursoForm;
 
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use \Illuminate\Support\Facades\File as IlluminateFile;
 use stdClass;
@@ -221,9 +222,6 @@ class CursoController extends Controller
         $curso->objective = $request->objetivo;
         //$curso->contenido = $request->contenido;
 
-        //delete all contents of the course if they exist on the content list table 
-        $curso->content()->delete();
-
         // Build unique content list from request (avoid accidental duplicates)
         $contentData = [];
         $seenContent = [];
@@ -242,6 +240,18 @@ class CursoController extends Controller
                 'text' => $content
             ]);
         }
+
+        // Replace the whole content list atomically; a delete+insert spread
+        // across the request lets concurrent submissions interleave and leave
+        // duplicated or half-written lists behind.
+        DB::transaction(function () use ($curso, $contentData) {
+            $curso->content()->delete();
+
+            if (count($contentData) > 0) {
+                $curso->content()->saveMany($contentData);
+            }
+        });
+        $response[] = true;
 
         $fileCollection = collect($curso->file);
 
@@ -314,9 +324,6 @@ class CursoController extends Controller
         }
 
         $response[] = $curso->save();
-        if (count($contentData) > 0) {
-            $response[] = $curso->content()->saveMany($contentData);
-        }
 
         if (count($path) > 0) {
             $response[] = $curso->file()->saveMany($path);

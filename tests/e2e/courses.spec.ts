@@ -741,7 +741,10 @@ test.describe('Courses - Objective', () => {
     });
 });
 
-test.describe('Courses - Edit Flow', () => {
+// serial: every test mutates the same shared course (COURSE_ID=2) via
+// delete-all-and-reinsert updates; concurrent scheduling across workers
+// makes submissions overwrite each other and reads go stale.
+test.describe.serial('Courses - Edit Flow', () => {
     const COURSE_ID = 2;
     const COURSE_URL = `/u/acciones_formacion/details/${COURSE_ID}`;
 
