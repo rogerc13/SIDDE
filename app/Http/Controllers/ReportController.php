@@ -96,6 +96,22 @@ class ReportController extends Controller
         ];
     }
 
+    /**
+     * Bucket filter with half-open semantics: a run starting exactly on the
+     * next bucket's boundary belongs to that next bucket only, so runs are
+     * never counted twice across adjacent buckets.
+     */
+    private function applyBucketFilter($query, string $start, string $nextStart, bool $isLast, string $rangeEnd): void
+    {
+        $query->where('start_date', '>=', $start);
+        if ($isLast) {
+            // final bucket absorbs everything up to the end of the chosen range
+            $query->where('start_date', '<=', Carbon::parse($rangeEnd)->endOfDay());
+        } else {
+            $query->where('start_date', '<', $nextStart);
+        }
+    }
+
     public function participantStatus()
     { //dynamic participant status selector
 
@@ -123,7 +139,9 @@ class ReportController extends Controller
             if ($day) {
                 $y[] = Scheduled::whereDate('start_date', $start_date)->count();
             } else {
-                $y[] = Scheduled::whereBetween('start_date', [$start_date, $end_date])->count();
+                $query = Scheduled::query();
+                $this->applyBucketFilter($query, $start_date, $end_date, $k === count($date) - 1, $datesObj->currentDate);
+                $y[] = $query->count();
             }
         }
         return response()->json([
@@ -140,9 +158,9 @@ class ReportController extends Controller
     {
         //Course amount By Category
 
-        $dates =  $this->range($request);
-        $date = $dates->date;
-        $day = $dates->day;
+        $datesObj =  $this->range($request);
+        $date = $datesObj->date;
+        $day = $datesObj->day;
 
         $xAxis = [];
         $yAxis = [];
@@ -160,19 +178,21 @@ class ReportController extends Controller
                 $start_date = $date[$k];
                 $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
 
+                $bucketQuery = Scheduled::query();
+                if ($day) {
+                    $bucketQuery->whereDate('start_date', $start_date);
+                } else {
+                    $this->applyBucketFilter($bucketQuery, $start_date, $end_date, $k === count($date) - 1, $datesObj->currentDate);
+                }
+
                 $yAxis[] = [
                     'category' => $category->name,
-                    'y' => Scheduled::with('course')
-                        ->when($day, function ($query) use ($start_date) {
-                            return $query->whereDate('start_date', $start_date);
-                        }, function ($query) use ($start_date, $end_date) {
-                            return $query->whereBetween('start_date', [$start_date, $end_date]);
-                        })->whereHas(
-                            'course',
-                            function ($query) use ($category) {
-                                $query->where('category_id', $category->id);
-                            }
-                        )->count(),
+                    'y' => $bucketQuery->whereHas(
+                        'course',
+                        function ($query) use ($category) {
+                            $query->where('category_id', $category->id);
+                        }
+                    )->count(),
                     'x' => Carbon::parse($start_date)->format('Y-m-d'),
                 ];
             }
@@ -227,9 +247,9 @@ class ReportController extends Controller
 
         //by date range
 
-        $dates =  $this->range($request);
-        $date = $dates->date;
-        $day = $dates->day;
+        $datesObj =  $this->range($request);
+        $date = $datesObj->date;
+        $day = $datesObj->day;
 
         $xAxis = [];
         $byDateRange = [];
@@ -253,8 +273,8 @@ class ReportController extends Controller
                     'y' => Scheduled::where('course_status_id', $status->id)
                         ->when($day, function ($query) use ($start_date) {
                             return $query->whereDate('start_date', $start_date);
-                        }, function ($query) use ($start_date, $end_date) {
-                            return $query->whereBetween('start_date', [$start_date, $end_date]);
+                        }, function ($query) use ($start_date, $end_date, $k, $date, $datesObj, $day) {
+                            $this->applyBucketFilter($query, $start_date, $end_date, $k === count($date) - 1, $datesObj->currentDate);
                         })->count()
                 ];
             }
@@ -451,12 +471,12 @@ class ReportController extends Controller
                     'date' => Carbon::parse($start_date)->format('Y-m-d'),
                     'countByStatus' => Participant::where('participant_status_id', $status->id)->whereHas(
                         'scheduled',
-                        function ($query) use ($start_date, $end_date) {
-                            $query->when($start_date === $end_date, function ($q) use ($start_date) {
-                                return $q->whereDate('start_date', $start_date);
-                            }, function ($q) use ($start_date, $end_date) {
-                                return $q->whereBetween('start_date', [$start_date, $end_date]);
-                            });
+                        function ($query) use ($start_date, $end_date, $k, $date, $dates, $day) {
+                            if ($day) {
+                                $query->whereDate('start_date', $start_date);
+                            } else {
+                                $this->applyBucketFilter($query, $start_date, $end_date, $k === count($date) - 1, $dates->currentDate);
+                            }
                         }
                     )->count(),
                     'status' => $status->name,
@@ -578,14 +598,23 @@ class ReportController extends Controller
         $courseTitles = Course::whereIn('id', $rows->pluck('course_id')->unique())
             ->pluck('title', 'id');
 
-        // bucket attribution preserved: a run appears once per bucket that contains its start date
+        // bucket attribution preserved with half-open semantics: a run whose
+        // start falls exactly on an internal boundary belongs to the next
+        // bucket only, so it is never counted twice across adjacent buckets.
         $dateRangeAmountPerCourse = [];
-        foreach ($range->date as $key => $bucketStart) {
-            $end_date = $range->day ? $bucketStart : ($range->date[min($key + 1, count($range->date) - 1)] ?? $bucketStart);
+        $bucketDates = $range->date;
+        $bucketCount = count($bucketDates);
+        foreach ($bucketDates as $key => $bucketStart) {
+            $isLast = $key === $bucketCount - 1;
+            $nextStart = $bucketDates[min($key + 1, $bucketCount - 1)] ?? $bucketStart;
+            $rangeEnd = $range->currentDate;
 
             foreach ($rows as $row) {
                 $rowStart = Carbon::parse($row->start_date)->toDateString();
-                if ($rowStart >= $bucketStart && $rowStart <= $end_date) {
+                $belongs = $range->day
+                    ? $rowStart === $bucketStart
+                    : ($rowStart >= $bucketStart && ($isLast ? $rowStart <= $rangeEnd : $rowStart < $nextStart));
+                if ($belongs) {
                     $dateRangeAmountPerCourse[] = [
                         'date' => Carbon::parse($bucketStart)->format('Y-m-d'),
                         'scheduled_id' => $row->scheduled_id,
@@ -614,21 +643,24 @@ class ReportController extends Controller
 
         $dates =  $this->range($request);
         $date = $dates->date;
-        $numberOfSteps = $dates->numberOfSteps;
         $day = $dates->day;
-        $j = 0;
 
         $data = [];
 
         foreach ($date as $key => $value) {
             $start_date = $date[$key];
-            $end_date = $date[$day === true ? $key : ($j < $numberOfSteps ? $j = $j + 1 : $j)];
+            $end_date = $day ? $start_date : $date[min($key + 1, count($date) - 1)];
 
             // one grouped query per bucket instead of three COUNTs per course
-            $rows = Scheduled::query()
+            $query = Scheduled::query()
                 ->leftJoin('participants', 'participants.scheduled_id', '=', 'scheduled_course.id')
-                ->whereBetween('start_date', [$start_date, $end_date])
-                ->whereNull('participants.deleted_at')
+                ->whereNull('participants.deleted_at');
+
+            // half-open buckets so a run starting exactly on the next bucket's
+            // boundary is counted once, in that next bucket only
+            $this->applyBucketFilter($query, $start_date, $end_date, $key === count($date) - 1, $dates->currentDate);
+
+            $rows = $query
                 ->groupBy('scheduled_course.id')
                 ->select('scheduled_course.id as scheduled_id')
                 ->selectRaw('SUM(CASE WHEN participants.participant_status_id = ? THEN 1 ELSE 0 END) AS approved', [Participant::APROBADO])

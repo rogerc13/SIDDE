@@ -253,6 +253,92 @@ class ReportTest extends TestCase
         $this->assertNotSame(now()->toDateString(), $data['dateRange']['startDate']);
     }
 
+    public function test_runs_on_bucket_boundaries_count_exactly_once(): void
+    {
+        $cat = $this->makeCategory('Cat Bnd');
+        // weekly buckets from 10 days ago to today; place runs exactly on
+        // internal boundaries — the old inclusive-both-ends logic counted
+        // these in two adjacent buckets
+        $start = now()->subDays(14)->startOfDay();
+        $boundary = $start->copy()->addDays(7);
+
+        $this->makeScheduled($cat, CourseStatus::EN_CURSO, $boundary->toDateString());
+        $this->makeScheduled($cat, CourseStatus::EN_CURSO, $start->copy()->addDays(2)->toDateString());
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/date', [
+                'start_date' => $start->toDateString(),
+                'end_date' => now()->toDateString(),
+                'step' => '1 week',
+            ]);
+
+        $response->assertOk();
+        $data = $response->json();
+
+        $this->assertSame(2, $data['total'], 'Boundary-date runs must be counted exactly once across buckets');
+        $this->assertSame(2, array_sum($data['y']));
+    }
+
+    public function test_participant_quantity_bucket_boundaries_count_once(): void
+    {
+        $cat = $this->makeCategory('Cat PQ Bnd');
+        $start = now()->subDays(14)->startOfDay();
+        $boundary = $start->copy()->addDays(7);
+
+        $boundaryRun = $this->makeScheduled($cat, CourseStatus::EN_CURSO, $boundary->toDateString());
+        $firstRun = $this->makeScheduled($cat, CourseStatus::EN_CURSO, $start->copy()->addDays(2)->toDateString());
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/participant-by-quantity', [
+                'start_date' => $start->toDateString(),
+                'end_date' => now()->toDateString(),
+                'step' => '1 week',
+            ]);
+
+        $response->assertOk();
+        $data = $this->decodeAsCurrentContract($response);
+
+        $rows = $data['dateRangeAmountPerCourse'];
+        $this->assertCount(2, $rows, 'Each run must be attributed to exactly one bucket');
+
+        $boundaryOccurrences = collect($rows)->where('scheduled_id', $boundaryRun->id)->count();
+        $firstOccurrences = collect($rows)->where('scheduled_id', $firstRun->id)->count();
+        $this->assertSame(1, $boundaryOccurrences, 'Boundary run must be counted once');
+        $this->assertSame(1, $firstOccurrences);
+    }
+
+    public function test_average_bucket_boundaries_count_once(): void
+    {
+        $cat = $this->makeCategory('Cat Avg Bnd');
+        $start = now()->subDays(14)->startOfDay();
+        $boundary = $start->copy()->addDays(7);
+
+        $boundaryRun = $this->makeScheduled($cat, CourseStatus::EN_CURSO, $boundary->toDateString());
+        $this->addParticipant($boundaryRun, Participant::APROBADO);
+        $firstRun = $this->makeScheduled($cat, CourseStatus::EN_CURSO, $start->copy()->addDays(2)->toDateString());
+        $this->addParticipant($firstRun, Participant::REPROBADO);
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/participant-average', [
+                'start_date' => $start->toDateString(),
+                'end_date' => now()->toDateString(),
+                'step' => '1 week',
+            ]);
+
+        $response->assertOk();
+        $data = $response->json();
+
+        $rows = $data['data'];
+        $boundaryOccurrences = collect($rows)->where('scheduled_id', $boundaryRun->id)->count();
+        $firstOccurrences = collect($rows)->where('scheduled_id', $firstRun->id)->count();
+        $this->assertSame(1, $boundaryOccurrences, 'Boundary run must be counted once');
+        $this->assertSame(1, $firstOccurrences);
+        $this->assertSame(2, collect($rows)->sum('total'), 'Participants must be counted exactly once');
+    }
+
     public function test_participants_by_status_shape_with_explicit_dates(): void
     {
         $cat = $this->makeCategory('Cat P');

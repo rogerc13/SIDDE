@@ -621,74 +621,47 @@ function reportByCategory(response){
         response.courseData.some((c) => c.categoryName === name && Number(c.amount) > 0)
     );
 
-    let categories = [];
-    activeCategoryNames.forEach((element, idx) => {
-        const color = paletteColor(idx);
+    // Rankings read better as bars than as a multi-line plot: one bar per
+    // category with runs in the period, largest at the top.
+    const rankedCategories = response.courseData
+        .filter((c) => Number(c.amount) > 0)
+        .sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
 
-        let category = {
-            label: element,
-            data: buildSeriesFor(element, response.x, response.y, 'category'),
-            showLine: true,
-            fill: false,
-            borderColor: color,
-            backgroundColor: color,
-            borderWidth: 3,
-        };
-        categories.push(category);
-    });
-
-    // Remove categories that have no non-null points (all zeros / empty)
-    categories = categories.filter(ds => Array.isArray(ds.data) && ds.data.some(p => p && p.y !== null));
-
-    categories = categories.map(ds => applySmartLineMarkers(ds));
+    let categories = rankedCategories.map((c, idx) => ({
+        label: c.categoryName,
+        data: [Number(c.amount) || 0],
+        backgroundColor: paletteColor(idx),
+        borderColor: paletteColor(idx),
+        borderWidth: 1,
+    }));
 
     var chart = new Chart(ctx, {
-        type: "line",
+        type: "bar",
         data: {
-            //labels:response.x,
+            labels: rankedCategories.map(c => c.categoryName),
             datasets: categories,
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            elements: {
-                point: {
-                    radius: 0,
-                    hoverRadius: 0
-                }
-            },
-            // For daily charts, connect across nulls; for others, keep gaps.
-            spanGaps: shouldConnectLineGaps(),
-            scales: {
-                x: {
-                    type: 'time',
-                    title: {
-                        display: true,
-                        text: 'Período de Tiempo'
-                    },
-                    time: {
-                        parser: 'YYYY-MM-DD',
-                        tooltipFormat: 'YYYY-MM-DD'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Cantidad de Acciones de Formación'
-                    },
-                    ticks: {
-                        stepSize: 5
-                    }
-                }
-            },
-            showLines: true,
             plugins: {
+                legend: { display: false },
                 title: {
                     display: true,
                     text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
                 }
-            }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Cantidad de Acciones de Formación' },
+                    ticks: { precision: 0 }
+                },
+                y: {
+                    ticks: { precision: 0 }
+                }
+            },
         },
     });
         
@@ -893,9 +866,10 @@ function reportByCourseStatus(response){ //reports by course status
         doughnutBackgroundColor.push(getCourseStatusColor(element.statusName));
     });
 
-    //linear graph draw
+    //linear graph draw — stacked composition per bucket reads better than
+    //overlapping sparse lines for status distribution over time
     var chart = new Chart(ctx, {
-        type: "line",
+        type: "bar",
         data: {
             //labels:response.x,
             datasets: statuses,
@@ -903,14 +877,6 @@ function reportByCourseStatus(response){ //reports by course status
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            elements: {
-                point: {
-                    radius: 0,
-                    hoverRadius: 0
-                }
-            },
-            // For daily charts, connect across nulls; for others, keep gaps.
-            spanGaps: shouldConnectLineGaps(),
             scales: {
                 x: {
                     type: 'time',
@@ -921,11 +887,13 @@ function reportByCourseStatus(response){ //reports by course status
                     time: {
                         parser: 'YYYY-MM-DD',
                         tooltipFormat: 'YYYY-MM-DD'
-                    }
+                    },
+                    stacked: true,
                 },
                 y: {
                     beginAtZero: true,
                     min: 0,
+                    stacked: true,
                     // Add a little headroom so the max doesn't touch the top edge
                     suggestedMax: maxY > 0 ? (maxY + 2) : 1,
                     title: {
