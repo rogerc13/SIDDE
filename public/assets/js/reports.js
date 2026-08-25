@@ -529,7 +529,7 @@ function reportByDate(response){ //reports by date
     // or to be explicit: const ctx = document.getElementById('myChart').getContext('2d');
 
     const markedDataset = applySmartLineMarkers({
-        label: 'Cantidad de Acciones de Formacion',
+        label: 'Cantidad de Acciones de Formación',
         data: lineData,
         fill: false,
         borderColor: 'rgb(75, 192, 192)',
@@ -593,7 +593,7 @@ function reportByCategory(response){
         .append(`<div class="col-md-6">
             <div class="panel panel-success line-graph-panel">
                 <div class="panel-heading">
-                    <div class="panel-title">Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
+                    <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
                 </div>
                 <div class="panel-body">
                     <div class="graph-container">
@@ -649,7 +649,7 @@ function reportByCategory(response){
                 legend: { display: false },
                 title: {
                     display: true,
-                    text: `Cantidad de Acciones de Formacion por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
+                    text: `Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
                 }
             },
             scales: {
@@ -670,7 +670,7 @@ function reportByCategory(response){
             <div class="panel panel-success doughnut-panel">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${startFmt} - ${endFmt}
+Distribución de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}
                     </div>
                 </div>
                 <div class="panel-body">
@@ -736,7 +736,7 @@ function reportByCategory(response){
                 </div>`);
     
     $('.course-category-list thead').append(`<tr>
-        <th>Área de Conomiento</th>
+        <th>Área de Conocimiento</th>
         <th>Cantidad de Acciones de Formación</th>
     </tr>`);
 
@@ -744,6 +744,9 @@ function reportByCategory(response){
         $(".course-category-list tbody").append(`<tr><td>${element.categoryName}</td>
                                                      <td>${element.amount}</td></tr>`);
     });
+
+    // Paginate the (potentially long) category summary table
+    initTablePagination(document.querySelector('.course-category-list'), 25);
     
     $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range" style="page-break-inside: avoid">
             <div class="panel-heading">
@@ -774,6 +777,9 @@ function reportByCategory(response){
         </tr>`);
         })
     });
+
+    // Paginate the (potentially long) per-course detail table
+    initTablePagination(document.querySelector('.course-data-category-list'), 25);
     
 }//end report by category
 
