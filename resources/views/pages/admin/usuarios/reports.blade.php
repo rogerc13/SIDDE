@@ -43,7 +43,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="date-range-filters">
                     <div class="col-md-4">
                         <label for="start_date" class='control-label'>Desde</label>
                         <input type="date" name="start_date" id="start_date" class="form-control" />

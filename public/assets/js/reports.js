@@ -2160,6 +2160,20 @@ $(document).ready(function(){
                 participantStatusOptionsLoaded = true;
             }
 
+            // The two "Histórico" reports ignore the date range and interval by
+            // design; disable those filters so they can't be submitted as a
+            // silent no-op, and so the UI reflects the actual query scope.
+            const historicalTypes = ['most-scheduled', 'not-scheduled'];
+            const disableDateFilters = historicalTypes.includes(selected);
+            $('#date-range-filters').toggle(!disableDateFilters);
+            $('#date-range-filters').find('input, select').prop('disabled', disableDateFilters);
+
+            // Drop any previously chosen participant status when leaving the
+            // participant-by-status report so it isn't carried into other types.
+            if (!showStatusFilter) {
+                $('#participant_status').val('');
+            }
+
             let formData = $('.report-form').serialize();
             //reset graph container
             $('.graph-container').children().remove();

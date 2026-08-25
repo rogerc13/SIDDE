@@ -339,6 +339,99 @@ class ReportTest extends TestCase
         $this->assertSame(2, collect($rows)->sum('total'), 'Participants must be counted exactly once');
     }
 
+    public function test_most_scheduled_ignores_date_range(): void
+    {
+        $cat = $this->makeCategory('Cat Most A');
+        $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(5)->toDateString());
+        $catB = $this->makeCategory('Cat Most B');
+        $this->makeScheduled($catB, CourseStatus::EN_CURSO, now()->subDays(2)->toDateString());
+
+        $post = fn (string $start, string $end) => $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/most-scheduled', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
+            ->json();
+
+        $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
+        $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
+
+        // Historical report must be identical regardless of the chosen range.
+        $this->assertSame(
+            json_encode($rangeA['amountData']),
+            json_encode($rangeB['amountData']),
+            'most-scheduled must ignore the date range filter'
+        );
+    }
+
+    public function test_not_scheduled_ignores_date_range(): void
+    {
+        $modality = \App\Models\Modality::factory()->create();
+        $cat = $this->makeCategory('Cat Not A');
+        \App\Models\Course::factory()->create([
+            'category_id' => $cat->id,
+            'modality_id' => $modality->id,
+            'duration' => 8,
+        ]);
+
+        $post = fn (string $start, string $end) => $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/not-scheduled', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
+            ->json();
+
+        $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
+        $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
+
+        $this->assertSame(
+            json_encode($rangeA['data']),
+            json_encode($rangeB['data']),
+            'not-scheduled must ignore the date range filter'
+        );
+        $this->assertNotEmpty($rangeA['data'], 'Seeded unscheduled course should appear');
+    }
+
+    public function test_participant_by_status_filters_by_status_id(): void
+    {
+        $cat = $this->makeCategory('Cat PStatus');
+        $scheduledA = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(3)->toDateString());
+        $this->addParticipant($scheduledA, Participant::APROBADO);
+        $scheduledB = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(1)->toDateString());
+        $this->addParticipant($scheduledB, Participant::REPROBADO);
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/participant-by-status', [
+                'start_date' => now()->subDays(10)->toDateString(),
+                'end_date' => now()->toDateString(),
+                'status_id' => Participant::APROBADO,
+            ]);
+
+        $response->assertOk();
+        $data = $response->json();
+
+        $this->assertCount(1, $data['byAllTime'], 'Only Aprobado participants must be returned');
+        $this->assertSame('Aprobado', $data['byAllTime'][0]['participant_status']['name']);
+    }
+
+    public function test_status_report_all_time_ignores_date_range(): void
+    {
+        $cat = $this->makeCategory('Cat StatusAll');
+        $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(5)->toDateString());
+        $this->makeScheduled($cat, CourseStatus::CULMINADO, now()->subDays(2)->toDateString());
+
+        $post = fn (string $start, string $end) => $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/status', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
+            ->json();
+
+        $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
+        $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
+
+        $this->assertSame(
+            json_encode($rangeA['byAllTime']),
+            json_encode($rangeB['byAllTime']),
+            'byAllTime series must ignore the date range filter'
+        );
+    }
+
     public function test_participants_by_status_shape_with_explicit_dates(): void
     {
         $cat = $this->makeCategory('Cat P');
