@@ -644,13 +644,17 @@ function reportByCategory(response){
         chartEntries.push({ name: 'Otras', amount: othersAmount, color: '#999999' });
     }
 
-    let categories = chartEntries.map((e) => ({
-        label: e.name,
-        data: [e.amount],
-        backgroundColor: e.color,
-        borderColor: e.color,
+    // A single dataset with one value per category (not one dataset per
+    // category). With indexAxis 'y' this places bar i on label-row i so the
+    // bars line up with their y-axis labels instead of all collapsing onto
+    // the first category row.
+    const categories = [{
+        label: 'Cantidad de Acciones de Formación',
+        data: chartEntries.map(e => e.amount),
+        backgroundColor: chartEntries.map(e => e.color),
+        borderColor: chartEntries.map(e => e.color),
         borderWidth: 1,
-    }));
+    }];
 
     var chart = new Chart(ctx, {
         type: "bar",
