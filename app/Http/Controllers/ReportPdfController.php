@@ -142,7 +142,7 @@ class ReportPdfController extends Controller
     {
         return match ($type) {
             'date' => 'Cantidad de Acciones de Formación',
-            'category' => 'Cantidad de Acciones de Formación Por Areas de Conocimiento',
+            'category' => 'Cantidad de Acciones de Formación Por Áreas de Conocimiento',
             'status' => 'Cantidad de Acciones de Formación Por Estatus',
             'most-scheduled' => 'Acciónes de Formación más Programadas',
             'not-scheduled' => 'Acciones de Formación No Programadas',

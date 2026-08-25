@@ -725,7 +725,7 @@ Distribución de Acciones de Formación por Áreas de Conocimiento durante el pe
             plugins: {
                 title: {
                     display: true,
-                    text: `Distribución de Acciones de Formación por Areas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
+                    text: `Distribución de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}`,
                 }
             }
         },
