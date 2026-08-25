@@ -1437,6 +1437,9 @@ function reportByParticipantQuantity(response){
     } else {
         $('.course-amount-number').append('<h3>No existen Acciones de Formación con participantes asignados en este período de tiempo</h3>');
     }
+
+    // Paginate the (potentially long) participant-quantity table
+    initTablePagination(document.querySelector('.course-list'), 25);
 }//end report by participant quantity
 
 function reportByGender(response){
