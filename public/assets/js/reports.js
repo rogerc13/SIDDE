@@ -615,30 +615,47 @@ function reportByCategory(response){
     ];
     const paletteColor = (i) => CATEGORY_PALETTE[i % CATEGORY_PALETTE.length];
 
-    // Only categories with at least one run in the period get charted; zeros
-    // remain visible in the summary table below.
-    const activeCategoryNames = response.categories.filter((name) =>
-        response.courseData.some((c) => c.categoryName === name && Number(c.amount) > 0)
-    );
-
-    // Rankings read better as bars than as a multi-line plot: one bar per
-    // category with runs in the period, largest at the top.
-    const rankedCategories = response.courseData
+    // Chart only categories with at least one run in the period; zeros
+    // remain visible in the summary table below. To keep the bar/doughnut
+    // legible when many categories tie at a low count, show the top N
+    // individually and roll the rest into a single "Otras" slice.
+    const TOP_N_CATEGORIES = 10;
+    const nonZeroCategories = response.courseData
         .filter((c) => Number(c.amount) > 0)
         .sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
 
-    let categories = rankedCategories.map((c, idx) => ({
-        label: c.categoryName,
-        data: [Number(c.amount) || 0],
-        backgroundColor: paletteColor(idx),
-        borderColor: paletteColor(idx),
+    let chartEntries = nonZeroCategories.map((c, idx) => ({
+        name: c.categoryName,
+        amount: Number(c.amount) || 0,
+        color: paletteColor(idx),
+    }));
+
+    if (nonZeroCategories.length > TOP_N_CATEGORIES) {
+        const othersAmount = nonZeroCategories
+            .slice(TOP_N_CATEGORIES)
+            .reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+        chartEntries = nonZeroCategories
+            .slice(0, TOP_N_CATEGORIES)
+            .map((c, idx) => ({
+                name: c.categoryName,
+                amount: Number(c.amount) || 0,
+                color: paletteColor(idx),
+            }));
+        chartEntries.push({ name: 'Otras', amount: othersAmount, color: '#999999' });
+    }
+
+    let categories = chartEntries.map((e) => ({
+        label: e.name,
+        data: [e.amount],
+        backgroundColor: e.color,
+        borderColor: e.color,
         borderWidth: 1,
     }));
 
     var chart = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: rankedCategories.map(c => c.categoryName),
+            labels: chartEntries.map(e => e.name),
             datasets: categories,
         },
         options: {
@@ -681,20 +698,10 @@ Distribución de Acciones de Formación por Áreas de Conocimiento durante el pe
             </div>
         </div>`);
 
-    //doughnut data — only categories with runs in the period
-    let doughnutData = [];
-    let doughnutLabels = [];
-    let doughnutBackgroundColor = [];
-
-    response.courseData.forEach((element) => {
-        if (Number(element.amount) === 0) {
-            return;
-        }
-        const idx = activeCategoryNames.indexOf(element.categoryName);
-        doughnutData.push(element.amount);
-        doughnutLabels.push(element.categoryName);
-        doughnutBackgroundColor.push(paletteColor(idx >= 0 ? idx : doughnutLabels.length - 1));
-    });
+    // doughnut data — top categories plus an "Otras" rollup for legibility
+    let doughnutData = chartEntries.map(e => e.amount);
+    let doughnutLabels = chartEntries.map(e => e.name);
+    let doughnutBackgroundColor = chartEntries.map(e => e.color);
 
     const doughnutEl = document.getElementById('doughnut');
     var myDoughnutChart = new Chart(doughnutEl, {
