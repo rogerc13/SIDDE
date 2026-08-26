@@ -12,6 +12,35 @@
     display: block;
 }
 
+/* ── Report filter rows (flex layout matching app convention) ──────── */
+.report-form .form-group.report-filters-row,
+.report-form .form-group.report-date-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+/* Reset Bootstrap column floats inside flex rows */
+.report-form .form-group.report-filters-row > [class*="col-"],
+.report-form .form-group.report-date-row > [class*="col-"] {
+    flex: none;
+    width: auto;
+}
+
+.report-form .form-group.report-filters-row > .col-md-3 { width: 25%; }
+.report-form .form-group.report-filters-row > .col-md-2 { width: 16.6667%; }
+.report-form .form-group.report-filters-row > .col-md-4 { width: 33.3333%; }
+
+.report-form .form-group.report-date-row > .col-md-2 { width: 16.6667%; }
+.report-form .form-group.report-date-row > .col-md-8 { width: 66.6667%; }
+
+/* Action buttons row */
+.report-actions-buttons {
+    display: flex;
+    gap: 8px;
+}
+
 /* ── Date-range preset buttons ─────────────────────────────────────── */
 .date-preset-buttons {
     display: flex;
@@ -29,8 +58,8 @@
 }
 
 .date-preset-btn.active {
-    background-color: #337ab7;
-    border-color: #2e6da4;
+    background-color: #00a651;
+    border-color: #008d45;
     color: #fff;
 }
 
@@ -39,12 +68,23 @@
     border-color: #adadad;
 }
 
-@media (max-width: 768px) {
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 991px) {
+    .report-form .form-group.report-filters-row > [class*="col-"],
+    .report-form .form-group.report-date-row > [class*="col-"] {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
     .date-preset-buttons {
         gap: 4px;
     }
     .date-preset-btn {
         font-size: 11px;
         padding: 4px 8px;
+    }
+    .report-actions-buttons {
+        flex-wrap: wrap;
     }
 }

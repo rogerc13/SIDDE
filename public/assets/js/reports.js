@@ -2284,9 +2284,10 @@ $(document).ready(function(){
             // silent no-op, and so the UI reflects the actual query scope.
             const historicalTypes = ['most-scheduled', 'not-scheduled'];
             const disableDateFilters = historicalTypes.includes(selected);
-            $('.date-preset-group').toggle(!disableDateFilters);
-            $('#date-range-filters').toggle(!disableDateFilters);
-            $('#date-range-filters').find('input, select').prop('disabled', disableDateFilters);
+            $('.report-date-row').toggle(!disableDateFilters);
+            $('#date-step-col').toggle(!disableDateFilters);
+            $('#step').prop('disabled', disableDateFilters);
+            $('.date-preset-btn').prop('disabled', disableDateFilters);
 
             // Drop any previously chosen participant status when leaving the
             // participant-by-status report so it isn't carried into other types.
