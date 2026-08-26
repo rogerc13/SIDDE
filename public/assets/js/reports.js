@@ -2183,7 +2183,7 @@ $(document).ready(function(){
             //data to send
             let selected = $('.selector').find(':selected').val();
 
-            const showStatusFilter = selected === 'participant-by-status';
+            const showStatusFilter = selected === 'participant-by-status' || selected === 'participant-average';
             $('.participant-status-container').toggle(showStatusFilter);
             if (showStatusFilter && !participantStatusOptionsLoaded) {
                 participantStatusSelect();

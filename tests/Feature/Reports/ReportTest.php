@@ -339,6 +339,36 @@ class ReportTest extends TestCase
         $this->assertSame(2, collect($rows)->sum('total'), 'Participants must be counted exactly once');
     }
 
+    public function test_participant_average_filters_by_status(): void
+    {
+        $cat = $this->makeCategory('Cat Avg Status');
+        $start = now()->subDays(10)->startOfDay();
+
+        $run = $this->makeScheduled($cat, CourseStatus::EN_CURSO, $start->toDateString());
+        $this->addParticipant($run, Participant::APROBADO);
+        $this->addParticipant($run, Participant::REPROBADO);
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/participant-average', [
+                'start_date' => $start->toDateString(),
+                'end_date' => now()->toDateString(),
+                'step' => '1 week',
+                'status_id' => Participant::APROBADO,
+            ]);
+
+        $response->assertOk();
+        $data = $response->json();
+
+        $rows = collect($data['data'])->where('scheduled_id', $run->id);
+        $this->assertCount(1, $rows, 'Run must appear once in its bucket');
+        $row = $rows->first();
+        // Filtered to Aprobado only: the Reprobado participant must be excluded.
+        $this->assertSame(1, (int) $row['total']);
+        $this->assertSame(1, (int) $row['approved']);
+        $this->assertSame(0, (int) $row['failed']);
+    }
+
     public function test_most_scheduled_ignores_date_range(): void
     {
         $cat = $this->makeCategory('Cat Most A');

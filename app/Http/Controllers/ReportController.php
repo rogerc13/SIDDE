@@ -645,6 +645,13 @@ class ReportController extends Controller
         $date = $dates->date;
         $day = $dates->day;
 
+        // Honor the optional participant-status filter when present.
+        $validStatusIds = ParticipantStatus::pluck('id')->all();
+        $statusIdInput = $request->input('status_id');
+        $statusId = ($statusIdInput !== null && $statusIdInput !== '' && in_array((int) $statusIdInput, $validStatusIds, true))
+            ? (int) $statusIdInput
+            : null;
+
         $data = [];
 
         foreach ($date as $key => $value) {
@@ -655,6 +662,10 @@ class ReportController extends Controller
             $query = Scheduled::query()
                 ->leftJoin('participants', 'participants.scheduled_id', '=', 'scheduled_course.id')
                 ->whereNull('participants.deleted_at');
+
+            if ($statusId !== null) {
+                $query->where('participants.participant_status_id', $statusId);
+            }
 
             // half-open buckets so a run starting exactly on the next bucket's
             // boundary is counted once, in that next bucket only
