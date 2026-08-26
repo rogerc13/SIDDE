@@ -47,22 +47,21 @@ class ParticipanteController extends Controller
 
         $users = User::where('role_id','5');
 
-        if($nombres){
+        if ($nombres) {
             $users = $users->whereHas('person', function ($query) use ($nombres) {
                 $query->where('name', 'LIKE', "%$nombres%");
             });
         }
-        
-        if($apellidos){
+        if ($apellidos) {
             $users = $users->whereHas('person', function ($query) use ($apellidos) {
                 $query->where('last_name', 'LIKE', "%$apellidos%");
             });
         }
-        if($cis){
-            $users = $users->whereHas('person', function ($query) use ($cis,$idTypeId) {
-                        $query->where('id_type_id','=',$idTypeId)->where('id_number', 'LIKE', "%$cis%");
-                });
-            }
+        if ($cis) {
+            $users = $users->whereHas('person', function ($query) use ($cis, $idTypeId) {
+                $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
+            });
+        }
         $types = IdType::all();
 
         return view('pages.admin.participantes.index')

@@ -45,19 +45,22 @@ class FacilitadorController extends Controller
         $idTypeId = $request->integer('id_type_search');        
 
         $users = User::with('role')->with('person')->where('role_id','4');
-        
-        if($nombres)
-           $users=$users->whereHas('person',function($query) use($nombres){
-                $query->where('name','LIKE',"%$nombres%");
-           });
-        if($apellidos)
-        $users = $users->whereHas('person', function ($query) use ($apellidos) {
-            $query->where('last_name', 'LIKE', "%$apellidos%");
-        });
-        if($cis)
-        $users = $users->whereHas('person', function ($query) use ($cis,$idTypeId) {
-            $query->where('id_type_id','=',$idTypeId)->where('id_number', 'LIKE' , "%$cis%");
-        });
+
+        if ($nombres) {
+            $users = $users->whereHas('person', function ($query) use ($nombres) {
+                $query->where('name', 'LIKE', "%$nombres%");
+            });
+        }
+        if ($apellidos) {
+            $users = $users->whereHas('person', function ($query) use ($apellidos) {
+                $query->where('last_name', 'LIKE', "%$apellidos%");
+            });
+        }
+        if ($cis) {
+            $users = $users->whereHas('person', function ($query) use ($cis, $idTypeId) {
+                $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
+            });
+        }
 
 
         $types = IdType::all();

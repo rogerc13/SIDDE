@@ -82,7 +82,7 @@
 
 				<!-- <li class="opened active has-sub root-level"> -->
 
-                @can('getAccionFormacion','App/Course')
+                @can('getAccionFormacion','App\Models\Course')
                     <li class="sidebar-selector " title="" id="sidebar-busqueda">
                         <a>
                             <i class="entypo-search" id="siderbar-buscar"></i>
@@ -128,7 +128,7 @@
 					</ul>
 				</li> --}}
 
-		@can('getAll','App\Category')
+		@can('getAll','App\Models\Category')
 			<li class="{{ Request::is('u/areas') ? 'active' : '' }} " title="Gestión de Áreas de Conocimiento">
 				<a href="{{url("u/areas")}}">
 					<i class="entypo-tag"></i>
@@ -144,7 +144,7 @@
 				</a>
 			</li>
 		@endcan
-			@can('getAll','App\Course')
+			@can('getAll','App\Models\Course')
 				<li class="{{ Request::is('u/acciones_formacion') ? 'active' : '' }}  " title="Gestión de Acciones de Formación">
 					<a href="{{url("u/acciones_formacion")}}">
 						<i class="entypo-book-open"></i>
@@ -152,23 +152,23 @@
 					</a>
 				</li>
 			@endcan
-			@can('getAll','App\Scheduled')
-				<li class="{{ Request::is('u/af_programadas','u/af_programadas/*') ? 'active' : '' }}" title="Acciones de Formación Programadas">
+@can('getAll','App\Models\Scheduled')
+			<li class="{{ Request::is('u/af_programadas','u/af_programadas/*') ? 'active' : '' }}" title="Acciones de Formación Programadas">
 					<a href="{{url("u/af_programadas")}}">
 						<i class="entypo-calendar"></i>
 						<span class="title">A.F Programadas</span>
 					</a>
 				</li>
 			@endcan
-			@can('getAll','App\User')
-				<li class="{{ Request::is('u/usuarios') ? 'active' : '' }}" title="Gestión de Usuarios">
+@can('getAll','App\Models\User')
+			<li class="{{ Request::is('u/usuarios') ? 'active' : '' }}" title="Gestión de Usuarios">
 					<a href="{{url("u/usuarios")}}">
 						<i class="entypo-users"></i>
 						<span class="title">Usuarios</span>
 					</a>
 				</li>
 			@endcan
-			@can('getAllFacilitador','App\User')
+			@can('getAllFacilitador','App\Models\User')
 				<li class=" {{ Request::is('u/facilitadores') ? 'active' : '' }}" title="Gestión de Facilitadores">
 					<a href="{{url("u/facilitadores")}}">
 						<i class="entypo-users"></i>
@@ -176,7 +176,7 @@
 					</a>
 				</li>
 			@endcan
-			@can('getAllParticipante','App\User')
+			@can('getAllParticipante','App\Models\User')
 				<li class="{{ Request::is('u/participantes') ? 'active' : '' }} " title="Gestión de Participantes">
 					<a href="{{url("u/participantes")}}">
 						<i class="entypo-users"></i>
@@ -185,7 +185,7 @@
 				</li>
 			@endcan
 
-			@can('misCursos','App\Scheduled')
+			@can('misCursos','App\Models\Scheduled')
 				<li class="{{ Request::is('u/mis_acciones') ? 'active' : '' }} " title="Mis acciones de formación">
 					<a href="{{url("u/mis_acciones")}}">
 						<i class="entypo-list"></i>

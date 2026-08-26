@@ -567,7 +567,7 @@ class CursoProgramadoController extends Controller
 
                 //get all participants that met the prerequisite
                 $participantsWithPrerequisite = Participant::with('Person')->whereIn('scheduled_id',$courseList)
-                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id','25')->select('id')->get())
+                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id',$scheduledId)->select('id')->get())
                 ->get()->pluck('person_id');
 
                 $availableParticipants = $participantsWithPrerequisite->diff($participantsOverlap);

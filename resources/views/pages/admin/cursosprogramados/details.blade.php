@@ -107,7 +107,7 @@
                 <div class="stat-tile">
                     <span class="stat-label"><i class="entypo-users"></i> Registrados</span>
                     <span class="stat-value">{{ $participantsCount }} @if($capacityMax)/ {{ $capacityMax }}@endif</span>
-                    @can('getAllPorCurso','App\Participant')
+                    @can('getAllPorCurso','App\Models\Participant')
                         <a class="stat-sub no-print" href="{{ url('u/af_programadas/'.$scheduled->id.'/participantes') }}">gestionar participantes</a>
                     @endcan
                 </div>

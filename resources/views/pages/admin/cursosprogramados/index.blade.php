@@ -19,7 +19,7 @@
 
 @endpush
 	<h3>Acciones de Formación Programadas</h3>
-	@can('store','App\Scheduled')
+	@can('store','App\Models\Scheduled')
 		<a href="{{ url('u/af_programadas/crear') }}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
 		<form action="pdf/scheduled" method="GET" style='all:unset'>
 			@csrf
@@ -179,7 +179,7 @@
 								  <a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a>
-							  @can('getAllPorCurso','App\Participant')
+							  @can('getAllPorCurso','App\Models\Participant')
 								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-users"></i>
 								  </a>

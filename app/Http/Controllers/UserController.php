@@ -47,21 +47,25 @@ class UserController extends Controller
         $idTypeId = $request->integer('id_type');
 
         $users = User::with('role')->with('person')->orderBy("id","asc");
-        
-        if($nombres)
-           $users = User::whereHas('person',function($query) use($nombres){
-                return $query->where('name','LIKE',"%$nombres%");
-           });
-        if($apellidos)
-            $users = User::whereHas('person', function ($query) use ($apellidos) {
-                return $query->where('last_name', 'LIKE', "%$apellidos%");
+
+        if ($nombres) {
+            $users = $users->whereHas('person', function ($query) use ($nombres) {
+                $query->where('name', 'LIKE', "%$nombres%");
             });
-        if($cis && $idTypeId)
-            $users = User::whereHas('person', function ($query) use ($cis,$idTypeId) {
-                return $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
+        }
+        if ($apellidos) {
+            $users = $users->whereHas('person', function ($query) use ($apellidos) {
+                $query->where('last_name', 'LIKE', "%$apellidos%");
             });
-        if($busqueda_rol)
-           $users=$users->where('role_id','=',$busqueda_rol);
+        }
+        if ($cis && $idTypeId) {
+            $users = $users->whereHas('person', function ($query) use ($cis, $idTypeId) {
+                $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
+            });
+        }
+        if ($busqueda_rol) {
+            $users = $users->where('role_id', '=', $busqueda_rol);
+        }
 
        	$roles = Role::$roles;
         $types = IdType::all();
