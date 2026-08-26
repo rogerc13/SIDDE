@@ -66,7 +66,7 @@ class CursoProgramadoController extends Controller
         ->get();
         
 
-        $cursos = Scheduled::orderBy("start_date","desc")->with(['course','facilitator','courseStatus','sessions']);
+        $cursos = Scheduled::orderBy("start_date","desc")->with(['course.capacity','facilitator','courseStatus','sessions']);
         $estados = CourseStatus::orderBy('name','asc')->get();
         $categoriasAcciones = Category::with('courses')->get();
         $locations = Location::with('floor.building')->orderBy('name', 'asc')->get();

@@ -57,7 +57,7 @@ class ParticipanteCursoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $cursoprogramado = Scheduled::find($id);
+        $cursoprogramado = Scheduled::with('course.capacity')->find($id);
         if (!$cursoprogramado) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado seleccionado no existe."));
@@ -132,7 +132,7 @@ class ParticipanteCursoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error", "La acción de formación indicada no coincide con la solicitud."));
         }
 
-        $cursoprogramado = Scheduled::find($request->curso_p_id);
+        $cursoprogramado = Scheduled::with('course.capacity')->find($request->curso_p_id);
 
         if (!$cursoprogramado->isPorDictar()) {
             return Redirect::back()

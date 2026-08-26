@@ -30,7 +30,7 @@ class CheckCPStatus extends Command
     public function handle()
     {
 
-        $cursos = Scheduled::orderBy("start_date","desc")->get();
+        $cursos = Scheduled::with('participants')->orderBy("start_date","desc")->get();
 
       foreach ($cursos as $curso){
 

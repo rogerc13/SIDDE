@@ -15,10 +15,9 @@ class Prerequisite extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function courseName(){
-        $title = Course::where('code',$this->prerequisite)->get();
-        
-        return $title[0]->title;
+    public function courseName(): ?string
+    {
+        return $this->prerequisite?->title;
     }
 
     public function prerequisite(){

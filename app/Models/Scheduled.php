@@ -50,23 +50,22 @@ class Scheduled extends Model
     return $this->belongsToMany(User::class,'participante_curso','curso_programado_id','user_id')->withPivot('id');
   } */
 
-  public function atMaxCapacity(){
-    if($this->participants->count() == $this->course->capacity[0]->max){
-      return true;
-    }else{
-      return false;
-    }
-    
+  public function atMaxCapacity(): bool
+  {
+      $participantCount = $this->participants()->count();
+      $maxCapacity = $this->course->capacity->first()?->max ?? 0;
+
+      return $participantCount >= $maxCapacity;
   }
 
-  public function totalSessionHours()
+  public function totalSessionHours(): float
   {
-    return $this->sessions->sum(fn($s) => $s->durationHours());
+      return (float) $this->sessions->sum(fn ($s) => $s->durationHours());
   }
 
-  public function remainingHours()
+  public function remainingHours(): float
   {
-    return $this->course->duration - $this->totalSessionHours();
+      return (float) $this->course->duration - $this->totalSessionHours();
   }
   
   public function isPorDictar(){

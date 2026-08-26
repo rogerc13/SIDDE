@@ -47,7 +47,7 @@ class CursoController extends Controller
         if (!$user || $user->cannot('getAccionFormacion', Course::class)) {
             return redirect()->route('login');
         }
-        $curso = Course::with(['capacity', 'modality', 'content', 'category'])->where('id', $id)->first();
+        $curso = Course::with(['capacity', 'modality', 'content', 'category', 'prerequisite.prerequisite'])->where('id', $id)->first();
         if ($curso == null) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "La acción de formación no pudo ser encontrada"));
