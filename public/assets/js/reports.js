@@ -1120,9 +1120,10 @@ function reportByDuration(response){ //reports by course duration
             <td>${element.duration}</td>
         </tr>`);
     });
-    
-    
-    
+
+    // Paginate both duration tables (the historical list can be long)
+    initTablePagination(document.querySelector('.course-day-span-all-time-list'), 25);
+    initTablePagination(document.querySelector('.course-most-duration-all-time-list'), 25);
 }//end report by course duration
 
 function reportByParticipantStatus(response){
