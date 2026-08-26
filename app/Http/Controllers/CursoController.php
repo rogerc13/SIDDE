@@ -33,7 +33,7 @@ class CursoController extends Controller
             return json_encode([]);
         }
 
-        $curso = Course::with(['content', 'file', 'capacity', 'prerequisite'])->where('id', $id)->get();
+        $curso = Course::with(['content', 'file', 'capacity', 'prerequisite'])->where('id', $id)->first();
         if (!$curso) {
             return json_encode([]);
         }
@@ -101,90 +101,86 @@ class CursoController extends Controller
 
     public function setCourse(CursoForm $request)
     {
-        // return json_encode($request->prerequisite);
         $user = Auth::user();
-        if ($user->can('store', Course::class)) {
-            $data = array(
-                'code' => $request->codigo,
-                'title' => str_replace(['pdvsa', 'Y'], ['PDVSA', 'y'], ucwords(strtolower($request->titulo))),
-                'category_id' => $request->categoria_id,
-                'modality_id' => $request->modalidad_id,
-                'objective' => $request->objetivo,
-                'duration' => $request->duracion,
-                'addressed' => $request->dirigido,
-            );
-
-            // Build unique content list (avoid accidental duplicates)
-            $contentData = [];
-            $seenContent = [];
-            $contentList = explode(",", $request->content_data);  //turns string of content into an array
-
-            foreach ($contentList as $content) {  //cycles content list and creates array to store into course_contents
-                $content = trim($content);
-                if ($content === '') {
-                    continue;
-                }
-                if (isset($seenContent[$content])) {
-                    // skip duplicates by text
-                    continue;
-                }
-                $seenContent[$content] = true;
-                $contentLength = strlen($content);
-                //check if period is present at end of string
-                if ($contentLength > 0 && ($content[$contentLength - 1]) != '.') {
-                    $content = $content . '.';
-                }
-                $contentData[] = new Content([ //array to be stored
-                    'text' => $content
-                ]);
-            }
-
-
-            $path = [];
-            if (null != ($request->file('manual_f'))) {
-                $path[0]  = new File([
-                    'path' => $request->file('manual_f')
-                        ->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')
-                            ->getClientOriginalExtension()),
-                    'type_id' => 1
-                ]);
-            }
-
-            if (null != ($request->file('manual_p'))) {
-                $path[1] = new File(['path' => $request->file('manual_p')
-                    ->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')
-                        ->getClientOriginalExtension()), 'type_id' => 2]);
-            }
-            if (null != ($request->file('guia'))) {
-                $path[2] = new File(['path' => $request->file('guia')
-                    ->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')
-                        ->getClientOriginalExtension()), 'type_id' => 3]);
-            }
-            if (null != ($request->file('presentacion'))) {
-                $path[3] = new File(['path' => $request->file('presentacion')
-                    ->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')
-                        ->getClientOriginalExtension()), 'type_id' => 4]);
-            }
-
-            $response = Course::create($data); //inserts into course table
-
-            if (isset($path)) {
-                $response->file()->saveMany($path); //inserts path into course_files      
-            }
-
-            $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
-            $prerequisite = new Prerequisite([
-                'prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
-                'course_code' => $request->codigo
-            ]);
-            $response->prerequisite()->save($prerequisite);
-            $response->capacity()->save($capacity);
-            $response->content()->saveMany($contentData); //inserts intro course_contents table with course's id given relationship
-
+        if ($user->cannot('store', Course::class)) {
+            return json_encode(false);
         }
 
+        $data = array(
+            'code' => $request->codigo,
+            'title' => str_replace(['pdvsa', 'Y'], ['PDVSA', 'y'], ucwords(strtolower($request->titulo))),
+            'category_id' => $request->categoria_id,
+            'modality_id' => $request->modalidad_id,
+            'objective' => $request->objetivo,
+            'duration' => $request->duracion,
+            'addressed' => $request->dirigido,
+        );
+
+        $contentData = [];
+        $seenContent = [];
+        $contentList = explode(",", $request->content_data);
+
+        foreach ($contentList as $content) {
+            $content = trim($content);
+            if ($content === '') {
+                continue;
+            }
+            if (isset($seenContent[$content])) {
+                continue;
+            }
+            $seenContent[$content] = true;
+            $contentLength = strlen($content);
+            if ($contentLength > 0 && ($content[$contentLength - 1]) != '.') {
+                $content = $content . '.';
+            }
+            $contentData[] = new Content([
+                'text' => $content
+            ]);
+        }
+
+        $path = [];
+        if (null != ($request->file('manual_f'))) {
+            $path[0] = new File([
+                'path' => $request->file('manual_f')
+                    ->storeAs($request->codigo, "Manual del Facilitador " . $request->titulo . "." . $request->file('manual_f')
+                        ->getClientOriginalExtension()),
+                'type_id' => 1
+            ]);
+        }
+
+        if (null != ($request->file('manual_p'))) {
+            $path[1] = new File(['path' => $request->file('manual_p')
+                ->storeAs($request->codigo, "Manual del Participante " . $request->titulo . "." . $request->file('manual_p')
+                    ->getClientOriginalExtension()), 'type_id' => 2]);
+        }
+        if (null != ($request->file('guia'))) {
+            $path[2] = new File(['path' => $request->file('guia')
+                ->storeAs($request->codigo, "Guia del Curso " . $request->titulo . "." . $request->file('guia')
+                    ->getClientOriginalExtension()), 'type_id' => 3]);
+        }
+        if (null != ($request->file('presentacion'))) {
+            $path[3] = new File(['path' => $request->file('presentacion')
+                ->storeAs($request->codigo, "Presentacion " . $request->titulo . "." . $request->file('presentacion')
+                    ->getClientOriginalExtension()), 'type_id' => 4]);
+        }
+
+        $response = Course::create($data);
+
+        if (isset($path)) {
+            $response->file()->saveMany($path);
+        }
+
+        $capacity = new Capacity(['min' => $request->min, 'max' => $request->max]);
+        $prerequisite = new Prerequisite([
+            'prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null),
+            'course_code' => $request->codigo
+        ]);
+        $response->prerequisite()->save($prerequisite);
+        $response->capacity()->save($capacity);
+        $response->content()->saveMany($contentData);
+
         return json_encode($response);
-    } //end setCourse()
+    }
 
     public function update(CursoForm $request, $id)
     {
