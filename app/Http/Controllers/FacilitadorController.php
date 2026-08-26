@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Person;
 use App\Models\Funciones;
 use App\Models\IdType;
@@ -44,7 +45,7 @@ class FacilitadorController extends Controller
         $cis = $request->input('cis');
         $idTypeId = $request->integer('id_type_search');        
 
-        $users = User::with('role')->with('person')->where('role_id','4');
+        $users = User::with('role')->with('person')->where('role_id',Role::FACILITADOR);
 
         if ($nombres) {
             $users = $users->whereHas('person', function ($query) use ($nombres) {
@@ -84,7 +85,7 @@ class FacilitadorController extends Controller
         }
 
         $usuario = new User([
-            'role_id' => 4,
+            'role_id' => Role::FACILITADOR,
             'email' => $request->email,
             'password' => bcrypt($request->password) 
         ]);
@@ -170,7 +171,7 @@ class FacilitadorController extends Controller
         }
 
         $usuario = User::where('id',$id)
-                        ->where('role_id','4')
+                        ->where('role_id',Role::FACILITADOR)
                         ->first();
     
         if($usuario==null)

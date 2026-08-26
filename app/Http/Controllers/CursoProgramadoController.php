@@ -7,6 +7,7 @@ use App\Models\Scheduled;
 use App\Models\Course;
 use App\Models\Category;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Funciones;
 use App\Models\Participant;
 use App\Models\Person;
@@ -57,12 +58,12 @@ class CursoProgramadoController extends Controller
 
         $fecha = $date;
 
-        $facilitadores = User::where('role_id',4)->with('person')->get();
+        $facilitadores = User::where('role_id',Role::FACILITADOR)->with('person')->get();
         
         $participantes4 = Participant::all();
         $pts = $participantes4->pluck('person_id');
 
-        $participantes = User::whereNotIn('person_id', $pts)->where('role_id',5)
+        $participantes = User::whereNotIn('person_id', $pts)->where('role_id',Role::PARTICIPANTE)
         ->get();
         
 
@@ -125,7 +126,7 @@ class CursoProgramadoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $facilitadores = User::where('role_id', 4)->with('person')->get();
+        $facilitadores = User::where('role_id', Role::FACILITADOR)->with('person')->get();
         $categoriasAcciones = Category::with('courses')->get();
         $locations = $this->getLocationsForScheduling();
 
@@ -159,7 +160,7 @@ class CursoProgramadoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "El curso seleccionado no existe."));
         }
 
-        $facilitadores = User::where('role_id', 4)->with('person')->get();
+        $facilitadores = User::where('role_id', Role::FACILITADOR)->with('person')->get();
         $categoriasAcciones = Category::with('courses')->get();
         $locations = $this->getLocationsForScheduling();
 
@@ -348,7 +349,7 @@ class CursoProgramadoController extends Controller
         $fecha = $date;
         $lista = $categorias = Category::orderBy("name","asc");
         $categorias = $lista->pluck('name','id');
-        $facilitadores = User::where('role_id','4')->get();
+        $facilitadores = User::where('role_id',Role::FACILITADOR)->get();
         $cursos = Scheduled::orderBy("id","asc");
         
         
@@ -429,7 +430,7 @@ class CursoProgramadoController extends Controller
         $lista = $categorias = Category::orderBy("name","asc");
         $categorias = $lista->pluck('name','id');
 
-        $facilitadores = User::with('person')->where('role_id','4')
+        $facilitadores = User::with('person')->where('role_id',Role::FACILITADOR)
                     ->get();
 
         $cursos = Scheduled::orderBy("id","asc");
@@ -538,7 +539,7 @@ class CursoProgramadoController extends Controller
 
                 //get list of all participants
                 $participantList = Person::whereHas('user', function($query){
-                    $query->where('role_id','5');
+                    $query->where('role_id',Role::PARTICIPANTE);
                 })->get()->pluck('id');
 
                 //getparticipants without those who are in a course that overlap

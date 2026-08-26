@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Person;
 use App\Models\Funciones;
 use App\Models\IdType;
@@ -45,7 +46,7 @@ class ParticipanteController extends Controller
 
 
 
-        $users = User::where('role_id','5');
+        $users = User::where('role_id',Role::PARTICIPANTE);
 
         if ($nombres) {
             $users = $users->whereHas('person', function ($query) use ($nombres) {
@@ -84,7 +85,7 @@ class ParticipanteController extends Controller
         }
 
         $usuario = new User([
-                'role_id' => 5,
+                'role_id' => Role::PARTICIPANTE,
                 'email' => $request->email,
                 'password' => bcrypt($request->password)
             ]);
@@ -163,7 +164,7 @@ class ParticipanteController extends Controller
         }
 
         $usuario = User::where('id',$id)
-                        ->where('role_id','5')
+                        ->where('role_id',Role::PARTICIPANTE)
                         ->first();
         
         if($usuario==null)

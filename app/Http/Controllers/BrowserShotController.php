@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Scheduled;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\Funciones;
 
 use Illuminate\Http\Request;
@@ -152,7 +153,7 @@ class BrowserShotController extends Controller
             return $this->denyRoster();
         }
 
-        $facilitators = User::with('role')->with('person')->where('role_id','4');
+        $facilitators = User::with('role')->with('person')->where('role_id',Role::FACILITADOR);
         
         if((empty($request->hidden_name) && empty($request->hidden_surname) && empty($request->hidden_id)) == true){
             $facilitators = $facilitators->get();
@@ -191,7 +192,7 @@ class BrowserShotController extends Controller
             return $this->denyRoster();
         }
 
-        $participants = User::where('role_id',5);
+        $participants = User::where('role_id',Role::PARTICIPANTE);
 
         if((empty($request->hidden_name) && empty($request->hidden_surname) && empty($request->hidden_id)) == true){
             $participants = $participants->get();
