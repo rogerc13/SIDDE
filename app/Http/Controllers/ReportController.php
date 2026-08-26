@@ -297,13 +297,25 @@ class ReportController extends Controller
 
         $dateRangeHelper = ['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')];
 
+        // Completion / cancellation rates over the selected range (in-range totals).
+        $totalInRange = collect($courseData)->sum('amount');
+        $completedInRange = collect($courseData)->where('statusName', 'Culminado')->sum('amount');
+        $canceledInRange = collect($courseData)->where('statusName', 'Cancelado')->sum('amount');
+        $completionRate = $totalInRange > 0 ? round(100 * $completedInRange / $totalInRange, 1) : 0;
+        $cancellationRate = $totalInRange > 0 ? round(100 * $canceledInRange / $totalInRange, 1) : 0;
+
         return response()->json([
             'statuses' => $statusNames,
             'x' => $xAxis,
             'y' => $byDateRange,
             'byAllTime' => $byAllTime,
             'courseData' => $courseData,
-            'dateRange' => $dateRangeHelper
+            'dateRange' => $dateRangeHelper,
+            'rates' => [
+                'total' => $totalInRange,
+                'completionRate' => $completionRate,
+                'cancellationRate' => $cancellationRate,
+            ],
         ]);
     } //end course by status
 

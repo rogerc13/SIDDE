@@ -462,6 +462,31 @@ class ReportTest extends TestCase
         );
     }
 
+    public function test_status_report_includes_completion_and_cancellation_rates(): void
+    {
+        $cat = $this->makeCategory('Cat Rates');
+        // 2 Culminado + 1 Cancelado + 1 En Curso => 4 total in range
+        $this->makeScheduled($cat, CourseStatus::CULMINADO, now()->subDays(5)->toDateString());
+        $this->makeScheduled($cat, CourseStatus::CULMINADO, now()->subDays(4)->toDateString());
+        $this->makeScheduled($cat, CourseStatus::CANCELADO, now()->subDays(3)->toDateString());
+        $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(2)->toDateString());
+
+        $response = $this->actingAs($this->admin())
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/reports/status', [
+                'start_date' => now()->subDays(20)->toDateString(),
+                'end_date' => now()->toDateString(),
+                'step' => '1 month',
+            ]);
+
+        $response->assertOk();
+        $rates = $response->json('rates');
+
+        $this->assertSame(4, $rates['total']);
+        $this->assertEquals(50, $rates['completionRate']);   // 2 / 4
+        $this->assertEquals(25, $rates['cancellationRate']); // 1 / 4
+    }
+
     public function test_participants_by_status_shape_with_explicit_dates(): void
     {
         $cat = $this->makeCategory('Cat P');

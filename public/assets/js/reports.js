@@ -798,6 +798,15 @@ function reportByCourseStatus(response){ //reports by course status
     console.log("status");
 
     refresh();
+    // KPI summary: volume + completion/cancellation rates for the selected range
+    const rates = response.rates || { total: 0, completionRate: 0, cancellationRate: 0 };
+    $(".course-amount-number").html(
+        `<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px">
+            <span style="font-size:15px"><strong>${rates.total}</strong> Acciones en el período</span>
+            <span style="font-size:15px;color:#00A651"><strong>${rates.completionRate}%</strong> Finalización</span>
+            <span style="font-size:15px;color:#CC2424"><strong>${rates.cancellationRate}%</strong> Cancelación</span>
+        </div>`
+    );
     const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
     const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
 
