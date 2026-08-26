@@ -18,7 +18,6 @@ class Floor extends Model
         'building_id',
         'name',
     ];
-    protected $dates = ['deleted_at'];
 
     public function building()
     {

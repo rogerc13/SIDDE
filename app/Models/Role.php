@@ -30,8 +30,6 @@ class Role extends Model
         'name',
     ];
 
-    protected $dates = [];
-
     public function user(){
         return $this->hasMany(User::class);
     }

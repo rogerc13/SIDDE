@@ -71,18 +71,12 @@ class CategoriaController extends Controller
             
                 
             return Redirect::back()
-               ->with("alert",Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
+               ->with("alert",Funciones::getAlert("danger", "Error al Intentar Crear Categoria", "Operacion Erronea."));
             
         }
 
         return Redirect::back()
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));       
-    }
-    
-    public function count()
-    {
- 
-        
     }
 
     public function update(CategoriaForm $request, $id)
@@ -123,7 +117,7 @@ class CategoriaController extends Controller
             if($categoria==null)
             {
                 return Redirect::back()
-                    ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El área seleccionada no pudo ser encontrada."));
+                    ->with("alert",Funciones::getAlert("danger", "Error al intentar eliminar", "El área seleccionada no pudo ser encontrada."));
                 
             }
 
@@ -144,7 +138,7 @@ class CategoriaController extends Controller
         }
 
         return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Editar", "No tienes permisos para realizar esta accion."));
+                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
           
     }
 }

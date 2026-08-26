@@ -33,7 +33,6 @@ class User extends Authenticatable
     protected $fillable = [
       'role_id', 'person_id','email','password',
     ];
-    protected $dates = [ 'deleted_at', ];
 
     /**
      * The attributes that should be hidden for arrays.

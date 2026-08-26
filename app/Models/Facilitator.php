@@ -14,7 +14,6 @@ class Facilitator extends Model
 
     protected $fillable = ['person_id'];
     protected $table = 'facilitators';
-    protected $dates = ['deleted_at',];
 
     public function scheduled(){
         return $this->hasMany(Scheduled::class);

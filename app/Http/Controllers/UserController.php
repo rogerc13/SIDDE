@@ -121,11 +121,6 @@ class UserController extends Controller
 
     }
 
-    public function count()
-    {
-        //
-    }
-
     public function update(UserForm $request, $id)
     {
 

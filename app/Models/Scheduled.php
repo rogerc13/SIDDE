@@ -3,18 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Scheduled extends Model
 {
-  use SoftDeletes;
+  use SoftDeletes, HasFactory;
 
   protected $table = 'scheduled_course';
   protected $fillable = [
     'course_id', 'course_status_id' , 'facilitator_id', 'start_date', 'end_date',
   ];
-  protected $dates = [ 'deleted_at', ];
 
   public function course()
   {
@@ -81,7 +81,8 @@ class Scheduled extends Model
       return $this->course_status_id==CourseStatus::CANCELADO;
   }
 
-  public function badgeStatus(){
+  public function badgeStatus(): string
+  {
       if ($this->isPorDictar())
           return 'warning';
       elseif ($this->isEnCurso())
@@ -91,6 +92,7 @@ class Scheduled extends Model
       elseif ($this->isCancelado())
           return 'danger';
 
+      return 'secondary';
   }
 
 

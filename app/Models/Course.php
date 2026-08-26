@@ -43,11 +43,8 @@ class Course extends Model
     'code', 'title' , 'category_id', 'modality_id', 'objective' , 'duration'
     , 'addressed',
   ];
-  protected $dates = [ 'deleted_at', ];
-/* public function minMax(){
-  return $this->capacity
-} */
-public function category()
+
+  public function category()
 {
     return $this->belongsTo(Category::class);
 }

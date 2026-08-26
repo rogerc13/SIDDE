@@ -113,11 +113,6 @@ class ParticipanteController extends Controller
         }
 
     }
-    
-    public function count()
-    {
-        //
-    }
 
     public function update(UserForm $request, $id)
     {
@@ -127,7 +122,7 @@ class ParticipanteController extends Controller
         
         if (!$usuario)
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso ingresada no existe."));
+                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El participante ingresado no existe."));
  
         
         if ($user->cannot('updateParticipante', User::class))
@@ -174,7 +169,7 @@ class ParticipanteController extends Controller
         if($usuario==null)
         {
             return Redirect::back()
-               ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
+               ->with("alert",Funciones::getAlert("danger", "Error al intentar eliminar", "Participante no encontrado."));
         }
         //if participant is in a course, the participant cannot be deleted
         if($usuario->person->participant->count() > 0){

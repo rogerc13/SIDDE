@@ -75,10 +75,6 @@ class LocationController extends Controller
             ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta accion."));
     }
 
-    public function count()
-    {
-    }
-
     public function update(LocationForm $request, $id)
     {
         $user = Auth::user();
@@ -115,7 +111,7 @@ class LocationController extends Controller
             $location = Location::find($id);
             if ($location == null) {
                 return Redirect::back()
-                    ->with("alert", Funciones::getAlert("danger", "Error al intentar editar", "La ubicación seleccionada no pudo ser encontrada."));
+                    ->with("alert", Funciones::getAlert("danger", "Error al intentar eliminar", "La ubicación seleccionada no pudo ser encontrada."));
             }
 
             if ($location->sessions->count() > 0) {
@@ -130,7 +126,7 @@ class LocationController extends Controller
         }
 
         return Redirect::back()
-            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "No tienes permisos para realizar esta accion."));
+            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
     }
 
     public function getBuilding($id)

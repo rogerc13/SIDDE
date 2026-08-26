@@ -359,7 +359,7 @@ class CursoController extends Controller
             $curso = Course::findOrFail($id);
             if ($curso == null) {
                 return Redirect::back()
-                    ->with("alert", Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
+                    ->with("alert", Funciones::getAlert("danger", "Error al intentar eliminar", "Curso no encontrado."));
             }
 
 
@@ -406,7 +406,7 @@ class CursoController extends Controller
         }
 
         return Redirect::back()
-            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "No tienes permisos para realizar esta accion."));
+            ->with("alert", Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
     }
 
     public function downloadAllFiles($id)

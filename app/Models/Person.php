@@ -37,10 +37,10 @@ class Person extends Model
         'sex',
         'avatar_path',
     ];
-    protected $dates = ['deleted_at',];
 
-    public function id_format(){ //returns id_number as 10.000.000
-        return number_format($this->id_number, 0, '', '.');
+    public function id_format(): string
+    {
+        return number_format((float) $this->id_number, 0, '', '.');
     }
 
     public function user(){

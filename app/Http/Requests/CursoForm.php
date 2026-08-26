@@ -37,6 +37,10 @@ class CursoForm extends FormRequest
                         'objetivo' => 'required|string|max:'.Course::MAX_LENGTH_OBJECTIVE,
                         'min' => 'required|integer|min:1',
                         'max' => 'required|integer|min:1',
+                        'manual_f' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'manual_p' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'guia' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'presentacion' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                        ];
 
             case 'PUT':
@@ -50,6 +54,10 @@ class CursoForm extends FormRequest
                         'objetivo' => 'required|string|max:'.Course::MAX_LENGTH_OBJECTIVE,
                         'min' => 'required|integer|min:1',
                         'max' => 'required|integer|min:1',
+                        'manual_f' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'manual_p' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'guia' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'presentacion' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                        ];
 
             default:

@@ -111,15 +111,10 @@ class FacilitadorController extends Controller
         }
         else {            
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Crear Curso", "Operacion Erronea."));
+                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Crear Facilitador", "Operacion Erronea."));
 
         }
 
-    }
-    
-    public function count()
-    {
-        //
     }
 
     public function update(UserForm $request, $id)
@@ -130,7 +125,7 @@ class FacilitadorController extends Controller
         
         if (!$usuario)
             return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso ingresada no existe."));
+                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El facilitador ingresado no existe."));
  
         
         if ($user->cannot('updateFacilitador', User::class))
@@ -181,7 +176,7 @@ class FacilitadorController extends Controller
         if($usuario==null)
         {
             return Redirect::back()
-               ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Area ingresada no encontrada."));
+               ->with("alert",Funciones::getAlert("danger", "Error al intentar eliminar", "Facilitador no encontrado."));
 
         }
 

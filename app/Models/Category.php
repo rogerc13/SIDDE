@@ -17,7 +17,6 @@ class Category extends Model
   protected $fillable = [
     'name',
   ];
-  protected $dates = [ 'deleted_at', ];
 
 public function courses()
 {

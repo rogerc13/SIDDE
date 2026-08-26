@@ -142,7 +142,7 @@ public static function sanear_string($string)
    
     for($i=1 ; $i<=$longitudPass ; $i++){
         
-        $pos=rand(0,$longitudCadena-1);
+        $pos=random_int(0,$longitudCadena-1);
      
          $password .= substr($cadena,$pos,1);
     }

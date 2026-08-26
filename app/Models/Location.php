@@ -18,7 +18,6 @@ class Location extends Model
     'floor_id',
     'name',
   ];
-  protected $dates = ['deleted_at'];
 
   public function floor()
   {

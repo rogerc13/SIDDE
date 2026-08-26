@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Participant extends Model
 {
-  use SoftDeletes;
+  use SoftDeletes, HasFactory;
 
   const ENCURSO = 1;
   const REPROBADO = 2;
@@ -19,7 +20,6 @@ class Participant extends Model
   protected $fillable = [
     'person_id', 'scheduled_id','participant_status_id'
   ];
-  protected $dates = [ 'deleted_at', ];
 
    public function person()
     {
@@ -58,7 +58,8 @@ class Participant extends Model
       return $this->participant_status_id==self::CANCELADO;
   }
 
-    public function badgeStatus(){
+    public function badgeStatus(): string
+    {
       if ($this->isPorIniciar())
           return 'warning';
       elseif ($this->isEnCurso())
@@ -70,5 +71,6 @@ class Participant extends Model
       elseif ($this->isCancelado())
           return 'default';
 
-  }
+      return 'secondary';
+    }
 }

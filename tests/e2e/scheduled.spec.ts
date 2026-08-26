@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers/auth';
 import { execSync } from 'child_process';
 
-const TINKER_CMD = 'cd /Users/albani/RnD/Personal\\ Projects/SIDDE && php artisan tinker --execute';
+const TINKER_CMD = 'php artisan tinker --execute';
 
 function createScheduledCourse(future: boolean): number {
     const daysOffset = future ? 30 : 0;

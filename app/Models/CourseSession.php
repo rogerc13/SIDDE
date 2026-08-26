@@ -16,7 +16,6 @@ class CourseSession extends Model
   protected $fillable = [
     'scheduled_course_id', 'location_id', 'session_date', 'start_time', 'end_time', 'status', 'notes',
   ];
-  protected $dates = [ 'deleted_at', ];
 
   public function scheduled()
   {
