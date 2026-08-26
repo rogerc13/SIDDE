@@ -117,7 +117,7 @@ public static function sanear_string($string)
         try {
             return \DateTime::createFromFormat($format,$date,$datetime_zone);
         }
-        catch(Excetpion $ex) {
+        catch(\Exception $ex) {
             return null;
         }
     }

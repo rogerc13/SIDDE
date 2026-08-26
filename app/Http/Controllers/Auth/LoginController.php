@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use App\User;
-use App\Models\Funciones;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
@@ -55,8 +52,7 @@ class LoginController extends Controller
             'email' => 'required', 'password' => 'required',
         ]);
         if (Auth::attempt(['email' => $params['email'], 'password' => $params['password']])) {
-            //$params->session()->regenerate();
-            Auth::guard();
+            $params->session()->regenerate();
 
             $user = Auth::user();
             // Authentication passed...
@@ -77,8 +73,8 @@ class LoginController extends Controller
 
     public function logout(Request $request) {
         Auth::logout();
-        //$request->session()->invalidate();
-        //$request->session()->regenerateToken();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('login');
     }

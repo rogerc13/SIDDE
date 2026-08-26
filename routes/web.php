@@ -30,9 +30,6 @@ Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
 
-Route::get('assign-test', 'App\Http\Controllers\CursoProgramadoController@assignList');
-
-
 Route::group(['middleware' => 'auth'], function ()
 {
     Route::get('download/{id}/{type}', 'App\Http\Controllers\CursoController@download');
@@ -210,6 +207,7 @@ Route::group(['middleware' => 'auth'], function ()
                 });
         });
 
+        Route::middleware(['admin'])->group(function () {
                 Route::get('database', 'App\Http\Controllers\Admin\DatabaseController@index')->name('database.index');
 
                 Route::get('database/capacities', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'capacities')->name('database.tables.capacities');
@@ -249,5 +247,6 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::patch('database/courses/{id}/restore', 'App\Http\Controllers\Admin\DatabaseController@restoreCourse')
                         ->whereNumber('id')
                         ->name('database.courses.restore');
+        });
 });
 

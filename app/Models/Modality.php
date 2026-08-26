@@ -12,7 +12,8 @@ class Modality extends Model
     protected $table = 'modalities';
     protected $fillable = ['name',];
 
-    public function cursos(){
-        return $this->hasMany(Curso::class);
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
     }
 }

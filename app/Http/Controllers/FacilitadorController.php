@@ -9,6 +9,7 @@ use App\Models\IdType;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
 use App\Http\Requests\UserForm;
 use App\Models\Facilitator;
 
@@ -26,7 +27,7 @@ class FacilitadorController extends Controller
         return json_encode($usuario);
     }
     
-    public function getAll()
+    public function getAll(Request $request)
     {
 
         $user = Auth::user();
@@ -38,10 +39,10 @@ class FacilitadorController extends Controller
 
         }
 
-        $nombres = filter_input(INPUT_GET,'nombres',FILTER_SANITIZE_STRING);
-        $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
-        $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);        
-        $idTypeId = filter_input(INPUT_GET, 'id_type_search',FILTER_SANITIZE_NUMBER_INT);        
+        $nombres = $request->input('nombres');
+        $apellidos = $request->input('apellidos');
+        $cis = $request->input('cis');
+        $idTypeId = $request->integer('id_type_search');        
 
         $users = User::with('role')->with('person')->where('role_id','4');
         

@@ -38,7 +38,7 @@ class CursoProgramadoController extends Controller
 
     }
 
-    public function getAll()
+    public function getAll(Request $request)
     {
 
         $user = Auth::user();
@@ -50,10 +50,10 @@ class CursoProgramadoController extends Controller
 
         }
 
-        $titulos = filter_input(INPUT_GET,'titulos',FILTER_SANITIZE_STRING);
-        $id_facilitador = filter_input(INPUT_GET,'id_facilitador',FILTER_SANITIZE_NUMBER_INT);
-        $id_estado = filter_input(INPUT_GET, 'id_estado',FILTER_SANITIZE_NUMBER_INT);
-        $date = filter_input(INPUT_GET,'fechas',FILTER_SANITIZE_NUMBER_INT);
+        $titulos = $request->input('titulos');
+        $id_facilitador = $request->integer('id_facilitador');
+        $id_estado = $request->integer('id_estado');
+        $date = $request->integer('fechas');
 
         $fecha = $date;
 

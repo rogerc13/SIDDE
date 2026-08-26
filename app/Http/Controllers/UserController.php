@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
 
 use App\Models\Person;
 use App\Models\User;
@@ -29,7 +28,7 @@ class UserController extends Controller
         return json_encode($usuario);
     }
 
-    public function getAll()
+    public function getAll(Request $request)
     {
 
         $user = Auth::user();
@@ -41,11 +40,11 @@ class UserController extends Controller
 
         }
 
-        $nombres = filter_input(INPUT_GET,'nombres',FILTER_SANITIZE_STRING);
-        $apellidos = filter_input(INPUT_GET,'apellidos',FILTER_SANITIZE_STRING);
-        $cis = filter_input(INPUT_GET,'cis',FILTER_SANITIZE_STRING);
-        $busqueda_rol = filter_input(INPUT_GET,'busqueda_rol',FILTER_SANITIZE_NUMBER_INT);
-        $idTypeId = filter_input(INPUT_GET,'id_type',FILTER_SANITIZE_NUMBER_INT);
+        $nombres = $request->input('nombres');
+        $apellidos = $request->input('apellidos');
+        $cis = $request->input('cis');
+        $busqueda_rol = $request->integer('busqueda_rol');
+        $idTypeId = $request->integer('id_type');
 
         $users = User::with('role')->with('person')->orderBy("id","asc");
         
@@ -232,11 +231,7 @@ class UserController extends Controller
             return redirect()->back()
                 ->with("alert",Funciones::getAlert("danger", "Error al intentar obtener datos", "No tienes permisos para acceder a esta información."));
 
-        $usuario = User::find($request->user_id);
-
-        if (!$usuario)
-           return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Este usuario no existe."));
+        $usuario = $user;
 
         $usuario->email = $request->email;
         $usuario->save();
