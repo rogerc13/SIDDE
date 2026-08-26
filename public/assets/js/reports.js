@@ -1782,6 +1782,9 @@ function reportByCanceled(response){
             `<h3>No existen Acciones de Formación Canceladas en el período ${startFmt} - ${endFmt}</h3>`
         );
     }
+
+    // Paginate the (potentially long) canceled-courses table
+    initTablePagination(document.querySelector('.course-list'), 25);
 }
 
 function reportByCourseNotScheduled(response){
