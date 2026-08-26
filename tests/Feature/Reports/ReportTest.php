@@ -462,6 +462,23 @@ class ReportTest extends TestCase
         $this->assertSame('Aprobado', $data['byAllTime'][0]['participant_status']['name']);
     }
 
+    public function test_participant_by_status_returns_approval_rate(): void
+    {
+        $cat = $this->makeCategory('Cat Approval');
+        $scheduled = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDays(2)->toDateString());
+        // 3 Aprobado, 1 Reprobado → 75 % approval
+        $this->addParticipant($scheduled, Participant::APROBADO);
+        $this->addParticipant($scheduled, Participant::APROBADO);
+        $this->addParticipant($scheduled, Participant::APROBADO);
+        $this->addParticipant($scheduled, Participant::REPROBADO);
+
+        $response = $this->actingAs($this->admin())->post('/reports/participant-by-status', $this->inRangeDates());
+        $data = $this->decodeAsCurrentContract($response);
+
+        $this->assertArrayHasKey('approvalRate', $data);
+        $this->assertSame(75, $data['approvalRate']);
+    }
+
     public function test_status_report_all_time_ignores_date_range(): void
     {
         $cat = $this->makeCategory('Cat StatusAll');

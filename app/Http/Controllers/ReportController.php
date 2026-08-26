@@ -526,12 +526,20 @@ class ReportController extends Controller
             $labels[] = ['label' => $status->name,];
         }
 
+        // Overall approval rate for the range
+        $totalParticipants = $byAllTime->count();
+        $approvedCount = $byAllTime->where('participantStatus.name', 'Aprobado')->count();
+        $approvalRate = $totalParticipants > 0
+            ? (int) round($approvedCount / $totalParticipants * 100)
+            : null;
+
         return response()->json([
             'dateRange' => $dateRange,
             'byAllTime' => $byAllTime,
             'byStatusByDateRange' => $byStatusByDateRange,
             'allStatusbyDateRange' => $allStatusbyDateRange,
             'labels' => $labels,
+            'approvalRate' => $approvalRate,
         ]);
     } //end by participant status
 

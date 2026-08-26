@@ -1148,6 +1148,14 @@ function reportByParticipantStatus(response){
     console.log("participant-by-status");
     refresh();
 
+    const totalParticipants = (response.byAllTime || []).length;
+    const approvalRate = response.approvalRate;
+    $(".course-amount-number").html(
+        `<h3>Participantes en el período: ${totalParticipants}` +
+        (approvalRate !== null ? ` &middot; Tasa de aprobación: ${approvalRate}%` : '') +
+        `</h3>`
+    );
+
     const PARTICIPANT_STATUS_COLORS = {
         'en curso': '#00A651',
         'aprobado': '#21A9E1',
