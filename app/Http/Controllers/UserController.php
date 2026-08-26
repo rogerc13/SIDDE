@@ -217,12 +217,6 @@ class UserController extends Controller
 
     public function misDatos()
     {
-        $user=Auth::user();
-
-        if($user->cannot('misDatos',User::class))
-            return redirect()->back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar obtener datos", "No tienes permisos para acceder a esta información."));
-        //$types = IdType::all();
         return view('pages.admin.usuarios.misdatos')->with('types',IdType::all());
     }
 
@@ -230,10 +224,6 @@ class UserController extends Controller
     {
         
         $user=Auth::user();
-
-        if($user->cannot('misDatosUpdate',User::class))
-            return redirect()->back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar obtener datos", "No tienes permisos para acceder a esta información."));
 
         $usuario = $user;
 

@@ -4,12 +4,9 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Participant;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ParticipantPolicy
 {
-    use HandlesAuthorization;
-
     public function updateStatus(User $user, Participant $participant)
     {
         if ($user->isAdministrador() || $user->isProgramador()) {

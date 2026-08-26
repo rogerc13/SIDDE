@@ -4,12 +4,9 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Scheduled;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ScheduledPolicy
 {
-    use HandlesAuthorization;
-
     public function evaluate(User $user, Scheduled $scheduled)
     {
         if ($user->isAdministrador() || $user->isProgramador()) {

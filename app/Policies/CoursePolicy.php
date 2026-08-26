@@ -3,12 +3,9 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class CoursePolicy
 {
-    use HandlesAuthorization;
-
     public function get(User $user)
     {
        return $user->isAdministrador() || $user->isTecEducativa();

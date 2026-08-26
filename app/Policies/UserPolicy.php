@@ -3,12 +3,9 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
-    use HandlesAuthorization;
-    
     public function get(User $user)
     {
        return $user->isAdministrador();
@@ -104,18 +101,5 @@ class UserPolicy
     {
         return $user->isAdministrador() || $user->isProgramador();
     }
-
-
-    public function misDatos(User $user)
-    {
-       return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador() || $user->isParticipante();
-    }
-
-    public function misDatosUpdate(User $user)
-    {
-       return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador() || $user->isFacilitador() || $user->isParticipante();
-    }
-
-
 
 }
