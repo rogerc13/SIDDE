@@ -2085,6 +2085,53 @@ $(document).ready(function(){
     updateStepOptionsBySelectedRange();
     updateGenerateButtonDisabledState();
 
+    // ── Date-range presets ──────────────────────────────────────────────
+    const DATE_PRESETS = {
+        '7d':      () => ({ start: moment().subtract(6, 'days'),  end: moment(),                   step: '1 day' }),
+        '30d':     () => ({ start: moment().subtract(29, 'days'), end: moment(),                   step: '1 day' }),
+        'month':   () => ({ start: moment().startOf('month'),     end: moment(),                   step: '1 day' }),
+        'quarter': () => ({ start: moment().startOf('quarter'),   end: moment(),                   step: '1 month' }),
+        'year':    () => ({ start: moment().startOf('year'),      end: moment(),                   step: '1 month' }),
+    };
+
+    function applyPreset(preset) {
+        const fn = DATE_PRESETS[preset];
+        if (!fn) { return; } // 'custom' or unknown → do nothing
+
+        const { start, end, step } = fn();
+        $('#start_date').val(start.format('YYYY-MM-DD'));
+        $('#end_date').val(end.format('YYYY-MM-DD'));
+        $('#step').val(step);
+
+        // Disable manual editing for non-custom presets
+        $('#start_date, #end_date').prop('disabled', true);
+
+        updateStepOptionsBySelectedRange();
+        updateGenerateButtonDisabledState();
+    }
+
+    function highlightPreset(preset) {
+        $('.date-preset-btn').removeClass('active');
+        $(`.date-preset-btn[data-preset="${preset}"]`).addClass('active');
+    }
+
+    // Highlight the default (30d) on load
+    highlightPreset('30d');
+
+    // Click handler for preset buttons
+    $(document).on('click', '.date-preset-btn', function () {
+        const preset = $(this).data('preset');
+        highlightPreset(preset);
+
+        if (preset === 'custom') {
+            // Re-enable manual date inputs
+            $('#start_date, #end_date').prop('disabled', false);
+            return;
+        }
+
+        applyPreset(preset);
+    });
+
     // Participant status selector removed from the view; keep container hidden if present.
 
     $('#start_date, #end_date').off().on('change', function(){
@@ -2099,6 +2146,10 @@ $(document).ready(function(){
                 $('#end_date').val(start);
             }
         }
+
+        // Switch to "Personalizado" when the user manually changes dates
+        highlightPreset('custom');
+        $('#start_date, #end_date').prop('disabled', false);
 
         updateStepOptionsBySelectedRange();
         updateGenerateButtonDisabledState();
@@ -2233,6 +2284,7 @@ $(document).ready(function(){
             // silent no-op, and so the UI reflects the actual query scope.
             const historicalTypes = ['most-scheduled', 'not-scheduled'];
             const disableDateFilters = historicalTypes.includes(selected);
+            $('.date-preset-group').toggle(!disableDateFilters);
             $('#date-range-filters').toggle(!disableDateFilters);
             $('#date-range-filters').find('input, select').prop('disabled', disableDateFilters);
 

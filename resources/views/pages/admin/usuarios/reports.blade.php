@@ -43,6 +43,19 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group date-preset-group">
+                    <div class="col-md-12">
+                        <label class='control-label'>Rango Rápido</label>
+                        <div class="date-preset-buttons">
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn" data-preset="7d">Últimos 7 días</button>
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn active" data-preset="30d">Últimos 30 días</button>
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn" data-preset="month">Este Mes</button>
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn" data-preset="quarter">Trimestre Actual</button>
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn" data-preset="year">Año Actual</button>
+                            <button type="button" class="btn btn-default btn-sm date-preset-btn" data-preset="custom">Personalizado</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group" id="date-range-filters">
                     <div class="col-md-4">
                         <label for="start_date" class='control-label'>Desde</label>
