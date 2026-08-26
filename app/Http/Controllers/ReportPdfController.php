@@ -144,8 +144,8 @@ class ReportPdfController extends Controller
             'date' => 'Cantidad de Acciones de Formación',
             'category' => 'Cantidad de Acciones de Formación Por Áreas de Conocimiento',
             'status' => 'Cantidad de Acciones de Formación Por Estatus',
-            'most-scheduled' => 'Acciónes de Formación más Programadas',
-            'not-scheduled' => 'Acciones de Formación No Programadas',
+            'most-scheduled' => 'Acciones de Formación más Programadas (Histórico)',
+            'not-scheduled' => 'Acciones de Formación No Programadas (Histórico)',
             'canceled' => 'Acciones de Formación Canceladas',
             'participant-by-quantity' => 'Acciones de Formación por Cantidad de Participantes',
             'duration' => 'Duración de Acciones de Formación',
@@ -941,7 +941,7 @@ class ReportPdfController extends Controller
 
         return [[
             'kind' => 'table',
-            'title' => "Acciones de Formación más programadas (Total: {$total})",
+            'title' => "Acciones de Formación más programadas (Histórico) (Total: {$total})",
             'columns' => ['Código', 'Título', 'Cantidad'],
             'rows' => $rows,
         ]];
@@ -960,7 +960,7 @@ class ReportPdfController extends Controller
         if (count($items) === 0) {
             return [[
                 'kind' => 'table',
-                'title' => 'Acciones de Formación No Programadas',
+                'title' => 'Acciones de Formación No Programadas (Histórico)',
                 'columns' => ['Mensaje'],
                 'rows' => [['No existen Acciones de Formación sin programar']],
             ]];
@@ -974,7 +974,7 @@ class ReportPdfController extends Controller
 
         return [[
             'kind' => 'table',
-            'title' => 'Acciones de Formación No Programadas',
+            'title' => 'Acciones de Formación No Programadas (Histórico)',
             'columns' => ['Código', 'Título', 'Área de Conocimiento'],
             'rows' => $rows,
         ]];

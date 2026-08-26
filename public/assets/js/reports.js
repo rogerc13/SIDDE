@@ -1796,13 +1796,13 @@ function reportByCourseNotScheduled(response){
     //draw table and show amount of courses
     if (response.data.length != 0) {
         $(".course-amount-number").append(
-            `<h3>Cantidad de Acciones de Formación No Programadas: ${response.data.length}</h3>`
+            `<h3>Cantidad de Acciones de Formación No Programadas (Histórico): ${response.data.length}</h3>`
         );
 
         $(".table-col-helper").append(`<div class="panel panel-success">
             <div class="panel-heading">
 				<div class="panel-title">
-			  		Acciones de Formación No Programadas
+			  		Acciones de Formación No Programadas (Histórico)
 				</div>
 			</div>
             <div class="panel-body with-table table-responsive">
