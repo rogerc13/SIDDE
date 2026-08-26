@@ -1833,6 +1833,9 @@ function reportByCourseNotScheduled(response){
             "<h3>No existen Acciones de Formación sin programar</h3>"
         );
     }
+
+    // Paginate the (potentially long) not-scheduled list
+    initTablePagination(document.querySelector('.course-list'), 25);
 }
 
 
