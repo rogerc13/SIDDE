@@ -595,6 +595,7 @@ class ReportController extends Controller
 
         $rows = Scheduled::query()
             ->leftJoin('participants', 'participants.scheduled_id', '=', 'scheduled_course.id')
+            ->leftJoin('capacities', 'capacities.course_id', '=', 'scheduled_course.course_id')
             ->whereBetween('start_date', [$startDate, $endDate])
             ->whereNull('participants.deleted_at')
             ->groupBy('scheduled_course.id')
@@ -605,6 +606,7 @@ class ReportController extends Controller
                 'scheduled_course.end_date'
             )
             ->selectRaw('COUNT(participants.id) AS participant_count')
+            ->selectRaw('MAX(capacities.max) AS capacity_max')
             ->get();
 
         $courseTitles = Course::whereIn('id', $rows->pluck('course_id')->unique())
@@ -634,6 +636,8 @@ class ReportController extends Controller
                         'start_date' => $row->start_date,
                         'end_date' => $row->end_date,
                         'count' => (int) $row->participant_count,
+                        'capacity' => $row->capacity_max ? (int) $row->capacity_max : null,
+                        'fillRate' => $row->capacity_max ? (int) round(100 * (int) $row->participant_count / $row->capacity_max) : null,
                     ];
                 }
             }

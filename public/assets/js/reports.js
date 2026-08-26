@@ -1408,8 +1408,14 @@ function reportByParticipantQuantity(response){
         : [];
 
     if (withParticipants.length !== 0) {
+        const fillRows = withParticipants.filter((e) => e.fillRate !== null);
+        const avgFill = fillRows.length
+            ? Math.round(fillRows.reduce((s, e) => s + Number(e.fillRate), 0) / fillRows.length)
+            : null;
         $(".course-amount-number span").html(
-            `<h3>Acciones de Formación con Participantes en el período: ${withParticipants.length}</h3>`
+            `<h3>Acciones de Formación con Participantes en el período: ${withParticipants.length}` +
+            (avgFill !== null ? ` &middot; Ocupación promedio: ${avgFill}%` : '') +
+            `</h3>`
         );
 
         //draw list
@@ -1434,6 +1440,7 @@ function reportByParticipantQuantity(response){
         <th>Fecha de Inicio</th>
         <th>Fecha de Culminación</th>
         <th>Cantidad de Participantes</th>
+        <th>Ocupación %</th>
         </tr>`);
 
         withParticipants.forEach(element => {
@@ -1442,6 +1449,7 @@ function reportByParticipantQuantity(response){
                 <td>${formatServerDate(element.start_date || '')}</td>
                 <td>${formatServerDate(element.end_date || '')}</td>
                 <td>${element.count}</td>
+                <td>${element.fillRate !== null ? element.fillRate + '%' : '—'}</td>
             </tr>`);
         });
     } else {

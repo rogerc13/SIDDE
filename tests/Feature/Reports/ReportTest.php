@@ -564,6 +564,26 @@ class ReportTest extends TestCase
         $this->assertGreaterThanOrEqual(end($sortedCounts), $sortedCounts[0]);
     }
 
+    public function test_quantity_includes_capacity_and_fill_rate(): void
+    {
+        $cat = $this->makeCategory('Cat Fill');
+        $scheduled = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        // Force a known capacity so the fill rate is deterministic.
+        $scheduled->course->capacity()->first()->update(['max' => 10]);
+        foreach (range(1, 5) as $i) {
+            $this->addParticipant($scheduled);
+        }
+
+        $response = $this->actingAs($this->admin())->post('/reports/participant-by-quantity', $this->inRangeDates());
+        $data = $this->decodeAsCurrentContract($response);
+
+        $row = collect($data['dateRangeAmountPerCourse'])->firstWhere('scheduled_id', $scheduled->id);
+        $this->assertNotNull($row, 'Run must appear in the list');
+        $this->assertSame(5, $row['count']);
+        $this->assertSame(10, $row['capacity']);
+        $this->assertSame(50, $row['fillRate']);
+    }
+
     public function test_most_scheduled_shape(): void
     {
         $cat = $this->makeCategory('Cat M');
