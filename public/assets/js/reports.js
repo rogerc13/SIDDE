@@ -1644,6 +1644,9 @@ function reportByCourseMostScheduled(response){ //reports by course most schedul
     $('.course-amount-number span').html(
         `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
     );
+
+    // Paginate the (potentially long) historical most-scheduled list
+    initTablePagination(document.querySelector('.course-list'), 25);
 }//end report by course most scheduled
 
 function reportByParticipantAverage(response){
