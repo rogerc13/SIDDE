@@ -208,6 +208,27 @@ class ReportTest extends TestCase
         $this->assertArrayNotHasKey('spansMostDays', $data);
     }
 
+    public function test_duration_returns_previous_period_deltas(): void
+    {
+        $cat = $this->makeCategory('Cat Delta');
+
+        // Current period: finished course inside the 20-day window
+        $this->makeScheduled($cat, CourseStatus::CULMINADO, now()->subDays(4)->toDateString());
+
+        // Previous period: finished course in the same-length window before the current range
+        $this->makeScheduled($cat, CourseStatus::CULMINADO, now()->subDays(25)->toDateString());
+
+        $response = $this->actingAs($this->admin())->post('/reports/duration', $this->inRangeDates());
+        $data = $this->decodeAsCurrentContract($response);
+
+        $this->assertArrayHasKey('countDelta', $data);
+        $this->assertArrayHasKey('hoursDelta', $data);
+        $this->assertSame(1, $data['previousCount']);
+        $this->assertSame(8, $data['previousHours']); // duration=8 on the factory course
+        $this->assertSame(0, $data['countDelta']);     // 1 current vs 1 previous → 0 %
+        $this->assertSame(0, $data['hoursDelta']);
+    }
+
     public function test_invalid_dates_are_rejected(): void
     {
         $admin = $this->admin();

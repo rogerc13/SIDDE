@@ -341,6 +341,30 @@ class ReportController extends Controller
         // Calculate total hours for the range (sum durations of finished scheduled courses in range)
         $dateHelper = $scheduledCourses->pluck('course.duration')->sum();
 
+        // Previous period comparison (same-length window immediately before the current range)
+        $currentStart = Carbon::parse($start_date);
+        $currentEnd   = Carbon::parse($end_date);
+        $periodDays   = $currentStart->diffInDays($currentEnd) + 1;
+        $prevEnd      = $currentStart->copy()->subDay();
+        $prevStart    = $prevEnd->copy()->subDays($periodDays - 1);
+
+        $previousFinished = Scheduled::where('course_status_id', CourseStatus::CULMINADO)
+            ->whereBetween('start_date', [$prevStart->toDateString(), $prevEnd->toDateString()])
+            ->with('course')
+            ->get();
+
+        $currentCount = $scheduledCourses->count();
+        $previousCount = $previousFinished->count();
+        $currentHours = (int) $dateHelper;
+        $previousHours = (int) $previousFinished->pluck('course.duration')->sum();
+
+        $countDelta = $previousCount > 0
+            ? (int) round(($currentCount - $previousCount) / $previousCount * 100)
+            : null;
+        $hoursDelta = $previousHours > 0
+            ? (int) round(($currentHours - $previousHours) / $previousHours * 100)
+            : null;
+
         $dateRangeHelper = [
             'startDate' => Carbon::parse($start_date)->format('Y-m-d'),
             'endDate' => Carbon::parse($end_date)->format('Y-m-d')
@@ -373,7 +397,11 @@ class ReportController extends Controller
             'mostDuration' => $mostDuration,
             'byDateRange' => $scheduledList,
             'finishedByDateRange' => $dateHelper,
-            'dateRange' => $dateRangeHelper
+            'dateRange' => $dateRangeHelper,
+            'previousCount' => $previousCount,
+            'previousHours' => $previousHours,
+            'countDelta' => $countDelta,
+            'hoursDelta' => $hoursDelta,
         ]);
     } //end course duration
 
