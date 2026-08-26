@@ -567,6 +567,26 @@ class ReportTest extends TestCase
         $this->assertSame(1, $rows['Masculino']);
     }
 
+    public function test_gender_includes_share_percentages(): void
+    {
+        $cat = $this->makeCategory('Cat GShare');
+        $scheduled = $this->makeScheduled($cat, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->addParticipant($scheduled, Participant::APROBADO, 'F');
+        $this->addParticipant($scheduled, Participant::APROBADO, 'F');
+        $this->addParticipant($scheduled, Participant::APROBADO, 'M');
+
+        $response = $this->actingAs($this->admin())->post('/reports/gender', $this->inRangeDates());
+        $data = $this->decodeAsCurrentContract($response);
+
+        $this->assertSame(3, $data['total']);
+        $femenino = collect($data['rows'])->firstWhere('label', 'Femenino');
+        $masculino = collect($data['rows'])->firstWhere('label', 'Masculino');
+        $this->assertNotNull($femenino);
+        $this->assertNotNull($masculino);
+        $this->assertSame(67, $femenino['share']); // 2/3 rounded
+        $this->assertSame(33, $masculino['share']); // 1/3 rounded
+    }
+
     public function test_quantity_returns_zero_when_no_scheduled_in_range(): void
     {
         $response = $this->actingAs($this->admin())->post('/reports/participant-by-quantity', $this->inRangeDates());

@@ -1502,8 +1502,13 @@ function reportByGender(response){
     const data = [maleCount, femaleCount];
     const total = maleCount + femaleCount;
 
+    const maleShare = total > 0 ? Math.round(maleCount / total * 100) : 0;
+    const femaleShare = total > 0 ? Math.round(femaleCount / total * 100) : 0;
+
     $(".course-amount-number").html(
-        `<h3>Distribución de Participantes por Género durante el período ${startFmt} - ${endFmt} : ${total}</h3>`
+        `<h3>Distribución de Participantes por Género durante el período ${startFmt} - ${endFmt} : ${total}` +
+        (total > 0 ? ` &middot; Masculino: ${maleShare}% &middot; Femenino: ${femaleShare}%` : '') +
+        `</h3>`
     );
 
     // Graph containers

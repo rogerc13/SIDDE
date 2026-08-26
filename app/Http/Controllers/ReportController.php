@@ -604,12 +604,20 @@ class ReportController extends Controller
             return $order[$row['label']] ?? 50;
         })->values();
 
+        $total = $byLabel->sum('amount');
+
+        // Add share % to each row
+        $byLabel = $byLabel->map(function ($row) use ($total) {
+            $row['share'] = $total > 0 ? (int) round($row['amount'] / $total * 100) : null;
+            return $row;
+        })->values();
+
         return response()->json([
             'dateRange' => [
                 'startDate' => $startDate,
                 'endDate' => $endDate,
             ],
-            'total' => $byLabel->sum('amount'),
+            'total' => $total,
             'rows' => $byLabel,
         ]);
     }
