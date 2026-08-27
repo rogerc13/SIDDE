@@ -322,6 +322,7 @@ class CursoController extends Controller
         }
 
         $capacityUpdated = $curso->capacity()->update(['min' => $request->min, 'max' => $request->max]);
+        $prerequisiteUpdated = true;
         if ($curso->prerequisite->count() > 0) {
             $prerequisiteUpdated = $curso->prerequisite()->update(['prerequisite' => (isset($request->prerequisite) ? $request->prerequisite : null)]);
         } else {
