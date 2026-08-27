@@ -38,7 +38,7 @@ class LocationController extends Controller
             ->orderBy('name', 'asc');
 
         if ($name) {
-            $locations = $locations->where("name", "LIKE", "%$name%");
+            $locations = $locations->where("name", "LIKE", "%".Funciones::escapeLike($name)."%");
         }
 
         $locations = $locations->paginate(10);

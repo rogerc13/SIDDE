@@ -50,12 +50,12 @@ class ParticipanteController extends Controller
 
         if ($nombres) {
             $users = $users->whereHas('person', function ($query) use ($nombres) {
-                $query->where('name', 'LIKE', "%$nombres%");
+                $query->where('name', 'LIKE', "%".Funciones::escapeLike($nombres)."%");
             });
         }
         if ($apellidos) {
             $users = $users->whereHas('person', function ($query) use ($apellidos) {
-                $query->where('last_name', 'LIKE', "%$apellidos%");
+                $query->where('last_name', 'LIKE', "%".Funciones::escapeLike($apellidos)."%");
             });
         }
         if ($cis) {

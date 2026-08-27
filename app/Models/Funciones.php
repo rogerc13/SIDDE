@@ -148,6 +148,11 @@ public static function sanear_string($string)
     }
     return $password;
 }
+
+    public static function escapeLike(string $value): string
+    {
+        return str_replace(['%', '_'], ['\\%', '\\_'], $value);
+    }
 }
 
 

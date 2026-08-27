@@ -36,7 +36,7 @@ class BrowserShotController extends Controller
             $categories = $categories->get();
         }else{
             if($request->hidden_name){
-                $categories = $categories->where('name','LIKE',"%$request->hidden_name%");
+                $categories = $categories->where('name','LIKE',"%".Funciones::escapeLike($request->hidden_name)."%");
             }
             $categories = $categories->get();
         }
@@ -60,7 +60,7 @@ class BrowserShotController extends Controller
                 $courses = $courses->where('category_id','=',$request->hidden_category);
             }
             if($request->hidden_title){
-                $courses = $courses->where('title','LIKE',"%$request->hidden_title%");
+                $courses = $courses->where('title','LIKE',"%".Funciones::escapeLike($request->hidden_title)."%");
             }
 
             $courses = $courses->get();
@@ -121,20 +121,20 @@ class BrowserShotController extends Controller
             if($request->hidden_name){
                 $hiddenName = $request->hidden_name;
                 $users = $users->whereHas('person',function($query) use($hiddenName){
-                    $query->where('name','LIKE',"%$hiddenName%");
+                    $query->where('name','LIKE',"%".Funciones::escapeLike($hiddenName)."%");
                 });
             }
             if($request->hidden_surname){
                 $hiddenSurname = $request->hidden_surname;
                 $users =$users->whereHas('person', function ($query) use ($hiddenSurname) {
-                    $query->where('last_name', 'LIKE', "%$hiddenSurname%");
+                    $query->where('last_name', 'LIKE', "%".Funciones::escapeLike($hiddenSurname)."%");
                 });
             }
             if($request->hidden_id){
                 $hiddenIDType = $request->hidden_id_type;
                 $hiddenID = (string)$request->hidden_id;
                 $users = $users->whereHas('person', function ($query) use ($hiddenID,$hiddenIDType) {
-                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%$hiddenID%");
+                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%".Funciones::escapeLike($hiddenID)."%");
                 });
             }
             if($request->hidden_role){
@@ -162,14 +162,14 @@ class BrowserShotController extends Controller
             if(empty($request->hidden_name) == false){
                 $hiddenName = $request->hidden_name;
                 $facilitators=$facilitators->whereHas('person',function($query) use($hiddenName){
-                    $query->where('name','LIKE',"%$hiddenName%");
+                    $query->where('name','LIKE',"%".Funciones::escapeLike($hiddenName)."%");
                 });
             }
             
             if(empty($request->hidden_surname) == false){
                 $hiddenSurname = $request->hidden_surname;
                 $facilitators = $facilitators->whereHas('person', function ($query) use ($hiddenSurname) {
-                    $query->where('last_name', 'LIKE', "%$hiddenSurname%"); 
+                    $query->where('last_name', 'LIKE', "%".Funciones::escapeLike($hiddenSurname)."%"); 
                 });
             }
                 
@@ -177,7 +177,7 @@ class BrowserShotController extends Controller
                 $hiddenIDType = $request->hidden_id_type;
                 $hiddenID = (string)$request->hidden_id;
                 $facilitators = $facilitators->whereHas('person', function ($query) use ($hiddenID,$hiddenIDType) {
-                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%$hiddenID%");
+                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%".Funciones::escapeLike($hiddenID)."%");
                 });
             }
             $facilitators = $facilitators->get();
@@ -200,14 +200,14 @@ class BrowserShotController extends Controller
             if($request->hidden_name){
                 $hiddenName = $request->hidden_name;
                 $participants = $participants->whereHas('person',function($query) use($hiddenName){
-                    $query->where('name','LIKE',"%$hiddenName%");
+                    $query->where('name','LIKE',"%".Funciones::escapeLike($hiddenName)."%");
                 });
             }
     
             if($request->hidden_surname){
                 $hiddenSurname = $request->hidden_surname;
                 $participants = $participants->whereHas('person', function ($query) use ($hiddenSurname) {
-                    $query->where('last_name', 'LIKE', "%$hiddenSurname%"); 
+                    $query->where('last_name', 'LIKE', "%".Funciones::escapeLike($hiddenSurname)."%"); 
                 });
             }
     
@@ -215,7 +215,7 @@ class BrowserShotController extends Controller
                 $hiddenIDType = $request->hidden_id_type;
                 $hiddenID = (string)$request->hidden_id;
                 $participants = $participants->whereHas('person', function ($query) use ($hiddenID,$hiddenIDType) {
-                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%$hiddenID%");
+                    $query->where('id_type_id', '=', $hiddenIDType)->where('id_number', 'LIKE', "%".Funciones::escapeLike($hiddenID)."%");
                 });
             }
             $participants = $participants->get();

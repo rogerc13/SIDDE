@@ -84,7 +84,7 @@ class CursoController extends Controller
         $cursos = Course::orderBy("title", "asc")->with('category');
 
         if ($titulos)
-            $cursos = $cursos->where('title', 'LIKE', "%$titulos%");
+            $cursos = $cursos->where('title', 'LIKE', "%".Funciones::escapeLike($titulos)."%");
 
         if ($id_areas)
             $cursos = $cursos->where('category_id', '=', $id_areas);

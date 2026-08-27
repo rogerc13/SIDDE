@@ -36,7 +36,7 @@ class CategoriaController extends Controller
         $name = $request->input('name');
         if($name)
             {
-                $categorias = $categorias->where("name","LIKE","%$name%");
+                $categorias = $categorias->where("name","LIKE","%".Funciones::escapeLike($name)."%");
             }
         
         $categorias = $categorias->paginate(10);

@@ -50,17 +50,17 @@ class UserController extends Controller
 
         if ($nombres) {
             $users = $users->whereHas('person', function ($query) use ($nombres) {
-                $query->where('name', 'LIKE', "%$nombres%");
+                $query->where('name', 'LIKE', "%".Funciones::escapeLike($nombres)."%");
             });
         }
         if ($apellidos) {
             $users = $users->whereHas('person', function ($query) use ($apellidos) {
-                $query->where('last_name', 'LIKE', "%$apellidos%");
+                $query->where('last_name', 'LIKE', "%".Funciones::escapeLike($apellidos)."%");
             });
         }
         if ($cis && $idTypeId) {
             $users = $users->whereHas('person', function ($query) use ($cis, $idTypeId) {
-                $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%$cis%");
+                $query->where('id_type_id', '=', $idTypeId)->where('id_number', 'LIKE', "%".Funciones::escapeLike($cis)."%");
             });
         }
         if ($busqueda_rol) {
