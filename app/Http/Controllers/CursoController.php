@@ -436,7 +436,7 @@ class CursoController extends Controller
             }
             $zip->close();
         }
-        return response()->download($zipFile);
+        return response()->download($zipFile)->deleteFileAfterSend(true);
     }
 
     public function codeCheck(Request $request)
