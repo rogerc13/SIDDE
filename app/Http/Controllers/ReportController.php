@@ -173,36 +173,37 @@ class ReportController extends Controller
             $xAxis[] = Carbon::parse($date[$k])->format('Y-m-d');
         }
 
-        foreach (Category::all() as $category) {
-            for ($k = 0; $k <= $steps; $k++) {
-                $start_date = $date[$k];
-                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+        $allScheduled = Scheduled::with('course', 'course.category')
+            ->whereBetween('start_date', [$date[0], end($date)])
+            ->get();
 
-                $bucketQuery = Scheduled::query();
-                if ($day) {
-                    $bucketQuery->whereDate('start_date', $start_date);
-                } else {
-                    $this->applyBucketFilter($bucketQuery, $start_date, $end_date, $k === count($date) - 1, $datesObj->currentDate);
-                }
+        $bucketDates = [];
+        for ($k = 0; $k <= $steps; $k++) {
+            $start_date = $date[$k];
+            $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+            $bucketDates[] = ['start' => $start_date, 'end' => $end_date, 'isLast' => $k === count($date) - 1];
+        }
+
+        $byCategory = $allScheduled->groupBy(fn ($s) => $s->course->category_id);
+
+        foreach (Category::all() as $category) {
+            $catScheduled = $byCategory->get($category->id, collect());
+
+            foreach ($bucketDates as $bucket) {
+                $count = $catScheduled->filter(fn ($s) => $day
+                    ? Carbon::parse($s->start_date)->toDateString() === $bucket['start']
+                    : ($s->start_date >= $bucket['start'] && ($bucket['isLast'] ? $s->start_date <= $datesObj->currentDate : $s->start_date < $bucket['end']))
+                )->count();
 
                 $yAxis[] = [
                     'category' => $category->name,
-                    'y' => $bucketQuery->whereHas(
-                        'course',
-                        function ($query) use ($category) {
-                            $query->where('category_id', $category->id);
-                        }
-                    )->count(),
-                    'x' => Carbon::parse($start_date)->format('Y-m-d'),
+                    'y' => $count,
+                    'x' => Carbon::parse($bucket['start'])->format('Y-m-d'),
                 ];
             }
             $categories[] = $category->name;
 
-            $scheduledDatesForCategory = Scheduled::whereBetween('start_date', [$date[0], end($date)])
-                ->whereHas('course', function ($query) use ($category) {
-                    $query->where('category_id', $category->id);
-                })
-                ->pluck('start_date');
+            $scheduledDatesForCategory = $catScheduled->pluck('start_date');
 
             $graphData[] = [
                 'category' => $category->name,
@@ -212,12 +213,8 @@ class ReportController extends Controller
 
             $courseData[] = [
                 'categoryName' => $category->name,
-                'courseData' => Scheduled::with('course', 'course.category')->whereHas('course', function ($query) use ($category) {
-                    $query->where('category_id', $category->id);
-                })->whereBetween('start_date', [$date[0], end($date)])->get(),
-                'amount' => Scheduled::with('course')->whereHas('course', function ($query) use ($category) {
-                    $query->where('category_id', $category->id);
-                })->whereBetween('start_date', [$date[0], end($date)])->count()
+                'courseData' => $catScheduled->values(),
+                'amount' => $catScheduled->count(),
             ];
         }
 
@@ -236,10 +233,6 @@ class ReportController extends Controller
     public function byStatus(Request $request)
     {
         //Courses By Status
-
-        /* $statusCourse = Scheduled::with('courseStatus')
-            ->where('course_status_id', $request->course_status_id)
-            ->get(); */
 
         //by all time all course status no conditions, no time range
         $byAllTime = Scheduled::with('courseStatus')->select('course_status_id')->selectRaw('COUNT(*) as amount')
@@ -261,39 +254,42 @@ class ReportController extends Controller
             $xAxis[] = Carbon::parse($date[$k])->format('Y-m-d');
         }
 
-        foreach (CourseStatus::all() as $status) {
-            for ($k = 0; $k <= $steps; $k++) {
-                $start_date = $date[$k];
-                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+        $allScheduled = Scheduled::with('course', 'courseStatus')
+            ->whereBetween('start_date', [$date[0], end($date)])
+            ->get();
 
-                //Data to show graphs
+        $bucketDates = [];
+        for ($k = 0; $k <= $steps; $k++) {
+            $start_date = $date[$k];
+            $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+            $bucketDates[] = ['start' => $start_date, 'end' => $end_date, 'isLast' => $k === count($date) - 1];
+        }
+
+        $byStatus = $allScheduled->groupBy('course_status_id');
+
+        foreach (CourseStatus::all() as $status) {
+            $statusScheduled = $byStatus->get($status->id, collect());
+
+            foreach ($bucketDates as $bucket) {
+                $count = $statusScheduled->filter(fn ($s) => $day
+                    ? Carbon::parse($s->start_date)->toDateString() === $bucket['start']
+                    : ($s->start_date >= $bucket['start'] && ($bucket['isLast'] ? $s->start_date <= $datesObj->currentDate : $s->start_date < $bucket['end']))
+                )->count();
+
                 $byDateRange[] = [
                     'status' => $status->name,
-                    'x' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'y' => Scheduled::where('course_status_id', $status->id)
-                        ->when($day, function ($query) use ($start_date) {
-                            return $query->whereDate('start_date', $start_date);
-                        }, function ($query) use ($start_date, $end_date, $k, $date, $datesObj, $day) {
-                            $this->applyBucketFilter($query, $start_date, $end_date, $k === count($date) - 1, $datesObj->currentDate);
-                        })->count()
+                    'x' => Carbon::parse($bucket['start'])->format('Y-m-d'),
+                    'y' => $count,
                 ];
             }
             $statusNames[] = $status->name;
 
-            //Data to show course list by date range
             $courseData[] = [
                 'statusName' => $status->name,
-                'courseData' => Scheduled::with('course', 'courseStatus')
-                    ->where('course_status_id', $status->id)
-                    ->whereBetween('start_date', [$date[0], end($date)])->get(),
-                'amount' => Scheduled::with('course', 'courseStatus')
-                    ->where('course_status_id', $status->id)
-                    ->whereBetween('start_date', [$date[0], end($date)])->count(),
+                'courseData' => $statusScheduled->values(),
+                'amount' => $statusScheduled->count(),
             ];
         }
-
-        //by given status
-        //$response = Scheduled::where('course_status_id',$request->status_id)->with('courseStatus')->count();
 
         $dateRangeHelper = ['startDate' => Carbon::parse($date[0])->format('Y-m-d'), 'endDate' => Carbon::parse(end($date))->format('Y-m-d')];
 
@@ -483,10 +479,6 @@ class ReportController extends Controller
             })
             ->get();
 
-
-        // participants not in a course: no longer included in this report
-
-        //by date range by status
         $steps = max(1, count($date) - 1);
 
         $allStatusbyDateRange = [];
@@ -496,29 +488,36 @@ class ReportController extends Controller
         foreach ($date as $bucketDate) {
             $byStatusByDateRange[] = [
                 'date' => Carbon::parse($bucketDate)->format('Y-m-d'),
-                // kept for backward compatibility (frontend uses this array to derive first/last date if needed)
                 'countByStatus' => 0,
                 'status' => null,
             ];
         }
 
-        foreach (ParticipantStatus::all() as $status) {
-            for ($k = 0; $k <= $steps; $k++) {
-                $start_date = $date[$k];
-                $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+        $byStatusGrouped = $byAllTime->groupBy('participant_status_id');
+        $statusNames = ParticipantStatus::all()->keyBy('id');
+
+        $bucketDates = [];
+        for ($k = 0; $k <= $steps; $k++) {
+            $start_date = $date[$k];
+            $end_date = $day ? $start_date : $date[min($k + 1, count($date) - 1)];
+            $bucketDates[] = ['start' => $start_date, 'end' => $end_date, 'isLast' => $k === count($date) - 1];
+        }
+
+        foreach ($statusNames as $statusId => $status) {
+            $statusParticipants = $byStatusGrouped->get($statusId, collect());
+
+            foreach ($bucketDates as $bucket) {
+                $count = $statusParticipants->filter(fn ($p) => $p->scheduled
+                    ? ($day
+                        ? Carbon::parse($p->scheduled->start_date)->toDateString() === $bucket['start']
+                        : ($p->scheduled->start_date >= $bucket['start'] && ($bucket['isLast'] ? $p->scheduled->start_date <= $dates->currentDate : $p->scheduled->start_date < $bucket['end']))
+                    )
+                    : false
+                )->count();
 
                 $allStatusbyDateRange[] = [
-                    'date' => Carbon::parse($start_date)->format('Y-m-d'),
-                    'countByStatus' => Participant::where('participant_status_id', $status->id)->whereHas(
-                        'scheduled',
-                        function ($query) use ($start_date, $end_date, $k, $date, $dates, $day) {
-                            if ($day) {
-                                $query->whereDate('start_date', $start_date);
-                            } else {
-                                $this->applyBucketFilter($query, $start_date, $end_date, $k === count($date) - 1, $dates->currentDate);
-                            }
-                        }
-                    )->count(),
+                    'date' => Carbon::parse($bucket['start'])->format('Y-m-d'),
+                    'countByStatus' => $count,
                     'status' => $status->name,
                 ];
             }
