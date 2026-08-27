@@ -17,7 +17,7 @@ class PersonFactory extends Factory
             'id_number' => fake()->unique()->numerify('########'),
             'id_type_id' => 1,
             'phone' => fake()->phoneNumber(),
-            'sex' => fake()->randomElement(['M', 'F']),
+            'sex' => fake()->randomElement(['Femenino', 'Masculino']),
         ];
     }
 }
