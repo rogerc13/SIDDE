@@ -226,7 +226,8 @@ class UserController extends Controller
         $usuario->save();
 
         if (null != $request->file('imagen')) {
-            $request->file('imagen')->storeAs('public/avatars', $request->ci . '.' . $request->file('imagen')->getClientOriginalExtension());
+            $safeFilename = preg_replace('/[^a-zA-Z0-9\-_]/', '', $request->ci);
+            $request->file('imagen')->storeAs('public/avatars', $safeFilename . '.' . $request->file('imagen')->getClientOriginalExtension());
         }
         
         $usuario->person()->update([
