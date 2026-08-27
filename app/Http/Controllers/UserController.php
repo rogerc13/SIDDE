@@ -227,8 +227,6 @@ class UserController extends Controller
 
         if (null != $request->file('imagen')) {
             $request->file('imagen')->storeAs('public/avatars', $request->ci . '.' . $request->file('imagen')->getClientOriginalExtension());
-            $avatar_path = $request->ci.'.'.$request->file('imagen')->getClientOriginalExtension();
-            asset($avatar_path);
         }
         
         $usuario->person()->update([

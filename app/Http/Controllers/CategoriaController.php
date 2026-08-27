@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Funciones as AppFunciones;
 use Illuminate\Http\Request;
-use App\Http\Requests;
 use App\Models\Category;
 use App\Models\Funciones;
 use Illuminate\Support\Facades\Redirect;
@@ -27,9 +25,7 @@ class CategoriaController extends Controller
     
     public function getAll()
     {
-        //dd("getAll");
         $user = Auth::user();
-        //dd($user->cannot('getAll', Category::class));
         if($user->cannot('getAll', Category::class))
         {
             return Redirect::back()
@@ -41,7 +37,6 @@ class CategoriaController extends Controller
         if($name)
             {
                 $categorias = $categorias->where("name","LIKE","%$name%");
-                //dd($categorias);
             }
         
         $categorias = $categorias->paginate(10);

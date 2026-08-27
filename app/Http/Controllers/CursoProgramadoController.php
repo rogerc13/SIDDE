@@ -319,7 +319,7 @@ class CursoProgramadoController extends Controller
                 if($cursoProg->delete()){
                     $cursoProg->participants()->delete(); //deletes record of users in a course
                     return Redirect::back()
-                            ->with("alert",Funciones::getAlert("success", "Elimiando Exitosamente", "Operacion Exitosa."));
+                            ->with("alert",Funciones::getAlert("success", "Eliminado Exitosamente", "Operacion Exitosa."));
                 }
 
                 return Redirect::back()
@@ -585,7 +585,6 @@ class CursoProgramadoController extends Controller
     public function cancel($id) //cancel af programadas / courses
     {
         $user = Auth::user();
-        //dd($id);
 
         if ($user->can('cancel', Scheduled::class)) {
             $cursoProg = Scheduled::find($id);
