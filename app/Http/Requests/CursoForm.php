@@ -55,6 +55,7 @@ class CursoForm extends FormRequest
                         'manual_p' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                         'guia' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                         'presentacion' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'content_data' => 'nullable|string|max:10000',
                        ];
 
             case 'PUT':
@@ -85,6 +86,7 @@ class CursoForm extends FormRequest
                         'manual_p' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                         'guia' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
                         'presentacion' => 'nullable|file|mimes:pdf,pptx,xlsx,docx|max:10240',
+                        'content_data' => 'nullable|string|max:10000',
                        ];
 
             default:
