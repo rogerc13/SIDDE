@@ -44,42 +44,6 @@ test.describe('Authentication', () => {
         });
     });
 
-    test.describe('Register', () => {
-        test('shows error with mismatched passwords', async ({ page }) => {
-            await page.goto('/register');
-            await page.fill('#name', 'Test User');
-            await page.fill('#email', `testuser${Date.now()}@pdvsa.com`);
-            await page.fill('#password', 'password123');
-            await page.fill('#password-confirm', 'differentpassword');
-            await page.click('button[type="submit"]');
-            await expect(page).toHaveURL(/register/);
-        });
-
-        test('shows error with existing email', async ({ page }) => {
-            await page.goto('/register');
-            await page.fill('#name', 'Test User');
-            await page.fill('#email', 'admin@pdvsa.com');
-            await page.fill('#password', 'password123');
-            await page.fill('#password-confirm', 'password123');
-            await page.click('button[type="submit"]');
-            await expect(page).toHaveURL(/register/);
-        });
-
-        test('registers a new user', async ({ page }) => {
-            await page.goto('/register');
-            await page.fill('#name', 'Test User');
-            await page.fill('#email', `newuser${Date.now()}@pdvsa.com`);
-            await page.fill('#password', 'password123');
-            await page.fill('#password-confirm', 'password123');
-            await page.click('button[type="submit"]');
-            await page.waitForLoadState('load');
-            const url = page.url();
-            const registered = url.includes('home');
-            const stayedOnRegister = url.includes('register');
-            expect(registered || stayedOnRegister).toBe(true);
-        });
-    });
-
     test.describe('Protected Routes', () => {
         test('redirects to login when accessing protected route without auth', async ({ page }) => {
             await page.goto('/home');

@@ -9,15 +9,10 @@ export default defineConfig({
     fullyParallel: false,
     retries: 1,
     use: {
-        baseURL: 'https://sidde.test',
+        baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://sidde.test',
         browserName: 'chromium',
         headless: process.env.CI === 'true',
         screenshot: 'only-on-failure',
         trace: 'on-first-retry',
-    },
-    webServer: {
-        command: 'php artisan serve',
-        port: 8000,
-        reuseExistingServer: true,
     },
 });
