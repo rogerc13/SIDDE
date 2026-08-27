@@ -597,8 +597,8 @@ class CursoProgramadoController extends Controller
 
             if ($cursoProg->save()) {
 
-                //$cursoProg->participants()->participant_status_id = 4; //set status of participamts in a course as cancelled
-                $cursoProg->participants()->update(['participant_status_id' => 4]);
+                //$cursoProg->participants()->participant_status_id = Participant::CANCELADO;
+                $cursoProg->participants()->update(['participant_status_id' => Participant::CANCELADO]);
             
                 return Redirect::back()
                     ->with("alert", Funciones::getAlert("success", "Cancelado Exitosamente", "Operacón Exitosa."));

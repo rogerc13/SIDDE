@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\CourseStatus;
+use App\Models\Participant;
 use App\Models\Scheduled;
 use Illuminate\Console\Command;
 
@@ -49,8 +50,8 @@ class CheckCPStatus extends Command
 
                     if($curso->participants->count() > 0){
                         foreach($curso->participants as $participant){
-                            if($participant->participant_status_id == 5){
-                                $participant->participant_status_id = 1;
+                            if($participant->participant_status_id == Participant::PORINICIAR){
+                                $participant->participant_status_id = Participant::ENCURSO;
                                 $participant->save();
                             }
                         }
