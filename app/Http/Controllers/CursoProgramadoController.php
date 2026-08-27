@@ -331,7 +331,7 @@ class CursoProgramadoController extends Controller
                 ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
     }
 
-    public function misCursos()
+    public function misCursos(Request $request)
     {
         //auth
         $user = Auth::user();
@@ -398,7 +398,7 @@ class CursoProgramadoController extends Controller
                 ->with('fechas',$fecha);
     }//misCursos .miscursos.blade "u/mis_acciones"
 
-    public function userCursos($id)
+    public function userCursos(Request $request, $id)
     {
         $user = Auth::user();
 

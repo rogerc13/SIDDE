@@ -24,7 +24,7 @@ class LocationController extends Controller
         return json_encode($location);
     }
 
-    public function getAll()
+    public function getAll(Request $request)
     {
         $user = Auth::user();
         if ($user->cannot('getAll', Location::class)) {

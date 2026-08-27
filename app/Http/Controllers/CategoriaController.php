@@ -23,7 +23,7 @@ class CategoriaController extends Controller
         return json_encode($categoria);
     }
     
-    public function getAll()
+    public function getAll(Request $request)
     {
         $user = Auth::user();
         if($user->cannot('getAll', Category::class))
