@@ -318,6 +318,13 @@ class BrowserShotController extends Controller
             abort(404, 'ID de persona no proporcionado');
         }
 
+        $authUser = Auth::user();
+        if (!$authUser->isAdministrador() && !$authUser->isTecEducativa()) {
+            if ($authUser->person_id != $personId) {
+                abort(403, 'No tienes permisos para ver los cursos de esta persona.');
+            }
+        }
+
         $user = User::where('person_id', $personId)->with('role', 'person')->first();
         if (!$user) {
             abort(404, 'Usuario no encontrado');
