@@ -29,13 +29,12 @@ class CategoriaForm extends FormRequest
             
             case 'POST':
                 return [                        
-                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME,
+                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME.'|unique:categories,name',
                        ]; 
                 
             case 'PUT':
                 return [
-                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME,
-                       
+                        'nombre'=>'required|string|max:'.Category::MAX_LENGTH_NAME.'|unique:categories,name,'.$this->route('id'),
                        ];
             default:return[];
         }
@@ -48,6 +47,7 @@ class CategoriaForm extends FormRequest
             'required' => 'El campo :attribute es necesario.',
             'string' => 'El campo :attribute debe ser una cadena caracteres.',
             'max' => 'El campo :attribute debe contener maximo :max caracteres.',
+            'nombre.unique' => 'Ya existe una categoría con ese nombre.',
 
             
         ];
