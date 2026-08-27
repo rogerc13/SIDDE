@@ -547,28 +547,25 @@ class CursoController extends Controller
             if ($files->count() >= 1) {
                 switch ($type) {
                     case 1:
-                        //return 'Manual de Facilitador';
                         if (isset($helper->type1))
                             return Storage::download($helper->type1);
                         break;
                     case 2:
-                        //return 'Manual de Usuario';
                         if (isset($helper->type2))
                             return Storage::download($helper->type2);
                         break;
                     case 3:
-                        //return 'Guia';
                         if (isset($helper->type3))
                             return Storage::download($helper->type3);
                         break;
                     case 4:
-                        //return 'Presentacion';
                         if (isset($helper->type4))
                             return Storage::download($helper->type4);
                         break;
                     default:
                         break;
                 }
+                return redirect()->back()->with('alert', Funciones::getAlert('danger', 'Error', 'Archivo no encontrado para el tipo solicitado.'));
             } else {
                 return redirect()->back();
             }
