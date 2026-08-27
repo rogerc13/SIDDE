@@ -225,9 +225,11 @@ class UserController extends Controller
         $usuario->email = $request->email;
         $usuario->save();
 
+        $avatarPath = $usuario->person->avatar_path;
         if (null != $request->file('imagen')) {
             $safeFilename = preg_replace('/[^a-zA-Z0-9\-_]/', '', $request->ci);
             $request->file('imagen')->storeAs('public/avatars', $safeFilename . '.' . $request->file('imagen')->getClientOriginalExtension());
+            $avatarPath = $safeFilename . '.' . $request->file('imagen')->getClientOriginalExtension();
         }
         
         $usuario->person()->update([
@@ -237,7 +239,7 @@ class UserController extends Controller
             'id_type_id' => $request->id_type,
             'sex' => $request->sex,
             'phone' => $request->phone,
-            'avatar_path' => isset($avatar_path) ? $avatar_path : $usuario->person->avatar_path
+            'avatar_path' => $avatarPath
         ]);
 
         if($request->password != ''){
