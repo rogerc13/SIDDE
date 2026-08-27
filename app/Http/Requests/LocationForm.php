@@ -34,7 +34,7 @@ class LocationForm extends FormRequest
 
             case 'PUT':
                 return [
-                    'nombre' => 'required|string|max:' . Location::MAX_LENGTH_NAME,
+                    'nombre' => 'required|string|max:' . Location::MAX_LENGTH_NAME . '|unique:locations,name,' . $this->route('id'),
                     'floor_id' => 'required|integer|exists:floors,id',
                 ];
             default:
