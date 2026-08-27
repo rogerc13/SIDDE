@@ -361,6 +361,7 @@ class CursoProgramadoController extends Controller
             
             $courses = $user->person->scheduled; //courses is a Collection
             
+            $values = [];
             foreach ($courses as $course) {
                 $values[] = $course->id;
             }
@@ -445,6 +446,7 @@ class CursoProgramadoController extends Controller
 
             $courses = $usuario->person->participant; //courses is a Collection
             
+            $values = [];
             foreach ($courses as $course) {
                 $values[] = $course->scheduled_id;
             }
