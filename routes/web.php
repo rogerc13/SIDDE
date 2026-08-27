@@ -24,8 +24,7 @@ Auth::routes();
 
 Route::get('login','App\Http\Controllers\Auth\LoginController@getViewLogin')->name('login');
 Route::post('login','App\Http\Controllers\Auth\LoginController@login')->middleware('throttle:5,1');
-Route::get('logout','App\Http\Controllers\Auth\LoginController@logout')->name('logout');
-Route::post('logout','App\Http\Controllers\Auth\LoginController@logout');
+Route::post('logout','App\Http\Controllers\Auth\LoginController@logout')->name('logout');
 
 Route::get('home', 'App\Http\Controllers\HomeController@index')->name('home');
 
