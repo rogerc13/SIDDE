@@ -184,6 +184,8 @@ class UserController extends Controller
                ->with("alert",Funciones::getAlert("danger", "Error al eleminar", "Usuario no encontrado."));
         }
 
+        $usuario->load('person.facilitator.scheduled', 'person.participant');
+
         if($usuario->isFacilitador()){
             if ($usuario->person->facilitator->scheduled->count() > 0) {
                 return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este facilitador se encuentra asignado a una acción de formación."));

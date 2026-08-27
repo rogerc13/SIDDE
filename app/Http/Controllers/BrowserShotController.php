@@ -240,7 +240,7 @@ class BrowserShotController extends Controller
             return $this->denyRoster();
         }
 
-        $scheduled = Scheduled::with('course')->with('facilitator')->with('participants.person')->with('participants.participantStatus')->find($id);
+        $scheduled = Scheduled::with(['course', 'facilitator', 'participants.person', 'participants.participantStatus'])->find($id);
         $pdf = Pdf::loadView('pdf.course_participants',['scheduled' => $scheduled]);
         return $pdf->download($scheduled->course->title.' - Lista de Participantes.pdf');
     }
@@ -252,13 +252,10 @@ class BrowserShotController extends Controller
         
         if($user->isParticipante()){ //user is participant
             
-            $user = Auth::user();
+            $user->load('person.scheduled');
             $courses = $user->person->scheduled; //courses is a Collection
             
-            $values = [];
-            foreach ($courses as $course) {
-                $values[] = $course->id;
-            }
+            $values = $courses->pluck('id');
             
             if(count($courses) > 0){
                 $scheduled = Scheduled::with('facilitator')->with('course')->whereIn('id', $values); //cursos needs to be Builder
@@ -269,7 +266,7 @@ class BrowserShotController extends Controller
 
         }else{ //user is facilitator
 
-            $user = Auth::user();
+            $user->load('person.facilitator');
 
             $scheduled = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $user->person->facilitator->id);
         
@@ -330,6 +327,8 @@ class BrowserShotController extends Controller
         if (!$user) {
             abort(404, 'Usuario no encontrado');
         }
+
+        $user->load('person.scheduled', 'person.facilitator');
 
         $isParticipant = $user->isParticipante();
         $isFacilitator = $user->isFacilitador();

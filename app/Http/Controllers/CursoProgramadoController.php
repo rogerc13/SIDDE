@@ -60,14 +60,13 @@ class CursoProgramadoController extends Controller
 
         $facilitadores = User::where('role_id',Role::FACILITADOR)->with('person')->get();
         
-        $participantes4 = Participant::all();
-        $pts = $participantes4->pluck('person_id');
+        $pts = Participant::select('person_id')->pluck('person_id');
 
         $participantes = User::whereNotIn('person_id', $pts)->where('role_id',Role::PARTICIPANTE)
         ->get();
         
 
-        $cursos = Scheduled::orderBy("start_date","desc")->with(['course.capacity','facilitator','courseStatus','sessions']);
+        $cursos = Scheduled::orderBy("start_date","desc")->with(['course.capacity','course.category','facilitator','courseStatus','sessions']);
         $estados = CourseStatus::orderBy('name','asc')->get();
         $categoriasAcciones = Category::with('courses')->get();
         $locations = Location::with('floor.building')->orderBy('name', 'asc')->get();
@@ -151,7 +150,7 @@ class CursoProgramadoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $scheduled = Scheduled::with(['course', 'facilitator', 'sessions.location' => function ($q) {
+        $scheduled = Scheduled::with(['course.capacity', 'facilitator', 'sessions.location' => function ($q) {
             $q->withTrashed();
         }])->find($id);
 
@@ -354,17 +353,16 @@ class CursoProgramadoController extends Controller
         
         
         if($user->isFacilitador()){
+            $user->load('person.facilitator');
             $cursos = Scheduled::with(['facilitator','course.file'])->where('facilitator_id', $user->person->facilitator->id);
         }
 
         if($user->isParticipante()){
             
+            $user->load('person.scheduled');
             $courses = $user->person->scheduled; //courses is a Collection
             
-            $values = [];
-            foreach ($courses as $course) {
-                $values[] = $course->id;
-            }
+            $values = $courses->pluck('id');
             
             if(count($courses) > 0){
                 $cursos = Scheduled::with(['facilitator','course'])->whereIn('id', $values); //cursos needs to be Builder
@@ -438,18 +436,17 @@ class CursoProgramadoController extends Controller
 
         
         if($usuario->isFacilitador()){
+            $usuario->load('person.facilitator');
             $cursos =  Scheduled::with(['facilitator','course'])->where('facilitator_id', $usuario->person->facilitator->id);    
         }else{
             $cursos = [];
         }
         if($usuario->isParticipante()){
 
+            $usuario->load('person.participant');
             $courses = $usuario->person->participant; //courses is a Collection
             
-            $values = [];
-            foreach ($courses as $course) {
-                $values[] = $course->scheduled_id;
-            }
+            $values = $courses->pluck('scheduled_id');
 
             if (count($courses) > 0) {
                 $cursos = Scheduled::with(['facilitator','course'])->whereIn('id',$values);
@@ -499,7 +496,7 @@ class CursoProgramadoController extends Controller
 
         $scheduledId = $request->scheduled_id;
 
-        $scheduledCourse = Scheduled::with('course')->find($scheduledId);
+        $scheduledCourse = Scheduled::with('course.capacity')->find($scheduledId);
 
         if (!$scheduledCourse) {
             return response()->json([
@@ -532,17 +529,17 @@ class CursoProgramadoController extends Controller
                                 
                 //get scheduled id's of scheduled courses that overlap with selected course and without status
                 $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
-                )->where('course_status_id','!=', CourseStatus::CANCELADO)->get()->pluck('id');
+                )->where('course_status_id','!=', CourseStatus::CANCELADO)->pluck('id');
                 
                 //get all participants on participants' table that match the scheduled course id and status is different of canceled
                 $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
                 /* ->where('participant_status_id','!=' ,4) */
-                ->get()->pluck('person_id');
+                ->pluck('person_id');
 
                 //get list of all participants
                 $participantList = Person::whereHas('user', function($query){
                     $query->where('role_id',Role::PARTICIPANTE);
-                })->get()->pluck('id');
+                })->pluck('id');
 
                 //getparticipants without those who are in a course that overlap
                 $availableParticipants = $participantList->diff($participantsOverlap);
@@ -557,21 +554,21 @@ class CursoProgramadoController extends Controller
                 //get list of courses that met the prerequsite
                 $courseList = Scheduled::whereHas('Course',function($query) use($coursePrerequisite){
                     $query->where('code',$coursePrerequisite[0]->prerequisite)->where('course_status_id','3');
-                })->get()->pluck('id');
+                })->pluck('id');
                 
                 //get scheduled id's of scheduled courses that overlap with selected course and without status
                 $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
-                )->where('course_status_id','!=', CourseStatus::CANCELADO)->get()->pluck('id');
+                )->where('course_status_id','!=', CourseStatus::CANCELADO)->pluck('id');
                 
                 //get all participants on participants' table that match the scheduled course id and status is different of canceled
                 $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
                 /* ->where('participant_status_id','!=' ,4) */
-                ->get()->pluck('person_id');
+                ->pluck('person_id');
 
                 //get all participants that met the prerequisite
-                $participantsWithPrerequisite = Participant::with('Person')->whereIn('scheduled_id',$courseList)
-                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id',$scheduledId)->select('id')->get())
-                ->get()->pluck('person_id');
+                $participantsWithPrerequisite = Participant::whereIn('scheduled_id',$courseList)
+                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id',$scheduledId)->select('id'))
+                ->pluck('person_id');
 
                 $availableParticipants = $participantsWithPrerequisite->diff($participantsOverlap);
                 

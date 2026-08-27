@@ -181,6 +181,8 @@ class FacilitadorController extends Controller
 
         }
 
+        $usuario->load('person.facilitator.scheduled');
+
         if($usuario->person->facilitator->scheduled->count() > 0){
             return Redirect::back()->with('alert',Funciones::getAlert("danger", "Error", "Este facilitador se encuentra asignado a una acción de formación."));
         }

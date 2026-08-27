@@ -319,8 +319,13 @@ class ReportController extends Controller
     {
 
         // ALL TIME
-        $byAllTime = Scheduled::with('course')->get()->pluck('course.duration')->sum();
-        $finishedTotal = Scheduled::where('course_status_id', CourseStatus::CULMINADO)->with('course')->get()->pluck('course.duration')->sum();
+        $byAllTime = DB::table('scheduled_course')
+            ->join('courses', 'courses.id', '=', 'scheduled_course.course_id')
+            ->sum('courses.duration');
+        $finishedTotal = DB::table('scheduled_course')
+            ->join('courses', 'courses.id', '=', 'scheduled_course.course_id')
+            ->where('scheduled_course.course_status_id', CourseStatus::CULMINADO)
+            ->sum('courses.duration');
         $mostDuration = Course::with('scheduled')->whereHas('scheduled')->orderBy('duration', 'desc')->get();
 
         // DATE RANGE (query only once for the full range)
@@ -344,15 +349,18 @@ class ReportController extends Controller
         $prevEnd      = $currentStart->copy()->subDay();
         $prevStart    = $prevEnd->copy()->subDays($periodDays - 1);
 
-        $previousFinished = Scheduled::where('course_status_id', CourseStatus::CULMINADO)
+        $previousCount = Scheduled::where('course_status_id', CourseStatus::CULMINADO)
             ->whereBetween('start_date', [$prevStart->toDateString(), $prevEnd->toDateString()])
-            ->with('course')
-            ->get();
+            ->count();
+
+        $previousHours = (int) DB::table('scheduled_course')
+            ->join('courses', 'courses.id', '=', 'scheduled_course.course_id')
+            ->where('scheduled_course.course_status_id', CourseStatus::CULMINADO)
+            ->whereBetween('scheduled_course.start_date', [$prevStart->toDateString(), $prevEnd->toDateString()])
+            ->sum('courses.duration');
 
         $currentCount = $scheduledCourses->count();
-        $previousCount = $previousFinished->count();
         $currentHours = (int) $dateHelper;
-        $previousHours = (int) $previousFinished->pluck('course.duration')->sum();
 
         $countDelta = $previousCount > 0
             ? (int) round(($currentCount - $previousCount) / $previousCount * 100)

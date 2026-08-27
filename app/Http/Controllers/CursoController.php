@@ -47,13 +47,13 @@ class CursoController extends Controller
         if (!$user || $user->cannot('getAccionFormacion', Course::class)) {
             return redirect()->route('login');
         }
-        $curso = Course::with(['capacity', 'modality', 'content', 'category', 'prerequisite.prerequisite'])->where('id', $id)->first();
+        $curso = Course::with(['capacity', 'modality', 'content', 'category', 'prerequisite.prerequisite', 'file'])->where('id', $id)->first();
         if ($curso == null) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error", "La acción de formación no pudo ser encontrada"));
         }
 
-        $files = File::where('course_id', $id)->get();
+        $files = $curso->file;
 
         if ($files->count() >= 1) {
             return view('pages.public.ficha_tecnica')->with('curso', $curso)->with('files', $files);
@@ -439,18 +439,15 @@ class CursoController extends Controller
     public function courseDetails($id)
     {
         $user = Auth::user();
-        $curso = Course::with(['File', 'Capacity', 'Prerequisite.prerequisite', 'content'])/* ->with('File') */
-            //->with('Capacity')
-            //->with('prerequisite.prerequisite')
-            //->with(DB::raw(Course::where('id', Prerequisite::where('course_id', $id)->select('prerequisite_id'))->select('title')->get()))
-            /* ->with('Content') */->where('id', $id)
-            ->get();
+        $curso = Course::with(['File', 'Capacity', 'Prerequisite.prerequisite', 'content'])
+            ->where('id', $id)
+            ->first();
 
         if (!$curso || $user->cannot('get', Course::class)) {
             return response()->json([], 404);
         }
 
-        return response()->json($curso);
+        return response()->json([$curso]);
     }
 
     public function onCourseSubmitAlert($request)
