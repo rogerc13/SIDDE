@@ -57,7 +57,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'usuarios'], function()
         {
                 Route::get('/', 'App\Http\Controllers\UserController@getAll')->name("usuarios");
-                Route::get('/count', 'App\Http\Controllers\UserController@count');
                 Route::get('/{id}', 'App\Http\Controllers\UserController@get');
                 Route::post('/', 'App\Http\Controllers\UserController@store');
                 Route::put('/{id}', 'App\Http\Controllers\UserController@update');
@@ -67,7 +66,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'facilitadores'], function()
         {
                 Route::get('/', 'App\Http\Controllers\FacilitadorController@getAll')->name("facilitadores");
-                Route::get('/count', 'App\Http\Controllers\FacilitadorController@count');
                 Route::get('/{id}', 'App\Http\Controllers\FacilitadorController@get');
                 Route::post('/', 'App\Http\Controllers\FacilitadorController@store');
                 Route::put('/{id}', 'App\Http\Controllers\FacilitadorController@update');
@@ -78,7 +76,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'participantes'], function()
         {
                 Route::get('/', 'App\Http\Controllers\ParticipanteController@getAll')->name("participantes");
-                Route::get('/count', 'App\Http\Controllers\ParticipanteController@count');
                 Route::get('/{id}', 'App\Http\Controllers\ParticipanteController@get');
                 Route::post('/', 'App\Http\Controllers\ParticipanteController@store');
                 Route::put('/{id}', 'App\Http\Controllers\ParticipanteController@update');
@@ -89,7 +86,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'areas'], function()
         {
                 Route::get('/', 'App\Http\Controllers\CategoriaController@getAll')->name("areas");
-                Route::get('/count', 'App\Http\Controllers\CategoriaController@count');
                 Route::get('/{id}', 'App\Http\Controllers\CategoriaController@get');
                 Route::post('/', 'App\Http\Controllers\CategoriaController@store');
                 Route::put('/{id}', 'App\Http\Controllers\CategoriaController@update');
@@ -99,7 +95,6 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'ubicaciones'], function()
         {
                 Route::get('/', 'App\Http\Controllers\LocationController@getAll')->name("ubicaciones");
-                Route::get('/count', 'App\Http\Controllers\LocationController@count');
                 Route::get('/select', 'App\Http\Controllers\LocationController@getForSelect');
                 Route::get('/{id}', 'App\Http\Controllers\LocationController@get');
                 Route::post('/', 'App\Http\Controllers\LocationController@store');
