@@ -30,15 +30,15 @@ class CursoController extends Controller
     {
         $user = Auth::user();
         if ($user->cannot('get', Course::class)) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
         $curso = Course::with(['content', 'file', 'capacity', 'prerequisite'])->where('id', $id)->first();
         if (!$curso) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($curso);
+        return response()->json($curso);
     }
 
     public function getAccionFormacion($id)
@@ -103,7 +103,7 @@ class CursoController extends Controller
     {
         $user = Auth::user();
         if ($user->cannot('store', Course::class)) {
-            return json_encode(false);
+            return response()->json(false, 403);
         }
 
         $data = array(
@@ -179,7 +179,7 @@ class CursoController extends Controller
         $response->capacity()->save($capacity);
         $response->content()->saveMany($contentData);
 
-        return json_encode($response);
+        return response()->json($response);
     }
 
     public function update(CursoForm $request, $id)
@@ -193,10 +193,10 @@ class CursoController extends Controller
         $curso = Course::find($id);
 
         if (!$curso) {
-            return json_encode($response = false);
+            return response()->json(false, 404);
         }
         if ($user->cannot('update', Course::class)) {
-            return json_encode($response = false);
+            return response()->json(false, 404);
         }
 
         $curso->code = $request->codigo;
@@ -325,7 +325,7 @@ class CursoController extends Controller
 
         $success = $curso->exists && $capacityUpdated && $prerequisiteUpdated;
 
-        return json_encode($success);
+        return response()->json($success);
     } //end update
 
     public function delete($id)
@@ -421,7 +421,7 @@ class CursoController extends Controller
 
         $codeValue = $request->input('codeValue');
         if ($codeValue === null || trim((string) $codeValue) === '') {
-            return json_encode(false);
+            return response()->json(false, 403);
         }
 
         // Include soft-deleted rows so codes can't be reused.
@@ -433,7 +433,7 @@ class CursoController extends Controller
         }
 
         // Soft-deleted rows are excluded by default via SoftDeletes global scope.
-        return json_encode($query->exists());
+        return response()->json($query->exists());
     }
 
     public function courseDetails($id)
@@ -447,10 +447,10 @@ class CursoController extends Controller
             ->get();
 
         if (!$curso || $user->cannot('get', Course::class)) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($curso);
+        return response()->json($curso);
     }
 
     public function onCourseSubmitAlert($request)
@@ -479,7 +479,7 @@ class CursoController extends Controller
                 'title' => $course->title,
             ];
         }
-        return json_encode(['courses' => $courses]);
+        return response()->json(['courses' => $courses]);
     }
 
     public function download($id, $type)
@@ -496,7 +496,7 @@ class CursoController extends Controller
                 $files = $files->filter(fn($file) => $file->type_id == 2);
             }
 
-            return json_encode(['files' => $files]);
+            return response()->json(['files' => $files]);
         } else {
 
             if ($user->isParticipante() && $type !== '2') {

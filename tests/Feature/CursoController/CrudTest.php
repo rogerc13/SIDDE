@@ -259,7 +259,7 @@ class CrudTest extends CursoControllerTestCase
         $response = $this->actingAs($this->programadorUser())
             ->putJson("/u/acciones_formacion/{$course->id}", $data);
 
-        $response->assertStatus(200);
+        $response->assertStatus(404);
         $this->assertFalse(json_decode($response->getContent()));
 
         $this->assertDatabaseMissing('courses', [

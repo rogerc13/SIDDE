@@ -18,10 +18,10 @@ class LocationController extends Controller
         $user = Auth::user();
         $location = Location::with('floor.building')->find($id);
         if (!$location || $user->cannot('get', Location::class)) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($location);
+        return response()->json($location);
     }
 
     public function getAll(Request $request)
@@ -134,10 +134,10 @@ class LocationController extends Controller
         $user = Auth::user();
         $building = Building::find($id);
         if (!$building || $user->cannot('get', Location::class)) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($building);
+        return response()->json($building);
     }
 
     public function storeBuilding(Request $request)
@@ -265,10 +265,10 @@ class LocationController extends Controller
         $user = Auth::user();
         $floor = Floor::find($id);
         if (!$floor || $user->cannot('get', Location::class)) {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($floor);
+        return response()->json($floor);
     }
 
     public function storeFloor(Request $request)

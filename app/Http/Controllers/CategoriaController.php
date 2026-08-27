@@ -17,10 +17,10 @@ class CategoriaController extends Controller
         $categoria = Category::find($id);
         if(!$categoria || $user->cannot('get', Category::class))
         {
-            return json_encode([]);
+            return response()->json([], 404);
         }
         
-        return json_encode($categoria);
+        return response()->json($categoria);
     }
     
     public function getAll(Request $request)

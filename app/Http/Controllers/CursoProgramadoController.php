@@ -32,10 +32,10 @@ class CursoProgramadoController extends Controller
         $cursop = Scheduled::find($id);
         if(!$cursop || $user->cannot('get', Scheduled::class))
         {
-            return json_encode([]);
+            return response()->json([], 404);
         }
 
-        return json_encode($cursop);
+        return response()->json($cursop);
 
     }
 
@@ -550,7 +550,7 @@ class CursoProgramadoController extends Controller
                 $people = Person::whereIn('id',$availableParticipants)->get();
 
                 $response = ['success' => true, 'message'=> 'No Prerequisite, List of Available Participants','list'=>$people];
-                return json_encode($response);
+                return response()->json($response);
 
             }else{ //if course has a prerequisite
 
@@ -578,7 +578,7 @@ class CursoProgramadoController extends Controller
                 $people = Person::whereIn('id',$availableParticipants)->get();
 
                 $response = ['success' => true, 'message'=> 'List of Available Participants','list'=>$people];
-                return json_encode($response);
+                return response()->json($response);
 
             }
         }//end max capacity check  

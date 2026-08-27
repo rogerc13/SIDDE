@@ -21,10 +21,10 @@ class ParticipanteController extends Controller
         $usuario = User::with('person')->find($id);
         if(!$usuario || $user->cannot('getParticipante', User::class))
         {
-            return json_encode([]);
+            return response()->json([], 404);
         }
         
-        return json_encode($usuario);
+        return response()->json($usuario);
     }
     
     public function getAll(Request $request)
