@@ -255,6 +255,7 @@ class BrowserShotController extends Controller
             $user = Auth::user();
             $courses = $user->person->scheduled; //courses is a Collection
             
+            $values = [];
             foreach ($courses as $course) {
                 $values[] = $course->id;
             }
