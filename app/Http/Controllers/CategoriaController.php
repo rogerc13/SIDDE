@@ -33,7 +33,7 @@ class CategoriaController extends Controller
             
         }
         $categorias = Category::orderBy("name","asc");
-        $name = filter_input(INPUT_GET, 'name', FILTER_SANITIZE_STRING);
+        $name = $request->input('name');
         if($name)
             {
                 $categorias = $categorias->where("name","LIKE","%$name%");

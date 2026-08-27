@@ -32,7 +32,7 @@ class LocationController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
-        $name = filter_input(INPUT_GET, 'name', FILTER_SANITIZE_STRING);
+        $name = $request->input('name');
 
         $locations = Location::with('floor.building')
             ->orderBy('name', 'asc');

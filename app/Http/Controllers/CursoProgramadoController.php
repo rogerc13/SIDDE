@@ -343,9 +343,9 @@ class CursoProgramadoController extends Controller
         
         
         //filters
-        $titulos = filter_input(INPUT_GET,'titulos',FILTER_SANITIZE_STRING);
-        $id_facilitador = filter_input(INPUT_GET,'id_facilitador',FILTER_SANITIZE_NUMBER_INT);
-        $date = filter_input(INPUT_GET,'fechas',FILTER_SANITIZE_NUMBER_INT);
+        $titulos = $request->input('titulos');
+        $id_facilitador = $request->integer('id_facilitador');
+        $date = $request->integer('fechas');
         $fecha = $date;
         $lista = $categorias = Category::orderBy("name","asc");
         $categorias = $lista->pluck('name','id');
@@ -420,9 +420,9 @@ class CursoProgramadoController extends Controller
                 ->with("alert",Funciones::getAlert("danger", "Error", "El usuario seleccionado invalido."));
         }
 
-        $titulos = filter_input(INPUT_GET,'titulos',FILTER_SANITIZE_STRING);
-        $id_facilitador = filter_input(INPUT_GET,'id_facilitador',FILTER_SANITIZE_NUMBER_INT);
-        $date = filter_input(INPUT_GET,'fechas',FILTER_SANITIZE_NUMBER_INT);
+        $titulos = $request->input('titulos');
+        $id_facilitador = $request->integer('id_facilitador');
+        $date = $request->integer('fechas');
 
 
         $fecha = $date;
