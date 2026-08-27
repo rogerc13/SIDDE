@@ -184,31 +184,21 @@ class CursoController extends Controller
 
     public function update(CursoForm $request, $id)
     {
-        //return json_encode(isset($request->prerequisite));
-
         if (isset($request->delete_flag)) {
             $deleteHelper = json_decode($request->delete_flag);
-            //return json_encode($response = 'set');
         }
-        //return json_encode($response = $deleteHelper->facilitator);
+
         $user = Auth::user();
 
         $curso = Course::find($id);
 
-        if (!$curso) { //Course doesn't exists
-            /* return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "El curso ingresada no existe."));
-             */
+        if (!$curso) {
             return json_encode($response = false);
         }
-        if ($user->cannot('update', Course::class)) { //User has no clearance
+        if ($user->cannot('update', Course::class)) {
             return json_encode($response = false);
         }
-        /*
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion."));
 
- */
         $curso->code = $request->codigo;
         $curso->title = $request->titulo;
         $curso->category_id = $request->categoria_id;
@@ -336,20 +326,6 @@ class CursoController extends Controller
         $success = $curso->exists && $capacityUpdated && $prerequisiteUpdated;
 
         return json_encode($success);
-
-
-        //if update errors out return session flash alert
-
-
-        /*
-            return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
-         */
-        /*
-        // 
-        return Redirect::back()
-            ->with("alert",Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
-        */
     } //end update
 
     public function delete($id)
