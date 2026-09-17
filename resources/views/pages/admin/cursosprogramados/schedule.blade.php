@@ -19,6 +19,10 @@
     .wizard-step-panel.active { display: block; }
     #wizard-calendar { height: 100%; }
     .fc-event { cursor: pointer; }
+    .fc-ev-sub { display: block; font-size: 10px; line-height: 1.15; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fc-event .fc-title { display: block; overflow: hidden; }
+    .fc-event { overflow: hidden; }
+    .fc-month-view .fc-ev-sub { display: none; }
     .blocked-event { background: #999 !important; border-color: #999 !important; cursor: not-allowed !important; }
     .fc-bgevent { pointer-events: none !important; }
     .blocked-event-fac { background: #e67e22 !important; border-color: #e67e22 !important; cursor: not-allowed !important; background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.15) 5px, rgba(255,255,255,0.15) 10px) !important; }
@@ -933,6 +937,8 @@ function initWizardCalendar() {
         },
         events: function(start, end, timezone, callback) {
             var filterLocationId = $('#calendar-location-filter').val();
+            var eventCourseName = $('#wizard-titulo option:selected').text() || '';
+            var eventFacilitatorName = $('#wizard-facilitador option:selected').text() || '';
             var sessionEvents = wizardSessions.map(function(s) {
                 if (filterLocationId && parseInt(s.location_id) !== parseInt(filterLocationId)) return null;
                 var parts = s.session_date.split('-');
@@ -946,7 +952,10 @@ function initWizardCalendar() {
                     start: startDate,
                     end: endDate,
                     color: getLocationColor(s.location_id),
-                    allDay: false
+                    allDay: false,
+                    courseName: eventCourseName,
+                    facilitatorName: eventFacilitatorName,
+                    tooltip: [s.location_name, eventCourseName, eventFacilitatorName, isoToDisplayDate(s.session_date) + ' ' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time)].filter(Boolean).join(' · ')
                 };
             }).filter(function(e) { return e !== null; });
             // Fetch a wide range so conflict detection works for any date the
@@ -1015,13 +1024,19 @@ function initWizardCalendar() {
             });
         },
         eventRender: function(event, element) {
-            element.attr('title', event.title);
+            element.attr('title', event.tooltip || event.title);
             if (event.rendering === 'background') {
                 if (event.type === 'facilitator') {
                     element.addClass('blocked-event-fac');
                 } else {
                     element.addClass('blocked-event');
                 }
+                return;
+            }
+            var sub = [event.courseName, event.facilitatorName].filter(Boolean).join(' · ');
+            var $content = element.find('.fc-content');
+            if (sub && $content.length && !element.closest('.fc-month-view').length) {
+                $content.append($('<span class="fc-ev-sub"></span>').text(sub));
             }
         }
     });

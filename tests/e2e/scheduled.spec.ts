@@ -529,6 +529,19 @@ test.describe('Session Modal', () => {
         await expect(tbody).toContainText('04-10-2026');
     });
 
+    test('shows course and facilitator on calendar session blocks', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '8:00 AM', '10:00 AM');
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(400);
+
+        const sub = page.locator('#wizard-calendar .fc-ev-sub').first();
+        await expect(sub).toBeVisible({ timeout: 5000 });
+        await expect(sub).toContainText('Wizard Test Course');
+        await expect(sub).toContainText('Wizard Test');
+    });
+
     test('blocks a repeat that would collide with an existing draft session', async ({ page }) => {
         await openWizardStepTwo(page);
 

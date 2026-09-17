@@ -43,6 +43,10 @@
     /* Unified section spacing */
     #details-calendar { background: #fff; }
     #details-calendar .fc-header-title { font-size: 15px !important; line-height: 22px !important; margin: 0 !important; }
+    #details-calendar .fc-ev-sub { display: block; font-size: 10px; line-height: 1.15; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #details-calendar .fc-event .fc-title { display: block; overflow: hidden; }
+    #details-calendar .fc-event { overflow: hidden; }
+    #details-calendar .fc-month-view .fc-ev-sub { display: none; }
     .calendar-legend { margin-top: 8px; font-size: 12px; color: #777; }
     .calendar-legend .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
     .calendar-legend .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
@@ -169,11 +173,28 @@
 <script>
 var detailSessions = @json($existingSessions);
 var detailScheduledId = {{ $scheduled->id }};
+var detailCourseTitle = @json($scheduled->course->title);
+var detailFacilitatorName = @json($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
 
 function detailLocationColor(locationId) {
     var n = parseInt(locationId, 10);
     var hue = isNaN(n) ? 145 : (n * 137.508) % 360;
     return 'hsl(' + Math.round(hue) + ', 65%, 45%)';
+}
+
+function detailTime12(t) {
+    var parts = String(t).split(':');
+    if (parts.length < 2) return t;
+    var h = parseInt(parts[0], 10);
+    var m = parts[1];
+    var period = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + period;
+}
+
+function detailDateLabel(iso) {
+    var parts = String(iso).split('-');
+    return parts.length === 3 ? parts[2] + '-' + parts[1] + '-' + parts[0] : iso;
 }
 
 $(function() {
@@ -207,7 +228,10 @@ $(function() {
                     start: s.session_date + 'T' + s.start_time,
                     end: s.session_date + 'T' + s.end_time,
                     color: detailLocationColor(s.location_id),
-                    allDay: false
+                    allDay: false,
+                    courseName: detailCourseTitle,
+                    facilitatorName: detailFacilitatorName,
+                    tooltip: [s.location_name, detailCourseTitle, detailFacilitatorName, detailDateLabel(s.session_date) + ' ' + detailTime12(s.start_time) + ' – ' + detailTime12(s.end_time)].filter(Boolean).join(' · ')
                 };
             });
             $.ajax({
@@ -237,9 +261,15 @@ $(function() {
             });
         },
         eventRender: function(event, element) {
-            element.attr('title', event.title);
+            element.attr('title', event.tooltip || event.title);
             if (event.rendering === 'background') {
                 element.addClass('fc-bgevent-plain');
+                return;
+            }
+            var sub = [event.courseName, event.facilitatorName].filter(Boolean).join(' · ');
+            var $content = element.find('.fc-content');
+            if (sub && $content.length && !element.closest('.fc-month-view').length) {
+                $content.append($('<span class="fc-ev-sub"></span>').text(sub));
             }
         }
     });
