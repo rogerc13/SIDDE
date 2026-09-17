@@ -193,11 +193,6 @@ class CursoProgramadoController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->cannot('get', Scheduled::class)) {
-            return Redirect::to(url('u/af_programadas'))
-                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
-        }
-
         $scheduled = Scheduled::with(['course.capacity', 'facilitator.person', 'sessions.location' => function ($q) {
             $q->withTrashed();
         }])->find($id);
@@ -205,6 +200,11 @@ class CursoProgramadoController extends Controller
         if (!$scheduled) {
             return Redirect::to(url('u/af_programadas'))
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Ver", "El curso seleccionado no existe."));
+        }
+
+        if ($user->cannot('get', $scheduled)) {
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
         $existingSessions = $scheduled->sessions->map(function ($s) {

@@ -3,8 +3,11 @@
 @push('CSS')
 <link rel="stylesheet" href="{{url('assets/js/fullcalendar-2/fullcalendar.min.css')}}">
 <style>
-    .panel-body > h3 { margin: 0 0 14px; font-size: 20px; }
-    .panel-body > h3 .badge { vertical-align: middle; font-size: 12px; margin-left: 8px; }
+    .details-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .details-header-main { min-width: 0; }
+    .details-header h3 { margin: 0 0 4px; font-size: 20px; }
+    .details-header h3 .badge { vertical-align: middle; font-size: 12px; margin-left: 8px; }
+    .details-meta { margin: 0; font-size: 12px; }
 
     /* KPI tiles — equalized via flex */
     .details-stats { display: flex; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; margin-bottom: 24px; }
@@ -25,20 +28,12 @@
     .details-stats .stat-value-range .range-arrow { color: #999; font-weight: 400; padding: 0 1px; }
     .details-stats .mini-budget { height: 5px; margin: 7px 0 0; border-radius: 3px; background: #e9ecef; }
 
-    /* Header actions: keep the group look but with spacing between buttons */
-    .panel-options .btn-group > .btn { border-radius: 4px !important; }
-    .panel-options .btn-group > .btn + .btn { margin-left: 5px; }
-    .panel-default > .panel-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-    .panel-default > .panel-heading::before,
-    .panel-default > .panel-heading::after { display: none !important; }
-    .panel-default > .panel-heading > .panel-options { float: none; }
+    /* Header actions */
+    .details-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .details-actions .dropdown { display: inline-block; }
+    .details-actions .dropdown-menu { min-width: 200px; font-size: 13px; }
+    .details-actions .dropdown-menu > li > a > i { width: 16px; text-align: center; margin-right: 6px; color: #7a8794; }
+    .details-actions .dropdown-menu > li.disabled > a { pointer-events: none; }
 
     /* Unified section spacing */
     #details-calendar { background: #fff; }
@@ -64,66 +59,99 @@
     $courseDuration = $scheduled->course->duration;
     $hoursPct = $courseDuration > 0 ? min(100, round(($totalHours / $courseDuration) * 100)) : 0;
     $hoursBarClass = $totalHours >= $courseDuration ? 'progress-bar-success' : ($hoursPct > 60 ? 'progress-bar-info' : 'progress-bar-warning');
+    $createdAt = $scheduled->created_at ? \Carbon\Carbon::parse($scheduled->created_at) : null;
+    $updatedAt = $scheduled->updated_at ? \Carbon\Carbon::parse($scheduled->updated_at) : null;
+    $backUrl = Auth::user()->isFacilitador() ? url('u/mis_acciones') : url('u/af_programadas');
+    $canManage = Auth::user()->isAdministrador() || Auth::user()->isTecEducativa() || Auth::user()->isProgramador();
 @endphp
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <div class="panel-title">Detalles de la Acción de Formación Programada</div>
-        <div class="panel-options">
-            <div class="btn-group no-print" role="group">
-                <a href="{{ url('u/af_programadas') }}" class="btn btn-blue"><i class="entypo-back"></i> Volver</a>
-                <a href="javascript:void(0);" onclick="window.print()" class="btn btn-success"><i class="fa fa-print"></i> Imprimir</a>
-                @can('update', $scheduled)
-                    <a href="{{ url('u/af_programadas/'.$scheduled->id.'/editar') }}" class="btn btn-primary"><i class="fa fa-pencil"></i> Editar</a>
-                @endcan
-            </div>
-        </div>
-    </div>
-    <div class="panel-body">
-        <h3 style="margin: 0 0 12px;">
+
+<div class="details-header">
+    <div class="details-header-main">
+        <h3>
             {{ $scheduled->course->title }}
             <span class="badge badge-{{ $scheduled->badgeStatus() }}">{{ $scheduled->courseStatus->name }}</span>
         </h3>
+        @if($createdAt)
+        <p class="details-meta text-muted">
+            <i class="entypo-clock"></i> Creada: {{ $createdAt->format('d-m-Y g:i A') }}
+            @if($updatedAt && $updatedAt->gt($createdAt))
+                <span aria-hidden="true">·</span> Actualizada: {{ $updatedAt->format('d-m-Y g:i A') }}
+            @endif
+        </p>
+        @endif
+    </div>
+    <div class="details-actions no-print">
+        <a href="{{ $backUrl }}" class="btn btn-blue"><i class="entypo-back"></i> Volver</a>
+        <a href="javascript:void(0);" onclick="window.print()" class="btn btn-success"><i class="fa fa-print"></i> Imprimir</a>
+        @can('store','App\Models\Participant')
+            <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$scheduled->id.'/asignarParticipante')}}','{{$scheduled->id}}')" class="btn btn-primary {{($scheduled->atMaxCapacity() || !$scheduled->isPorDictar()) ? 'disabled' : ''}}">
+                <i class="entypo-user-add"></i> Asignar participante
+            </a>
+        @endcan
+        @if($canManage)
+        <div class="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Más funciones <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li class="{{ $scheduled->isCulminado() || $scheduled->isCancelado() ? 'disabled' : '' }}">
+                    <a href="{{ url('u/af_programadas/'.$scheduled->id.'/editar') }}"><i class="entypo-pencil"></i> Editar programación</a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li class="{{ $scheduled->isCancelado() ? 'disabled' : '' }}">
+                    <a href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$scheduled->id)}}')"><i class="glyphicon glyphicon-ban-circle"></i> Cancelar</a>
+                </li>
+                @can('delete', $scheduled)
+                <li class="{{ $scheduled->canBeDeleted() ? '' : 'disabled' }}">
+                    <a href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$scheduled->id)}}')"><i class="entypo-trash"></i> Eliminar</a>
+                </li>
+                @endcan
+            </ul>
+        </div>
+        @endif
+    </div>
+</div>
 
-        <div class="row details-stats">
-            <div class="col-sm-3 col-xs-6">
-                <div class="stat-tile">
-                    <span class="stat-label"><i class="entypo-user"></i> Facilitador</span>
-                    <span class="stat-value">{{ $scheduled->facilitator->person->name }} {{ $scheduled->facilitator->person->last_name }}</span>
-                </div>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <div class="stat-tile">
-                    <span class="stat-label"><i class="entypo-calendar"></i> Fechas</span>
-                    <span class="stat-value stat-value-range">@date($scheduled->start_date) <span aria-hidden="true" class="range-arrow">→</span> @date($scheduled->end_date)</span>
-                </div>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <div class="stat-tile">
-                    <span class="stat-label"><i class="entypo-clock"></i> Duración</span>
-                    <span class="stat-value">{{ $totalHours }} / {{ $courseDuration }}h</span>
-                    <span class="stat-sub">{{ $sessionCount }} {{ $sessionWord }}</span>
-                    <div class="progress mini-budget">
-                        <div class="progress-bar {{ $hoursBarClass }}" role="progressbar" aria-label="Horas asignadas" style="width: {{ $hoursPct }}%"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-3 col-xs-6">
-                <div class="stat-tile">
-                    <span class="stat-label"><i class="entypo-users"></i> Registrados</span>
-                    <span class="stat-value">{{ $participantsCount }} @if($capacityMax)/ {{ $capacityMax }}@endif</span>
-                    @can('getAllPorCurso','App\Models\Participant')
-                        <a class="stat-sub no-print" href="{{ url('u/af_programadas/'.$scheduled->id.'/participantes') }}">gestionar participantes</a>
-                    @endcan
-                </div>
+<div class="row details-stats">
+    <div class="col-sm-3 col-xs-6">
+        <div class="stat-tile">
+            <span class="stat-label"><i class="entypo-user"></i> Facilitador</span>
+            <span class="stat-value">{{ $scheduled->facilitator->person->name }} {{ $scheduled->facilitator->person->last_name }}</span>
+        </div>
+    </div>
+    <div class="col-sm-3 col-xs-6">
+        <div class="stat-tile">
+            <span class="stat-label"><i class="entypo-calendar"></i> Fechas</span>
+            <span class="stat-value stat-value-range">@date($scheduled->start_date) <span aria-hidden="true" class="range-arrow">→</span> @date($scheduled->end_date)</span>
+        </div>
+    </div>
+    <div class="col-sm-3 col-xs-6">
+        <div class="stat-tile">
+            <span class="stat-label"><i class="entypo-clock"></i> Duración</span>
+            <span class="stat-value">{{ $totalHours }} / {{ $courseDuration }}h</span>
+            <span class="stat-sub">{{ $sessionCount }} {{ $sessionWord }}</span>
+            <div class="progress mini-budget">
+                <div class="progress-bar {{ $hoursBarClass }}" role="progressbar" aria-label="Horas asignadas" style="width: {{ $hoursPct }}%"></div>
             </div>
         </div>
+    </div>
+    <div class="col-sm-3 col-xs-6">
+        <div class="stat-tile">
+            <span class="stat-label"><i class="entypo-users"></i> Registrados</span>
+            <span class="stat-value">{{ $participantsCount }} @if($capacityMax)/ {{ $capacityMax }}@endif</span>
+            @can('getAllPorCurso','App\Models\Participant')
+                <a class="stat-sub no-print" href="{{ url('u/af_programadas/'.$scheduled->id.'/participantes') }}">gestionar participantes</a>
+            @endcan
+        </div>
+    </div>
+</div>
 
-        <div class="panel panel-success" data-collapsed="0">
-            <div class="panel-heading">
-                <div class="panel-title">Sesiones</div>
-            </div>
-            <div class="panel-body with-table table-responsive">
-                <table class="table table-striped table-bordered table-center">
+<div class="panel panel-success" data-collapsed="0">
+    <div class="panel-heading">
+        <div class="panel-title">Sesiones</div>
+    </div>
+    <div class="panel-body with-table table-responsive">
+        <table class="table table-striped table-bordered table-center">
             <thead>
                 <tr>
                     <th class="text-center">#</th>
@@ -146,28 +174,32 @@
                     <td class="text-center">{{ $s['duration_hours'] }} hrs</td>
                 </tr>
                 @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        <div class="panel panel-success" data-collapsed="0" style="margin-top: 15px;">
-            <div class="panel-heading">
-                <div class="panel-title">Calendario</div>
-            </div>
-            <div class="panel-body">
-                <div id="details-calendar-wrap">
-                    <div id="details-calendar"></div>
-                </div>
-                <div class="calendar-legend no-print">
-                    <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
-                    <span class="legend-swatch" style="background:#999; margin-left: 12px;"></span>Ocupado (otros cursos)
-                </div>
-            </div>
+<div class="panel panel-success" data-collapsed="0" style="margin-top: 15px;">
+    <div class="panel-heading">
+        <div class="panel-title">Calendario</div>
+    </div>
+    <div class="panel-body">
+        <div id="details-calendar-wrap">
+            <div id="details-calendar"></div>
+        </div>
+        <div class="calendar-legend no-print">
+            <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
+            <span class="legend-swatch" style="background:#999; margin-left: 12px;"></span>Ocupado (otros cursos)
         </div>
     </div>
 </div>
 @endsection
+
+@section('modals')
+    @include('pages.admin.cursosprogramados.delete')
+    @include('pages.admin.cursosprogramados.cancel')
+    @include('pages.admin.participantescursos.asignar')
+@stop
 
 @push('JS')
 <script>

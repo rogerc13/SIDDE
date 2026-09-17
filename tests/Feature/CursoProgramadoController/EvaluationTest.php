@@ -441,4 +441,32 @@ class EvaluationTest extends TestCase
         $response->assertSee('Editar Estado del Participante');
         $response->assertDontSee('Eliminar Participante');
     }
+
+    public function test_owning_facilitador_can_view_scheduled_details(): void
+    {
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+
+        $response = $this->actingAs($facilitadorUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee($scheduled->course->title);
+        $response->assertSee('Creada:');
+        $response->assertSee(url('u/mis_acciones'));
+        $response->assertDontSee('Más funciones');
+    }
+
+    public function test_other_facilitador_cannot_view_scheduled_details(): void
+    {
+        [, $ownerFacilitator] = $this->makeOwningFacilitador();
+        [$otherUser] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $ownerFacilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+
+        $response = $this->actingAs($otherUser)
+            ->from('/u/mis_acciones')
+            ->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert');
+    }
 }

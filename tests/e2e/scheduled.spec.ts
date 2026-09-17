@@ -281,6 +281,24 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForLoadState('load');
         await expect(page).toHaveURL(/\/editar$/);
     });
+
+    test('opens the details page with header actions and cancel modal', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Ver detalles"]').click();
+        await page.waitForLoadState('load');
+
+        await expect(page.locator('.details-header')).toBeVisible();
+        await expect(page.locator('.details-meta')).toContainText('Creada:');
+        await expect(page.locator('.details-actions')).toContainText('Más funciones');
+        await expect(page.locator('.details-actions')).toContainText('Asignar participante');
+
+        await page.locator('.details-actions .dropdown-toggle').click();
+        await page.locator('.details-actions .dropdown-menu a', { hasText: 'Cancelar' }).click();
+        await expect(page.locator('#programa-modal-cancel')).toHaveClass(/in/);
+    });
 });
 
 test.describe('Participant Assignment', () => {

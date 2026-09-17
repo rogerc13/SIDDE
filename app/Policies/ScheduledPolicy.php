@@ -21,9 +21,18 @@ class ScheduledPolicy
             && $scheduled->facilitator_id === $user->person->facilitator->id;
     }
 
-    public function get(User $user)
+    public function get(User $user, ?Scheduled $scheduled = null)
     {
-       return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador();
+        if ($user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador()) {
+            return true;
+        }
+
+        if ($scheduled && $user->isFacilitador()) {
+            return $user->person->facilitator
+                && $scheduled->facilitator_id === $user->person->facilitator->id;
+        }
+
+        return false;
     }
 
     public function getAll(User $user)

@@ -140,9 +140,14 @@ class SchedulePageTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee($date);
-        $response->assertSee('Detalles de la Acción de Formación Programada');
+        $response->assertSee($course->title);
+        $response->assertSee('Creada:');
         $response->assertSee('Registrados');
-        $response->assertSee('Editar');
+        $response->assertSee('Más funciones');
+        $response->assertSee('Asignar participante');
+        $response->assertSee('programa-modal-cancel', false);
+        $response->assertSee('programa-modal-delete', false);
+        $response->assertSee('asignar-modal', false);
     }
 
     public function test_create_page_renders_new_ui_elements(): void
