@@ -1270,29 +1270,6 @@ function displayDateToIso(display) {
     return parts[2] + '-' + parts[1] + '-' + parts[0];
 }
 
-function duplicateSession(id) {
-    if (scheduleMode === 'view') return;
-    var s = wizardSessions.find(function(x) { return x.id === id; });
-    if (!s) return;
-    sessionCounter++;
-    wizardSessions.push({
-        id: sessionCounter,
-        isNew: true,
-        location_id: s.location_id,
-        location_name: s.location_name,
-        session_date: s.session_date,
-        start_time: s.start_time,
-        end_time: s.end_time,
-        duration_hours: s.duration_hours
-    });
-    dirty = true;
-    renderSessionTable();
-    refreshCalendarEvents();
-    if (getCurrentStep() === 3) {
-        renderReviewPanel();
-    }
-}
-
 function removeWizardSession(id) {
     if (scheduleMode === 'view') return;
     wizardSessions = wizardSessions.filter(function(s) { return s.id !== id; });
@@ -1351,7 +1328,6 @@ function renderSessionTable() {
                     '<div class="session-row-main">' +
                         '<span class="session-row-location" title="' + escapeAttr((i + 1) + '. ' + s.location_name) + '">' + (i + 1) + '. ' + escapeHtml(s.location_name) + '</span>' +
                         '<span class="session-row-actions">' +
-                            '<button type="button" class="btn btn-default btn-xs" onclick="duplicateSession(' + s.id + ')" title="Duplicar sesión"><i class="entypo-docs"></i></button> ' +
                             '<button type="button" class="btn btn-info btn-xs" onclick="openEditSessionModal(' + s.id + ')" title="Editar sesión"><i class="entypo-pencil"></i></button> ' +
                             '<button type="button" class="btn btn-danger btn-xs" onclick="removeWizardSession(' + s.id + ')" title="Eliminar sesión"><i class="entypo-trash"></i></button>' +
                         '</span>' +
@@ -1441,7 +1417,6 @@ function renderReviewPanel() {
             '<td>' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time) + '</td>' +
             '<td class="text-center">' + s.duration_hours + ' hrs</td>' +
                 '<td class="actions" style="white-space: nowrap;">' +
-                '<button type="button" class="btn btn-default btn-xs" onclick="duplicateSession(' + s.id + ')" title="Duplicar sesión"><i class="entypo-docs"></i></button> ' +
                 '<button type="button" class="btn btn-info btn-xs" onclick="openEditSessionModal(' + s.id + ')" title="Editar sesión"><i class="entypo-pencil"></i></button> ' +
                 '<button type="button" class="btn btn-danger btn-xs" onclick="removeReviewSession(' + s.id + ')" title="Eliminar sesión"><i class="entypo-trash"></i></button>' +
             '</td>' +
