@@ -12,6 +12,28 @@
     .details-tab-content { background: #fff; border: 1px solid #e5e5e5; border-top: 0; padding: 18px; margin-bottom: 20px; border-radius: 0 0 3px 3px; }
     .details-tab-content .ficha-table { margin-bottom: 0; }
 
+    /* Documentos tab */
+    .doc-grid { display: flex; flex-wrap: wrap; gap: 14px; }
+    .doc-tile {
+        flex: 1 1 220px; max-width: 260px;
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+        padding: 16px 14px; border: 1px solid #eef1f4; border-radius: 6px; background: #fbfcfd;
+    }
+    .doc-tile--empty { opacity: 0.6; }
+    .doc-thumb {
+        width: 56px; height: 56px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 26px; margin-bottom: 10px;
+    }
+    .doc-thumb--1 { background: #2c81ba; }
+    .doc-thumb--2 { background: #27ae60; }
+    .doc-thumb--3 { background: #e0a32e; }
+    .doc-thumb--4 { background: #8e5bc0; }
+    .doc-info { width: 100%; min-width: 0; margin-bottom: 10px; }
+    .doc-title { display: block; font-size: 13px; font-weight: 600; color: #333; }
+    .doc-sub { display: block; font-size: 11px; color: #8a97a3; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .doc-download { margin-top: auto; }
+
     /* KPI tiles — equalized via flex */
     .details-stats { display: flex; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; margin-bottom: 24px; }
     .details-stats > div { display: flex; padding-left: 8px; padding-right: 8px; }
@@ -66,6 +88,13 @@
     $updatedAt = $scheduled->updated_at ? \Carbon\Carbon::parse($scheduled->updated_at) : null;
     $backUrl = Auth::user()->isFacilitador() ? url('u/mis_acciones') : url('u/af_programadas');
     $canManage = Auth::user()->isAdministrador() || Auth::user()->isTecEducativa() || Auth::user()->isProgramador();
+    $docTypes = [
+        1 => ['label' => 'Manual del Facilitador', 'icon' => 'fa-file-pdf-o'],
+        2 => ['label' => 'Manual del Participante', 'icon' => 'fa-file-pdf-o'],
+        3 => ['label' => 'Guía', 'icon' => 'fa-file-pdf-o'],
+        4 => ['label' => 'Presentación', 'icon' => 'fa-file-pdf-o'],
+    ];
+    $filesByType = $scheduled->course->file->keyBy('type_id');
 @endphp
 
 <div class="details-header">
@@ -165,7 +194,29 @@
         <p class="text-muted">La gestión de participantes estará disponible próximamente en esta pestaña.</p>
     </div>
     <div role="tabpanel" class="tab-pane" id="tab-documentos">
-        <p class="text-muted">Los documentos del curso estarán disponibles próximamente en esta pestaña.</p>
+        @if($filesByType->isEmpty())
+            <p class="text-muted"><i class="entypo-info-circled"></i> Este curso no posee documentos cargados.</p>
+        @else
+            <div class="doc-grid">
+                @foreach($docTypes as $typeId => $meta)
+                    @php $file = $filesByType->get($typeId); @endphp
+                    <div class="doc-tile {{ $file ? '' : 'doc-tile--empty' }}">
+                        <div class="doc-thumb doc-thumb--{{ $typeId }}">
+                            <i class="fa {{ $meta['icon'] }}"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-title">{{ $meta['label'] }}</span>
+                            <span class="doc-sub">{{ $file ? basename($file->path) : 'No disponible' }}</span>
+                        </div>
+                        @if($file)
+                            <a href="{{ url('download/'.$scheduled->course->id.'/'.$typeId) }}" class="btn btn-primary btn-sm doc-download"><i class="fa fa-download"></i> Descargar</a>
+                        @else
+                            <button type="button" class="btn btn-default btn-sm doc-download" disabled><i class="fa fa-download"></i> Descargar</button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
     <div role="tabpanel" class="tab-pane active" id="tab-ficha">
         @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])

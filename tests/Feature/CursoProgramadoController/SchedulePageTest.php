@@ -153,6 +153,35 @@ class SchedulePageTest extends TestCase
         $response->assertSee('asignar-modal', false);
     }
 
+    public function test_details_documents_tab_lists_course_files(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 2]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+        $date = now()->addDays(10)->toDateString();
+
+        \App\Models\File::create([
+            'course_id' => $course->id,
+            'type_id' => 1,
+            'path' => $course->code . '/Manual del Facilitador.pdf',
+        ]);
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $this->makeLocation()->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
+
+        $response->assertOk();
+        $response->assertSee('Manual del Facilitador');
+        $response->assertSee('Manual del Participante');
+        $response->assertSee('Guía');
+        $response->assertSee('Presentación');
+        $response->assertSee(url('download/' . $course->id . '/1'), false);
+        $response->assertSee('No disponible');
+    }
+
     public function test_create_page_renders_new_ui_elements(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
