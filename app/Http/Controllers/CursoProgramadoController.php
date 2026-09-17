@@ -253,6 +253,17 @@ class CursoProgramadoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", "El curso seleccionado no existe."));
         }
 
+        if ($scheduled->isCancelado() || $scheduled->isCulminado()) {
+            $message = 'No se puede editar una acción de formación cancelada o culminada.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return Redirect::to(url('u/af_programadas'))
+                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Editar", $message));
+        }
+
         $course = Course::findOrFail($request->titulo);
 
         $dates = collect($request->sessions);
@@ -304,27 +315,34 @@ class CursoProgramadoController extends Controller
     {
         $user=Auth::user();
 
-        if ($user->can('delete', Scheduled::class))
+        $cursoProg = Scheduled::find($id);
+
+        if($cursoProg==null)
         {
-                $cursoProg = Scheduled::find($id);
-                if($cursoProg==null)
-               {
-                    return Redirect::back()
-                        ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "Curso no encontrado."));
-               }
-                if($cursoProg->delete()){
-                    $cursoProg->participants()->delete(); //deletes record of users in a course
-                    return Redirect::back()
-                            ->with("alert",Funciones::getAlert("success", "Eliminado Exitosamente", "Operacion Exitosa."));
-                }
+            return Redirect::back()
+                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "Curso no encontrado."));
+        }
 
-                return Redirect::back()
-                        ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "Operacion Erronea."));
+        if ($user->cannot('delete', $cursoProg))
+        {
+            return Redirect::back()
+                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
+        }
 
+        if (! $cursoProg->canBeDeleted()) {
+            return Redirect::back()
+                ->with("alert",Funciones::getAlert("danger", "No se puede eliminar", "No se puede eliminar una acción de formación que ya inició o culminó, ya que afectaría los datos relacionados."));
+        }
+
+        if($cursoProg->delete()){
+            $cursoProg->sessions()->delete();
+            $cursoProg->participants()->delete(); //deletes record of users in a course
+            return Redirect::back()
+                    ->with("alert",Funciones::getAlert("success", "Eliminado Exitosamente", "Operacion Exitosa."));
         }
 
         return Redirect::back()
-                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "No tienes permisos para realizar esta accion."));
+                ->with("alert",Funciones::getAlert("danger", "Error al Intentar Eliminar", "Operacion Erronea."));
     }
 
     public function misCursos(Request $request)
@@ -589,15 +607,19 @@ class CursoProgramadoController extends Controller
                     ->with("alert", Funciones::getAlert("danger", "Error al Intentar Cancelar", "Curso no encontrado."));
             }
 
-            $cursoProg->course_status_id = 4;
+            if ($cursoProg->isCancelado()) {
+                return Redirect::back()
+                    ->with("alert", Funciones::getAlert("warning", "Acción ya cancelada", "Esta acción de formación ya se encuentra cancelada."));
+            }
+
+            $cursoProg->course_status_id = CourseStatus::CANCELADO;
 
             if ($cursoProg->save()) {
 
-                //$cursoProg->participants()->participant_status_id = Participant::CANCELADO;
                 $cursoProg->participants()->update(['participant_status_id' => Participant::CANCELADO]);
             
                 return Redirect::back()
-                    ->with("alert", Funciones::getAlert("success", "Cancelado Exitosamente", "Operacón Exitosa."));
+                    ->with("alert", Funciones::getAlert("success", "Cancelado Exitosamente", "Operación Exitosa."));
             }
 
             return Redirect::back()

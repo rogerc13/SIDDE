@@ -351,4 +351,94 @@ class EvaluationTest extends TestCase
             ->get("/u/af_programadas/{$scheduled->id}/participantes")
             ->assertRedirect('/');
     }
+
+    public function test_participant_status_update_blocked_when_scheduled_cancelled(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::CANCELADO, now()->subDay()->toDateString());
+        $participant = $this->makeParticipant($scheduled, Participant::CANCELADO);
+
+        $response = $this->actingAs($admin)->put($this->statusUrl($participant), [
+            'estado' => Participant::APROBADO,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert');
+        $this->assertSame(Participant::CANCELADO, $participant->fresh()->participant_status_id);
+    }
+
+    public function test_participant_status_update_allowed_when_scheduled_culminado(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::CULMINADO, now()->subWeek()->toDateString());
+        $participant = $this->makeParticipant($scheduled, Participant::ENCURSO);
+
+        $response = $this->actingAs($admin)->put($this->statusUrl($participant), [
+            'estado' => Participant::APROBADO,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert');
+        $this->assertSame(Participant::APROBADO, $participant->fresh()->participant_status_id);
+    }
+
+    public function test_participant_delete_blocked_for_cancelled_and_culminado_actions(): void
+    {
+        $admin = User::factory()->administrador()->create();
+
+        foreach ([CourseStatus::CANCELADO, CourseStatus::CULMINADO] as $status) {
+            [, $facilitator] = $this->makeOwningFacilitador();
+            $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, $status, now()->subWeek()->toDateString());
+            $participant = $this->makeParticipant($scheduled);
+
+            $response = $this->actingAs($admin)->delete('/u/af_programadas/participantes/' . $participant->id);
+
+            $response->assertRedirect();
+            $response->assertSessionHas('alert');
+            $this->assertNotSoftDeleted('participants', ['id' => $participant->id]);
+        }
+    }
+
+    public function test_participants_page_uses_fixed_assign_list_endpoint(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $response = $this->actingAs($admin)->get("/u/af_programadas/{$scheduled->id}/participantes");
+
+        $response->assertOk();
+        $response->assertSee('/u/af_programadas/assignList', false);
+        $response->assertDontSee('af_programadas/participantes/assignList', false);
+    }
+
+    public function test_participants_page_hides_management_actions_for_cancelled_action(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::CANCELADO, now()->subWeek()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($admin)->get("/u/af_programadas/{$scheduled->id}/participantes");
+
+        $response->assertOk();
+        $response->assertDontSee('Editar Estado del Participante');
+        $response->assertDontSee('Eliminar Participante');
+    }
+
+    public function test_participants_page_hides_remove_but_allows_status_for_culminado_action(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::CULMINADO, now()->subWeek()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($admin)->get("/u/af_programadas/{$scheduled->id}/participantes");
+
+        $response->assertOk();
+        $response->assertSee('Editar Estado del Participante');
+        $response->assertDontSee('Eliminar Participante');
+    }
 }

@@ -18,7 +18,7 @@
         let data = {"scheduled_id":id};
         $.ajax({
             type: "post",
-            url:'af_programadas/participantes/assignList',
+            url:'{{ url('u/af_programadas/assignList') }}',
             data: data,
             dataType: "json",
             success: function(response){

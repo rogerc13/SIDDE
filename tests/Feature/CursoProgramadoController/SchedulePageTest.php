@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\CursoProgramadoController;
 
+use App\Models\Capacity;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\CourseSession;
@@ -418,5 +419,27 @@ class SchedulePageTest extends TestCase
 
         $response->assertRedirect('/u/af_programadas');
         $this->assertDatabaseCount('course_sessions', 1);
+    }
+
+    public function test_index_assign_button_is_enabled_for_por_dictar_without_sessions(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 8]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+
+        $scheduled = Scheduled::create([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->person->facilitator->id,
+            'course_status_id' => CourseStatus::POR_DICTAR,
+            'start_date' => now()->addDays(10)->toDateString(),
+            'end_date' => now()->addDays(15)->toDateString(),
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas');
+
+        $response->assertOk();
+        $response->assertSee('value="' . $scheduled->id . '" class="btn btn-success btn-xs "', false);
+        $response->assertDontSee('value="' . $scheduled->id . '" class="btn btn-success btn-xs disabled"', false);
     }
 }

@@ -8,7 +8,7 @@
   <h3><strong>Periodo: @date($cursoprogramado->start_date)  a @date($cursoprogramado->end_date) </strong></h2>
   
   <br>
-  @if (!Auth::user()->isFacilitador())
+  @if (Auth::user()->can('store', 'App\Models\Participant'))
     <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
     <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>
   @elseif ($canEvaluate)
@@ -73,15 +73,16 @@
                             </td>
                             @if (!Auth::User()->isFacilitador())
                             <td>
-                              
+                                @if (!$cursoprogramado->isCancelado())
                                 <a  title="Editar Estado del Participante" href="javascript:editarEstado({{$participante->id}})" class="btn btn-default btn-xs">
                                     <i class="entypo-pencil"></i>
                                 </a>
+                                @endif
+                                @if (!$cursoprogramado->isCancelado() && !$cursoprogramado->isCulminado())
                                 <a  title="Eliminar Participante" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">
                                     <i class="entypo-trash"></i>
-                                </a>    
-                                
-                                
+                                </a>
+                                @endif
                             </td>
                             @endif
                         </tr>

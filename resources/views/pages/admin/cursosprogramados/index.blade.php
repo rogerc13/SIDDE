@@ -183,7 +183,9 @@
 								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-users"></i>
 								  </a>
-								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar() || count($cursop->sessions) == 0) ? 'disabled' :''}}">
+							  @endcan
+							  @can('store','App\Models\Participant')
+								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' :''}}">
 								      <i class="entypo-user-add"></i>
 								  </a>
 							  @endcan
@@ -192,10 +194,12 @@
 								      <i class="entypo-pencil"></i>
 								  </a>
 
-								  <a  title="Eliminar Acción de formación Programada" href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-danger btn-xs">
+							  @can('delete', $cursop)
+								  <a  title="Eliminar Acción de formación Programada" href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-danger btn-xs {{$cursop->canBeDeleted() ? '' : 'disabled'}}">
 								      <i class="entypo-trash"></i>
 								  </a>
-								  <a  title="Cancelar Acción de formación Programada" href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$cursop->id)}}')" class="btn btn-danger btn-xs">
+							  @endcan
+								  <a  title="Cancelar Acción de formación Programada" href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$cursop->id)}}')" class="btn btn-danger btn-xs {{$cursop->isCancelado() ? 'disabled' : ''}}">
 								      <i class="glyphicon glyphicon-ban-circle"></i>
 								  </a>
 								</td>

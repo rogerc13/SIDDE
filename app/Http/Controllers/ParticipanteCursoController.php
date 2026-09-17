@@ -187,6 +187,11 @@ class ParticipanteCursoController extends Controller
             return $this->statusUpdateResponse($request, "danger", "Error al Intentar editar", "No tienes permisos para realizar esta accion.");
         }
 
+        $scheduled = $participantecurso->scheduled()->withTrashed()->first();
+        if ($scheduled && $scheduled->isCancelado()) {
+            return $this->statusUpdateResponse($request, "danger", "Acción cancelada", "No se puede editar el estado de un participante en una acción de formación cancelada.");
+        }
+
         $participantecurso->participant_status_id = $validated['estado'];
 
         if (!$participantecurso->save()) {
@@ -223,6 +228,12 @@ class ParticipanteCursoController extends Controller
         if ($particpantecurso == null) {
             return Redirect::back()
                 ->with("alert", Funciones::getAlert("danger", "Error al intentar eliminar", "El participante seleccionado no existe."));
+        }
+
+        $scheduled = $particpantecurso->scheduled()->withTrashed()->first();
+        if ($scheduled && ($scheduled->isCancelado() || $scheduled->isCulminado())) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "No se puede eliminar", "No se pueden retirar participantes de una acción de formación cancelada o culminada."));
         }
 
         if ($particpantecurso->delete()) {

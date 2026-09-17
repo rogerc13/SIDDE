@@ -28,6 +28,20 @@ function createScheduledCourse(future: boolean): number {
     return parseInt(result);
 }
 
+function createScheduledWithStatus(statusId: number, daysOffset = 30): number {
+    const result = execSync(`${TINKER_CMD} "
+        \\$s = new \\App\\Models\\Scheduled();
+        \\$s->course_id = 1;
+        \\$s->facilitator_id = 1;
+        \\$s->start_date = date('Y-m-d', strtotime('+${daysOffset} days'));
+        \\$s->end_date = date('Y-m-d', strtotime('+${daysOffset + 15} days'));
+        \\$s->course_status_id = ${statusId};
+        \\$s->save();
+        echo \\$s->id;
+    "`, { encoding: 'utf-8' }).trim();
+    return parseInt(result);
+}
+
 async function selectSelect2ById(page: any, selectId: string) {
     await page.evaluate(({ id }: { id: string }) => {
         const el = document.getElementById(id) as HTMLSelectElement;
@@ -231,18 +245,22 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(scheduledRow).toBeVisible({ timeout: 5000 });
     });
 
-    test('deletes a scheduled course', async ({ page }) => {
-        const deleteLink = page.locator('a[title*="Eliminar Acción"]').first();
-        if (await deleteLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-            const href = await deleteLink.getAttribute('href');
-            const urlMatch = href?.match(/eliminarPrograma\('(.+)'\)/);
-            if (urlMatch) {
-                await page.evaluate((url: string) => (window as any).eliminarPrograma(url), urlMatch[1]);
-                await page.waitForSelector('#programa-form-delete:not(.hidden)');
-                await page.click('#programa-form-delete #btn-action');
-                await page.waitForLoadState('load');
-                await expect(page.locator('.alert-success, .alert-danger').first()).toBeVisible();
-            }
+    test('deletes a future scheduled course', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const deleteLink = page.locator('a[title*="Eliminar Acción"]:not(.disabled)').first();
+        await expect(deleteLink).toBeVisible({ timeout: 5000 });
+
+        const href = await deleteLink.getAttribute('href');
+        const urlMatch = href?.match(/eliminarPrograma\('(.+)'\)/);
+        expect(urlMatch).toBeTruthy();
+
+        if (urlMatch) {
+            await page.evaluate((url: string) => (window as any).eliminarPrograma(url), urlMatch[1]);
+            await page.waitForSelector('#programa-form-delete:not(.hidden)');
+            await page.click('#programa-form-delete #btn-action');
+            await page.waitForLoadState('load');
+            await expect(page.locator('.alert-success').first()).toBeVisible();
         }
     });
 });
@@ -563,5 +581,39 @@ test.describe('Location Filter Groups', () => {
 
         // Matching groups are expanded while searching
         await expect(page.locator('#location-color-legend .loc-group-header[aria-expanded="false"]')).toHaveCount(0);
+    });
+});
+
+test.describe('Action Guards', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+    });
+
+    test('cancel button is disabled for cancelled actions', async ({ page }) => {
+        createScheduledWithStatus(4);
+        await page.goto('/u/af_programadas');
+        await page.waitForLoadState('load');
+
+        const row = page.locator('table.table-center tbody tr').filter({ hasText: 'Cancelado' }).first();
+        await expect(row).toBeVisible();
+        await expect(row.locator('a[title*="Cancelar Acción"]')).toHaveClass(/disabled/);
+    });
+
+    test('sessions panel scrolls when many sessions are added', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        const dates = ['20-09-2026', '27-09-2026', '04-10-2026', '11-10-2026', '18-10-2026', '25-10-2026', '01-11-2026', '08-11-2026'];
+        for (const date of dates) {
+            await fillSessionModal(page, 'WizardTestLocation', date, '8:00 AM', '9:00 AM');
+            await page.click('#add-session-modal .modal-footer button.btn-primary');
+            await page.waitForTimeout(120);
+        }
+
+        const scrollable = await page.evaluate(() => {
+            const el = document.querySelector('.step2-sessions-scroll') as HTMLElement | null;
+            return el ? el.scrollHeight > el.clientHeight + 5 : false;
+        });
+
+        expect(scrollable).toBe(true);
     });
 });

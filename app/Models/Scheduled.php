@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 
 class Scheduled extends Model
@@ -79,6 +80,21 @@ class Scheduled extends Model
   }
   public function isCancelado(){
       return $this->course_status_id==CourseStatus::CANCELADO;
+  }
+
+  public function hasStarted(): bool
+  {
+      if ($this->isEnCurso() || $this->isCulminado()) {
+          return true;
+      }
+
+      return $this->start_date
+          && Carbon::parse($this->start_date)->startOfDay()->lessThanOrEqualTo(Carbon::today());
+  }
+
+  public function canBeDeleted(): bool
+  {
+      return ! $this->hasStarted();
   }
 
   public function badgeStatus(): string

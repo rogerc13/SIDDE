@@ -29,7 +29,7 @@
     .step2-calendar .calendar-env { flex: 1; min-height: 0; }
     .step2-sidebar { flex: 2; min-width: 280px; display: flex; flex-direction: column; overflow: hidden; }
     .step2-sidebar-header { flex-shrink: 0; margin-bottom: 12px; }
-    .step2-sessions-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+    .step2-sessions-scroll { flex: 1; overflow-y: auto; min-height: 0; max-height: 380px; }
     .sessions-table { font-size: 13px; width: 100%; table-layout: fixed; }
     .sessions-table td { vertical-align: middle !important; padding: 8px 8px; overflow: hidden; }
     .sessions-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 0 6px; }

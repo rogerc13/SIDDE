@@ -46,9 +46,17 @@ class ScheduledPolicy
       return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador();
     }
 
-    public function delete(User $user)
+    public function delete(User $user, ?Scheduled $scheduled = null)
     {
-        return $user->isAdministrador() || $user->isTecEducativa() || $user->isProgramador();
+        if (! $user->isAdministrador()) {
+            return false;
+        }
+
+        if ($scheduled && ! $scheduled->canBeDeleted()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function misCursos(User $user)
