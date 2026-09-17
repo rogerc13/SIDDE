@@ -5,7 +5,7 @@
 @section('content')	
 
 	<h2><strong>{{$cursoprogramado->course->title}}</strong></h2>
-  <h3><strong>Periodo: {{date("d-m-Y", strtotime($cursoprogramado->start_date))}}  a {{date("d-m-Y", strtotime($cursoprogramado->end_date))}} </strong></h2>
+  <h3><strong>Periodo: @date($cursoprogramado->start_date)  a @date($cursoprogramado->end_date) </strong></h2>
   
   <br>
   @if (!Auth::user()->isFacilitador())

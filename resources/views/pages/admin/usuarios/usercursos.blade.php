@@ -115,8 +115,8 @@
 								@if($usuario->isParticipante())
 									<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@endif
-								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
-								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
+								<td>@date($cursop->start_date)</td>
+								<td>@date($cursop->end_date)</td>
 								<td>
 								  <a  title="Más Información" href="{{url("acciones_formacion/".$cursop->course->id)}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>

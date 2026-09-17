@@ -90,7 +90,7 @@
             <div class="col-sm-3 col-xs-6">
                 <div class="stat-tile">
                     <span class="stat-label"><i class="entypo-calendar"></i> Fechas</span>
-                    <span class="stat-value stat-value-range">{{ \Carbon\Carbon::parse($scheduled->start_date)->format('d-m-Y') }} <span aria-hidden="true" class="range-arrow">→</span> {{ \Carbon\Carbon::parse($scheduled->end_date)->format('d-m-Y') }}</span>
+                    <span class="stat-value stat-value-range">@date($scheduled->start_date) <span aria-hidden="true" class="range-arrow">→</span> @date($scheduled->end_date)</span>
                 </div>
             </div>
             <div class="col-sm-3 col-xs-6">
@@ -138,7 +138,7 @@
                 <tr>
                     <td class="text-center">{{ $i + 1 }}</td>
                     <td title="{{ $s['location_name'] }}">{{ $s['location_name'] }}</td>
-                    <td data-fecha="{{ $s['session_date'] }}"><small class="text-muted">{{ \Carbon\Carbon::parse($s['session_date'])->locale('es')->shortDayName }}</small> {{ \Carbon\Carbon::parse($s['session_date'])->format('d-m-Y') }}</td>
+                    <td data-fecha="{{ $s['session_date'] }}"><small class="text-muted">{{ \Carbon\Carbon::parse($s['session_date'])->locale('es')->shortDayName }}</small> @date($s['session_date'])</td>
                     <td>{{ \Carbon\Carbon::parse($s['start_time'])->format('g:i A') }} – {{ \Carbon\Carbon::parse($s['end_time'])->format('g:i A') }}</td>
                     <td class="text-center">{{ $s['duration_hours'] }} hrs</td>
                     <td class="notes-cell" title="{{ $s['notes'] }}">{{ $s['notes'] ?: '-' }}</td>

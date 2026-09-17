@@ -119,8 +119,8 @@
 								@if($logeado->isParticipante())
 									<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@endif
-								<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
-								<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
+								<td>@date($cursop->start_date)</td>
+								<td>@date($cursop->end_date)</td>
 								@if ($logeado->isFacilitador())	
 								<td>
 										<span class="badge badge-success">

@@ -133,13 +133,13 @@
 								<td>{{$cursop->course->title}}</td>
 								<td>{{$cursop->facilitator->person->name}} {{$cursop->facilitator->person->last_name}}</td>
 								@if($cursop->start_date)
-									<td>{{date("d-m-Y", strtotime($cursop->start_date))}}</td>
+									<td>@date($cursop->start_date)</td>
 								@else
 									<td title="Sin fecha"><span class="badge badge-danger">S.F</span></td>
 								@endif
 
 								@if($cursop->start_date)
-									<td>{{date("d-m-Y", strtotime($cursop->end_date))}}</td>
+									<td>@date($cursop->end_date)</td>
 								@else
 									<td title="Sin fecha"><span class="badge badge-danger">S.F</span></td>
 								@endif
