@@ -380,16 +380,6 @@ class BrowserShotController extends Controller
             $scheduled = $scheduled->get();
         }
 
-        // Format dates as DD-MM-YYYY
-        foreach ($scheduled as $item) {
-            if ($item->start_date) {
-                $item->start_date = Carbon::parse($item->start_date)->format('d-m-Y');
-            }
-            if ($item->end_date) {
-                $item->end_date = Carbon::parse($item->end_date)->format('d-m-Y');
-            }
-        }
-
         $pdf = Pdf::loadView('pdf.person_courses', [
             'scheduled' => $scheduled,
             'participant' => $isParticipant,

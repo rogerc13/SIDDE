@@ -26,7 +26,7 @@
         <h2>S.I.D.D.E.</h2>
         <br>
         <h2>{{$scheduled->course->title}}</h2>
-        <h4>Periodo: {{ \Carbon\Carbon::parse($scheduled->start_date)->format('d-m-Y') }} - {{ \Carbon\Carbon::parse($scheduled->end_date)->format('d-m-Y') }}</h4>
+        <h4>Periodo: @date($scheduled->start_date) - @date($scheduled->end_date)</h4>
         <br>
         <h3>Lista de Participantes</h3>
         <br>

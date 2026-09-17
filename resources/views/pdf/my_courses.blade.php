@@ -47,8 +47,8 @@
             @foreach ($scheduled as $course)
                 <tr>
                     <td>{{$course->course->title}}</td>
-                    <td>{{ \Carbon\Carbon::parse($course->start_date)->format('d-m-Y') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($course->end_date)->format('d-m-Y') }}</td>
+                    <td>@date($course->start_date)</td>
+                    <td>@date($course->end_date)</td>
                     @if ($participant)
                         <td>{{$course->facilitator->person->name}} {{$course->facilitator->person->last_name}}</td>
                     @else
