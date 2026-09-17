@@ -308,11 +308,15 @@ test.describe('Scheduled Courses CRUD', () => {
         await row.locator('a[title="Ver detalles"]').click();
         await page.waitForLoadState('load');
 
+        await expect(page.locator('#tab-programacion')).toBeVisible();
+        await expect(page.locator('#details-calendar')).toBeVisible();
+
+        await page.click('a[href="#tab-ficha"]');
         await expect(page.locator('#tab-ficha')).toBeVisible();
+        await expect(page.locator('#tab-programacion')).toBeHidden();
 
         await page.click('a[href="#tab-documentos"]');
         await expect(page.locator('#tab-documentos')).toBeVisible();
-        await expect(page.locator('#tab-ficha')).toBeHidden();
 
         await page.click('a[href="#tab-participantes"]');
         await expect(page.locator('#tab-participantes')).toBeVisible();

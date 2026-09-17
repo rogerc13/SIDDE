@@ -179,17 +179,69 @@
 </div>
 
 <ul class="nav nav-tabs details-tabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#tab-programacion" aria-controls="tab-programacion" role="tab" data-toggle="tab"><i class="entypo-calendar"></i> Programación</a>
+    </li>
     <li role="presentation">
         <a href="#tab-participantes" aria-controls="tab-participantes" role="tab" data-toggle="tab"><i class="entypo-users"></i> Participantes</a>
     </li>
     <li role="presentation">
         <a href="#tab-documentos" aria-controls="tab-documentos" role="tab" data-toggle="tab"><i class="entypo-download"></i> Documentos</a>
     </li>
-    <li role="presentation" class="active">
+    <li role="presentation">
         <a href="#tab-ficha" aria-controls="tab-ficha" role="tab" data-toggle="tab"><i class="entypo-doc-text"></i> Ficha Técnica</a>
     </li>
 </ul>
 <div class="tab-content details-tab-content">
+    <div role="tabpanel" class="tab-pane active" id="tab-programacion">
+        <div class="panel panel-success" data-collapsed="0">
+            <div class="panel-heading">
+                <div class="panel-title">Sesiones</div>
+            </div>
+            <div class="panel-body with-table table-responsive">
+                <table class="table table-striped table-bordered table-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Ubicación</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th class="text-center">Dur.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(count($existingSessions) === 0)
+                        <tr><td colspan="5" class="text-center text-muted">No hay sesiones registradas.</td></tr>
+                        @endif
+                        @foreach($existingSessions as $i => $s)
+                        <tr>
+                            <td class="text-center">{{ $i + 1 }}</td>
+                            <td title="{{ $s['location_name'] }}">{{ $s['location_name'] }}</td>
+                            <td data-fecha="{{ $s['session_date'] }}"><small class="text-muted">{{ \Carbon\Carbon::parse($s['session_date'])->locale('es')->shortDayName }}</small> @date($s['session_date'])</td>
+                            <td>{{ \Carbon\Carbon::parse($s['start_time'])->format('g:i A') }} – {{ \Carbon\Carbon::parse($s['end_time'])->format('g:i A') }}</td>
+                            <td class="text-center">{{ $s['duration_hours'] }} hrs</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel panel-success" data-collapsed="0" style="margin-top: 15px;">
+            <div class="panel-heading">
+                <div class="panel-title">Calendario</div>
+            </div>
+            <div class="panel-body">
+                <div id="details-calendar-wrap">
+                    <div id="details-calendar"></div>
+                </div>
+                <div class="calendar-legend no-print">
+                    <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
+                    <span class="legend-swatch" style="background:#999; margin-left: 12px;"></span>Ocupado (otros cursos)
+                </div>
+            </div>
+        </div>
+    </div>
     <div role="tabpanel" class="tab-pane" id="tab-participantes">
         @include('pages.admin.participantescursos._content', [
             'cursoprogramado' => $scheduled,
@@ -223,56 +275,8 @@
             </div>
         @endif
     </div>
-    <div role="tabpanel" class="tab-pane active" id="tab-ficha">
+    <div role="tabpanel" class="tab-pane" id="tab-ficha">
         @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])
-    </div>
-</div>
-
-<div class="panel panel-success" data-collapsed="0">
-    <div class="panel-heading">
-        <div class="panel-title">Sesiones</div>
-    </div>
-    <div class="panel-body with-table table-responsive">
-        <table class="table table-striped table-bordered table-center">
-            <thead>
-                <tr>
-                    <th class="text-center">#</th>
-                    <th>Ubicación</th>
-                    <th>Fecha</th>
-                    <th>Horario</th>
-                    <th class="text-center">Dur.</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(count($existingSessions) === 0)
-                <tr><td colspan="5" class="text-center text-muted">No hay sesiones registradas.</td></tr>
-                @endif
-                @foreach($existingSessions as $i => $s)
-                <tr>
-                    <td class="text-center">{{ $i + 1 }}</td>
-                    <td title="{{ $s['location_name'] }}">{{ $s['location_name'] }}</td>
-                    <td data-fecha="{{ $s['session_date'] }}"><small class="text-muted">{{ \Carbon\Carbon::parse($s['session_date'])->locale('es')->shortDayName }}</small> @date($s['session_date'])</td>
-                    <td>{{ \Carbon\Carbon::parse($s['start_time'])->format('g:i A') }} – {{ \Carbon\Carbon::parse($s['end_time'])->format('g:i A') }}</td>
-                    <td class="text-center">{{ $s['duration_hours'] }} hrs</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="panel panel-success" data-collapsed="0" style="margin-top: 15px;">
-    <div class="panel-heading">
-        <div class="panel-title">Calendario</div>
-    </div>
-    <div class="panel-body">
-        <div id="details-calendar-wrap">
-            <div id="details-calendar"></div>
-        </div>
-        <div class="calendar-legend no-print">
-            <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
-            <span class="legend-swatch" style="background:#999; margin-left: 12px;"></span>Ocupado (otros cursos)
-        </div>
     </div>
 </div>
 @endsection
@@ -315,7 +319,11 @@ function detailDateLabel(iso) {
     return parts.length === 3 ? parts[2] + '-' + parts[1] + '-' + parts[0] : iso;
 }
 
-$(function() {
+var detailsCalendarInitialized = false;
+
+function initDetailsCalendar() {
+    if (detailsCalendarInitialized || !$('#tab-programacion').hasClass('active')) return;
+    detailsCalendarInitialized = true;
     $('#details-calendar').fullCalendar({
         timezone: 'America/Caracas',
         firstDay: 1,
@@ -396,6 +404,15 @@ $(function() {
         var dates = detailSessions.map(function(s) { return s.session_date; }).sort();
         $('#details-calendar').fullCalendar('gotoDate', dates[0]);
     }
+}
+
+$(function() {
+    if ($('#tab-programacion').hasClass('active')) {
+        initDetailsCalendar();
+    }
+    $('a[href="#tab-programacion"]').on('shown.bs.tab', function () {
+        initDetailsCalendar();
+    });
 });
 </script>
 @endpush

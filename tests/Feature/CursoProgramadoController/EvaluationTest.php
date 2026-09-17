@@ -481,6 +481,16 @@ class EvaluationTest extends TestCase
         $response->assertSee(url('u/af_programadas/' . $scheduled->id . '/ver'), false);
     }
 
+    public function test_facilitador_viewing_missing_details_redirects_to_mis_acciones(): void
+    {
+        [$facilitadorUser] = $this->makeOwningFacilitador();
+
+        $response = $this->actingAs($facilitadorUser)->get('/u/af_programadas/999999/ver');
+
+        $response->assertRedirect('/u/mis_acciones');
+        $response->assertSessionHas('alert');
+    }
+
     public function test_details_page_renders_participants_tab(): void
     {
         $admin = User::factory()->administrador()->create();

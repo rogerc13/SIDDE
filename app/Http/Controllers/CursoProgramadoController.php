@@ -208,13 +208,15 @@ class CursoProgramadoController extends Controller
             },
         ])->find($id);
 
+        $fallback = $user->isFacilitador() ? url('u/mis_acciones') : url('u/af_programadas');
+
         if (!$scheduled) {
-            return Redirect::to(url('u/af_programadas'))
+            return Redirect::to($fallback)
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Ver", "El curso seleccionado no existe."));
         }
 
         if ($user->cannot('get', $scheduled)) {
-            return Redirect::to(url('u/af_programadas'))
+            return Redirect::to($fallback)
                 ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", "No tienes permisos para realizar esta acción."));
         }
 
