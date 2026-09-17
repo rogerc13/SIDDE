@@ -649,6 +649,7 @@ function initWizardCalendar() {
         dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
         dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sá'],
         dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+        columnFormat: { week: 'ddd D/M' },
         allDayText: 'Todo el día',
         eventLimitText: function(n) {
             return '+' + n + ' más';

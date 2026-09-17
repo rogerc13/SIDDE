@@ -199,6 +199,7 @@ $(function() {
         monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
         dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
         dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sá'],
+        columnFormat: { week: 'ddd D/M' },
         eventClick: function(event) { return false; },
         events: function(start, end, timezone, callback) {
             var sessionEvents = detailSessions.map(function(s) {
