@@ -254,4 +254,105 @@ class ScheduleTest extends TestCase
         $this->assertDatabaseCount('scheduled_course', 0);
         $this->assertDatabaseCount('course_sessions', 0);
     }
+
+    public function test_schedule_rejects_facilitator_double_booking_in_different_locations(): void
+    {
+        $course = $this->makeCourse(['duration' => 4]);
+        $facilitator = $this->makeFacilitator();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+
+        $locationA = $this->makeLocation();
+        $locationB = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $response = $this->actingAs($user)
+            ->from('/u/af_programadas')
+            ->post('/u/af_programadas/schedule', [
+                'titulo' => $course->id,
+                'facilitador' => $facilitator->id,
+                'sessions' => [
+                    ['location_id' => $locationA->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+                    ['location_id' => $locationB->id, 'session_date' => $date, 'start_time' => '09:00', 'end_time' => '11:00'],
+                ],
+            ]);
+
+        $response->assertSessionHasErrors('sessions');
+        $this->assertDatabaseCount('scheduled_course', 0);
+        $this->assertDatabaseCount('course_sessions', 0);
+    }
+
+    public function test_schedule_allows_slot_of_cancelled_action(): void
+    {
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitator();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $cancelled = Scheduled::create([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->id,
+            'course_status_id' => CourseStatus::CANCELADO,
+            'start_date' => $date,
+            'end_date' => $date,
+        ]);
+        CourseSession::create([
+            'scheduled_course_id' => $cancelled->id,
+            'location_id' => $location->id,
+            'session_date' => $date,
+            'start_time' => '08:00',
+            'end_time' => '10:00',
+            'status' => 'scheduled',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->post('/u/af_programadas/schedule', $this->payload($course, $facilitator, $location, [[
+                'location_id' => $location->id,
+                'session_date' => $date,
+                'start_time' => '08:00',
+                'end_time' => '10:00',
+            ]]));
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+        $this->assertDatabaseCount('scheduled_course', 2);
+    }
+
+    public function test_schedule_allows_slot_of_soft_deleted_action(): void
+    {
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitator();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $deleted = Scheduled::create([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->id,
+            'course_status_id' => CourseStatus::POR_DICTAR,
+            'start_date' => $date,
+            'end_date' => $date,
+        ]);
+        CourseSession::create([
+            'scheduled_course_id' => $deleted->id,
+            'location_id' => $location->id,
+            'session_date' => $date,
+            'start_time' => '08:00',
+            'end_time' => '10:00',
+            'status' => 'scheduled',
+        ]);
+        $deleted->delete();
+
+        $response = $this->actingAs($user)
+            ->post('/u/af_programadas/schedule', $this->payload($course, $facilitator, $location, [[
+                'location_id' => $location->id,
+                'session_date' => $date,
+                'start_time' => '08:00',
+                'end_time' => '10:00',
+            ]]));
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+        $this->assertDatabaseCount('scheduled_course', 2);
+    }
 }

@@ -675,7 +675,10 @@ class CursoProgramadoController extends Controller
             $q->withTrashed();
         }])
             ->whereBetween('session_date', [$start, $end])
-            ->whereNull('deleted_at');
+            ->whereNull('deleted_at')
+            ->whereHas('scheduled', function ($q) {
+                $q->where('course_status_id', '!=', CourseStatus::CANCELADO);
+            });
 
         if ($excludeId) {
             $sessions->where('scheduled_course_id', '!=', $excludeId);

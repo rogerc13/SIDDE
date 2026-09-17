@@ -5,6 +5,9 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Course;
 use App\Models\CourseSession;
+use App\Models\CourseStatus;
+use App\Models\Facilitator;
+use App\Models\Location;
 use App\Models\Scheduled;
 use Carbon\Carbon;
 
@@ -76,7 +79,26 @@ class CourseScheduleForm extends FormRequest
                 $validator->errors()->add('sessions', 'La duración total de las sesiones (' . $totalHours . ' horas) es menor a la duración del curso (' . $course->duration . ' horas). Faltan ' . $missingHours . ' hora(s) por asignar.');
             }
 
-            // Validate no overlapping sessions at the same location
+            $facilitator = Facilitator::with('person')->find($this->facilitator);
+            $facilitatorName = $facilitator && $facilitator->person
+                ? trim($facilitator->person->name . ' ' . $facilitator->person->last_name)
+                : 'El facilitador';
+
+            // A facilitator cannot run two overlapping sessions, even in different rooms.
+            foreach ($this->sessions as $i => $session) {
+                foreach ($this->sessions as $j => $other) {
+                    if ($i >= $j) continue;
+
+                    if ($session['session_date'] === $other['session_date'] &&
+                        $session['start_time'] < $other['end_time'] &&
+                        $session['end_time'] > $other['start_time']) {
+                        $validator->errors()->add('sessions', $facilitatorName . ' tiene sesiones superpuestas el día ' . $session['session_date'] . '. Un facilitador no puede dictar dos sesiones en el mismo horario.');
+                        return;
+                    }
+                }
+            }
+
+            // Validate no overlapping sessions at the same location within this request
             foreach ($this->sessions as $i => $session) {
                 foreach ($this->sessions as $j => $other) {
                     if ($i >= $j) continue;
@@ -85,34 +107,40 @@ class CourseScheduleForm extends FormRequest
                         $session['session_date'] === $other['session_date'] &&
                         $session['start_time'] < $other['end_time'] &&
                         $session['end_time'] > $other['start_time']) {
-                        $validator->errors()->add('sessions', 'Hay sesiones superpuestas en la ubicación ' . $session['location_id'] . ' el día ' . $session['session_date'] . '.');
+                        $locationName = Location::find($session['location_id'])->name ?? ('la ubicación ' . $session['location_id']);
+                        $validator->errors()->add('sessions', 'El aula ' . $locationName . ' ya está ocupada el día ' . $session['session_date'] . ' en ese horario.');
                         return;
                     }
                 }
             }
 
-            // Validate no conflicts with existing sessions in the system
+            // Validate no conflicts with existing sessions in the system (active actions only)
             foreach ($this->sessions as $session) {
                 $conflict = CourseSession::where('location_id', $session['location_id'])
                     ->where('session_date', $session['session_date'])
                     ->where('start_time', '<', $session['end_time'])
                     ->where('end_time', '>', $session['start_time'])
-                    ->whereNull('deleted_at');
+                    ->whereNull('deleted_at')
+                    ->whereHas('scheduled', function ($q) {
+                        $q->where('course_status_id', '!=', CourseStatus::CANCELADO);
+                    });
 
                 if ($this->scheduled_id) {
                     $conflict->where('scheduled_course_id', '!=', $this->scheduled_id);
                 }
 
                 if ($conflict->count() > 0) {
-                    $validator->errors()->add('sessions', 'La ubicación ' . $session['location_id'] . ' ya tiene una sesión programada el día ' . $session['session_date'] . ' en este horario.');
+                    $locationName = Location::find($session['location_id'])->name ?? ('la ubicación ' . $session['location_id']);
+                    $validator->errors()->add('sessions', 'El aula ' . $locationName . ' ya tiene una acción de formación programada el día ' . $session['session_date'] . ' en ese horario.');
                     return;
                 }
             }
 
-            // Validate facilitator is not already booked at the same time
+            // Validate facilitator is not already booked at the same time (active actions only)
             foreach ($this->sessions as $session) {
-                $facilitatorConflict = CourseSession::whereHas('scheduled', function ($q) use ($session) {
-                        $q->where('facilitator_id', $this->facilitator);
+                $facilitatorConflict = CourseSession::whereHas('scheduled', function ($q) {
+                        $q->where('facilitator_id', $this->facilitator)
+                            ->where('course_status_id', '!=', CourseStatus::CANCELADO);
                     })
                     ->where('session_date', $session['session_date'])
                     ->where('start_time', '<', $session['end_time'])
@@ -124,7 +152,7 @@ class CourseScheduleForm extends FormRequest
                 }
 
                 if ($facilitatorConflict->count() > 0) {
-                    $validator->errors()->add('sessions', 'El facilitador seleccionado ya tiene una sesión programada el día ' . $session['session_date'] . ' en este horario.');
+                    $validator->errors()->add('sessions', $facilitatorName . ' ya tiene otra acción de formación programada el día ' . $session['session_date'] . ' en ese horario.');
                     return;
                 }
             }
