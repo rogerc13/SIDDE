@@ -835,15 +835,16 @@ function openAddSessionModal(start, end, editId) {
     var sh = pad(start.getHours()), sm = pad(start.getMinutes());
     var eh = pad(end.getHours()), em = pad(end.getMinutes());
     var sy = start.getFullYear(), smo = pad(start.getMonth()+1), sd = pad(start.getDate());
+    var displayDate = sd + '-' + smo + '-' + sy;
     $('#add-session-start').val(to12h(sh + ':' + sm));
     $('#add-session-end').val(to12h(eh + ':' + em));
-    $('#add-session-date').val(sy + '-' + smo + '-' + sd);
+    $('#add-session-date').val(displayDate);
 
     if (editId) {
         $('#add-session-edit-id').val(editId);
-        $('#add-session-modal .modal-title').text('Editar Sesión · ' + sy + '-' + smo + '-' + sd);
+        $('#add-session-modal .modal-title').text('Editar Sesión · ' + displayDate);
     } else {
-        $('#add-session-modal .modal-title').text('Agregar Sesión · ' + sy + '-' + smo + '-' + sd);
+        $('#add-session-modal .modal-title').text('Agregar Sesión · ' + displayDate);
     }
     $('#repeat-group').toggleClass('hidden', !!editId);
 
@@ -878,7 +879,7 @@ function saveSessionFromModal() {
 
     var locationId = $('#add-session-location').val();
     var locationName = $('#add-session-location option:selected').text();
-    var sessionDate = $('#add-session-date').val();
+    var sessionDate = displayDateToIso($('#add-session-date').val());
     var startTime = to24h($('#add-session-start').val());
     var endTime = to24h($('#add-session-end').val());
     var notes = $('#add-session-notes').val();
@@ -1014,7 +1015,7 @@ function updateModalRemaining() {
 
 function updateConflictHint() {
     var locationId = $('#add-session-location').val();
-    var sessionDate = $('#add-session-date').val();
+    var sessionDate = displayDateToIso($('#add-session-date').val());
     var startTime = to24h($('#add-session-start').val());
     var endTime = to24h($('#add-session-end').val());
     var $group = $('#conflict-hint-group');
@@ -1061,6 +1062,20 @@ function timeToMinutes(time) {
 function computeDurationHours(start, end) {
     var diff = timeToMinutes(end) - timeToMinutes(start);
     return Math.max(Math.round((diff / 60) * 4) / 4, 0);
+}
+
+function isoToDisplayDate(iso) {
+    if (!iso) return '';
+    var parts = String(iso).split('-');
+    if (parts.length !== 3) return iso;
+    return parts[2] + '-' + parts[1] + '-' + parts[0];
+}
+
+function displayDateToIso(display) {
+    if (!display) return '';
+    var parts = String(display).split('-');
+    if (parts.length !== 3) return display;
+    return parts[2] + '-' + parts[1] + '-' + parts[0];
 }
 
 function duplicateSession(id) {
@@ -1131,7 +1146,7 @@ function renderSessionTable() {
                             '<button type="button" class="btn btn-danger btn-xs" onclick="removeWizardSession(' + s.id + ')" title="Eliminar sesión"><i class="entypo-trash"></i></button>' +
                         '</span>' +
                     '</div>' +
-                    '<div class="session-row-meta">' + s.session_date + ' · ' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time) + ' · ' + s.duration_hours + ' hrs</div>' +
+                    '<div class="session-row-meta">' + isoToDisplayDate(s.session_date) + ' · ' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time) + ' · ' + s.duration_hours + ' hrs</div>' +
                 '</td>' +
                 '</tr>'
             );
@@ -1212,7 +1227,7 @@ function renderReviewPanel() {
         $tbody.append(
             '<tr>' +
             '<td title="' + escapeAttr(s.location_name) + '">' + escapeHtml(s.location_name) + '</td>' +
-            '<td>' + s.session_date + '</td>' +
+            '<td>' + isoToDisplayDate(s.session_date) + '</td>' +
             '<td>' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time) + '</td>' +
             '<td class="text-center">' + s.duration_hours + ' hrs</td>' +
             '<td>' + (s.notes ? escapeHtml(s.notes) : '-') + '</td>' +
@@ -1438,7 +1453,7 @@ $(function() {
 
 $('#add-session-modal').on('shown.bs.modal', function() {
     $('#add-session-location').select2({ allowClear: true, placeholder: 'Seleccionar ubicación', dropdownParent: $('#add-session-modal') });
-    $('.dat2', $(this)).datepicker({ format: "yyyy-mm-dd", todayHighlight: true });
+    $('.dat2', $(this)).datepicker({ format: "dd-mm-yyyy", todayHighlight: true });
     $('.timepicker', $(this)).timepicker({ showMeridian: true, defaultTime: false, minuteStep: 15 });
     var sel = $('#add-session-location').data('select2');
     if (sel && sel.focusser) {

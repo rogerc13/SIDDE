@@ -158,7 +158,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
 
         await page.evaluate(() => {
-            (window as any).jQuery('#add-session-date').val('2026-08-14');
+            (window as any).jQuery('#add-session-date').val('14-08-2026');
             (window as any).jQuery('#add-session-start').val('8:00 AM');
             (window as any).jQuery('#add-session-end').val('10:00 AM');
         });
@@ -171,12 +171,13 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(row1).toBeVisible();
         await expect(row1).toContainText('10:00 AM');
         await expect(row1).toContainText('2 hrs');
+        await expect(row1).toContainText('14-08-2026');
 
         await page.click('button[onclick^="openNewSessionModal"]');
         await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
         await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
         await page.evaluate(() => {
-            (window as any).jQuery('#add-session-date').val('2026-08-14');
+            (window as any).jQuery('#add-session-date').val('14-08-2026');
             (window as any).jQuery('#add-session-start').val('10:00 AM');
             (window as any).jQuery('#add-session-end').val('12:00 PM');
         });
@@ -188,7 +189,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
         await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
         await page.evaluate(() => {
-            (window as any).jQuery('#add-session-date').val('2026-08-15');
+            (window as any).jQuery('#add-session-date').val('15-08-2026');
             (window as any).jQuery('#add-session-start').val('1:00 PM');
             (window as any).jQuery('#add-session-end').val('3:00 PM');
         });
@@ -200,7 +201,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForSelector('#add-session-modal:not(.fade):not(.hidden), #add-session-modal.in');
         await selectOptionByText(page, 'add-session-location', 'WizardTestLocation');
         await page.evaluate(() => {
-            (window as any).jQuery('#add-session-date').val('2026-08-15');
+            (window as any).jQuery('#add-session-date').val('15-08-2026');
             (window as any).jQuery('#add-session-start').val('3:00 PM');
             (window as any).jQuery('#add-session-end').val('5:00 PM');
         });
@@ -215,6 +216,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForSelector('#panel-step3.active');
 
         await expect(page.locator('#review-sessions-tbody')).toContainText('WizardTestLocation');
+        await expect(page.locator('#review-sessions-tbody')).toContainText('14-08-2026');
         await expect(page.locator('#review-total-hours')).toContainText('8 / 8 horas');
 
         await page.click('#wizard-btn-submit');
