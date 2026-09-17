@@ -250,20 +250,36 @@ test.describe('Scheduled Courses CRUD', () => {
     test('deletes a future scheduled course', async ({ page }) => {
         await scheduleFutureCourse(page);
 
-        const deleteLink = page.locator('a[title*="Eliminar Acción"]:not(.disabled)').first();
-        await expect(deleteLink).toBeVisible({ timeout: 5000 });
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Más funciones"]').click();
 
-        const href = await deleteLink.getAttribute('href');
-        const urlMatch = href?.match(/eliminarPrograma\('(.+)'\)/);
-        expect(urlMatch).toBeTruthy();
+        const deleteItem = row.locator('.dropdown-menu li:not(.disabled) a', { hasText: 'Eliminar' });
+        await expect(deleteItem).toBeVisible();
+        await deleteItem.click();
 
-        if (urlMatch) {
-            await page.evaluate((url: string) => (window as any).eliminarPrograma(url), urlMatch[1]);
-            await page.waitForSelector('#programa-form-delete:not(.hidden)');
-            await page.click('#programa-form-delete #btn-action');
-            await page.waitForLoadState('load');
-            await expect(page.locator('.alert-success').first()).toBeVisible();
-        }
+        await page.waitForSelector('#programa-form-delete:not(.hidden)');
+        await page.click('#programa-form-delete #btn-action');
+        await page.waitForLoadState('load');
+        await expect(page.locator('.alert-success').first()).toBeVisible();
+    });
+
+    test('opens the row actions dropdown from the index', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Más funciones"]').click();
+
+        const menu = row.locator('.dropdown-menu');
+        await expect(menu).toBeVisible();
+        await expect(menu).toContainText('Lista de participantes');
+        await expect(menu).toContainText('Editar programación');
+        await expect(menu).toContainText('Cancelar');
+
+        await menu.locator('a', { hasText: 'Editar programación' }).click();
+        await page.waitForLoadState('load');
+        await expect(page).toHaveURL(/\/editar$/);
     });
 });
 
@@ -276,9 +292,13 @@ test.describe('Participant Assignment', () => {
     test('assigns a participant to a POR_DICTAR course', async ({ page }) => {
         await scheduleFutureCourse(page);
 
-        const enabledAssignLink = page.locator('a[title="Asignar participante"]:not(.disabled)').first();
-        await expect(enabledAssignLink).toBeVisible({ timeout: 5000 });
-        await enabledAssignLink.click();
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Más funciones"]').click();
+
+        const assignItem = row.locator('.dropdown-menu li:not(.disabled) a', { hasText: 'Asignar participante' });
+        await expect(assignItem).toBeVisible();
+        await assignItem.click();
 
         await page.waitForSelector('#asignar-modal.in');
         await page.waitForFunction(() => {
@@ -292,25 +312,29 @@ test.describe('Participant Assignment', () => {
         await expect(page.locator('.alert-success').first()).toBeVisible();
     });
 
-    test('shows disabled assign button for En Curso course', async ({ page }) => {
+    test('shows disabled assign item for En Curso course', async ({ page }) => {
         await scheduleActiveCourse(page);
         await page.goto('/u/af_programadas?id_estado=2');
-        const assignButton = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignButton).toHaveClass(/disabled/);
+        const row = page.locator('.af-index table tbody tr').first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Más funciones"]').click();
+        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/disabled/);
     });
 
-    test('shows disabled assign button for Culminado course', async ({ page }) => {
+    test('shows disabled assign item for Culminado course', async ({ page }) => {
         await page.goto('/u/af_programadas?id_estado=3');
-        const assignButton = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignButton).toHaveClass(/disabled/);
+        const row = page.locator('.af-index table tbody tr').first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Más funciones"]').click();
+        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/disabled/);
     });
 
     test('assignList returns error for En Curso course', async ({ page }) => {
         await scheduleActiveCourse(page);
         await page.goto('/u/af_programadas?id_estado=2');
-        const assignButton = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignButton).toBeVisible({ timeout: 5000 });
-        const href = await assignButton.getAttribute('href');
+        const assignLink = page.locator('.af-index a[href*="asignarParticipanteLista"]').first();
+        await expect(assignLink).toBeAttached({ timeout: 5000 });
+        const href = await assignLink.getAttribute('href');
         const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
         expect(urlMatch).toBeTruthy();
 
@@ -329,9 +353,9 @@ test.describe('Participant Assignment', () => {
 
     test('assignList returns error for Culminado course', async ({ page }) => {
         await page.goto('/u/af_programadas?id_estado=3');
-        const assignButton = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignButton).toBeVisible({ timeout: 5000 });
-        const href = await assignButton.getAttribute('href');
+        const assignLink = page.locator('.af-index a[href*="asignarParticipanteLista"]').first();
+        await expect(assignLink).toBeAttached({ timeout: 5000 });
+        const href = await assignLink.getAttribute('href');
         const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
         expect(urlMatch).toBeTruthy();
 
@@ -351,9 +375,9 @@ test.describe('Participant Assignment', () => {
     test('blocks POST assignment to En Curso course', async ({ page }) => {
         await scheduleActiveCourse(page);
         await page.goto('/u/af_programadas?id_estado=2');
-        const assignButton = page.locator('a[title="Asignar participante"]').first();
-        await expect(assignButton).toBeVisible({ timeout: 5000 });
-        const href = await assignButton.getAttribute('href');
+        const assignLink = page.locator('.af-index a[href*="asignarParticipanteLista"]').first();
+        await expect(assignLink).toBeAttached({ timeout: 5000 });
+        const href = await assignLink.getAttribute('href');
         const urlMatch = href?.match(/asignarParticipanteLista\('(.+?)','(.+?)'\)/);
         expect(urlMatch).toBeTruthy();
 
@@ -596,9 +620,10 @@ test.describe('Action Guards', () => {
         await page.goto('/u/af_programadas');
         await page.waitForLoadState('load');
 
-        const row = page.locator('table.table-center tbody tr').filter({ hasText: 'Cancelado' }).first();
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Cancelado' }).first();
         await expect(row).toBeVisible();
-        await expect(row.locator('a[title*="Cancelar Acción"]')).toHaveClass(/disabled/);
+        await row.locator('a[title="Más funciones"]').click();
+        await expect(row.locator('.dropdown-menu li', { hasText: 'Cancelar' })).toHaveClass(/disabled/);
     });
 
     test('sessions panel scrolls when many sessions are added', async ({ page }) => {

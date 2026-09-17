@@ -441,7 +441,10 @@ class SchedulePageTest extends TestCase
         $response = $this->actingAs($user)->get('/u/af_programadas');
 
         $response->assertOk();
-        $response->assertSee('value="' . $scheduled->id . '" class="btn btn-success btn-xs "', false);
-        $response->assertDontSee('value="' . $scheduled->id . '" class="btn btn-success btn-xs disabled"', false);
+        $response->assertSee('title="Más funciones"', false);
+        $response->assertSee('data-toggle="dropdown"', false);
+        $response->assertSee('Asignar participante', false);
+        $response->assertSee('Editar programación', false);
+        $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
     }
 }

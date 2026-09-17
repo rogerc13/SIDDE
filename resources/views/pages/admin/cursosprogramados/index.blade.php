@@ -1,5 +1,17 @@
 @extends('layouts.admin')
 
+@push('CSS')
+	<style>
+		@media (min-width: 768px) {
+			.af-index .table-responsive { overflow: visible; }
+		}
+		.af-index td .dropdown { display: inline-block; }
+		.af-index .dropdown-menu { min-width: 210px; font-size: 13px; }
+		.af-index .dropdown-menu > li.disabled > a { pointer-events: none; }
+		.af-index .dropdown-menu > li > a > i { width: 16px; text-align: center; margin-right: 6px; color: #7a8794; }
+	</style>
+@endpush
+
 @section('content')
 
 @push('JS')
@@ -98,7 +110,7 @@
 </div>
 <div class="row">
 	<div class="col-md-12">
-	    <div class="panel panel-success" data-collapsed="0">
+	    <div class="panel panel-success af-index" data-collapsed="0">
 
 	      	<div class="panel-heading">
 	        	<div class="panel-title">
@@ -179,29 +191,45 @@
 								  <a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a>
-							  @can('getAllPorCurso','App\Models\Participant')
-								  <a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
-								      <i class="entypo-users"></i>
-								  </a>
-							  @endcan
-							  @can('store','App\Models\Participant')
-								  <a  title="Asignar participante" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" value="{{$cursop->id}}" class="btn btn-success btn-xs {{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' :''}}">
-								      <i class="entypo-user-add"></i>
-								  </a>
-							  @endcan
-
-								  <a  title="Editar Programación" href="{{url('u/af_programadas/'.$cursop->id.'/editar')}}" class="btn btn-default btn-xs {{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' :''}}">
-								      <i class="entypo-pencil"></i>
-								  </a>
-
-							  @can('delete', $cursop)
-								  <a  title="Eliminar Acción de formación Programada" href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')" class="btn btn-danger btn-xs {{$cursop->canBeDeleted() ? '' : 'disabled'}}">
-								      <i class="entypo-trash"></i>
-								  </a>
-							  @endcan
-								  <a  title="Cancelar Acción de formación Programada" href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$cursop->id)}}')" class="btn btn-danger btn-xs {{$cursop->isCancelado() ? 'disabled' : ''}}">
-								      <i class="glyphicon glyphicon-ban-circle"></i>
-								  </a>
+								  <div class="dropdown">
+								      <a href="javascript:void(0)" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" title="Más funciones" id="af-actions-{{$cursop->id}}">
+								          <i class="fa fa-ellipsis-v"></i>
+								      </a>
+								      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="af-actions-{{$cursop->id}}">
+								      @can('getAllPorCurso','App\Models\Participant')
+								          <li role="presentation">
+								              <a role="menuitem" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}">
+								                  <i class="entypo-users"></i> Lista de participantes
+								              </a>
+								          </li>
+								      @endcan
+								      @can('store','App\Models\Participant')
+								          <li role="presentation" class="{{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' : ''}}">
+								              <a role="menuitem" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')">
+								                  <i class="entypo-user-add"></i> Asignar participante
+								              </a>
+								          </li>
+								      @endcan
+								          <li role="presentation" class="{{$cursop->isCulminado() || $cursop->isCancelado() ? 'disabled' : ''}}">
+								              <a role="menuitem" href="{{url('u/af_programadas/'.$cursop->id.'/editar')}}">
+								                  <i class="entypo-pencil"></i> Editar programación
+								              </a>
+								          </li>
+								      @can('delete', $cursop)
+								          <li role="presentation" class="divider"></li>
+								          <li role="presentation" class="{{$cursop->canBeDeleted() ? '' : 'disabled'}}">
+								              <a role="menuitem" href="javascript:eliminarPrograma('{{url('u/af_programadas/'.$cursop->id)}}')">
+								                  <i class="entypo-trash"></i> Eliminar
+								              </a>
+								          </li>
+								      @endcan
+								          <li role="presentation" class="{{$cursop->isCancelado() ? 'disabled' : ''}}">
+								              <a role="menuitem" href="javascript:cancelPrograma('{{url('u/af_programadas/cancel/'.$cursop->id)}}')">
+								                  <i class="glyphicon glyphicon-ban-circle"></i> Cancelar
+								              </a>
+								          </li>
+								      </ul>
+								  </div>
 								</td>
 			            </tr>
 			        	@endforeach
