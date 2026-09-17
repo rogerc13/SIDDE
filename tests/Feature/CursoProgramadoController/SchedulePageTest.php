@@ -148,6 +148,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('role="tablist"', false);
         $response->assertSee('Ficha Técnica');
         $response->assertSee('Área de conocimiento');
+        $response->assertSee('print-ficha-btn', false);
+        $response->assertSee('Imprimir Ficha Técnica');
+        $response->assertDontSee('onclick="window.print()"', false);
         $response->assertSee('programa-modal-cancel', false);
         $response->assertSee('programa-modal-delete', false);
         $response->assertSee('asignar-modal', false);

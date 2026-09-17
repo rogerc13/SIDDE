@@ -313,6 +313,7 @@ test.describe('Scheduled Courses CRUD', () => {
 
         await page.click('a[href="#tab-ficha"]');
         await expect(page.locator('#tab-ficha')).toBeVisible();
+        await expect(page.locator('#print-ficha-btn')).toBeVisible();
         await expect(page.locator('#tab-programacion')).toBeHidden();
 
         await page.click('a[href="#tab-documentos"]');

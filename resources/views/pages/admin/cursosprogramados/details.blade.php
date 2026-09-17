@@ -73,7 +73,16 @@
     @media print {
         .sidebar-nav, .panel-options, .no-print { display: none !important; }
         .panel { border: none; box-shadow: none; }
+        body.printing-ficha .details-header,
+        body.printing-ficha .details-stats,
+        body.printing-ficha .details-tabs,
+        body.printing-ficha #tab-programacion,
+        body.printing-ficha #tab-participantes,
+        body.printing-ficha #tab-documentos { display: none !important; }
+        body.printing-ficha #tab-ficha { display: block !important; }
+        body.printing-ficha .details-tab-content { border: 0; padding: 0; margin: 0; background: transparent; }
     }
+    .ficha-actions { margin-bottom: 14px; }
 </style>
 @endpush
 
@@ -114,7 +123,6 @@
     </div>
     <div class="details-actions no-print">
         <a href="{{ $backUrl }}" class="btn btn-blue"><i class="entypo-back"></i> Volver</a>
-        <a href="javascript:void(0);" onclick="window.print()" class="btn btn-success"><i class="fa fa-print"></i> Imprimir</a>
         @can('store','App\Models\Participant')
             <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$scheduled->id.'/asignarParticipante')}}','{{$scheduled->id}}')" class="btn btn-primary {{($scheduled->atMaxCapacity() || !$scheduled->isPorDictar()) ? 'disabled' : ''}}">
                 <i class="entypo-user-add"></i> Asignar participante
@@ -276,6 +284,9 @@
         @endif
     </div>
     <div role="tabpanel" class="tab-pane" id="tab-ficha">
+        <div class="ficha-actions no-print">
+            <button type="button" class="btn btn-success" id="print-ficha-btn"><i class="fa fa-file-pdf-o"></i> Imprimir Ficha Técnica</button>
+        </div>
         @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])
     </div>
 </div>
@@ -412,6 +423,15 @@ $(function() {
     }
     $('a[href="#tab-programacion"]').on('shown.bs.tab', function () {
         initDetailsCalendar();
+    });
+
+    $('#print-ficha-btn').on('click', function () {
+        document.body.classList.add('printing-ficha');
+        window.print();
+        document.body.classList.remove('printing-ficha');
+    });
+    window.addEventListener('afterprint', function () {
+        document.body.classList.remove('printing-ficha');
     });
 });
 </script>
