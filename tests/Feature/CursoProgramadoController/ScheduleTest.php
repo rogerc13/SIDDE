@@ -60,7 +60,6 @@ class ScheduleTest extends TestCase
                 'session_date' => now()->addDays(10)->toDateString(),
                 'start_time' => '08:00',
                 'end_time' => '10:00',
-                'notes' => '',
             ]];
         }
 
@@ -119,7 +118,6 @@ class ScheduleTest extends TestCase
                     'session_date' => now()->addDays(10)->toDateString(),
                     'start_time' => '1:00 PM',
                     'end_time' => '2:00 PM',
-                    'notes' => '',
                 ]],
             ]);
 
@@ -143,13 +141,11 @@ class ScheduleTest extends TestCase
                 'session_date' => now()->addDays(10)->toDateString(),
                 'start_time' => '08:00',
                 'end_time' => '10:00',
-                'notes' => '',
             ], [
                 'location_id' => $location->id,
                 'session_date' => now()->addDays(11)->toDateString(),
                 'start_time' => '08:00',
                 'end_time' => '10:00',
-                'notes' => '',
             ]]));
 
         $response->assertSessionHasErrors('sessions');
@@ -193,13 +189,11 @@ class ScheduleTest extends TestCase
                     'session_date' => $date,
                     'start_time' => '08:00',
                     'end_time' => '10:00',
-                    'notes' => '',
                 ], [
                     'location_id' => $location->id,
                     'session_date' => $date,
                     'start_time' => '09:00',
                     'end_time' => '11:00',
-                    'notes' => '',
                 ]],
             ]);
 
@@ -241,7 +235,6 @@ class ScheduleTest extends TestCase
                 'session_date' => $date,
                 'start_time' => '09:00',
                 'end_time' => '11:00',
-                'notes' => '',
             ]]));
 
         $response->assertSessionHasErrors('sessions');

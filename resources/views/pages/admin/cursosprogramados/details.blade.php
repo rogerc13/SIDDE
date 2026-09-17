@@ -127,12 +127,11 @@
                     <th>Fecha</th>
                     <th>Horario</th>
                     <th class="text-center">Dur.</th>
-                    <th>Notas</th>
                 </tr>
             </thead>
             <tbody>
                 @if(count($existingSessions) === 0)
-                <tr><td colspan="6" class="text-center text-muted">No hay sesiones registradas.</td></tr>
+                <tr><td colspan="5" class="text-center text-muted">No hay sesiones registradas.</td></tr>
                 @endif
                 @foreach($existingSessions as $i => $s)
                 <tr>
@@ -141,7 +140,6 @@
                     <td data-fecha="{{ $s['session_date'] }}"><small class="text-muted">{{ \Carbon\Carbon::parse($s['session_date'])->locale('es')->shortDayName }}</small> @date($s['session_date'])</td>
                     <td>{{ \Carbon\Carbon::parse($s['start_time'])->format('g:i A') }} – {{ \Carbon\Carbon::parse($s['end_time'])->format('g:i A') }}</td>
                     <td class="text-center">{{ $s['duration_hours'] }} hrs</td>
-                    <td class="notes-cell" title="{{ $s['notes'] }}">{{ $s['notes'] ?: '-' }}</td>
                 </tr>
                 @endforeach
                     </tbody>

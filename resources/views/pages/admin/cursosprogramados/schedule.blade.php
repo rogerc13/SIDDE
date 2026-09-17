@@ -315,7 +315,6 @@
                             <th>Fecha</th>
                             <th>Horario</th>
                             <th class="text-center">Dur.</th>
-                            <th>Notas</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -405,12 +404,6 @@
                             <button type="button" class="btn btn-xs btn-default" data-hours="4" onclick="applyDurationChip(4)">4h</button>
                         </span>
                         <span id="modal-remaining" class="text-muted" aria-live="polite"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-lg-12 col-md-12">
-                        <label for="add-session-notes">Notas <small class="text-muted">(opcional)</small></label>
-                        <textarea id="add-session-notes" class="form-control" rows="2" maxlength="500" placeholder="Ej. materiales, indicaciones especiales…"></textarea>
                     </div>
                 </div>
                 <div class="form-group" id="repeat-group">
@@ -899,7 +892,6 @@ function openEditSessionModal(id) {
 
     openAddSessionModal(startDate, endDate, id);
     $('#add-session-location').val(session.location_id);
-    $('#add-session-notes').val(session.notes || '');
     updateModalRemaining();
     updateConflictHint();
 }
@@ -913,7 +905,6 @@ function saveSessionFromModal() {
     var sessionDate = displayDateToIso($('#add-session-date').val());
     var startTime = to24h($('#add-session-start').val());
     var endTime = to24h($('#add-session-end').val());
-    var notes = $('#add-session-notes').val();
     var editId = $('#add-session-edit-id').val();
 
     var invalid = false;
@@ -969,7 +960,6 @@ function saveSessionFromModal() {
             wizardSessions[idx].start_time = startTime;
             wizardSessions[idx].end_time = endTime;
             wizardSessions[idx].duration_hours = durHours;
-            wizardSessions[idx].notes = notes;
         }
     } else {
         for (var r = 0; r < repeatCount; r++) {
@@ -989,8 +979,7 @@ function saveSessionFromModal() {
                 session_date: sessDate,
                 start_time: startTime,
                 end_time: endTime,
-                duration_hours: durHours,
-                notes: notes
+                duration_hours: durHours
             });
         }
     }
@@ -1122,8 +1111,7 @@ function duplicateSession(id) {
         session_date: s.session_date,
         start_time: s.start_time,
         end_time: s.end_time,
-        duration_hours: s.duration_hours,
-        notes: s.notes || ''
+        duration_hours: s.duration_hours
     });
     dirty = true;
     renderSessionTable();
@@ -1251,7 +1239,7 @@ function renderReviewPanel() {
     $tbody.empty();
     var totalHours = 0;
     if (wizardSessions.length === 0) {
-        $tbody.append('<tr><td colspan="6" class="text-center text-muted"><i class="entypo-calendar" style="font-size: 22px; display: block; margin-bottom: 6px;"></i>No hay sesiones para revisar.</td></tr>');
+        $tbody.append('<tr><td colspan="5" class="text-center text-muted"><i class="entypo-calendar" style="font-size: 22px; display: block; margin-bottom: 6px;"></i>No hay sesiones para revisar.</td></tr>');
     }
     wizardSessions.forEach(function(s) {
         totalHours += s.duration_hours;
@@ -1261,7 +1249,6 @@ function renderReviewPanel() {
             '<td>' + isoToDisplayDate(s.session_date) + '</td>' +
             '<td>' + formatTime12(s.start_time) + ' – ' + formatTime12(s.end_time) + '</td>' +
             '<td class="text-center">' + s.duration_hours + ' hrs</td>' +
-            '<td>' + (s.notes ? escapeHtml(s.notes) : '-') + '</td>' +
                 '<td class="actions" style="white-space: nowrap;">' +
                 '<button type="button" class="btn btn-default btn-xs" onclick="duplicateSession(' + s.id + ')" title="Duplicar sesión"><i class="entypo-docs"></i></button> ' +
                 '<button type="button" class="btn btn-info btn-xs" onclick="openEditSessionModal(' + s.id + ')" title="Editar sesión"><i class="entypo-pencil"></i></button> ' +
@@ -1312,8 +1299,7 @@ function submitWizardSchedule() {
                 location_id: s.location_id,
                 session_date: s.session_date,
                 start_time: s.start_time,
-                end_time: s.end_time,
-                notes: s.notes || ''
+                end_time: s.end_time
             };
         })
     };
@@ -1433,8 +1419,7 @@ function initSchedulePage() {
                 session_date: s.session_date,
                 start_time: s.start_time,
                 end_time: s.end_time,
-                duration_hours: s.duration_hours,
-                notes: s.notes || ''
+                duration_hours: s.duration_hours
             };
         });
         var dates = wizardSessions.map(function(s) { return s.session_date; }).sort();

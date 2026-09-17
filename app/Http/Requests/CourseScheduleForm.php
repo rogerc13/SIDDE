@@ -27,7 +27,6 @@ class CourseScheduleForm extends FormRequest
             'sessions.*.session_date' => 'required|date|date_format:Y-m-d',
             'sessions.*.start_time' => 'required|date_format:H:i',
             'sessions.*.end_time' => 'required|date_format:H:i|after:sessions.*.start_time',
-            'sessions.*.notes' => 'nullable|string|max:500',
         ];
     }
 

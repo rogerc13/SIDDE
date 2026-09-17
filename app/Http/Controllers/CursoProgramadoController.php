@@ -172,7 +172,6 @@ class CursoProgramadoController extends Controller
                 'start_time' => $s->start_time,
                 'end_time' => $s->end_time,
                 'duration_hours' => $s->durationHours(),
-                'notes' => $s->notes,
             ];
         })->values()->all();
 
@@ -217,7 +216,6 @@ class CursoProgramadoController extends Controller
                 'start_time' => $s->start_time,
                 'end_time' => $s->end_time,
                 'duration_hours' => $s->durationHours(),
-                'notes' => $s->notes,
             ];
         })->values()->all();
 
@@ -277,7 +275,6 @@ class CursoProgramadoController extends Controller
                 'session_date' => $session['session_date'],
                 'start_time' => $session['start_time'],
                 'end_time' => $session['end_time'],
-                'notes' => $session['notes'] ?? null,
             ];
 
             if (!empty($session['id'])) {
@@ -650,8 +647,7 @@ class CursoProgramadoController extends Controller
                     'session_date' => $session['session_date'],
                     'start_time' => $session['start_time'],
                     'end_time' => $session['end_time'],
-                    'notes' => $session['notes'] ?? null,
-                ]);
+                    ]);
             }
 
             if ($request->expectsJson()) {

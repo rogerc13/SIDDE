@@ -111,8 +111,8 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00'],
         ]);
 
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/editar');
@@ -132,7 +132,7 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
@@ -160,6 +160,7 @@ class SchedulePageTest extends TestCase
         $response->assertSee('location-filter-label');
         $response->assertSee('location-key-pinned');
         $response->assertSee('repeat-group');
+        $response->assertDontSee('add-session-notes');
     }
 
     public function test_create_page_renders_leave_warning_modal(): void
@@ -185,7 +186,7 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/editar');
@@ -234,7 +235,7 @@ class SchedulePageTest extends TestCase
         $date = now()->toDateString();
 
         $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $busy->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $busy->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $response = $this->actingAs($user)->get('/u/af_programadas/crear');
@@ -257,7 +258,7 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/editar');
@@ -276,8 +277,8 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00'],
         ]);
 
         $existing = $scheduled->sessions()->orderBy('id')->get();
@@ -295,7 +296,6 @@ class SchedulePageTest extends TestCase
                     'session_date' => $date,
                     'start_time' => '08:00',
                     'end_time' => '09:00',
-                    'notes' => 'modificada',
                 ],
                 [
                     'id' => null,
@@ -303,7 +303,6 @@ class SchedulePageTest extends TestCase
                     'session_date' => $date,
                     'start_time' => '13:00',
                     'end_time' => '15:00',
-                    'notes' => 'nueva',
                 ],
             ],
         ];
@@ -319,13 +318,11 @@ class SchedulePageTest extends TestCase
             'id' => $keep->id,
             'start_time' => '08:00',
             'end_time' => '09:00',
-            'notes' => 'modificada',
         ]);
         $this->assertDatabaseHas('course_sessions', [
             'scheduled_course_id' => $scheduled->id,
             'start_time' => '13:00',
             'end_time' => '15:00',
-            'notes' => 'nueva',
         ]);
         $this->assertSoftDeleted('course_sessions', ['id' => $remove->id]);
         $this->assertCount(2, CourseSession::all());
@@ -341,8 +338,8 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '10:00', 'end_time' => '12:00'],
         ]);
 
         $payload = [
@@ -350,7 +347,7 @@ class SchedulePageTest extends TestCase
             'facilitador' => $facilitator->person->facilitator->id,
             'scheduled_id' => $scheduled->id,
             'sessions' => [
-                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
             ],
         ];
 
@@ -372,7 +369,7 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $payload = [
@@ -380,8 +377,8 @@ class SchedulePageTest extends TestCase
             'facilitador' => $facilitator->person->facilitator->id,
             'scheduled_id' => $scheduled->id,
             'sessions' => [
-                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
-                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '09:00', 'end_time' => '11:00', 'notes' => ''],
+                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '09:00', 'end_time' => '11:00'],
             ],
         ];
 
@@ -403,7 +400,7 @@ class SchedulePageTest extends TestCase
         $date = now()->addDays(10)->toDateString();
 
         $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
-            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
         ]);
 
         $response = $this->actingAs($user)
@@ -412,7 +409,7 @@ class SchedulePageTest extends TestCase
                 'facilitador' => $facilitator->person->facilitator->id,
                 'scheduled_id' => $scheduled->id,
                 'sessions' => [
-                    ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+                    ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
                 ],
             ]);
 
