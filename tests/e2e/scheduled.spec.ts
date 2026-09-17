@@ -147,7 +147,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForSelector('#wizard-form');
 
         await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
-        await selectSelect2ById(page, 'wizard-facilitador');
+        await selectOptionByText(page, 'wizard-facilitador', 'Wizard Test');
 
         await page.click('#wizard-btn-next');
         await page.waitForSelector('#panel-step2.active');
@@ -402,5 +402,86 @@ test.describe('Unsaved Changes Guard', () => {
         await page.reload();
         await page.waitForLoadState('load');
         expect(dialogSeen).toBe(true);
+    });
+});
+
+async function openWizardStepTwo(page: any) {
+    seedWizardData();
+    await page.goto('/u/af_programadas/crear');
+    await page.waitForSelector('#wizard-form');
+    await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
+    await selectOptionByText(page, 'wizard-facilitador', 'Wizard Test');
+    await page.click('#wizard-btn-next');
+    await page.waitForSelector('#panel-step2.active');
+}
+
+async function fillSessionModal(page: any, locationText: string, displayDate: string, start12: string, end12: string) {
+    await page.click('button[onclick^="openNewSessionModal"]');
+    await page.waitForSelector('#add-session-modal.in');
+    await selectOptionByText(page, 'add-session-location', locationText);
+    await page.evaluate(({ d, s, e }: any) => {
+        (window as any).jQuery('#add-session-date').val(d);
+        (window as any).jQuery('#add-session-start').val(s);
+        (window as any).jQuery('#add-session-end').val(e);
+    }, { d: displayDate, s: start12, e: end12 });
+    await page.waitForTimeout(150);
+}
+
+test.describe('Session Modal', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+    });
+
+    test('blocks a conflicting session at the same location', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '8:00 AM', '10:00 AM');
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+        await expect(page.locator('#wizard-sessions-tbody tr')).toHaveCount(1);
+
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '9:00 AM', '11:00 AM');
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+
+        await expect(page.locator('#add-session-alert .session-callout--danger')).toBeVisible();
+        await expect(page.locator('#conflict-hint-group')).toBeVisible();
+
+        await page.click('#add-session-modal .modal-footer button.btn-default');
+        await expect(page.locator('#wizard-sessions-tbody tr')).toHaveCount(1);
+    });
+
+    test('deletes the selected session from the edit modal', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '8:00 AM', '10:00 AM');
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+
+        await page.click('#wizard-sessions-tbody tr button[title="Editar sesión"]');
+        await page.waitForSelector('#add-session-modal.in');
+        await page.click('#add-session-delete-btn');
+        await page.waitForSelector('#delete-session-modal.in');
+        await page.click('#delete-session-confirm');
+        await page.waitForTimeout(300);
+
+        await expect(page.locator('#wizard-sessions-tbody')).toContainText('No hay sesiones agregadas');
+    });
+
+    test('repeats the session weekly the indicated number of times', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '8:00 AM', '10:00 AM');
+        await page.evaluate(() => {
+            (window as any).jQuery('#repeat-count').val(3);
+        });
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+
+        const tbody = page.locator('#wizard-sessions-tbody');
+        await expect(tbody.locator('tr')).toHaveCount(3);
+        await expect(tbody).toContainText('20-09-2026');
+        await expect(tbody).toContainText('27-09-2026');
+        await expect(tbody).toContainText('04-10-2026');
     });
 });

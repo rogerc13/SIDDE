@@ -63,50 +63,93 @@
 
     /* Add Session Modal */
     #add-session-modal .modal-content {
-        border: 1px solid #ddd;
-        -webkit-box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
-        -moz-box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
-        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid #e3e8ed;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 12px 40px rgba(35, 45, 55, 0.16);
+        -moz-box-shadow: 0 12px 40px rgba(35, 45, 55, 0.16);
+        box-shadow: 0 12px 40px rgba(35, 45, 55, 0.16);
     }
     #add-session-modal .modal-header {
-        border-top: 3px solid #00a651;
-        padding: 14px 18px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #eef1f4;
     }
     #add-session-modal .modal-title {
         font-weight: 600;
         font-size: 16px;
+        color: #2b333b;
     }
     #add-session-modal .modal-body {
         padding: 20px 22px;
     }
+    #add-session-modal .modal-footer {
+        padding: 14px 22px;
+        border-top: 1px solid #eef1f4;
+        text-align: right;
+    }
+    #add-session-modal .form-group { margin-bottom: 14px; }
     #add-session-modal .form-control {
-        border: 1px solid #ccc;
-        -webkit-transition: border-color 0.2s ease;
-        -moz-transition: border-color 0.2s ease;
-        transition: border-color 0.2s ease;
+        height: 38px;
+        border: 1px solid #d5dbe1;
+        border-radius: 3px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        -webkit-transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        -moz-transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     #add-session-modal .form-control:focus {
-        border-color: #00a651;
-        -webkit-box-shadow: 0 0 0 2px rgba(0, 166, 81, 0.15);
-        -moz-box-shadow: 0 0 0 2px rgba(0, 166, 81, 0.15);
-        box-shadow: 0 0 0 2px rgba(0, 166, 81, 0.15);
+        border-color: #9aa7b2;
+        -webkit-box-shadow: 0 0 0 2px rgba(43, 51, 59, 0.08);
+        -moz-box-shadow: 0 0 0 2px rgba(43, 51, 59, 0.08);
+        box-shadow: 0 0 0 2px rgba(43, 51, 59, 0.08);
     }
-    #add-session-modal .modal-body .form-group { margin-bottom: 10px; }
-    #add-session-modal .duration-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    #add-session-modal .duration-row .duration-label { font-size: 12px; }
-    #add-session-modal .duration-row #modal-remaining { margin-left: auto; margin-bottom: 0; font-size: 12px; }
-    #add-session-modal .duration-chips .btn {
-        border-radius: 3px;
+    #add-session-modal label.control-label {
+        font-size: 12px;
         font-weight: 600;
-        padding: 2px 10px;
+        color: #5b6672;
+        margin-bottom: 5px;
+    }
+    #add-session-modal .session-section {
+        padding: 0 0 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px dashed #e9edf1;
+    }
+    #add-session-modal .session-section:last-of-type {
+        padding-bottom: 0;
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
+    #add-session-modal .session-section-title {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #8a97a3;
+        margin-bottom: 12px;
+    }
+    #add-session-modal .session-messages { margin-bottom: 16px; }
+    #add-session-modal .session-messages:empty { display: none; }
+
+    /* Duration */
+    #add-session-modal .duration-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    #add-session-modal .duration-label { font-size: 12px; font-weight: 600; color: #5b6672; }
+    #add-session-modal .duration-chips { display: inline-flex; gap: 6px; }
+    #add-session-modal .duration-chips .btn {
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 5px 14px;
+        border: 1px solid #d5dbe1;
+        background: #fff;
+        color: #5b6672;
         -webkit-transition: all 0.15s ease;
         -moz-transition: all 0.15s ease;
         transition: all 0.15s ease;
     }
     #add-session-modal .duration-chips .btn:hover {
-        background: #00a651;
         border-color: #00a651;
-        color: #fff;
+        color: #00a651;
     }
     #add-session-modal .duration-chips .btn.active,
     #add-session-modal .duration-chips .btn.active:hover {
@@ -114,10 +157,49 @@
         border-color: #00a651;
         color: #fff;
     }
-    #add-session-modal .modal-footer {
-        border-top: 1px solid #e5e5e5;
-        padding: 14px 22px;
+    #add-session-modal #modal-remaining {
+        margin-left: auto;
+        font-size: 12px;
+        color: #5b6672;
+        background: #f5f7f9;
+        border: 1px solid #e9edf1;
+        border-radius: 20px;
+        padding: 5px 12px;
     }
+
+    /* Repetition */
+    #add-session-modal .repeat-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #5b6672; }
+    #add-session-modal .repeat-row .form-control {
+        width: 72px;
+        height: 34px;
+        display: inline-block;
+        text-align: center;
+    }
+    #add-session-modal .repeat-help { font-size: 11px; color: #97a2ad; margin: 8px 0 0; }
+
+    /* Callouts (validation / conflicts / gate hints) */
+    .session-callout {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-bottom: 10px;
+    }
+    .session-callout:last-child { margin-bottom: 0; }
+    .session-callout .callout-icon { font-size: 15px; line-height: 1.35; flex-shrink: 0; }
+    .session-callout .callout-body { flex: 1; min-width: 0; }
+    .session-callout .callout-title { display: block; font-weight: 700; margin-bottom: 2px; }
+    .session-callout ul { margin: 4px 0 0; padding-left: 16px; }
+    .session-callout li { margin-bottom: 2px; }
+    .session-callout--warning { background: #fff8e6; border-color: #f2d99a; color: #7a5b12; }
+    .session-callout--danger { background: #fdf0f0; border-color: #f0c2c2; color: #8a2b2b; }
+    .session-callout--info { background: #eef5fb; border-color: #cfe0ef; color: #2c5b7a; }
+    .session-callout--success { background: #eef8f1; border-color: #c3e6cf; color: #276b42; }
+    #submit-gate-hint .session-callout { margin-bottom: 0; }
 
     /* Context line (course · facilitator · status) */
     .schedule-context { margin: -2px 0 10px; font-size: 12px; text-align: center; }
@@ -334,7 +416,7 @@
                     <i class="fa fa-check"></i> Programar
                 </button>
                 <a href="{{ url('u/af_programadas') }}" class="btn btn-default" title="Cancelar">Cancelar</a>
-                <div id="submit-gate-hint" class="text-muted" style="display:none; margin-top: 8px; font-size: 12px;"></div>
+                <div id="submit-gate-hint" style="display:none; margin-top: 10px;"></div>
             </div>
             @endif
         </form>
@@ -342,88 +424,116 @@
 </div>
 
 {{-- Add Session Modal (triggered from calendar select or add button) --}}
-<div class="modal fade" id="add-session-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="add-session-modal" tabindex="-1" role="dialog" aria-labelledby="add-session-label">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Agregar Sesión</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="add-session-label">Agregar Sesión</h4>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="add-session-edit-id" value="">
-                <div id="add-session-alert"></div>
                 <form id="add-session-form">
-                <div class="form-group">
-                    <div class="col-lg-12 col-md-12">
-                        <label for="add-session-location">Ubicación</label>
-                        <select id="add-session-location" class="form-control" required>
-                            <option></option>
-                            @php
-                                $groupedLocations = $locations->sortBy('name')->groupBy(function ($location) {
-                                    $building = $location->floor->building->name ?? 'Sin edificio';
-                                    $floor = $location->floor->name ?? 'Sin piso';
-                                    return $building . ' > ' . $floor;
-                                });
-                            @endphp
-                            @foreach($groupedLocations as $group => $groupLocations)
-                                <optgroup label="{{ $group }}">
-                                    @foreach($groupLocations as $location)
-                                        <option value="{{ $location->id }}">{{ $location->name }}</option>
-                                    @endforeach
-                                </optgroup>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <label for="add-session-date">Fecha</label>
-                        <input type="text" id="add-session-date" class="form-control dat2" required autocomplete="off" readonly>
-                    </div>
-                    <div class="col-sm-4">
-                        <label for="add-session-start">Inicio</label>
-                        <input type="text" id="add-session-start" class="form-control timepicker" required data-show-meridian="true" data-default-time="false" data-minute-step="15" aria-label="Hora de inicio">
-                    </div>
-                    <div class="col-sm-4">
-                        <label for="add-session-end">Fin</label>
-                        <input type="text" id="add-session-end" class="form-control timepicker" required data-show-meridian="true" data-default-time="false" data-minute-step="15" aria-label="Hora de fin">
-                    </div>
-                </div>
-                <div class="form-group" id="conflict-hint-group" style="display:none;">
-                    <div class="col-sm-12">
-                        <div id="conflict-hint" class="alert alert-warning" role="alert" style="margin-bottom: 0; padding: 6px 10px; font-size: 12px;"></div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-12 duration-row">
-                        <span class="text-muted duration-label">Duración:</span>
-                        <span class="duration-chips">
-                            <button type="button" class="btn btn-xs btn-default" data-hours="1" onclick="applyDurationChip(1)">1h</button>
-                            <button type="button" class="btn btn-xs btn-default" data-hours="2" onclick="applyDurationChip(2)">2h</button>
-                            <button type="button" class="btn btn-xs btn-default" data-hours="3" onclick="applyDurationChip(3)">3h</button>
-                            <button type="button" class="btn btn-xs btn-default" data-hours="4" onclick="applyDurationChip(4)">4h</button>
-                        </span>
-                        <span id="modal-remaining" class="text-muted" aria-live="polite"></span>
-                    </div>
-                </div>
-                <div class="form-group" id="repeat-group">
-                    <div class="col-sm-12">
-                        <div class="repeat-row">
-                            <label for="repeat-weeks" style="font-size: 12px; font-weight: 600; margin: 0;">Repetir:</label>
-                            <span class="text-muted" style="font-size: 12px;">cada</span>
-                            <input type="number" id="repeat-weeks" class="form-control" value="1" min="1" max="12">
-                            <span class="text-muted" style="font-size: 12px;">semanas ·</span>
-                            <input type="number" id="repeat-count" class="form-control" value="1" min="1" max="20">
-                            <span class="text-muted" style="font-size: 12px;">veces</span>
+                    <div class="session-messages">
+                        <div id="add-session-alert"></div>
+                        <div id="conflict-hint-group" style="display:none;">
+                            <div id="conflict-hint" role="alert" aria-live="polite"></div>
                         </div>
-                        <p class="text-muted" style="font-size: 11px; margin: 4px 0 0;">Crea copias en semanas siguientes. Solo al agregar.</p>
                     </div>
-                </div>
+
+                    <div class="session-section">
+                        <span class="session-section-title">Ubicación</span>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="control-label" for="add-session-location">Aula / Espacio</label>
+                                <select id="add-session-location" class="form-control" required>
+                                    <option></option>
+                                    @php
+                                        $groupedLocations = $locations->sortBy('name')->groupBy(function ($location) {
+                                            $building = $location->floor->building->name ?? 'Sin edificio';
+                                            $floor = $location->floor->name ?? 'Sin piso';
+                                            return $building . ' > ' . $floor;
+                                        });
+                                    @endphp
+                                    @foreach($groupedLocations as $group => $groupLocations)
+                                        <optgroup label="{{ $group }}">
+                                            @foreach($groupLocations as $location)
+                                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="session-section">
+                        <span class="session-section-title">Fecha y hora</span>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="control-label" for="add-session-date">Fecha</label>
+                                <input type="text" id="add-session-date" class="form-control dat2" required autocomplete="off" readonly>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="control-label" for="add-session-start">Inicio</label>
+                                <input type="text" id="add-session-start" class="form-control timepicker" required data-show-meridian="true" data-default-time="false" data-minute-step="15" aria-label="Hora de inicio">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="control-label" for="add-session-end">Fin</label>
+                                <input type="text" id="add-session-end" class="form-control timepicker" required data-show-meridian="true" data-default-time="false" data-minute-step="15" aria-label="Hora de fin">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="session-section">
+                        <span class="session-section-title">Duración</span>
+                        <div class="duration-row">
+                            <span class="duration-label">Horas</span>
+                            <span class="duration-chips">
+                                <button type="button" class="btn btn-default" data-hours="1" onclick="applyDurationChip(1)">1h</button>
+                                <button type="button" class="btn btn-default" data-hours="2" onclick="applyDurationChip(2)">2h</button>
+                                <button type="button" class="btn btn-default" data-hours="3" onclick="applyDurationChip(3)">3h</button>
+                                <button type="button" class="btn btn-default" data-hours="4" onclick="applyDurationChip(4)">4h</button>
+                            </span>
+                            <span id="modal-remaining" aria-live="polite"></span>
+                        </div>
+                    </div>
+
+                    <div class="session-section" id="repeat-group">
+                        <span class="session-section-title">Repetición</span>
+                        <div class="repeat-row">
+                            <span>Repetir semanalmente</span>
+                            <input type="number" id="repeat-count" class="form-control" value="1" min="1" max="20" aria-label="Número de repeticiones">
+                            <span>veces</span>
+                        </div>
+                        <p class="repeat-help">Crea una sesión por semana durante el número de semanas indicado. Solo al agregar.</p>
+                    </div>
                 </form>
             </div>
-            <div class="modal-footer" style="text-align: center;">
-                <button type="button" class="btn btn-primary" id="add-session-confirm-btn" onclick="saveSessionFromModal()">Agregar</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger pull-left hidden" id="add-session-delete-btn" onclick="confirmDeleteSession()">
+                    <i class="entypo-trash"></i> Eliminar
+                </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="add-session-confirm-btn" onclick="saveSessionFromModal()">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-session-modal" tabindex="-1" role="dialog" aria-labelledby="delete-session-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="delete-session-label">Eliminar Sesión</h4>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar esta sesión? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="delete-session-confirm">Eliminar</button>
             </div>
         </div>
     </div>
@@ -459,13 +569,13 @@ var wizardSessions = [];
 var courseDuration = @json($courseDuration);
 var sessionCounter = 0;
 var blockedSlotsCache = [];
-var overlapPendingConfirm = false;
 var dirty = false;
 var firstSessionDate = null;
 var locationColorMap = {};
 var allowNavigation = false;
 var maxStepReached = 1;
 var pendingNavigation = null;
+var sessionDeleteConfirmed = false;
 
 var scheduleMode = '{{ $mode }}';
 var scheduleId = @json($scheduledId);
@@ -476,9 +586,19 @@ var statusName = '{{ $statusName ?? '' }}';
 var statusBadge = '{{ $statusBadge ?? '' }}';
 
 function showInlineAlert(containerId, type, message) {
-    $('#' + containerId).html('<div class="alert alert-' + type + ' alert-dismissable fade in alert-wizard" role="alert" aria-live="polite">' +
-        '<a href="#" class="close" data-dismiss="alert" aria-label="Cerrar">&times;</a>' +
-        '<i class="entypo-warning"></i> ' + message + '</div>');
+    var icons = {
+        danger: 'entypo-block',
+        success: 'entypo-check',
+        warning: 'entypo-warning',
+        info: 'entypo-info-circled'
+    };
+    var calloutType = (type === 'error') ? 'danger' : type;
+    $('#' + containerId).html(
+        '<div class="session-callout session-callout--' + calloutType + '" role="alert" aria-live="polite">' +
+        '<i class="' + (icons[calloutType] || 'entypo-info-circled') + ' callout-icon"></i>' +
+        '<span class="callout-body">' + message + '</span>' +
+        '</div>'
+    );
 }
 
 function clearInlineAlert(containerId) {
@@ -488,19 +608,21 @@ function clearInlineAlert(containerId) {
 function setFieldError(selector, message) {
     var field = $(selector);
     if (field.length === 0) return;
-    field.closest('.form-group').addClass('has-error');
-    var $help = field.closest('.form-group').find('.help-block.field-error');
+    var group = field.closest('.form-group, .col-sm-4, .col-sm-12, .col-lg-12');
+    if (group.length === 0) group = field.parent();
+    group.addClass('has-error');
     if (message) {
+        var $help = group.find('.help-block.field-error').first();
         if ($help.length === 0) {
             $help = $('<span class="help-block field-error"></span>');
-            field.closest('.form-group').append($help);
+            field.after($help);
         }
         $help.text(message);
     }
 }
 
 function clearFieldErrors(scope) {
-    $(scope).find('.form-group').removeClass('has-error');
+    $(scope).find('.has-error').removeClass('has-error');
     $(scope).find('.help-block.field-error').remove();
 }
 
@@ -513,20 +635,77 @@ function getLocationColor(locationId) {
     return locationColorMap[locationId];
 }
 
-function findOverlaps(locationId, sessionDate, startTime, endTime) {
+function callout(type, icon, title, items) {
+    var lis = items.map(function (i) {
+        return '<li>' + escapeHtml(cleanConflictTitle(i.title)) + ' · ' + formatTime12(i.start_time) + ' – ' + formatTime12(i.end_time) + '</li>';
+    }).join('');
+    return '<div class="session-callout session-callout--' + type + '">' +
+        '<i class="' + icon + ' callout-icon"></i>' +
+        '<span class="callout-body"><span class="callout-title">' + title + '</span><ul>' + lis + '</ul></span>' +
+        '</div>';
+}
+
+function cleanConflictTitle(title) {
+    return String(title).replace(/\s*\((?:Facilitador - )?Ocupado\)\s*$/i, '');
+}
+
+function pushUniqueConflict(list, entry) {
+    var key = entry.title + '|' + entry.start_time + '|' + entry.end_time;
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].title + '|' + list[i].start_time + '|' + list[i].end_time === key) return;
+    }
+    list.push(entry);
+}
+
+function renderConflictCallouts(conflicts) {
+    var html = '';
+    if (conflicts.location.length) {
+        html += callout('warning', 'entypo-location', 'Aula ocupada', conflicts.location);
+    }
+    if (conflicts.facilitator.length) {
+        html += callout('warning', 'entypo-user', 'Facilitador ocupado', conflicts.facilitator);
+    }
+    return html;
+}
+
+function findSessionConflicts(locationId, sessionDate, startTime, endTime, editId) {
     var sMin = timeToMinutes(startTime);
     var eMin = timeToMinutes(endTime);
-    var conflicts = [];
-    for (var i = 0; i < blockedSlotsCache.length; i++) {
-        var b = blockedSlotsCache[i];
-        if (b.session_date !== sessionDate) continue;
+    var result = { location: [], facilitator: [] };
+
+    blockedSlotsCache.forEach(function (b) {
+        if (b.session_date !== sessionDate) return;
         var bsMin = timeToMinutes(b.start_time);
         var beMin = timeToMinutes(b.end_time);
-        if (sMin < beMin && eMin > bsMin) {
-            conflicts.push(b);
+        if (!(sMin < beMin && eMin > bsMin)) return;
+
+        var entry = { title: b.title, start_time: b.start_time, end_time: b.end_time };
+        if (b.type === 'facilitator') {
+            pushUniqueConflict(result.facilitator, entry);
+        } else if (parseInt(b.location_id, 10) === parseInt(locationId, 10)) {
+            pushUniqueConflict(result.location, entry);
         }
-    }
-    return conflicts;
+    });
+
+    // Conflicts against other draft sessions in this same programación
+    wizardSessions.forEach(function (s) {
+        if (editId && s.id === parseInt(editId, 10)) return;
+        if (s.session_date !== sessionDate) return;
+        var ssMin = timeToMinutes(s.start_time);
+        var seMin = timeToMinutes(s.end_time);
+        if (!(sMin < seMin && eMin > ssMin)) return;
+
+        if (parseInt(s.location_id, 10) === parseInt(locationId, 10)) {
+            pushUniqueConflict(result.location, { title: s.location_name + ' (misma programación)', start_time: s.start_time, end_time: s.end_time });
+        }
+        pushUniqueConflict(result.facilitator, { title: 'Otra sesión de esta programación', start_time: s.start_time, end_time: s.end_time });
+    });
+
+    return result;
+}
+
+function hasSessionConflicts(conflicts) {
+    return conflicts.location.length > 0 || conflicts.facilitator.length > 0;
 }
 
 function resetWizard() {
@@ -716,8 +895,17 @@ function initWizardCalendar() {
                     allDay: false
                 };
             }).filter(function(e) { return e !== null; });
-            var startStr = start.format('YYYY-MM-DD');
-            var endStr = end.format('YYYY-MM-DD');
+            // Fetch a wide range so conflict detection works for any date the
+            // user picks, not just the currently visible calendar week.
+            var startStr, endStr;
+            if (typeof moment === 'function') {
+                startStr = moment().subtract(6, 'months').startOf('month').format('YYYY-MM-DD');
+                endStr = moment().add(18, 'months').endOf('month').format('YYYY-MM-DD');
+            } else {
+                var ref = new Date();
+                startStr = new Date(ref.getFullYear(), ref.getMonth() - 6, 1).toISOString().slice(0, 10);
+                endStr = new Date(ref.getFullYear(), ref.getMonth() + 19, 0).toISOString().slice(0, 10);
+            }
             var facilitatorId = $('#wizard-facilitador').val();
             $.ajax({
                 url: '{{ url("u/af_programadas/blocked-slots") }}',
@@ -829,24 +1017,13 @@ function openNewSessionModal() {
     openAddSessionModal(now, end);
 }
 
-function setModalConfirmPending(pending) {
-    var $btn = $('#add-session-confirm-btn');
-    if (pending) {
-        $btn.html('<i class="entypo-warning"></i> Agregar de todos modos')
-            .addClass('btn-warning').removeClass('btn-primary');
-    } else {
-        $btn.text('Agregar').removeClass('btn-warning').addClass('btn-primary');
-    }
-}
-
 function openAddSessionModal(start, end, editId) {
     $('#add-session-form')[0].reset();
     $('#add-session-location').val('').trigger('change');
     $('#add-session-edit-id').val('');
     clearFieldErrors('#add-session-form');
     clearInlineAlert('add-session-alert');
-    overlapPendingConfirm = false;
-    setModalConfirmPending(false);
+    $('#conflict-hint-group').hide();
 
     var filterLocationId = $('#calendar-location-filter').val();
     if (filterLocationId && !editId) {
@@ -871,6 +1048,7 @@ function openAddSessionModal(start, end, editId) {
         $('#add-session-modal .modal-title').text('Agregar Sesión · ' + displayDate);
     }
     $('#repeat-group').toggleClass('hidden', !!editId);
+    $('#add-session-delete-btn').toggleClass('hidden', !editId);
 
     $('#add-session-modal').modal({ backdrop: false, keyboard: true });
     updateModalRemaining();
@@ -921,9 +1099,7 @@ function saveSessionFromModal() {
 
     var durHours = computeDurationHours(startTime, endTime);
 
-    var repeatWeeks = (!editId) ? (parseInt($('#repeat-weeks').val(), 10) || 1) : 1;
     var repeatCount = (!editId) ? (parseInt($('#repeat-count').val(), 10) || 1) : 1;
-    if (repeatWeeks < 1) repeatWeeks = 1;
     if (repeatCount < 1) repeatCount = 1;
 
     var totalHours = durHours * repeatCount;
@@ -939,17 +1115,14 @@ function saveSessionFromModal() {
         return;
     }
 
-    var conflicts = findOverlaps(locationId, sessionDate, startTime, endTime);
-    if (conflicts.length > 0 && !overlapPendingConfirm) {
-        overlapPendingConfirm = true;
-        var titles = conflicts.map(function(c) { return c.title; }).join(', ');
-        showInlineAlert('add-session-alert', 'warning',
-            'Advertencia: las siguientes programaciones ya ocupan ese horario: ' + titles + '. Presione "Agregar de todos modos" para confirmar.');
-        setModalConfirmPending(true);
+    var conflicts = findSessionConflicts(locationId, sessionDate, startTime, endTime, editId);
+    if (hasSessionConflicts(conflicts)) {
+        $('#conflict-hint').html(renderConflictCallouts(conflicts));
+        $('#conflict-hint-group').show();
+        showInlineAlert('add-session-alert', 'danger',
+            'Este horario no está disponible. El aula o el facilitador ya tienen otra sesión en ese rango. Ajuste la fecha, la hora o el aula.');
         return;
     }
-    overlapPendingConfirm = false;
-    setModalConfirmPending(false);
 
     if (editId) {
         var idx = wizardSessions.findIndex(function(s) { return s.id === parseInt(editId); });
@@ -966,7 +1139,7 @@ function saveSessionFromModal() {
             var sessDate = sessionDate;
             if (r > 0) {
                 var d = new Date(sessionDate + 'T00:00:00');
-                d.setDate(d.getDate() + repeatWeeks * 7 * r);
+                d.setDate(d.getDate() + 7 * r);
                 var p = function(n) { return n < 10 ? '0' + n : '' + n; };
                 sessDate = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
             }
@@ -985,7 +1158,6 @@ function saveSessionFromModal() {
     }
 
     $('#add-session-modal').modal('hide');
-    $('#repeat-weeks').val(1);
     $('#repeat-count').val(1);
     dirty = true;
     renderSessionTable();
@@ -1038,18 +1210,18 @@ function updateConflictHint() {
     var sessionDate = displayDateToIso($('#add-session-date').val());
     var startTime = to24h($('#add-session-start').val());
     var endTime = to24h($('#add-session-end').val());
+    var editId = $('#add-session-edit-id').val();
     var $group = $('#conflict-hint-group');
     if (!locationId || !sessionDate || !startTime || !endTime || timeToMinutes(startTime) >= timeToMinutes(endTime)) {
         $group.hide();
         return;
     }
-    var conflicts = findOverlaps(locationId, sessionDate, startTime, endTime);
-    if (conflicts.length === 0) {
+    var conflicts = findSessionConflicts(locationId, sessionDate, startTime, endTime, editId);
+    if (!hasSessionConflicts(conflicts)) {
         $group.hide();
         return;
     }
-    var titles = conflicts.map(function(c) { return c.title; }).join(', ');
-    $('#conflict-hint').html('<i class="entypo-warning"></i> Se superpone con: ' + escapeHtml(titles) + '. Puede agregar de todos modos.');
+    $('#conflict-hint').html(renderConflictCallouts(conflicts));
     $group.show();
 }
 
@@ -1127,6 +1299,25 @@ function removeWizardSession(id) {
     dirty = true;
     renderSessionTable();
     refreshCalendarEvents();
+    if (getCurrentStep() === 3) {
+        renderReviewPanel();
+    }
+}
+
+function confirmDeleteSession() {
+    if (scheduleMode === 'view') return;
+    if (!$('#add-session-edit-id').val()) return;
+    sessionDeleteConfirmed = false;
+    $('#add-session-modal').modal('hide');
+    $('#delete-session-modal').modal({ backdrop: false, keyboard: true });
+}
+
+function deleteSessionFromModal() {
+    var editId = parseInt($('#add-session-edit-id').val(), 10);
+    if (!editId) return;
+    sessionDeleteConfirmed = true;
+    removeWizardSession(editId);
+    $('#delete-session-modal').modal('hide');
 }
 
 function formatTime12(t) {
@@ -1220,7 +1411,7 @@ function updateDurationBar() {
             }
             $submitBtn.attr('title', gateMsg);
             if (getCurrentStep() === 3) {
-                $gateHint.html('<i class="entypo-info-circled"></i> ' + gateMsg).show();
+                $gateHint.html('<div class="session-callout session-callout--info" role="status"><i class="entypo-info-circled callout-icon"></i><span class="callout-body">' + gateMsg + '</span></div>').show();
             } else {
                 $gateHint.hide();
             }
@@ -1502,6 +1693,16 @@ $(function() {
             if (logoutForm) logoutForm.submit();
         } else if (pendingNavigation && pendingNavigation.url) {
             window.location.href = pendingNavigation.url;
+        }
+    });
+
+    $('#delete-session-confirm').on('click', function() {
+        deleteSessionFromModal();
+    });
+
+    $('#delete-session-modal').on('hidden.bs.modal', function() {
+        if (!sessionDeleteConfirmed) {
+            $('#add-session-modal').modal({ backdrop: false, keyboard: true });
         }
     });
 });
