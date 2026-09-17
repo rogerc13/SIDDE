@@ -480,4 +480,32 @@ class EvaluationTest extends TestCase
         $response->assertOk();
         $response->assertSee(url('u/af_programadas/' . $scheduled->id . '/ver'), false);
     }
+
+    public function test_details_page_renders_participants_tab(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $participant = $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($admin)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee('participant_status[' . $participant->id . ']', false);
+        $response->assertSee($participant->person->name);
+        $response->assertSee('Asignar participante');
+        $response->assertSee('Registrar nuevo participante');
+    }
+
+    public function test_details_page_enables_evaluation_for_owning_facilitador(): void
+    {
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($facilitadorUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertViewHas('canEvaluate', true);
+    }
 }

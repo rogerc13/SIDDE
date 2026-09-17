@@ -9,7 +9,9 @@ use App\Models\Category;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Funciones;
+use App\Models\IdType;
 use App\Models\Participant;
+use App\Models\ParticipantStatus;
 use App\Models\Person;
 use App\Models\Prerequisite;
 use App\Models\CourseSession;
@@ -230,12 +232,23 @@ class CursoProgramadoController extends Controller
 
         $capacity = $scheduled->course->capacity->first();
 
+        $participantes = Participant::with(['person', 'participantStatus'])
+            ->where('scheduled_id', $scheduled->id)
+            ->get();
+
+        $canEvaluate = $user->can('evaluate', $scheduled)
+            && ($scheduled->isEnCurso() || $scheduled->isCulminado());
+
         return view('pages.admin.cursosprogramados.details')
             ->with('scheduled', $scheduled)
             ->with('existingSessions', $existingSessions)
             ->with('totalHours', collect($existingSessions)->sum('duration_hours'))
             ->with('capacityMax', $capacity ? $capacity->max : null)
-            ->with('participantsCount', $scheduled->participants()->count());
+            ->with('participantsCount', $scheduled->participants()->count())
+            ->with('participantes', $participantes)
+            ->with('statuses', ParticipantStatus::orderBy('id')->get())
+            ->with('types', IdType::all())
+            ->with('canEvaluate', $canEvaluate);
     }
 
     public function updateSchedule(CourseScheduleForm $request, $id)

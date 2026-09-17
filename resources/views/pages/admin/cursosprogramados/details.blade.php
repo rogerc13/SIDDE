@@ -191,7 +191,12 @@
 </ul>
 <div class="tab-content details-tab-content">
     <div role="tabpanel" class="tab-pane" id="tab-participantes">
-        <p class="text-muted">La gestión de participantes estará disponible próximamente en esta pestaña.</p>
+        @include('pages.admin.participantescursos._content', [
+            'cursoprogramado' => $scheduled,
+            'participantes' => $participantes,
+            'statuses' => $statuses,
+            'canEvaluate' => $canEvaluate,
+        ])
     </div>
     <div role="tabpanel" class="tab-pane" id="tab-documentos">
         @if($filesByType->isEmpty())
@@ -276,9 +281,13 @@
     @include('pages.admin.cursosprogramados.delete')
     @include('pages.admin.cursosprogramados.cancel')
     @include('pages.admin.participantescursos.asignar')
+    @include('pages.admin.participantes.create')
+    @include('pages.admin.participantescursos.update')
+    @include('pages.admin.participantescursos.delete')
 @stop
 
 @push('JS')
+<script src="{{asset('assets/js/evaluation.js')}}"></script>
 <script>
 var detailSessions = @json($existingSessions);
 var detailScheduledId = {{ $scheduled->id }};
