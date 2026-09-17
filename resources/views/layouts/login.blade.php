@@ -40,7 +40,7 @@
 </body>
 <footer class="main">
 			<p align="center">
-			&copy; 2022 <strong>SIDDE</strong>
+			&copy; {{ date('Y') }} <strong>SIDDE</strong>
 			</p>
 		</footer>
 </html>

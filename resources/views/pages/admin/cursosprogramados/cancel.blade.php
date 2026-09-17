@@ -27,7 +27,7 @@
 
             <div class="modal-body">
                 
-                    <p>¿Está seguro que desea cancelar esta acción de formación programada?, todos los participantes asignados serán retirados.</p>
+                    <p>¿Está seguro que desea cancelar esta acción de formación programada? Los participantes asignados pasarán al estatus «Cancelado».</p>
                 
             </div>
 

@@ -318,6 +318,8 @@ class SchedulePageTest extends TestCase
 
         $response->assertJson(['success' => true]);
 
+        $this->assertSame('Acción de formación actualizada exitosamente', session('alert.titulo'));
+
         $this->assertDatabaseHas('course_sessions', [
             'id' => $keep->id,
             'start_time' => '08:00',

@@ -302,13 +302,13 @@ class CursoProgramadoController extends Controller
         }
 
         if ($request->expectsJson()) {
-            session()->flash("alert", Funciones::getAlert("success", "Curso Actualizado Exitosamente", "Operación Exitosa."));
+            session()->flash("alert", Funciones::getAlert("success", "Acción de formación actualizada exitosamente", "Operación Exitosa."));
 
             return response()->json(['success' => true]);
         }
 
         return Redirect::to(url('u/af_programadas'))
-            ->with("alert", Funciones::getAlert("success", "Curso Actualizado Exitosamente", "Operación Exitosa."));
+            ->with("alert", Funciones::getAlert("success", "Acción de formación actualizada exitosamente", "Operación Exitosa."));
     }
 
     public function delete($id)
@@ -401,7 +401,7 @@ class CursoProgramadoController extends Controller
             $fecha=$fecha->format('m-Y');
         }
 
-        $cursos = $cursos->orderBy("start_date","asc");
+        $cursos = $cursos->orderBy("start_date","desc");
         
         return view('pages.admin.usuarios.miscursos')
                 ->with('cursos',$cursos->paginate(10)) //$cursos needs to be Builder in order to paginate
@@ -485,7 +485,7 @@ class CursoProgramadoController extends Controller
                             ->whereYear('scheduled_course.start_date',$fecha->year);
             $fecha=$fecha->format('m-Y');
         } 
-        $cursos = $cursos->orderBy("start_date","asc");
+        $cursos = $cursos->orderBy("start_date","desc");
     
         return view('pages.admin.usuarios.usercursos')
                 ->with('cursos',$cursos->paginate(10))
@@ -673,13 +673,13 @@ class CursoProgramadoController extends Controller
             }
 
             if ($request->expectsJson()) {
-                session()->flash("alert", Funciones::getAlert("success", "Curso Programado Exitosamente", "Operación Exitosa."));
+                session()->flash("alert", Funciones::getAlert("success", "Acción de formación programada exitosamente", "Operación Exitosa."));
 
                 return response()->json(['success' => true]);
             }
 
             return Redirect::back()
-                ->with("alert", Funciones::getAlert("success", "Curso Programado Exitosamente", "Operación Exitosa."));
+                ->with("alert", Funciones::getAlert("success", "Acción de formación programada exitosamente", "Operación Exitosa."));
         }
 
         return Redirect::back()

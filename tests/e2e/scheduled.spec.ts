@@ -237,6 +237,8 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForSelector('#wizard-modal', { state: 'hidden' });
         await page.waitForLoadState('load');
 
+        await expect(page.locator('.alert-success').first()).toContainText('Acción de formación programada exitosamente');
+
         await page.fill('#titulos', 'Wizard Test Course');
         await page.click('form[action*="af_programadas"] button[type="submit"]');
         await page.waitForLoadState('load');

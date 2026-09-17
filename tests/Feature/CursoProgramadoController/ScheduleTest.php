@@ -82,6 +82,8 @@ class ScheduleTest extends TestCase
 
         $response->assertRedirect();
 
+        $this->assertSame('Acción de formación programada exitosamente', session('alert.titulo'));
+
         $this->assertDatabaseHas('scheduled_course', [
             'course_id' => $course->id,
             'facilitator_id' => $facilitator->id,

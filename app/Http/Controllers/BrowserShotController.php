@@ -258,17 +258,17 @@ class BrowserShotController extends Controller
             $values = $courses->pluck('id');
             
             if(count($courses) > 0){
-                $scheduled = Scheduled::with('facilitator')->with('course')->whereIn('id', $values); //cursos needs to be Builder
+                $scheduled = Scheduled::with('facilitator')->with('course')->whereIn('id', $values)->orderByDesc('start_date'); //cursos needs to be Builder
                 
             }else{
-                $scheduled = Scheduled::with('facilitator')->with('course')->where('id', null);
+                $scheduled = Scheduled::with('facilitator')->with('course')->where('id', null)->orderByDesc('start_date');
             }
 
         }else{ //user is facilitator
 
             $user->load('person.facilitator');
 
-            $scheduled = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $user->person->facilitator->id);
+            $scheduled = Scheduled::with('facilitator')->with('course')->where('facilitator_id', $user->person->facilitator->id)->orderByDesc('start_date');
         
         }
 
@@ -338,17 +338,19 @@ class BrowserShotController extends Controller
             $scheduledIds = $courses->pluck('id')->all();
             if (count($scheduledIds) > 0) {
                 $scheduled = Scheduled::with('facilitator', 'course', 'participants')
-                    ->whereIn('id', $scheduledIds);
+                    ->whereIn('id', $scheduledIds)
+                    ->orderByDesc('start_date');
             } else {
-                $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null);
+                $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null)->orderByDesc('start_date');
             }
         } elseif ($isFacilitator) {
             $facilitatorId = $user->person->facilitator->id ?? null;
             $scheduled = Scheduled::with('facilitator', 'course', 'participants')
-                ->where('facilitator_id', $facilitatorId);
+                ->where('facilitator_id', $facilitatorId)
+                ->orderByDesc('start_date');
         } else {
             // Default: show nothing
-            $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null);
+            $scheduled = Scheduled::with('facilitator', 'course', 'participants')->where('id', null)->orderByDesc('start_date');
         }
 
         // Filters
