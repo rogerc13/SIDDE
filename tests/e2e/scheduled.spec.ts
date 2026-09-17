@@ -484,4 +484,31 @@ test.describe('Session Modal', () => {
         await expect(tbody).toContainText('27-09-2026');
         await expect(tbody).toContainText('04-10-2026');
     });
+
+    test('blocks a repeat that would collide with an existing draft session', async ({ page }) => {
+        await openWizardStepTwo(page);
+
+        // First session on 20-09-2026
+        await fillSessionModal(page, 'WizardTestLocation', '20-09-2026', '8:00 AM', '10:00 AM');
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+        await expect(page.locator('#wizard-sessions-tbody tr')).toHaveCount(1);
+
+        // One week earlier with repeat = 2: the second occurrence (20-09) collides
+        await fillSessionModal(page, 'WizardTestLocation', '13-09-2026', '8:00 AM', '10:00 AM');
+        await page.evaluate(() => {
+            (window as any).jQuery('#repeat-count').val(2).trigger('change');
+        });
+        await page.waitForTimeout(200);
+
+        // Live warning appears before saving
+        await expect(page.locator('#conflict-hint-group')).toBeVisible();
+
+        await page.click('#add-session-modal .modal-footer button.btn-primary');
+        await page.waitForTimeout(300);
+        await expect(page.locator('#add-session-alert .session-callout--danger')).toBeVisible();
+
+        await page.click('#add-session-modal .modal-footer button.btn-default');
+        await expect(page.locator('#wizard-sessions-tbody tr')).toHaveCount(1);
+    });
 });

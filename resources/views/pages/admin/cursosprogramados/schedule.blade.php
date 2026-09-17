@@ -637,7 +637,8 @@ function getLocationColor(locationId) {
 
 function callout(type, icon, title, items) {
     var lis = items.map(function (i) {
-        return '<li>' + escapeHtml(cleanConflictTitle(i.title)) + ' · ' + formatTime12(i.start_time) + ' – ' + formatTime12(i.end_time) + '</li>';
+        var prefix = i.date ? isoToDisplayDate(i.date) + ' · ' : '';
+        return '<li>' + prefix + escapeHtml(cleanConflictTitle(i.title)) + ' · ' + formatTime12(i.start_time) + ' – ' + formatTime12(i.end_time) + '</li>';
     }).join('');
     return '<div class="session-callout session-callout--' + type + '">' +
         '<i class="' + icon + ' callout-icon"></i>' +
@@ -650,11 +651,32 @@ function cleanConflictTitle(title) {
 }
 
 function pushUniqueConflict(list, entry) {
-    var key = entry.title + '|' + entry.start_time + '|' + entry.end_time;
+    var key = (entry.date || '') + '|' + entry.title + '|' + entry.start_time + '|' + entry.end_time;
     for (var i = 0; i < list.length; i++) {
-        if (list[i].title + '|' + list[i].start_time + '|' + list[i].end_time === key) return;
+        if ((list[i].date || '') + '|' + list[i].title + '|' + list[i].start_time + '|' + list[i].end_time === key) return;
     }
     list.push(entry);
+}
+
+function buildSessionDates(sessionDate, repeatCount) {
+    var dates = [sessionDate];
+    for (var r = 1; r < repeatCount; r++) {
+        var d = new Date(sessionDate + 'T00:00:00');
+        d.setDate(d.getDate() + 7 * r);
+        var p = function (n) { return n < 10 ? '0' + n : '' + n; };
+        dates.push(d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()));
+    }
+    return dates;
+}
+
+function collectConflictsForDates(dates, locationId, startTime, endTime, editId) {
+    var merged = { location: [], facilitator: [] };
+    dates.forEach(function (dt) {
+        var c = findSessionConflicts(locationId, dt, startTime, endTime, editId);
+        c.location.forEach(function (e) { e.date = dt; pushUniqueConflict(merged.location, e); });
+        c.facilitator.forEach(function (e) { e.date = dt; pushUniqueConflict(merged.facilitator, e); });
+    });
+    return merged;
 }
 
 function renderConflictCallouts(conflicts) {
@@ -1115,12 +1137,16 @@ function saveSessionFromModal() {
         return;
     }
 
-    var conflicts = findSessionConflicts(locationId, sessionDate, startTime, endTime, editId);
+    var candidateDates = buildSessionDates(sessionDate, repeatCount);
+
+    var conflicts = collectConflictsForDates(candidateDates, locationId, startTime, endTime, editId);
     if (hasSessionConflicts(conflicts)) {
         $('#conflict-hint').html(renderConflictCallouts(conflicts));
         $('#conflict-hint-group').show();
-        showInlineAlert('add-session-alert', 'danger',
-            'Este horario no está disponible. El aula o el facilitador ya tienen otra sesión en ese rango. Ajuste la fecha, la hora o el aula.');
+        var message = candidateDates.length > 1
+            ? 'Una o más repeticiones se superponen con otra sesión. El aula o el facilitador ya están ocupados en ese horario. Ajuste la fecha, la hora, el aula o el número de repeticiones.'
+            : 'Este horario no está disponible. El aula o el facilitador ya tienen otra sesión en ese rango. Ajuste la fecha, la hora o el aula.';
+        showInlineAlert('add-session-alert', 'danger', message);
         return;
     }
 
@@ -1135,14 +1161,7 @@ function saveSessionFromModal() {
             wizardSessions[idx].duration_hours = durHours;
         }
     } else {
-        for (var r = 0; r < repeatCount; r++) {
-            var sessDate = sessionDate;
-            if (r > 0) {
-                var d = new Date(sessionDate + 'T00:00:00');
-                d.setDate(d.getDate() + 7 * r);
-                var p = function(n) { return n < 10 ? '0' + n : '' + n; };
-                sessDate = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
-            }
+        candidateDates.forEach(function (sessDate) {
             sessionCounter++;
             wizardSessions.push({
                 id: sessionCounter,
@@ -1154,7 +1173,7 @@ function saveSessionFromModal() {
                 end_time: endTime,
                 duration_hours: durHours
             });
-        }
+        });
     }
 
     $('#add-session-modal').modal('hide');
@@ -1211,12 +1230,14 @@ function updateConflictHint() {
     var startTime = to24h($('#add-session-start').val());
     var endTime = to24h($('#add-session-end').val());
     var editId = $('#add-session-edit-id').val();
+    var repeatCount = (!editId) ? (parseInt($('#repeat-count').val(), 10) || 1) : 1;
+    if (repeatCount < 1) repeatCount = 1;
     var $group = $('#conflict-hint-group');
     if (!locationId || !sessionDate || !startTime || !endTime || timeToMinutes(startTime) >= timeToMinutes(endTime)) {
         $group.hide();
         return;
     }
-    var conflicts = findSessionConflicts(locationId, sessionDate, startTime, endTime, editId);
+    var conflicts = collectConflictsForDates(buildSessionDates(sessionDate, repeatCount), locationId, startTime, endTime, editId);
     if (!hasSessionConflicts(conflicts)) {
         $group.hide();
         return;
@@ -1710,6 +1731,10 @@ $('#add-session-start, #add-session-end, #add-session-date').on('keydown change'
 });
 
 $('#add-session-location').on('change', function() {
+    updateConflictHint();
+});
+
+$('#repeat-count').on('input change', function() {
     updateConflictHint();
 });
 
