@@ -512,3 +512,56 @@ test.describe('Session Modal', () => {
         await expect(page.locator('#wizard-sessions-tbody tr')).toHaveCount(1);
     });
 });
+
+test.describe('Location Filter Groups', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/af_programadas/crear');
+        await page.waitForSelector('#wizard-form');
+        await selectSelect2ById(page, 'wizard-titulo');
+        await page.waitForTimeout(100);
+        await selectSelect2ById(page, 'wizard-facilitador');
+        await page.click('#wizard-btn-next');
+        await page.waitForSelector('#panel-step2.active');
+        await page.waitForSelector('#location-color-legend .loc-group');
+    });
+
+    test('renders building and floor groups', async ({ page }) => {
+        await expect(page.locator('#location-color-legend .loc-group').first()).toBeVisible();
+        await expect(page.locator('#location-color-legend .loc-floor-header').first()).toBeVisible();
+
+        // Only the most-used building starts expanded
+        const expandedBuildings = page.locator('#location-color-legend .loc-group-header[aria-expanded="true"]');
+        await expect(expandedBuildings).toHaveCount(1);
+    });
+
+    test('collapses and expands a building group', async ({ page }) => {
+        const group = page.locator('#location-color-legend .loc-group').first();
+        const header = group.locator('.loc-group-header');
+
+        await expect(header).toHaveAttribute('aria-expanded', 'true');
+        await header.click();
+        await expect(header).toHaveAttribute('aria-expanded', 'false');
+        await expect(group.locator('.loc-group-body')).toHaveAttribute('hidden', '');
+
+        await header.click();
+        await expect(header).toHaveAttribute('aria-expanded', 'true');
+        await expect(group.locator('.loc-group-body')).not.toHaveAttribute('hidden', '');
+    });
+
+    test('search filters chips and expands matching groups', async ({ page }) => {
+        await page.fill('#location-chip-search', 'Aula 00');
+        await page.waitForTimeout(250);
+
+        const chips = page.locator('#location-color-legend .loc-chip:not(.loc-chip-all)');
+        expect(await chips.count()).toBeGreaterThan(0);
+
+        const texts = await chips.allTextContents();
+        for (const text of texts) {
+            expect(text.toLowerCase()).toContain('aula 00');
+        }
+
+        // Matching groups are expanded while searching
+        await expect(page.locator('#location-color-legend .loc-group-header[aria-expanded="false"]')).toHaveCount(0);
+    });
+});

@@ -161,6 +161,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('location-key-pinned');
         $response->assertSee('repeat-group');
         $response->assertDontSee('add-session-notes');
+        $response->assertSee('data-building-name', false);
+        $response->assertSee('data-floor-name', false);
+        $response->assertSee('data-sessions', false);
     }
 
     public function test_create_page_renders_leave_warning_modal(): void
@@ -241,8 +244,8 @@ class SchedulePageTest extends TestCase
         $response = $this->actingAs($user)->get('/u/af_programadas/crear');
 
         $content = $response->getContent();
-        $busyPos = strpos($content, 'value="' . $busy->id . '" data-building-floor');
-        $quietPos = strpos($content, 'value="' . $quiet->id . '" data-building-floor');
+        $busyPos = strpos($content, 'value="' . $busy->id . '" data-building-id');
+        $quietPos = strpos($content, 'value="' . $quiet->id . '" data-building-id');
 
         $this->assertNotFalse($busyPos);
         $this->assertNotFalse($quietPos);

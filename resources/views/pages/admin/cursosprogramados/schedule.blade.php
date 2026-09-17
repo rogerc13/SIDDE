@@ -207,7 +207,7 @@
     /* Location chips (filter + legend in one) */
     .location-filter-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
     #location-chip-search { margin-bottom: 6px; }
-    .loc-chips-scroll { max-height: 132px; overflow-y: auto; padding: 2px; border: 1px solid #e5e5e5; border-radius: 4px; background: #fafbfc; }
+    .loc-chips-scroll { max-height: 300px; overflow-y: auto; padding: 4px; border: 1px solid #e5e5e5; border-radius: 4px; background: #fafbfc; }
     .loc-chip {
         display: inline-flex; align-items: center; gap: 5px;
         max-width: 100%;
@@ -222,11 +222,41 @@
     .loc-chip.active { background: #eaf4fd; border-color: #3498db; color: #2c81ba; font-weight: 600; }
     .loc-chip-all { border-style: dashed; color: #888; }
     .loc-chip-all.active { background: #f0f0f0; border-color: #999; color: #444; }
-    .hidden-chip { display: none !important; }
     .chips-disabled .loc-chip { opacity: 0.55; cursor: default; pointer-events: none; }
     .location-legend-item { display: inline-flex; align-items: center; margin: 2px 10px 2px 0; font-size: 11px; }
     .location-legend-swatch { width: 10px; height: 10px; border-radius: 50%; margin-right: 2px; display: inline-block; flex-shrink: 0; }
     .location-key-pinned { margin-top: 6px; font-size: 11px; }
+
+    /* Grouped location chips (building > floor) */
+    .loc-group { margin: 2px 0 4px; }
+    .loc-group-header {
+        display: flex; align-items: center; gap: 6px; width: 100%;
+        padding: 5px 8px; margin: 0;
+        font-size: 11px; font-weight: 700; color: #4a5560;
+        background: #eef2f6; border: 1px solid #e0e6ec; border-radius: 4px;
+        cursor: pointer; text-align: left;
+        -webkit-transition: background 0.12s ease; transition: background 0.12s ease;
+    }
+    .loc-group-header:hover { background: #e6ecf2; }
+    .loc-group-header:focus { outline: 2px solid #3498db; outline-offset: 1px; }
+    .loc-group-chevron { width: 10px; font-size: 10px; color: #7a8794; -webkit-transition: transform 0.15s ease; transition: transform 0.15s ease; }
+    .loc-group-header.expanded .loc-group-chevron,
+    .loc-floor-header.expanded .loc-group-chevron { transform: rotate(90deg); }
+    .loc-group-count { margin-left: auto; font-weight: 600; color: #97a2ad; }
+    .loc-group-body { padding: 6px 0 2px 8px; }
+    .loc-group-body[hidden], .loc-floor-body[hidden] { display: none !important; }
+    .loc-floor { margin: 2px 0 4px; }
+    .loc-floor-header {
+        display: flex; align-items: center; gap: 6px; width: 100%;
+        padding: 3px 6px; margin: 2px 0;
+        font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #8a97a3;
+        background: transparent; border: 0; cursor: pointer; text-align: left;
+    }
+    .loc-floor-header:hover { color: #5b6672; }
+    .loc-floor-header:focus { outline: 2px solid #3498db; outline-offset: 1px; }
+    .loc-floor-header .loc-group-chevron { width: 9px; font-size: 9px; }
+    .loc-floor-header .loc-group-count { text-transform: none; letter-spacing: 0; }
+    .loc-floor-body { padding: 2px 0 4px 10px; }
 
     /* Read-only calendar (view mode) */
     .calendar-readonly .fc-agenda-slots, .calendar-readonly .fc-day, .calendar-readonly .fc-event { cursor: default !important; }
@@ -357,7 +387,7 @@
                             <select id="calendar-location-filter" class="hidden" tabindex="-1" aria-hidden="true">
                                 <option value="">Todas las ubicaciones</option>
                                 @foreach($locations as $location)
-                                    <option value="{{ $location->id }}" data-building-floor="{{ ($location->floor->building->name ?? 'Sin edificio') }} > {{ ($location->floor->name ?? 'Sin piso') }}">{{ $location->name }}</option>
+                                    <option value="{{ $location->id }}" data-building-id="{{ $location->floor?->building?->id }}" data-building-name="{{ $location->floor?->building?->name ?? 'Sin edificio' }}" data-floor-id="{{ $location->floor?->id }}" data-floor-name="{{ $location->floor?->name ?? 'Sin piso' }}" data-sessions="{{ (int) ($location->sessions_count ?? 0) }}">{{ $location->name }}</option>
                                 @endforeach
                             </select>
                             <div class="sessions-header">
@@ -572,6 +602,7 @@ var blockedSlotsCache = [];
 var dirty = false;
 var firstSessionDate = null;
 var locationColorMap = {};
+var locationGroupState = null;
 var allowNavigation = false;
 var maxStepReached = 1;
 var pendingNavigation = null;
@@ -752,6 +783,7 @@ function resetWizard() {
     $('#wizard-btn-next').show();
     $('#wizard-btn-submit').prop('disabled', true).hide();
     $('#calendar-location-filter').val('').trigger('change');
+    locationGroupState = null;
     renderLocationChips();
     renderSessionTable();
     if (window.wizardCalendar) {
@@ -1003,26 +1035,140 @@ function refreshCalendarEvents() {
     $('#wizard-calendar').fullCalendar('gotoDate', currentDate);
 }
 
+function buildLocationGroups() {
+    var buildings = {};
+    $('#calendar-location-filter option[value!=""]').each(function () {
+        var $o = $(this);
+        var bId = String($o.data('building-id') || '');
+        var fId = String($o.data('floor-id') || '');
+        var bName = $o.data('building-name') || 'Sin edificio';
+        var fName = $o.data('floor-name') || 'Sin piso';
+        var sessions = parseInt($o.data('sessions'), 10) || 0;
+        var bKey = 'b:' + (bId || 'none');
+        var fKey = 'f:' + (fId || 'none');
+
+        if (!buildings[bKey]) {
+            buildings[bKey] = { key: bKey, name: bName, sessions: 0, floors: {} };
+        }
+        if (!buildings[bKey].floors[fKey]) {
+            buildings[bKey].floors[fKey] = { key: fKey, name: fName, sessions: 0, locations: [] };
+        }
+        buildings[bKey].sessions += sessions;
+        buildings[bKey].floors[fKey].sessions += sessions;
+        buildings[bKey].floors[fKey].locations.push({ id: $o.val(), name: $o.text(), sessions: sessions });
+    });
+
+    var list = Object.keys(buildings).map(function (k) { return buildings[k]; });
+    list.forEach(function (b) {
+        var floors = Object.keys(b.floors).map(function (k) { return b.floors[k]; });
+        floors.sort(function (x, y) { return (y.sessions - x.sessions) || x.name.localeCompare(y.name); });
+        floors.forEach(function (f) {
+            f.locations.sort(function (x, y) { return (y.sessions - x.sessions) || x.name.localeCompare(y.name); });
+        });
+        b.floorList = floors;
+    });
+    list.sort(function (x, y) { return (y.sessions - x.sessions) || x.name.localeCompare(y.name); });
+    return list;
+}
+
+function defaultLocationGroupState(groups) {
+    var state = {};
+    groups.forEach(function (b) {
+        state[b.key] = false;
+        b.floorList.forEach(function (f) { state[f.key] = false; });
+    });
+    if (groups.length) {
+        state[groups[0].key] = true;
+        if (groups[0].floorList.length) {
+            state[groups[0].floorList[0].key] = true;
+        }
+    }
+    return state;
+}
+
+function locationChipHtml(location, current) {
+    var active = String(location.id) === String(current);
+    return '<button type="button" class="loc-chip' + (active ? ' active' : '') + '"' +
+        ' data-location-id="' + escapeAttr(location.id) + '" aria-pressed="' + (active ? 'true' : 'false') + '"' +
+        ' title="' + escapeAttr(location.name) + '">' +
+        '<span class="location-legend-swatch" style="background:' + getLocationColor(location.id) + ';"></span>' +
+        '<span class="loc-chip-label">' + escapeHtml(location.name) + '</span>' +
+        '</button>';
+}
+
 function renderLocationChips() {
     var $legend = $('#location-color-legend');
     var current = $('#calendar-location-filter').val() || '';
     var $search = $('#location-chip-search');
-    var query = ($search.length && $search.val()) ? $search.val().toLowerCase() : '';
+    var query = ($search.length && $search.val()) ? $search.val().trim().toLowerCase() : '';
+    var searching = query !== '';
+
+    var groups = buildLocationGroups();
+    if (!locationGroupState) {
+        locationGroupState = defaultLocationGroupState(groups);
+    }
+    groups.forEach(function (b) {
+        if (typeof locationGroupState[b.key] === 'undefined') locationGroupState[b.key] = false;
+        b.floorList.forEach(function (f) {
+            if (typeof locationGroupState[f.key] === 'undefined') locationGroupState[f.key] = false;
+        });
+    });
+
+    // Auto-expand the chain that contains the active selection
+    if (current) {
+        groups.forEach(function (b) {
+            b.floorList.forEach(function (f) {
+                var hasActive = f.locations.some(function (l) { return String(l.id) === String(current); });
+                if (hasActive) {
+                    locationGroupState[b.key] = true;
+                    locationGroupState[f.key] = true;
+                }
+            });
+        });
+    }
 
     var html = '<button type="button" class="loc-chip loc-chip-all' + (current === '' ? ' active' : '') + '"' +
         ' data-location-id="" aria-pressed="' + (current === '' ? 'true' : 'false') + '">Todas</button>';
 
-    $('#calendar-location-filter option[value!=""]').each(function() {
-        var val = $(this).val();
-        var name = $(this).text();
-        var path = $(this).data('building-floor') || '';
-        var matches = !query || name.toLowerCase().indexOf(query) !== -1;
-        html += '<button type="button" class="loc-chip' + (current === val ? ' active' : '') + (matches ? '' : ' hidden-chip') + '"' +
-            ' data-location-id="' + escapeAttr(val) + '" aria-pressed="' + (current === val ? 'true' : 'false') + '"' +
-            ' title="' + escapeAttr(name + (path ? ' · ' + path : '')) + '">' +
-            '<span class="location-legend-swatch" style="background:' + getLocationColor(val) + ';"></span>' +
-            '<span class="loc-chip-label">' + escapeHtml(name) + '</span>' +
-            '</button>';
+    groups.forEach(function (b) {
+        var floorsHtml = '';
+        var buildingCount = 0;
+
+        b.floorList.forEach(function (f) {
+            var matching = f.locations.filter(function (l) {
+                return !searching || l.name.toLowerCase().indexOf(query) !== -1;
+            });
+            if (!matching.length) return;
+
+            buildingCount += matching.length;
+            var floorExpanded = searching || !!locationGroupState[f.key];
+            var chips = matching.map(function (l) { return locationChipHtml(l, current); }).join('');
+
+            floorsHtml +=
+                '<div class="loc-floor">' +
+                    '<button type="button" class="loc-floor-header' + (floorExpanded ? ' expanded' : '') + '"' +
+                        ' data-group-key="' + escapeAttr(f.key) + '" aria-expanded="' + (floorExpanded ? 'true' : 'false') + '">' +
+                        '<i class="fa fa-chevron-right loc-group-chevron"></i>' +
+                        '<span>' + escapeHtml(f.name) + '</span>' +
+                        '<span class="loc-group-count">' + matching.length + '</span>' +
+                    '</button>' +
+                    '<div class="loc-floor-body"' + (floorExpanded ? '' : ' hidden') + '>' + chips + '</div>' +
+                '</div>';
+        });
+
+        if (!buildingCount) return;
+
+        var buildingExpanded = searching || !!locationGroupState[b.key];
+        html +=
+            '<div class="loc-group">' +
+                '<button type="button" class="loc-group-header' + (buildingExpanded ? ' expanded' : '') + '"' +
+                    ' data-group-key="' + escapeAttr(b.key) + '" aria-expanded="' + (buildingExpanded ? 'true' : 'false') + '">' +
+                    '<i class="fa fa-chevron-right loc-group-chevron"></i>' +
+                    '<span>' + escapeHtml(b.name) + '</span>' +
+                    '<span class="loc-group-count">' + buildingCount + '</span>' +
+                '</button>' +
+                '<div class="loc-group-body"' + (buildingExpanded ? '' : ' hidden') + '>' + floorsHtml + '</div>' +
+            '</div>';
     });
 
     $legend.html(html);
@@ -1583,6 +1729,15 @@ function initSchedulePage() {
         var current = $('#calendar-location-filter').val() || '';
         var next = (current === id) ? '' : id;
         $('#calendar-location-filter').val(next).trigger('change');
+    });
+
+    $('#location-color-legend').on('click', '.loc-group-header, .loc-floor-header', function() {
+        var key = String($(this).data('group-key') || '');
+        if (!key || !locationGroupState) return;
+        var expanded = !locationGroupState[key];
+        locationGroupState[key] = expanded;
+        $(this).toggleClass('expanded', expanded).attr('aria-expanded', expanded ? 'true' : 'false');
+        $(this).next().prop('hidden', !expanded);
     });
 
     $('#location-chip-search').on('input', function() {
