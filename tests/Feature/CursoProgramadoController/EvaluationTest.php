@@ -469,4 +469,15 @@ class EvaluationTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('alert');
     }
+
+    public function test_mis_acciones_facilitador_view_icon_opens_details(): void
+    {
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $response = $this->actingAs($facilitadorUser)->get('/u/mis_acciones');
+
+        $response->assertOk();
+        $response->assertSee(url('u/af_programadas/' . $scheduled->id . '/ver'), false);
+    }
 }

@@ -8,6 +8,9 @@
     .details-header h3 { margin: 0 0 4px; font-size: 20px; }
     .details-header h3 .badge { vertical-align: middle; font-size: 12px; margin-left: 8px; }
     .details-meta { margin: 0; font-size: 12px; }
+    .details-tabs { margin-bottom: 0; }
+    .details-tab-content { background: #fff; border: 1px solid #e5e5e5; border-top: 0; padding: 18px; margin-bottom: 20px; border-radius: 0 0 3px 3px; }
+    .details-tab-content .ficha-table { margin-bottom: 0; }
 
     /* KPI tiles — equalized via flex */
     .details-stats { display: flex; flex-wrap: wrap; margin-left: -8px; margin-right: -8px; margin-bottom: 24px; }
@@ -143,6 +146,29 @@
                 <a class="stat-sub no-print" href="{{ url('u/af_programadas/'.$scheduled->id.'/participantes') }}">gestionar participantes</a>
             @endcan
         </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs details-tabs" role="tablist">
+    <li role="presentation">
+        <a href="#tab-participantes" aria-controls="tab-participantes" role="tab" data-toggle="tab"><i class="entypo-users"></i> Participantes</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab-documentos" aria-controls="tab-documentos" role="tab" data-toggle="tab"><i class="entypo-download"></i> Documentos</a>
+    </li>
+    <li role="presentation" class="active">
+        <a href="#tab-ficha" aria-controls="tab-ficha" role="tab" data-toggle="tab"><i class="entypo-doc-text"></i> Ficha Técnica</a>
+    </li>
+</ul>
+<div class="tab-content details-tab-content">
+    <div role="tabpanel" class="tab-pane" id="tab-participantes">
+        <p class="text-muted">La gestión de participantes estará disponible próximamente en esta pestaña.</p>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="tab-documentos">
+        <p class="text-muted">Los documentos del curso estarán disponibles próximamente en esta pestaña.</p>
+    </div>
+    <div role="tabpanel" class="tab-pane active" id="tab-ficha">
+        @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])
     </div>
 </div>
 

@@ -141,9 +141,15 @@
 								<i class="entypo-download"></i>
 							</a>
 							@endif
+							@if($logeado->isFacilitador())
+								<a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
+									<i class="entypo-search"></i>
+								</a>
+							@else
 								<a  title="Ver Ficha Técnica" href="{{url('acciones_formacion/'.$cursop->course->id)}}" class="btn btn-info btn-xs">
 									<i class="entypo-search"></i>
 								</a>
+							@endif
 								</td>
 			            </tr>
 			        @endforeach		

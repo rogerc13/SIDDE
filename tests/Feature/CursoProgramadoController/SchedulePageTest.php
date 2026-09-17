@@ -145,6 +145,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Registrados');
         $response->assertSee('Más funciones');
         $response->assertSee('Asignar participante');
+        $response->assertSee('role="tablist"', false);
+        $response->assertSee('Ficha Técnica');
+        $response->assertSee('Área de conocimiento');
         $response->assertSee('programa-modal-cancel', false);
         $response->assertSee('programa-modal-delete', false);
         $response->assertSee('asignar-modal', false);

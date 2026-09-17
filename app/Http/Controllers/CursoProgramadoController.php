@@ -193,9 +193,18 @@ class CursoProgramadoController extends Controller
     {
         $user = Auth::user();
 
-        $scheduled = Scheduled::with(['course.capacity', 'facilitator.person', 'sessions.location' => function ($q) {
-            $q->withTrashed();
-        }])->find($id);
+        $scheduled = Scheduled::with([
+            'course.capacity',
+            'course.category',
+            'course.modality',
+            'course.content',
+            'course.prerequisite.prerequisite',
+            'course.file',
+            'facilitator.person',
+            'sessions.location' => function ($q) {
+                $q->withTrashed();
+            },
+        ])->find($id);
 
         if (!$scheduled) {
             return Redirect::to(url('u/af_programadas'))
