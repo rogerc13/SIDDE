@@ -153,6 +153,25 @@ public static function sanear_string($string)
     {
         return str_replace(['%', '_'], ['\\%', '\\_'], $value);
     }
+
+    /**
+     * Format a date value for display. Storage/payloads keep ISO (Y-m-d);
+     * this only affects what the user sees.
+     *
+     * @param  mixed  $value
+     */
+    public static function formatDate($value, string $format = 'd-m-Y'): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format($format);
+        } catch (\Throwable $e) {
+            return (string) $value;
+        }
+    }
 }
 
 
