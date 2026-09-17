@@ -162,6 +162,39 @@ class SchedulePageTest extends TestCase
         $response->assertSee('repeat-group');
     }
 
+    public function test_create_page_renders_leave_warning_modal(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $this->makeFacilitatorUser();
+        $this->makeCourse();
+        $this->makeLocation();
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/crear');
+
+        $response->assertStatus(200);
+        $response->assertSee('leave-warning-modal');
+        $response->assertSee('leave-warning-confirm');
+    }
+
+    public function test_edit_page_renders_leave_warning_modal(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00', 'notes' => ''],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/editar');
+
+        $response->assertStatus(200);
+        $response->assertSee('leave-warning-modal');
+        $response->assertSee('leave-warning-confirm');
+    }
+
     public function test_create_page_hides_location_search_for_small_lists(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);

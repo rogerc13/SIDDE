@@ -435,6 +435,27 @@
         </div>
     </div>
 </div>
+
+@if($mode !== 'view')
+{{-- Leave warning modal (unsaved changes) --}}
+<div class="modal fade" id="leave-warning-modal" tabindex="-1" role="dialog" aria-labelledby="leave-warning-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="leave-warning-label">Cambios sin guardar</h4>
+            </div>
+            <div class="modal-body">
+                <p>Tiene cambios sin guardar en esta programación. Si sale ahora, perderá las sesiones y datos que ingresó.</p>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Quedarse</button>
+                <button type="button" class="btn btn-danger" id="leave-warning-confirm">Salir sin guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @push('JS')
@@ -449,6 +470,9 @@ var overlapPendingConfirm = false;
 var dirty = false;
 var firstSessionDate = null;
 var locationColorMap = {};
+var allowNavigation = false;
+var maxStepReached = 1;
+var pendingNavigation = null;
 
 var scheduleMode = '{{ $mode }}';
 var scheduleId = @json($scheduledId);
@@ -524,6 +548,9 @@ function resetWizard() {
     courseDuration = 0;
     dirty = false;
     firstSessionDate = null;
+    allowNavigation = false;
+    maxStepReached = 1;
+    pendingNavigation = null;
     $('#duration-info').text('');
     clearInlineAlert('wizard-alert');
     clearInlineAlert('wizard-submit-alert');
@@ -540,6 +567,9 @@ function resetWizard() {
 }
 
 function wizardGoToStep(step) {
+    if (step > maxStepReached) {
+        maxStepReached = step;
+    }
     $('.wizard-step-panel').removeClass('active');
     $('#panel-step' + step).addClass('active');
     $('.wizard-steps li').removeClass('active completed');
@@ -1314,9 +1344,11 @@ function submitWizardSchedule() {
         },
         success: function(response) {
             dirty = false;
+            allowNavigation = true;
             window.location.href = '{{ url('u/af_programadas') }}';
         },
         error: function(xhr) {
+            allowNavigation = false;
             $submitBtn.prop('disabled', false);
             $submitBtn.html(scheduleMode === 'edit' ? '<i class="fa fa-check"></i> Actualizar' : '<i class="fa fa-check"></i> Programar');
             var msg = 'Error al guardar el curso.';
@@ -1432,21 +1464,62 @@ function initSchedulePage() {
         $('#add-session-btn').prop('disabled', true);
     }
 
-    $('#wizard-volver').on('click', function(e) {
-        if (scheduleMode === 'edit' && dirty) {
-            if (!window.confirm('Tiene cambios sin guardar. ¿Desea salir de todos modos?')) {
-                e.preventDefault();
-            }
-        }
-    });
-
     window.addEventListener('beforeunload', function(e) {
-        if (scheduleMode === 'edit' && dirty) {
+        if (hasUnsavedWork()) {
             e.preventDefault();
             e.returnValue = '';
         }
     });
 }
+
+function hasUnsavedWork() {
+    if (scheduleMode === 'view' || allowNavigation) return false;
+    if (dirty) return true;
+    if (maxStepReached > 1) return true;
+    return scheduleMode === 'create' && !!($('#wizard-titulo').val() || $('#wizard-facilitador').val());
+}
+
+function isNavigatingLink(link) {
+    if (link.hasAttribute('data-dismiss') || link.hasAttribute('data-toggle')) return false;
+    if (link.getAttribute('target') === '_blank' || link.hasAttribute('download')) return false;
+    var href = link.getAttribute('href');
+    if (!href || href === '#' || href.indexOf('#') === 0) return false;
+    if (/^(javascript:|mailto:|tel:)/i.test(href)) return false;
+    return true;
+}
+
+function openLeaveWarning(link) {
+    if ($('#leave-warning-modal').hasClass('in')) return;
+    var href = link.getAttribute('href');
+    if (href.indexOf('/logout') !== -1) {
+        pendingNavigation = { type: 'logout' };
+    } else {
+        pendingNavigation = { type: 'url', url: link.href || href };
+    }
+    $('#leave-warning-modal').modal('show');
+}
+
+document.addEventListener('click', function(e) {
+    if (!hasUnsavedWork()) return;
+    var link = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!link || !isNavigatingLink(link)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openLeaveWarning(link);
+}, true);
+
+$(function() {
+    $('#leave-warning-confirm').on('click', function() {
+        allowNavigation = true;
+        $('#leave-warning-modal').modal('hide');
+        if (pendingNavigation && pendingNavigation.type === 'logout') {
+            var logoutForm = document.getElementById('logout-form');
+            if (logoutForm) logoutForm.submit();
+        } else if (pendingNavigation && pendingNavigation.url) {
+            window.location.href = pendingNavigation.url;
+        }
+    });
+});
 
 $(function() {
     initSchedulePage();

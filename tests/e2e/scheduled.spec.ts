@@ -354,3 +354,53 @@ test.describe('Participant Assignment', () => {
         }
     });
 });
+
+test.describe('Unsaved Changes Guard', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/af_programadas/crear');
+        await page.waitForSelector('#wizard-form');
+    });
+
+    async function reachStepTwo(page: any) {
+        await selectSelect2ById(page, 'wizard-titulo');
+        await selectSelect2ById(page, 'wizard-facilitador');
+        await page.click('#wizard-btn-next');
+        await page.waitForSelector('#panel-step2.active');
+    }
+
+    test('warns before leaving create wizard via sidebar link', async ({ page }) => {
+        await reachStepTwo(page);
+
+        await page.click('#main-menu a[href$="/u/af_programadas"]');
+        await expect(page.locator('#leave-warning-modal')).toBeVisible();
+
+        await page.getByRole('button', { name: 'Quedarse' }).click();
+        await expect(page.locator('#leave-warning-modal')).toBeHidden();
+        await expect(page).toHaveURL(/af_programadas\/crear/);
+    });
+
+    test('leaves when confirming unsaved changes', async ({ page }) => {
+        await reachStepTwo(page);
+
+        await page.click('#main-menu a[href$="/u/af_programadas"]');
+        await expect(page.locator('#leave-warning-modal')).toBeVisible();
+
+        await page.click('#leave-warning-confirm');
+        await page.waitForLoadState('load');
+        await expect(page).toHaveURL(/\/u\/af_programadas$/);
+    });
+
+    test('shows native dialog on reload when there are changes', async ({ page }) => {
+        await reachStepTwo(page);
+
+        let dialogSeen = false;
+        page.on('dialog', async (dialog) => {
+            dialogSeen = true;
+            await dialog.accept();
+        });
+        await page.reload();
+        await page.waitForLoadState('load');
+        expect(dialogSeen).toBe(true);
+    });
+});
