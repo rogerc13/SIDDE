@@ -322,6 +322,28 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.click('a[href="#tab-participantes"]');
         await expect(page.locator('#tab-participantes')).toBeVisible();
     });
+
+    test('prints only the weekly horario from the details page', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Ver detalles"]').click();
+        await page.waitForLoadState('load');
+
+        await expect(page.locator('#print-horario-btn')).toBeVisible();
+
+        await page.emulateMedia({ media: 'print' });
+        await page.evaluate(() => document.body.classList.add('printing-horario'));
+
+        await expect(page.locator('#print-horario')).toBeVisible();
+        await expect(page.locator('#print-horario .print-horario-grid')).toBeVisible();
+        await expect(page.locator('.details-header')).toBeHidden();
+        await expect(page.locator('.details-tabs')).toBeHidden();
+
+        await page.evaluate(() => document.body.classList.remove('printing-horario'));
+        await page.emulateMedia({ media: 'screen' });
+    });
 });
 
 test.describe('Participant Assignment', () => {

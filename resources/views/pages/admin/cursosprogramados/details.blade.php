@@ -81,8 +81,35 @@
         body.printing-ficha #tab-documentos { display: none !important; }
         body.printing-ficha #tab-ficha { display: block !important; }
         body.printing-ficha .details-tab-content { border: 0; padding: 0; margin: 0; background: transparent; }
+
+        body.printing-horario .details-header,
+        body.printing-horario .details-stats,
+        body.printing-horario .details-tabs,
+        body.printing-horario .details-tab-content { display: none !important; }
+        body.printing-horario #print-horario { display: block !important; }
+        @page { size: landscape; margin: 10mm; }
     }
     .ficha-actions { margin-bottom: 14px; text-align: right; }
+    .horario-actions { margin-bottom: 14px; text-align: right; }
+
+    /* Printable date-agnostic week (horario) */
+    #print-horario { display: none; color: #000; }
+    #print-horario .print-horario-header { margin-bottom: 12px; }
+    #print-horario .print-horario-header h3 { margin: 0 0 4px; font-size: 16px; }
+    #print-horario .print-horario-header p { margin: 0; font-size: 12px; }
+    .print-horario-grid { display: flex; border: 1px solid #ccc; page-break-inside: avoid; }
+    .ph-gutter { width: 58px; flex-shrink: 0; border-right: 1px solid #ccc; }
+    .ph-gutter-spacer { height: 28px; border-bottom: 1px solid #ccc; }
+    .ph-hour-label { height: 40px; font-size: 10px; color: #555; text-align: right; padding-right: 6px; box-sizing: border-box; border-bottom: 1px solid #eee; }
+    .ph-days { display: flex; flex: 1; }
+    .ph-day { flex: 1 1 0; min-width: 0; border-right: 1px solid #ccc; }
+    .ph-day:last-child { border-right: 0; }
+    .ph-day-head { height: 28px; line-height: 28px; text-align: center; font-size: 11px; font-weight: 600; background: #f5f5f5; border-bottom: 1px solid #ccc; }
+    .ph-day-body { position: relative; height: 640px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, #eee 39px, #eee 40px); }
+    .ph-block { position: absolute; left: 2px; right: 2px; box-sizing: border-box; background: #eef8f1; border: 1px solid #27ae60; border-left: 3px solid #27ae60; border-radius: 3px; padding: 3px 5px; font-size: 9px; line-height: 1.25; overflow: hidden; }
+    .ph-block span { display: block; }
+    .ph-block .ph-time { font-weight: 700; }
+    .ph-block .ph-dates { color: #444; margin-top: 2px; }
 </style>
 @endpush
 
@@ -104,6 +131,31 @@
         4 => ['label' => 'Presentación', 'icon' => 'fa-file-pdf-o'],
     ];
     $filesByType = $scheduled->course->file->keyBy('type_id');
+
+    $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    $printGroups = [];
+    foreach ($existingSessions as $s) {
+        $weekday = \Carbon\Carbon::parse($s['session_date'])->dayOfWeekIso;
+        $key = $weekday . '|' . $s['start_time'] . '|' . $s['end_time'] . '|' . $s['location_id'];
+        if (!isset($printGroups[$key])) {
+            $printGroups[$key] = [
+                'weekday' => $weekday,
+                'start_time' => $s['start_time'],
+                'end_time' => $s['end_time'],
+                'location_name' => $s['location_name'],
+                'dates' => [],
+            ];
+        }
+        $dateLabel = \Carbon\Carbon::parse($s['session_date'])->format('d-m-Y');
+        if (!in_array($dateLabel, $printGroups[$key]['dates'], true)) {
+            $printGroups[$key]['dates'][] = $dateLabel;
+        }
+    }
+    usort($printGroups, function ($a, $b) {
+        return [$a['weekday'], $a['start_time']] <=> [$b['weekday'], $b['start_time']];
+    });
+    $printHorarioCourse = $scheduled->course->title;
+    $printHorarioFacilitator = trim($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
 @endphp
 
 <div class="details-header">
@@ -202,6 +254,9 @@
 </ul>
 <div class="tab-content details-tab-content">
     <div role="tabpanel" class="tab-pane active" id="tab-programacion">
+        <div class="horario-actions no-print">
+            <button type="button" class="btn btn-success" id="print-horario-btn"><i class="fa fa-print"></i> Imprimir horario</button>
+        </div>
         <div class="panel panel-success" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">Sesiones</div>
@@ -288,6 +343,49 @@
             <button type="button" class="btn btn-success" id="print-ficha-btn"><i class="fa fa-file-pdf-o"></i> Imprimir Ficha Técnica</button>
         </div>
         @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])
+    </div>
+</div>
+
+<div id="print-horario">
+    <div class="print-horario-header">
+        <h3>{{ $scheduled->course->title }}</h3>
+        <p>{{ $printHorarioFacilitator }} <span aria-hidden="true">·</span> @date($scheduled->start_date) <span aria-hidden="true">→</span> @date($scheduled->end_date)</p>
+    </div>
+    <div class="print-horario-grid">
+        <div class="ph-gutter">
+            <div class="ph-gutter-spacer"></div>
+            @for($h = 6; $h <= 21; $h++)
+                <div class="ph-hour-label">{{ sprintf('%02d:00', $h) }}</div>
+            @endfor
+        </div>
+        <div class="ph-days">
+            @foreach($dayNames as $i => $dayName)
+                <div class="ph-day">
+                    <div class="ph-day-head">{{ $dayName }}</div>
+                    <div class="ph-day-body">
+                        @foreach($printGroups as $g)
+                            @if($g['weekday'] === $i + 1)
+                                @php
+                                    $start = \Carbon\Carbon::parse($g['start_time']);
+                                    $end = \Carbon\Carbon::parse($g['end_time']);
+                                    $startMin = min(max($start->hour * 60 + $start->minute, 360), 1320);
+                                    $endMin = min(max($end->hour * 60 + $end->minute, 360), 1320);
+                                    $top = round(($startMin - 360) / 960 * 100, 3);
+                                    $height = round(max(2, $endMin - $startMin) / 960 * 100, 3);
+                                @endphp
+                                <div class="ph-block" style="top: {{ $top }}%; height: {{ $height }}%;">
+                                    <span class="ph-time">{{ $start->format('g:i A') }} – {{ $end->format('g:i A') }}</span>
+                                    <span class="ph-aula">{{ $g['location_name'] }}</span>
+                                    <span class="ph-course">{{ $printHorarioCourse }}</span>
+                                    <span class="ph-fac">{{ $printHorarioFacilitator }}</span>
+                                    <span class="ph-dates">{{ implode(', ', $g['dates']) }}</span>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
     </div>
 </div>
 @endsection
@@ -432,6 +530,15 @@ $(function() {
     });
     window.addEventListener('afterprint', function () {
         document.body.classList.remove('printing-ficha');
+    });
+
+    $('#print-horario-btn').on('click', function () {
+        document.body.classList.add('printing-horario');
+        window.print();
+        document.body.classList.remove('printing-horario');
+    });
+    window.addEventListener('afterprint', function () {
+        document.body.classList.remove('printing-horario');
     });
 });
 </script>

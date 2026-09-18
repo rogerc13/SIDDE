@@ -150,6 +150,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Área de conocimiento');
         $response->assertSee('print-ficha-btn', false);
         $response->assertSee('Imprimir Ficha Técnica');
+        $response->assertSee('print-horario-btn', false);
+        $response->assertSee('Imprimir horario');
+        $response->assertSee('print-horario', false);
         $response->assertDontSee('onclick="window.print()"', false);
         $response->assertSee('programa-modal-cancel', false);
         $response->assertSee('programa-modal-delete', false);
@@ -183,6 +186,28 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Presentación');
         $response->assertSee(url('download/' . $course->id . '/1'), false);
         $response->assertSee('No disponible');
+    }
+
+    public function test_details_print_horario_merges_repeated_sessions(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 4]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+
+        // Two Thursdays, same time and aula -> merged into one block.
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => '2026-09-17', 'start_time' => '08:00', 'end_time' => '10:00'],
+            ['location_id' => $location->id, 'session_date' => '2026-09-24', 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
+
+        $response->assertOk();
+        $response->assertSee('17-09-2026');
+        $response->assertSee('24-09-2026');
+        $this->assertSame(1, substr_count($response->getContent(), 'class="ph-block"'));
     }
 
     public function test_create_page_renders_new_ui_elements(): void
