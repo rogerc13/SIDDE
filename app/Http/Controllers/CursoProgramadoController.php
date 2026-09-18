@@ -208,7 +208,7 @@ class CursoProgramadoController extends Controller
             },
         ])->find($id);
 
-        $fallback = $user->isFacilitador() ? url('u/mis_acciones') : url('u/af_programadas');
+        $fallback = ($user->isFacilitador() || $user->isParticipante()) ? url('u/mis_acciones') : url('u/af_programadas');
 
         if (!$scheduled) {
             return Redirect::to($fallback)
@@ -234,12 +234,23 @@ class CursoProgramadoController extends Controller
 
         $capacity = $scheduled->course->capacity->first();
 
-        $participantes = Participant::with(['person', 'participantStatus'])
-            ->where('scheduled_id', $scheduled->id)
-            ->get();
+        $isParticipant = $user->isParticipante();
 
-        $canEvaluate = $user->can('evaluate', $scheduled)
-            && ($scheduled->isEnCurso() || $scheduled->isCulminado());
+        $participantes = collect();
+        $statuses = collect();
+        $types = collect();
+        $canEvaluate = false;
+
+        if (!$isParticipant) {
+            $participantes = Participant::with(['person', 'participantStatus'])
+                ->where('scheduled_id', $scheduled->id)
+                ->get();
+
+            $statuses = ParticipantStatus::orderBy('id')->get();
+            $types = IdType::all();
+            $canEvaluate = $user->can('evaluate', $scheduled)
+                && ($scheduled->isEnCurso() || $scheduled->isCulminado());
+        }
 
         return view('pages.admin.cursosprogramados.details')
             ->with('scheduled', $scheduled)
@@ -248,8 +259,8 @@ class CursoProgramadoController extends Controller
             ->with('capacityMax', $capacity ? $capacity->max : null)
             ->with('participantsCount', $scheduled->participants()->count())
             ->with('participantes', $participantes)
-            ->with('statuses', ParticipantStatus::orderBy('id')->get())
-            ->with('types', IdType::all())
+            ->with('statuses', $statuses)
+            ->with('types', $types)
             ->with('canEvaluate', $canEvaluate);
     }
 

@@ -518,4 +518,76 @@ class EvaluationTest extends TestCase
         $response->assertOk();
         $response->assertViewHas('canEvaluate', true);
     }
+
+    private function makeEnrolledParticipantUser(Scheduled $scheduled): User
+    {
+        $user = User::factory()->participante()->create();
+
+        Participant::create([
+            'person_id' => $user->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        return $user;
+    }
+
+    public function test_enrolled_participant_can_view_scheduled_details(): void
+    {
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $participantUser = $this->makeEnrolledParticipantUser($scheduled);
+
+        $response = $this->actingAs($participantUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee($scheduled->course->title);
+        $response->assertSee('Programación');
+        $response->assertSee('Ficha Técnica');
+        $response->assertSee('Imprimir horario');
+        $response->assertDontSee('href="#tab-participantes"', false);
+    }
+
+    public function test_unenrolled_participant_cannot_view_scheduled_details(): void
+    {
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $participantUser = User::factory()->participante()->create();
+
+        $response = $this->actingAs($participantUser)
+            ->from('/u/mis_acciones')
+            ->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertRedirect('/u/mis_acciones');
+        $response->assertSessionHas('alert');
+    }
+
+    public function test_participant_details_show_only_manual_participante(): void
+    {
+        $course = $this->makeCourse();
+        \App\Models\File::create(['course_id' => $course->id, 'type_id' => 1, 'path' => $course->code . '/Manual Facilitador.pdf']);
+        \App\Models\File::create(['course_id' => $course->id, 'type_id' => 2, 'path' => $course->code . '/Manual Participante.pdf']);
+
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($course, $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $participantUser = $this->makeEnrolledParticipantUser($scheduled);
+
+        $response = $this->actingAs($participantUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee('Manual del Participante');
+        $response->assertDontSee('Manual del Facilitador');
+    }
+
+    public function test_mis_acciones_participant_view_icon_opens_details(): void
+    {
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+        $participantUser = $this->makeEnrolledParticipantUser($scheduled);
+
+        $response = $this->actingAs($participantUser)->get('/u/mis_acciones');
+
+        $response->assertOk();
+        $response->assertSee(url('u/af_programadas/' . $scheduled->id . '/ver'), false);
+    }
 }

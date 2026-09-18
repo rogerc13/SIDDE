@@ -122,8 +122,9 @@
     $hoursBarClass = $totalHours >= $courseDuration ? 'progress-bar-success' : ($hoursPct > 60 ? 'progress-bar-info' : 'progress-bar-warning');
     $createdAt = $scheduled->created_at ? \Carbon\Carbon::parse($scheduled->created_at) : null;
     $updatedAt = $scheduled->updated_at ? \Carbon\Carbon::parse($scheduled->updated_at) : null;
-    $backUrl = Auth::user()->isFacilitador() ? url('u/mis_acciones') : url('u/af_programadas');
+    $backUrl = (Auth::user()->isFacilitador() || Auth::user()->isParticipante()) ? url('u/mis_acciones') : url('u/af_programadas');
     $canManage = Auth::user()->isAdministrador() || Auth::user()->isTecEducativa() || Auth::user()->isProgramador();
+    $isParticipant = Auth::user()->isParticipante();
     $docTypes = [
         1 => ['label' => 'Manual del Facilitador', 'icon' => 'fa-file-pdf-o'],
         2 => ['label' => 'Manual del Participante', 'icon' => 'fa-file-pdf-o'],
@@ -131,6 +132,10 @@
         4 => ['label' => 'Presentación', 'icon' => 'fa-file-pdf-o'],
     ];
     $filesByType = $scheduled->course->file->keyBy('type_id');
+    if ($isParticipant) {
+        $docTypes = array_intersect_key($docTypes, [2 => true]);
+        $filesByType = $filesByType->only([2]);
+    }
 
     $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
     $printGroups = [];
@@ -242,9 +247,11 @@
     <li role="presentation" class="active">
         <a href="#tab-programacion" aria-controls="tab-programacion" role="tab" data-toggle="tab"><i class="entypo-calendar"></i> Programación</a>
     </li>
+    @if(!$isParticipant)
     <li role="presentation">
         <a href="#tab-participantes" aria-controls="tab-participantes" role="tab" data-toggle="tab"><i class="entypo-users"></i> Participantes</a>
     </li>
+    @endif
     <li role="presentation">
         <a href="#tab-documentos" aria-controls="tab-documentos" role="tab" data-toggle="tab"><i class="entypo-download"></i> Documentos</a>
     </li>
@@ -305,6 +312,7 @@
             </div>
         </div>
     </div>
+    @if(!$isParticipant)
     <div role="tabpanel" class="tab-pane" id="tab-participantes">
         @include('pages.admin.participantescursos._content', [
             'cursoprogramado' => $scheduled,
@@ -313,6 +321,7 @@
             'canEvaluate' => $canEvaluate,
         ])
     </div>
+    @endif
     <div role="tabpanel" class="tab-pane" id="tab-documentos">
         @if($filesByType->isEmpty())
             <p class="text-muted"><i class="entypo-info-circled"></i> Este curso no posee documentos cargados.</p>
@@ -391,16 +400,22 @@
 @endsection
 
 @section('modals')
-    @include('pages.admin.cursosprogramados.delete')
-    @include('pages.admin.cursosprogramados.cancel')
-    @include('pages.admin.participantescursos.asignar')
-    @include('pages.admin.participantes.create')
-    @include('pages.admin.participantescursos.update')
-    @include('pages.admin.participantescursos.delete')
+    @if($canManage)
+        @include('pages.admin.cursosprogramados.delete')
+        @include('pages.admin.cursosprogramados.cancel')
+    @endif
+    @if(!$isParticipant)
+        @include('pages.admin.participantescursos.asignar')
+        @include('pages.admin.participantes.create')
+        @include('pages.admin.participantescursos.update')
+        @include('pages.admin.participantescursos.delete')
+    @endif
 @stop
 
 @push('JS')
+@if(!$isParticipant)
 <script src="{{asset('assets/js/evaluation.js')}}"></script>
+@endif
 <script>
 var detailSessions = @json($existingSessions);
 var detailScheduledId = {{ $scheduled->id }};

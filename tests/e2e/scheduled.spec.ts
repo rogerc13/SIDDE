@@ -720,3 +720,22 @@ test.describe('Action Guards', () => {
         expect(scrollable).toBe(true);
     });
 });
+
+test.describe('Participant Scheduled View', () => {
+    test('participant opens the scheduled hub with agenda and no participants tab', async ({ page }) => {
+        await loginAs(page, 'participante');
+        await page.goto('/u/mis_acciones');
+
+        const detailsLink = page.locator('a[title="Ver detalles"]').first();
+        await expect(detailsLink).toBeVisible({ timeout: 5000 });
+        await detailsLink.click();
+        await page.waitForLoadState('load');
+
+        await expect(page).toHaveURL(/\/u\/af_programadas\/\d+\/ver/);
+        await expect(page.locator('#tab-programacion')).toBeVisible();
+        await expect(page.locator('#details-calendar')).toBeVisible();
+        await expect(page.locator('a[href="#tab-participantes"]')).toHaveCount(0);
+        await expect(page.locator('a[href="#tab-documentos"]')).toBeVisible();
+        await expect(page.locator('a[href="#tab-ficha"]')).toBeVisible();
+    });
+});

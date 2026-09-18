@@ -32,6 +32,12 @@ class ScheduledPolicy
                 && $scheduled->facilitator_id === $user->person->facilitator->id;
         }
 
+        if ($scheduled && $user->isParticipante()) {
+            return $scheduled->participants()
+                ->where('person_id', $user->person_id)
+                ->exists();
+        }
+
         return false;
     }
 

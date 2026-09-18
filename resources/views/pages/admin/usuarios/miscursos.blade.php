@@ -140,7 +140,7 @@
 								<i class="entypo-download"></i>
 							</a>
 							@elseif($logeado->isParticipante())
-							<a  title="Ver Ficha Técnica" href="{{url('acciones_formacion/'.$cursop->course->id)}}" class="btn btn-info btn-xs">
+							<a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								<i class="entypo-search"></i>
 							</a>
 							<a  title="{{($cursop->course->file->count() == '0') ? 'No Posee Documentos' : 'Descargar Manual del Participante'}}" href="javascript:documentModal('{{url('download/'.$cursop->course->id.'/0')}}')" class="btn btn-info btn-xs {{($cursop->course->file->count() == '0') ? 'disabled' : ''}}">
