@@ -130,6 +130,9 @@
 								@endif
 								<td>
 							@if($logeado->isFacilitador())
+							<a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
+								<i class="entypo-search"></i>
+							</a>
 							<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
 								<i class="entypo-users"></i>
 							</a>
@@ -137,18 +140,12 @@
 								<i class="entypo-download"></i>
 							</a>
 							@elseif($logeado->isParticipante())
+							<a  title="Ver Ficha Técnica" href="{{url('acciones_formacion/'.$cursop->course->id)}}" class="btn btn-info btn-xs">
+								<i class="entypo-search"></i>
+							</a>
 							<a  title="{{($cursop->course->file->count() == '0') ? 'No Posee Documentos' : 'Descargar Manual del Participante'}}" href="javascript:documentModal('{{url('download/'.$cursop->course->id.'/0')}}')" class="btn btn-info btn-xs {{($cursop->course->file->count() == '0') ? 'disabled' : ''}}">
 								<i class="entypo-download"></i>
 							</a>
-							@endif
-							@if($logeado->isFacilitador())
-								<a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
-									<i class="entypo-search"></i>
-								</a>
-							@else
-								<a  title="Ver Ficha Técnica" href="{{url('acciones_formacion/'.$cursop->course->id)}}" class="btn btn-info btn-xs">
-									<i class="entypo-search"></i>
-								</a>
 							@endif
 								</td>
 			            </tr>
