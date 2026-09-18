@@ -14,6 +14,17 @@ test.describe('Facilitators CRUD', () => {
         await expect(page.locator('table')).toBeVisible();
     });
 
+    test('details modal shows facilitator data read-only', async ({ page }) => {
+        await page.locator('table a[title="Más Información"]').first().click();
+        await page.waitForSelector('#facilitador-form:not(.hidden)');
+
+        await expect(page.locator('#facilitador-label')).toHaveText('Detalles facilitador');
+
+        const name = page.locator('#facilitador-modal #nombre');
+        expect(await name.inputValue()).toBeTruthy();
+        expect(await name.isEditable()).toBe(false);
+    });
+
     test('creates a new facilitator', async ({ page }) => {
         const testEmail = `testfac${unique()}@pdvsa.com`;
         await page.evaluate((url: string) => (window as any).crearFacilitador(url), '/u/facilitadores');

@@ -14,6 +14,17 @@ test.describe('Users CRUD', () => {
         await expect(page.locator('table')).toBeVisible();
     });
 
+    test('details modal shows user data read-only', async ({ page }) => {
+        await page.locator('table a[title="Más Información"]').first().click();
+        await page.waitForSelector('#usuario-form:not(.hidden)');
+
+        await expect(page.locator('#usuario-label')).toHaveText('Detalles usuario');
+
+        const name = page.locator('#usuario-modal #nombre');
+        expect(await name.inputValue()).toBeTruthy();
+        expect(await name.isEditable()).toBe(false);
+    });
+
     test('creates a new user', async ({ page }) => {
         const testEmail = `testuser${unique()}@pdvsa.com`;
         await page.evaluate((url: string) => (window as any).crearUsuario(url), '/u/usuarios');

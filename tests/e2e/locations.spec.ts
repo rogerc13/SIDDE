@@ -137,6 +137,20 @@ test.describe('Locations CRUD', () => {
         await expect(page.locator('th:has-text("Edificio")')).toBeVisible();
     });
 
+    test('details modal shows location data read-only', async ({ page }) => {
+        const href = await page.locator('table a[title="Editar ubicación"]').first().getAttribute('href');
+        const id = href!.match(/\/(\d+)'\)/)![1];
+
+        await page.evaluate((url: string) => (window as any).detallesLocation(url), `/u/ubicaciones/${id}`);
+        await page.waitForSelector('#location-form:not(.hidden)');
+
+        await expect(page.locator('#location-label')).toHaveText('Detalles ubicación');
+
+        const name = page.locator('#location-modal #nombre');
+        expect(await name.inputValue()).toBeTruthy();
+        expect(await name.isEditable()).toBe(false);
+    });
+
     test('creates a new location via modal', async ({ page }) => {
         const locationName = `Aula ${unique()}`;
         await openLocationModal(page);

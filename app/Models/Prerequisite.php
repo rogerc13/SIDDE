@@ -15,12 +15,12 @@ class Prerequisite extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function prerequisiteCourse(){
+    public function prerequisite(){
         return $this->hasOne(Course::class,'code','prerequisite');
     } 
 
     public function courseName(): ?string
     {
-        return $this->prerequisiteCourse?->title;
+        return $this->prerequisite?->title;
     }
 }

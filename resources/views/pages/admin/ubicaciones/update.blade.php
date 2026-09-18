@@ -8,7 +8,7 @@
         $("#location-form").attr("action", url);
 
         $.get(url, function(data, status){
-            data = JSON.parse(data);
+            data = typeof data === 'string' ? JSON.parse(data) : data;
             populateBuildingDropdown('location_building_id');
             $('#location_building_id').val(data.floor.building_id);
             populateFloorDropdown('location_floor_id', data.floor.building_id);

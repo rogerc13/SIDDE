@@ -5,7 +5,7 @@
         $(".loader").removeClass("hidden");
         $("#participante-form").addClass("hidden");
         $("[name=_method]").val("PUT");
-        $("#participante-label").html("Editar participante");
+        $("#participante-label").html("Detalles participante");
         $("#participante-form").attr("action", url);
 
         $("#participante-form :input").prop('readonly', true);
@@ -13,7 +13,7 @@
         $("#participante-aceptar").addClass("hidden");
 
         $.get(url,function(data,status){
-                data=JSON.parse(data);
+                data = typeof data === 'string' ? JSON.parse(data) : data;
                 $('#nombre').val(data.person.name);  
                 $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);

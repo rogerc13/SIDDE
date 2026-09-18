@@ -294,8 +294,7 @@ function detallesAccion(url){
 
     $.get(url,function(data,status){
             
-            data=JSON.parse(data);
-            console.log(data);
+            data = typeof data === 'string' ? JSON.parse(data) : data;
 
             $('#codigo').val(data[0].code);
 
@@ -426,8 +425,7 @@ function editarAccion(url){
 
 
     $.get(url,function(data,status){
-            data=JSON.parse(data);
-            console.log(data);
+            data = typeof data === 'string' ? JSON.parse(data) : data;
             $('.course-id').val(data[0].id);
             $('.course-code').val(data[0].code);
 

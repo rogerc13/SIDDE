@@ -14,6 +14,17 @@ test.describe('Participants CRUD', () => {
         await expect(page.locator('table')).toBeVisible();
     });
 
+    test('details modal shows participant data read-only', async ({ page }) => {
+        await page.locator('table a[title="Más Información"]').first().click();
+        await page.waitForSelector('#participante-form:not(.hidden)');
+
+        await expect(page.locator('#participante-label')).toHaveText('Detalles participante');
+
+        const name = page.locator('#participante-modal #nombre');
+        expect(await name.inputValue()).toBeTruthy();
+        expect(await name.isEditable()).toBe(false);
+    });
+
     test('creates a new participant', async ({ page }) => {
         const testEmail = `testpart${unique()}@pdvsa.com`;
         await page.evaluate((url: string) => (window as any).crearParticipante(url), '/u/participantes');

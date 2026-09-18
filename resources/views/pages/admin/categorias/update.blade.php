@@ -11,7 +11,7 @@
 
 
         $.get(url,function(data,status){
-                data=JSON.parse(data);
+                data = typeof data === 'string' ? JSON.parse(data) : data;
                 $('#nombre').val(data.name);
                 $(".loader").addClass("hidden");
                 $("#categoria-form").removeClass("hidden");

@@ -10,7 +10,7 @@
 
         })
         .done(function(data){
-            data = JSON.parse(data);
+            data = typeof data === 'string' ? JSON.parse(data) : data;
             let courseId = data.files.length > 0 ? data.files[0].course_id : null;
             
             

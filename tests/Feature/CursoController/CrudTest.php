@@ -31,6 +31,36 @@ class CrudTest extends CursoControllerTestCase
         $response->assertRedirect();
     }
 
+    public function test_course_details_includes_prerequisite_course(): void
+    {
+        $category = \App\Models\Category::factory()->create();
+        $modality = \App\Models\Modality::factory()->create();
+
+        $prerequisiteCourse = $this->createCourse([
+            'code' => 'PRE-001',
+            'title' => 'Curso Prerequisito',
+        ]);
+
+        $course = $this->createCourse([
+            'code' => 'MAIN-001',
+            'category_id' => $category->id,
+            'modality_id' => $modality->id,
+        ]);
+
+        \App\Models\Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        \App\Models\Prerequisite::create([
+            'course_id' => $course->id,
+            'prerequisite' => $prerequisiteCourse->code,
+        ]);
+
+        $response = $this->actingAs($this->adminUser())
+            ->getJson("/u/acciones_formacion/details/{$course->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('0.prerequisite.0.prerequisite.code', 'PRE-001');
+        $response->assertJsonPath('0.prerequisite.0.prerequisite.title', 'Curso Prerequisito');
+    }
+
     public function test_admin_can_create_course_full(): void
     {
         Storage::fake();

@@ -13,7 +13,7 @@
         $("#facilitador-aceptar").addClass("hidden");
 
         $.get(url,function(data,status){
-                data=JSON.parse(data);
+                data = typeof data === 'string' ? JSON.parse(data) : data;
                 $('#nombre').val(data.person.name);  
                 $('#apellido').val(data.person.last_name); 
                 $('#email').val(data.email);
