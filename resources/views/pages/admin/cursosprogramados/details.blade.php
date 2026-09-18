@@ -309,7 +309,6 @@
                 </div>
                 <div class="calendar-legend no-print">
                     <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
-                    <span class="legend-swatch" style="background:#999; margin-left: 12px;"></span>Ocupado (otros cursos)
                 </div>
             </div>
         </div>
@@ -420,7 +419,6 @@
 @endif
 <script>
 var detailSessions = @json($existingSessions);
-var detailScheduledId = {{ $scheduled->id }};
 var detailCourseTitle = @json($scheduled->course->title);
 var detailFacilitatorName = @json($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
 
@@ -486,38 +484,10 @@ function initDetailsCalendar() {
                     tooltip: [s.location_name, detailCourseTitle, detailFacilitatorName, detailDateLabel(s.session_date) + ' ' + detailTime12(s.start_time) + ' – ' + detailTime12(s.end_time)].filter(Boolean).join(' · ')
                 };
             });
-            $.ajax({
-                url: '{{ url("u/af_programadas/blocked-slots") }}',
-                type: 'GET',
-                dataType: 'json',
-                data: {
-                    start: start.format('YYYY-MM-DD'),
-                    end: end.format('YYYY-MM-DD'),
-                    exclude_scheduled_id: detailScheduledId
-                },
-                success: function(blocked) {
-                    var bg = (Array.isArray(blocked) ? blocked : []).map(function(e) {
-                        return {
-                            title: e.title,
-                            start: e.start,
-                            end: e.end,
-                            rendering: 'background',
-                            allDay: false
-                        };
-                    });
-                    callback(sessionEvents.concat(bg));
-                },
-                error: function() {
-                    callback(sessionEvents);
-                }
-            });
+            callback(sessionEvents);
         },
         eventRender: function(event, element) {
             element.attr('title', event.tooltip || event.title);
-            if (event.rendering === 'background') {
-                element.addClass('fc-bgevent-plain');
-                return;
-            }
             var sub = [event.courseName, event.facilitatorName].filter(Boolean).join(' · ');
             var $content = element.find('.fc-content');
             if (sub && $content.length && !element.closest('.fc-month-view').length) {
