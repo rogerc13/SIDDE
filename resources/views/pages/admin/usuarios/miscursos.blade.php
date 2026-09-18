@@ -95,6 +95,7 @@
 							 @endif
 							<th title="Fecha de Inicio">Fecha I.</th>
 							<th title="Fecha de Culminación">Fecha C.</th>				
+							<th>Estado</th>
 							{{-- @php
 								dd($logeado->isFacilitador());
 							@endphp --}}
@@ -109,7 +110,7 @@
 				     	@if(count($cursos) == 0)
 						
 			           	<tr>
-			            	<td colspan="7">No se han encontrado resultados...</td>
+			            	<td colspan="6">No se han encontrado resultados...</td>
 			           	</tr>
 				      @endif
 			         @foreach($cursos as $cursop)
@@ -121,6 +122,9 @@
 								@endif
 								<td>@date($cursop->start_date)</td>
 								<td>@date($cursop->end_date)</td>
+								<td>
+									<span class="badge badge-{{$cursop->badgeStatus()}}">{{$cursop->courseStatus->name}}</span>
+								</td>
 								@if ($logeado->isFacilitador())	
 								<td>
 										<span class="badge badge-success">

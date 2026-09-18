@@ -83,4 +83,29 @@ class MyCoursesTest extends TestCase
         $cursos = $response->viewData('cursos');
         $this->assertSame($newer->id, $cursos->first()->id);
     }
+
+    public function test_mis_acciones_shows_course_status(): void
+    {
+        [$user, $facilitator] = $this->makeFacilitatorUser();
+        $this->makeScheduled($facilitator, now()->addDays(5)->toDateString());
+
+        $response = $this->actingAs($user)->get('/u/mis_acciones');
+
+        $response->assertOk();
+        $response->assertSee('Estado');
+        $response->assertSee('Por Dictar');
+    }
+
+    public function test_user_acciones_shows_course_status(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [$user, $facilitator] = $this->makeFacilitatorUser();
+        $this->makeScheduled($facilitator, now()->addDays(5)->toDateString());
+
+        $response = $this->actingAs($admin)->get('/u/facilitadores/acciones/' . $user->id);
+
+        $response->assertOk();
+        $response->assertSee('Estado');
+        $response->assertSee('Por Dictar');
+    }
 }
