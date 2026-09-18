@@ -546,6 +546,8 @@ class EvaluationTest extends TestCase
         $response->assertSee('Ficha Técnica');
         $response->assertSee('Imprimir horario');
         $response->assertDontSee('href="#tab-participantes"', false);
+        $response->assertDontSee('Creada:');
+        $response->assertDontSee('Registrados');
     }
 
     public function test_unenrolled_participant_cannot_view_scheduled_details(): void

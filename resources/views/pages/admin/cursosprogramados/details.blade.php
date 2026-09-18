@@ -169,7 +169,7 @@
             {{ $scheduled->course->title }}
             <span class="badge badge-{{ $scheduled->badgeStatus() }}">{{ $scheduled->courseStatus->name }}</span>
         </h3>
-        @if($createdAt)
+        @if(!$isParticipant && $createdAt)
         <p class="details-meta text-muted">
             <i class="entypo-clock"></i> Creada: {{ $createdAt->format('d-m-Y g:i A') }}
             @if($updatedAt && $updatedAt->gt($createdAt))
@@ -232,6 +232,7 @@
             </div>
         </div>
     </div>
+    @if(!$isParticipant)
     <div class="col-sm-3 col-xs-6">
         <div class="stat-tile">
             <span class="stat-label"><i class="entypo-users"></i> Registrados</span>
@@ -241,6 +242,7 @@
             @endcan
         </div>
     </div>
+    @endif
 </div>
 
 <ul class="nav nav-tabs details-tabs" role="tablist">
