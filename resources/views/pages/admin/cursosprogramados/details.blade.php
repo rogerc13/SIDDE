@@ -82,7 +82,7 @@
         body.printing-ficha #tab-ficha { display: block !important; }
         body.printing-ficha .details-tab-content { border: 0; padding: 0; margin: 0; background: transparent; }
     }
-    .ficha-actions { margin-bottom: 14px; }
+    .ficha-actions { margin-bottom: 14px; text-align: right; }
 </style>
 @endpush
 
