@@ -1,11 +1,22 @@
 @push('JS')
 	<script>
 		 $("#selectbusqueda").select2({
-    matcher: function(term, text, opt){
-        const matcher = opt.parent('select').select2.defaults.matcher;
-        return matcher(term, text) || (opt.parent('optgroup').length && matcher(term, opt.parent('optgroup').attr("label")));
-    }
-});
+			placeholder: "Buscar acciones de formación",
+			allowClear: true,
+			minimumInputLength: 0,
+			initSelection: function (element, callback) { callback(null); },
+			ajax: {
+				url: "{{ route('acciones.search') }}",
+				dataType: "json",
+				quietMillis: 250,
+				data: function (term, page) {
+					return { q: term, page: page };
+				},
+				results: function (data) {
+					return { results: data.results, more: data.more };
+				}
+			}
+		});
 	</script>
 @endpush
 	<div class="sidebar-menu fixed hide-print">
@@ -88,16 +99,7 @@
                             <i class="entypo-search" id="siderbar-buscar"></i>
                             <span class="title buscar"> Buscar acciones de formación</span>
 
-                            <label for="selectbusqueda"></label><select id="selectbusqueda" data-allow-clear="true">
-                                    <option></option>
-                                    @foreach($categoriasAcciones as $categ)
-                                        <optgroup label="{{$categ->name}}">
-                                        @foreach($categ->courses as $af)
-                                            <option value="{{url("acciones_formacion/$af->id")}}">{{$af->title}}</option>
-                                        @endforeach
-                                        </optgroup>
-                                    @endforeach --}}
-                                </select>
+                            <label for="selectbusqueda"></label><input type="hidden" id="selectbusqueda" data-allow-clear="true">
                         </a>
                     </li>
                 @endcan

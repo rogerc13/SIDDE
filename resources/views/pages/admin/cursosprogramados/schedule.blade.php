@@ -335,18 +335,10 @@
                 <div class="form-group">
                     <div class="col-lg-12 col-md-12">
                         <label for="wizard-titulo">Acción de Formación</label>
-                        <select name="titulo" id="wizard-titulo" class="form-control" required>
-                            <option></option>
-                            @isset($categoriasAcciones)
-                                @foreach($categoriasAcciones as $category)
-                                    <optgroup label="{{ $category->name }}">
-                                        @foreach($category->courses as $af)
-                                            <option value="{{ $af->id }}" data-duration="{{ $af->duration }}">{{ $af->title }}</option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
-                            @endisset
-                        </select>
+                        <input type="hidden" name="titulo" id="wizard-titulo" required>
+                        @if($selectedCourseId)
+                            <span id="wizard-titulo-seed" data-id="{{ $selectedCourseId }}" data-title="{{ $selectedCourseTitle }}" data-duration="{{ $courseDuration }}"></span>
+                        @endif
                     </div>
                 </div>
                 <div class="form-group">
@@ -620,6 +612,46 @@ var existingSessions = @json($existingSessions);
 var statusName = '{{ $statusName ?? '' }}';
 var statusBadge = '{{ $statusBadge ?? '' }}';
 
+// The course select is AJAX-backed, so the selected course must be read from
+// Select2's data object (the underlying <option> is only present in edit mode,
+// where it is seeded server-side so the value can be preselected and its
+// duration recovered).
+function getSelectedCourseData() {
+    var data = $('#wizard-titulo').select2('data');
+    if (data && data.id !== undefined && data.id !== null && data.id !== '') {
+        if (data.duration !== undefined && data.duration !== null && data.duration !== '') {
+            return data;
+        }
+    }
+
+    var $seed = $('#wizard-titulo-seed');
+    if ($seed.length && $seed.data('id')) {
+        return {
+            id: $seed.data('id'),
+            text: $seed.data('title'),
+            duration: parseInt($seed.data('duration')) || 0
+        };
+    }
+
+    return data || null;
+}
+
+function getSelectedCourseId() {
+    var data = getSelectedCourseData();
+    return data ? data.id : null;
+}
+
+function getSelectedCourseText() {
+    var data = getSelectedCourseData();
+    return data ? (data.text || '') : '';
+}
+
+function getSelectedCourseDuration() {
+    var data = getSelectedCourseData();
+    if (!data) return 0;
+    return parseInt(data.duration) || 0;
+}
+
 function showInlineAlert(containerId, type, message) {
     var icons = {
         danger: 'entypo-block',
@@ -841,7 +873,7 @@ function wizardGoToStep(step) {
 function wizardNext(step) {
     clearInlineAlert('wizard-alert');
     if (step === 1) {
-        if (!$('#wizard-titulo').val()) {
+        if (!getSelectedCourseId()) {
             showInlineAlert('wizard-alert', 'warning', 'Debe seleccionar una acción de formación.');
             return;
         }
@@ -849,7 +881,7 @@ function wizardNext(step) {
             showInlineAlert('wizard-alert', 'warning', 'Debe seleccionar un facilitador.');
             return;
         }
-        courseDuration = parseInt($('#wizard-titulo option:selected').data('duration')) || 0;
+        courseDuration = getSelectedCourseDuration();
         $('#duration-info').text('Duración del curso: ' + courseDuration + ' horas');
         updateDurationBar();
     }
@@ -937,7 +969,7 @@ function initWizardCalendar() {
         },
         events: function(start, end, timezone, callback) {
             var filterLocationId = $('#calendar-location-filter').val();
-            var eventCourseName = $('#wizard-titulo option:selected').text() || '';
+            var eventCourseName = getSelectedCourseText();
             var eventFacilitatorName = $('#wizard-facilitador option:selected').text() || '';
             var sessionEvents = wizardSessions.map(function(s) {
                 if (filterLocationId && parseInt(s.location_id) !== parseInt(filterLocationId)) return null;
@@ -1576,7 +1608,7 @@ function updateDurationBar() {
         }
     }
 
-    if ($('#wizard-titulo').val() && courseDuration === 0) {
+    if (getSelectedCourseId() && courseDuration === 0) {
         $('#duration-zero-warning').show();
     } else {
         $('#duration-zero-warning').hide();
@@ -1639,7 +1671,7 @@ function submitWizardSchedule() {
     }
 
     var payload = {
-        titulo: $('#wizard-titulo').val(),
+        titulo: getSelectedCourseId(),
         facilitador: $('#wizard-facilitador').val(),
         sessions: wizardSessions.map(function(s) {
             return {
@@ -1708,7 +1740,7 @@ function getCurrentStep() {
 }
 
 function updateSummary() {
-    var courseText = $('#wizard-titulo option:selected').text();
+    var courseText = getSelectedCourseText();
     var facText = $('#wizard-facilitador option:selected').text();
     $('#summary-course').text(courseText ? courseText : '—');
     $('#summary-facilitator').text(facText ? facText : '—');
@@ -1720,12 +1752,51 @@ function updateSummary() {
 }
 
 function initSchedulePage() {
-    $('#wizard-titulo').select2({ allowClear: true, placeholder: 'Seleccionar acción de formación' });
+    $('#wizard-titulo').select2({
+        allowClear: true,
+        placeholder: 'Seleccionar acción de formación',
+        minimumInputLength: 0,
+        initSelection: function (element, callback) {
+            var $seed = $('#wizard-titulo-seed');
+            if ($seed.length && $seed.data('id')) {
+                callback({
+                    id: $seed.data('id'),
+                    text: $seed.data('title'),
+                    duration: parseInt($seed.data('duration')) || 0
+                });
+                return;
+            }
+            callback(null);
+        },
+        ajax: {
+            url: "{{ route('acciones.search') }}",
+            dataType: 'json',
+            quietMillis: 250,
+            data: function (term, page) {
+                return { q: term, page: page };
+            },
+            results: function (data) {
+                return { results: data.results, more: data.more };
+            }
+        }
+    });
+
+    // Edit/view mode: restore the scheduled course explicitly. initSelection is
+    // not reliably applied to a hidden input, so seed the selection from the
+    // server-rendered span.
+    var $courseSeed = $('#wizard-titulo-seed');
+    if ($courseSeed.length && $courseSeed.data('id')) {
+        $('#wizard-titulo').select2('data', {
+            id: $courseSeed.data('id'),
+            text: $courseSeed.data('title'),
+            duration: parseInt($courseSeed.data('duration')) || 0
+        }, true);
+    }
+
     $('#wizard-facilitador').select2({ allowClear: true, placeholder: 'Seleccionar facilitador' });
 
     $('#wizard-titulo').on('change', function() {
-        var selected = $(this).find('option:selected');
-        courseDuration = parseInt(selected.data('duration')) || 0;
+        courseDuration = getSelectedCourseDuration();
         $('#duration-info').text('Duración del curso: ' + courseDuration + ' horas');
         updateDurationBar();
         updateSummary();
@@ -1761,7 +1832,9 @@ function initSchedulePage() {
 
     if (scheduleMode === 'edit' || scheduleMode === 'view') {
         if (selectedCourseId) {
-            $('#wizard-titulo').val(selectedCourseId).trigger('change');
+            // initSelection already restored the seeded course; trigger change
+            // so the duration info/summary reflect it.
+            $('#wizard-titulo').trigger('change');
         }
         if (selectedFacilitatorId) {
             $('#wizard-facilitador').val(selectedFacilitatorId).trigger('change');
@@ -1818,7 +1891,7 @@ function hasUnsavedWork() {
     if (scheduleMode === 'view' || allowNavigation) return false;
     if (dirty) return true;
     if (maxStepReached > 1) return true;
-    return scheduleMode === 'create' && !!($('#wizard-titulo').val() || $('#wizard-facilitador').val());
+    return scheduleMode === 'create' && !!(getSelectedCourseId() || $('#wizard-facilitador').val());
 }
 
 function isNavigatingLink(link) {

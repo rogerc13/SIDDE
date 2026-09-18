@@ -22,12 +22,5 @@ public function courses()
 {
   return $this->hasMany(Course::class);
 }
-
-public static function categoriasCursos()
-{
-        $categoriasYCursos = Category::with('courses')->get();
-        //$categoriasYCursos = Categoria::all();
-        return $categoriasYCursos;
-}
     //
 }

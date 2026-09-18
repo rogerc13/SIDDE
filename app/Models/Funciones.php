@@ -155,6 +155,53 @@ public static function sanear_string($string)
     }
 
     /**
+     * Fold a search term so accents are ignored: "Ética" -> "etica".
+     */
+    public static function normalizeSearchTerm(string $value): string
+    {
+        return mb_strtolower(\Illuminate\Support\Str::ascii(trim($value)));
+    }
+
+    /**
+     * Apply an accent-insensitive title/category-name search to a Course query.
+     *
+     * Matching relies on the database folding diacritics:
+     * - MySQL/MariaDB use utf8mb4_unicode_ci, which is accent-insensitive.
+     * - SQLite only folds ASCII case, so it uses the `strip_accents()` function
+     *   registered in AppServiceProvider to fold the stored column in SQL.
+     *
+     * The term itself is folded in PHP first, so "Etica", "Ética" and "etica"
+     * all match the same rows.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function applyCourseSearch($query, string $term)
+    {
+        $escaped = static::escapeLike($term);
+
+        if ($query->getConnection()->getDriverName() === 'sqlite') {
+            $folded = '%' . static::normalizeSearchTerm($escaped) . '%';
+
+            return $query->where(function ($search) use ($folded) {
+                $search->whereRaw('lower(strip_accents(title)) LIKE ?', [$folded])
+                    ->orWhereHas('category', function ($categoryQuery) use ($folded) {
+                        $categoryQuery->whereRaw('lower(strip_accents(name)) LIKE ?', [$folded]);
+                    });
+            });
+        }
+
+        $like = '%' . $escaped . '%';
+
+        return $query->where(function ($search) use ($like) {
+            $search->where('title', 'LIKE', $like)
+                ->orWhereHas('category', function ($categoryQuery) use ($like) {
+                    $categoryQuery->where('name', 'LIKE', $like);
+                });
+        });
+    }
+
+    /**
      * Format a date value for display. Storage/payloads keep ISO (Y-m-d);
      * this only affects what the user sees.
      *

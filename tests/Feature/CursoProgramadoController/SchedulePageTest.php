@@ -232,6 +232,42 @@ class SchedulePageTest extends TestCase
         $response->assertSee('data-sessions', false);
     }
 
+    public function test_create_page_does_not_embed_course_options(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $this->makeCourse(['title' => 'Curso Embebido Create']);
+        $this->makeFacilitatorUser();
+        $this->makeLocation();
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/crear');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('Curso Embebido Create');
+        $response->assertSee(route('acciones.search'), false);
+    }
+
+    public function test_edit_page_seeds_only_the_selected_course(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $selected = $this->makeCourse(['title' => 'Curso Seleccionado Edit', 'duration' => 7]);
+        $other = $this->makeCourse(['title' => 'Curso Otro Edit']);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $scheduled = $this->makeScheduledCourse($selected, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/editar');
+
+        $response->assertStatus(200);
+        $response->assertSee('Curso Seleccionado Edit');
+        $response->assertDontSee('Curso Otro Edit');
+        $response->assertSee('wizard-titulo-seed', false);
+        $response->assertSee('data-duration="7"', false);
+    }
+
     public function test_create_page_renders_leave_warning_modal(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);

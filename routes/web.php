@@ -114,6 +114,7 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['prefix' => 'acciones_formacion'], function()
         {
                 Route::get('/', 'App\Http\Controllers\CursoController@getAll')->name("acciones");
+                Route::get('/search', 'App\Http\Controllers\CursoController@searchForSelect')->name("acciones.search");
                 Route::get('/{id}', 'App\Http\Controllers\CursoController@get');
 
                 Route::get('/details/{id}', 'App\Http\Controllers\CursoController@courseDetails'); //get course details with relationships

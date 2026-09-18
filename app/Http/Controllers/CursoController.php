@@ -84,7 +84,7 @@ class CursoController extends Controller
         $cursos = Course::orderBy("title", "asc")->with('category');
 
         if ($titulos)
-            $cursos = $cursos->where('title', 'LIKE', "%".Funciones::escapeLike($titulos)."%");
+            $cursos = Funciones::applyCourseSearch($cursos, $titulos);
 
         if ($id_areas)
             $cursos = $cursos->where('category_id', '=', $id_areas);
@@ -96,6 +96,57 @@ class CursoController extends Controller
             ->with('titulos', $titulos)
             ->with('busqueda_area', $id_areas)
             ->with('modalities', $modalities);
+    }
+
+    /**
+     * Remote data source for the course Select2 dropdowns (sidebar search and
+     * the schedule wizard). Searches the whole catalog server-side and returns
+     * results grouped by category with pagination for infinite scroll.
+     */
+    public function searchForSelect(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || $user->cannot('getAccionFormacion', Course::class)) {
+            return response()->json(['results' => [], 'more' => false], 403);
+        }
+
+        $term = trim((string) $request->input('q', ''));
+
+        $courses = Course::query()
+            ->with(['category' => function ($query) {
+                $query->select('id', 'name');
+            }])
+            ->select('id', 'title', 'category_id', 'duration')
+            ->orderBy('category_id')
+            ->orderBy('title');
+
+        if ($term !== '') {
+            $courses = Funciones::applyCourseSearch($courses, $term);
+        }
+
+        $courses = $courses->paginate(20);
+
+        $results = collect($courses->items())
+            ->groupBy('category_id')
+            ->map(function ($group) {
+                return [
+                    'text' => optional($group->first()->category)->name ?? 'Sin área',
+                    'children' => $group->map(function (Course $course) {
+                        return [
+                            'id' => $course->id,
+                            'text' => $course->title,
+                            'duration' => (int) $course->duration,
+                            'url' => url("acciones_formacion/{$course->id}"),
+                        ];
+                    })->values(),
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'results' => $results,
+            'more' => $courses->hasMorePages(),
+        ]);
     }
 
 

@@ -102,6 +102,31 @@ async function selectOptionByText(page: any, selectId: string, text: string) {
     await page.waitForTimeout(200);
 }
 
+// The course select (#wizard-titulo) is AJAX-backed: its options are only
+// fetched (and rendered into the Select2 dropdown) once it is opened and
+// searched. These helpers drive the real Select2 UI instead of the DOM select.
+async function openSelect2Dropdown(page: any, selectId: string) {
+    await page.click(`#s2id_${selectId} .select2-choice`);
+    await page.waitForSelector('#select2-drop .select2-input', { state: 'visible' });
+}
+
+async function select2AjaxFirstResult(page: any, selectId: string) {
+    await openSelect2Dropdown(page, selectId);
+    const first = page.locator('#select2-drop .select2-result-selectable .select2-result-label').first();
+    await first.waitFor({ state: 'visible', timeout: 10000 });
+    await first.click();
+    await page.waitForTimeout(200);
+}
+
+async function select2AjaxByText(page: any, selectId: string, text: string) {
+    await openSelect2Dropdown(page, selectId);
+    await page.fill('#select2-drop .select2-input', text);
+    const result = page.locator('#select2-drop .select2-result-selectable .select2-result-label', { hasText: text }).first();
+    await result.waitFor({ state: 'visible', timeout: 10000 });
+    await result.click();
+    await page.waitForTimeout(200);
+}
+
 async function scheduleFutureCourse(page: any) {
     createScheduledCourse(true);
     await page.goto('/u/af_programadas');
@@ -133,7 +158,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.goto('/u/af_programadas/crear');
         await page.waitForSelector('#wizard-form');
 
-        await selectSelect2ById(page, 'wizard-titulo');
+        await select2AjaxFirstResult(page, 'wizard-titulo');
         await selectSelect2ById(page, 'wizard-facilitador');
 
         await page.click('#wizard-btn-next');
@@ -160,7 +185,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.goto('/u/af_programadas/crear');
         await page.waitForSelector('#wizard-form');
 
-        await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
+        await select2AjaxByText(page, 'wizard-titulo', 'Wizard Test Course');
         await selectOptionByText(page, 'wizard-facilitador', 'Wizard Test');
 
         await page.click('#wizard-btn-next');
@@ -470,7 +495,7 @@ test.describe('Unsaved Changes Guard', () => {
     });
 
     async function reachStepTwo(page: any) {
-        await selectSelect2ById(page, 'wizard-titulo');
+        await select2AjaxFirstResult(page, 'wizard-titulo');
         await selectSelect2ById(page, 'wizard-facilitador');
         await page.click('#wizard-btn-next');
         await page.waitForSelector('#panel-step2.active');
@@ -516,7 +541,7 @@ async function openWizardStepTwo(page: any) {
     seedWizardData();
     await page.goto('/u/af_programadas/crear');
     await page.waitForSelector('#wizard-form');
-    await selectOptionByText(page, 'wizard-titulo', 'Wizard Test Course');
+    await select2AjaxByText(page, 'wizard-titulo', 'Wizard Test Course');
     await selectOptionByText(page, 'wizard-facilitador', 'Wizard Test');
     await page.click('#wizard-btn-next');
     await page.waitForSelector('#panel-step2.active');
@@ -638,7 +663,7 @@ test.describe('Location Filter Groups', () => {
         await loginAs(page, 'admin');
         await page.goto('/u/af_programadas/crear');
         await page.waitForSelector('#wizard-form');
-        await selectSelect2ById(page, 'wizard-titulo');
+        await select2AjaxFirstResult(page, 'wizard-titulo');
         await page.waitForTimeout(100);
         await selectSelect2ById(page, 'wizard-facilitador');
         await page.click('#wizard-btn-next');

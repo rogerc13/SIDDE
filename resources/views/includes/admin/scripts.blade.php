@@ -43,8 +43,8 @@
     	$( document ).ready(function() {
     		$('#selectbusqueda').on("change", function(e) {     
     			 
-    			if(e.added){
-    				location.href = e.val;
+    			if(e.added && e.added.url){
+    				location.href = e.added.url;
     			}
           		
         	})

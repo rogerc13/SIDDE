@@ -70,7 +70,6 @@ class CursoProgramadoController extends Controller
 
         $cursos = Scheduled::orderBy("start_date","desc")->with(['course.capacity','course.category','facilitator','courseStatus','sessions']);
         $estados = CourseStatus::orderBy('name','asc')->get();
-        $categoriasAcciones = Category::with('courses')->get();
         $locations = Location::with('floor.building')->orderBy('name', 'asc')->get();
         
 
@@ -101,7 +100,7 @@ class CursoProgramadoController extends Controller
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
                 ->with('fechas',$fecha)->with('estados',$estados)->with('id_estado',$id_estado)
-                ->with('categoriasAcciones',$categoriasAcciones)->with('locations',$locations);
+                ->with('locations',$locations);
     }
 
     private function getLocationsForScheduling()
@@ -128,18 +127,17 @@ class CursoProgramadoController extends Controller
         }
 
         $facilitadores = User::where('role_id', Role::FACILITADOR)->with('person')->get();
-        $categoriasAcciones = Category::with('courses')->get();
         $locations = $this->getLocationsForScheduling();
 
         return view('pages.admin.cursosprogramados.schedule')
             ->with('mode', 'create')
             ->with('scheduledId', null)
             ->with('selectedCourseId', null)
+            ->with('selectedCourseTitle', null)
             ->with('selectedFacilitatorId', null)
             ->with('courseDuration', 0)
             ->with('existingSessions', [])
             ->with('facilitadores', $facilitadores)
-            ->with('categoriasAcciones', $categoriasAcciones)
             ->with('locations', $locations);
     }
 
@@ -162,7 +160,6 @@ class CursoProgramadoController extends Controller
         }
 
         $facilitadores = User::where('role_id', Role::FACILITADOR)->with('person')->get();
-        $categoriasAcciones = Category::with('courses')->get();
         $locations = $this->getLocationsForScheduling();
 
         $existingSessions = $scheduled->sessions->map(function ($s) {
@@ -187,7 +184,7 @@ class CursoProgramadoController extends Controller
             ->with('statusBadge', $scheduled->badgeStatus())
             ->with('existingSessions', $existingSessions)
             ->with('facilitadores', $facilitadores)
-            ->with('categoriasAcciones', $categoriasAcciones)
+            ->with('selectedCourseTitle', $scheduled->course->title)
             ->with('locations', $locations);
     }
 
