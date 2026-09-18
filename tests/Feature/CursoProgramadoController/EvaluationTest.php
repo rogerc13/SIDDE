@@ -166,6 +166,73 @@ class EvaluationTest extends TestCase
         ]);
     }
 
+    public function test_programador_cannot_update_participant_status(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $participant = $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($programador)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->put($this->statusUrl($participant), [
+                'estado' => Participant::APROBADO,
+            ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('participants', [
+            'id' => $participant->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+        $this->assertFalse($programador->can('evaluate', $scheduled));
+        $this->assertFalse($programador->can('updateStatus', $participant->fresh()));
+    }
+
+    public function test_programador_cannot_open_course_roster(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($programador)
+            ->from('/u/af_programadas')
+            ->get("/u/af_programadas/{$scheduled->id}/participantes");
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert');
+        $this->assertFalse($programador->can('getAllPorCurso', Participant::class));
+    }
+
+    public function test_programador_cannot_assign_participant(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $response = $this->actingAs($programador)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->post('/u/af_programadas/assignList', [
+                'scheduled_id' => $scheduled->id,
+            ]);
+
+        $response->assertForbidden();
+        $this->assertFalse($programador->can('store', Participant::class));
+    }
+
+    public function test_programador_does_not_get_evaluation_controls(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($programador)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertViewHas('canEvaluate', false);
+    }
+
     public function test_participant_role_cannot_change_evaluation_statuses(): void
     {
         $admin = User::factory()->administrador()->create();

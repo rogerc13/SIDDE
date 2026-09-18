@@ -9,7 +9,7 @@ class ParticipantPolicy
 {
     public function updateStatus(User $user, Participant $participant)
     {
-        if ($user->isAdministrador() || $user->isProgramador()) {
+        if ($user->isAdministrador()) {
             return true;
         }
 
@@ -26,36 +26,36 @@ class ParticipantPolicy
 
     public function get(User $user)
     {
-       return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
+       return $user->isAdministrador() || $user->isFacilitador();
     }
     
     public function getAll(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador();
+        return $user->isAdministrador();
     }
 
     public function getAllPorCurso(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
+        return $user->isAdministrador() || $user->isFacilitador();
     }
     
      public function store(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador();
+        return $user->isAdministrador();
     }
     
     public function count(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador();
+        return $user->isAdministrador();
     }
     
     public function update(User $user)
     {
-      return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
+      return $user->isAdministrador() || $user->isFacilitador();
     }
     
     public function delete(User $user)
     {
-        return $user->isAdministrador() || $user->isProgramador() || $user->isFacilitador();
+        return $user->isAdministrador() || $user->isFacilitador();
     }
 }

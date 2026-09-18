@@ -23,7 +23,7 @@
                             <th>Apellido</th>
                             <th>C.I</th>
                             <th>Estado</th>
-                            @if (!Auth::User()->isFacilitador())
+                            @if (!Auth::User()->isFacilitador() && ($canEvaluate || Auth::user()->can('delete', 'App\Models\Participant')))
                                 <th><i class="fa fa-cogs"></i></th>
                             @endif
                         </tr>
@@ -56,14 +56,14 @@
                                     </select>
                                     <span class="participant_status_helper badge badge-{{$participante->badgeStatus()}}">{{$participante->participantStatus->name}}</span>
                                 </td>
-                                @if (!Auth::User()->isFacilitador())
+                                @if (!Auth::User()->isFacilitador() && ($canEvaluate || Auth::user()->can('delete', 'App\Models\Participant')))
                                     <td>
-                                        @if (!$cursoprogramado->isCancelado())
+                                        @if ($canEvaluate)
                                             <a  title="Editar Estado del Participante" href="javascript:editarEstado({{$participante->id}})" class="btn btn-default btn-xs">
                                                 <i class="entypo-pencil"></i>
                                             </a>
                                         @endif
-                                        @if (!$cursoprogramado->isCancelado() && !$cursoprogramado->isCulminado())
+                                        @if (Auth::user()->can('delete', 'App\Models\Participant') && !$cursoprogramado->isCancelado() && !$cursoprogramado->isCulminado())
                                             <a  title="Eliminar Participante" href="javascript:eliminarPCurso('{{url('u/af_programadas/participantes/'.$participante->id)}}')" class="btn btn-danger btn-xs">
                                                 <i class="entypo-trash"></i>
                                             </a>

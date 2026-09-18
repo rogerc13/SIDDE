@@ -9,7 +9,7 @@ class ScheduledPolicy
 {
     public function evaluate(User $user, Scheduled $scheduled)
     {
-        if ($user->isAdministrador() || $user->isProgramador()) {
+        if ($user->isAdministrador()) {
             return true;
         }
 
