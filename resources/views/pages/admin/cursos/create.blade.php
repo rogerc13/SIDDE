@@ -184,110 +184,125 @@
                     </div>{{-- end 3rd tab --}}
                     <div role="tabpanel" class="tab-pane" id="tab-4">{{-- 4th tab --}}
                         <h5 class="sidde-section-title"><i class="fa fa-paperclip"></i> Documentos</h5>
-                            <div id="docs">
-                            <div class="row">
-                            <div class="form-group" >
-                                <div class="col-lg-6" >
-                                    <label for="manual_f" class="control-label"><i class="fa fa-file-text-o"></i> Manual de facilitador</label>
-                                    <div id="fileinput_manual_f" class="fileinput fileinput-new" data-provides="fileinput">
-                                        <div class="input-group">
-
-                                            <div class="form-control" data-trigger="fileinput">
-                                                <i class="glyphicon glyphicon-file fileinput-exists"></i>
-                                                <span class="fileinput-filename" id="l_manual_f"></span>
-                                            </div>
-
-                                            <span class="input-group-addon btn btn-default btn-file">
-                                                <span class="fileinput-new">Buscar</span>
-                                                <span class="fileinput-exists">Cambiar</span>
-                                                <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_f" id="manual_f">
-                                            </span>
-                                            <a href="#" id='remove_facilitator' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
-                                        </div>
+                        <div id="docs">
+                            <div class="sidde-doc-list">
+                                <div id="fileinput_manual_f" class="sidde-doc-row fileinput fileinput-new" data-provides="fileinput" data-doc-type="1">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-text-o"></i></span>
+                                    <div class="sidde-doc-body" data-trigger="fileinput">
+                                        <span class="sidde-doc-title">Manual del Facilitador</span>
+                                        <span class="sidde-doc-name fileinput-filename" id="l_manual_f"></span>
+                                        <span class="sidde-doc-empty">Ningún archivo seleccionado</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <span class="btn btn-default btn-sm btn-file">
+                                            <i class="fa fa-upload"></i>
+                                            <span class="fileinput-new">Seleccionar</span>
+                                            <span class="fileinput-exists">Cambiar</span>
+                                            <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_f" id="manual_f">
+                                        </span>
+                                        <a href="#" id="remove_facilitator" class="btn btn-link btn-sm sidde-doc-remove fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
                                     </div>
                                 </div>
-
-                                <div class="col-lg-6" >
-                                    <label for="manual_p" class="control-label"><i class="fa fa-file-text-o"></i> Manual de participante</label>
-                                    <div id="fileinput_manual_p" class="fileinput fileinput-new" data-provides="fileinput">
-                                        <div class="input-group">
-                                            <div class="form-control uneditable-input" data-trigger="fileinput">
-                                                <i class="glyphicon glyphicon-file fileinput-exists"></i>
-                                                <span class="fileinput-filename" id="l_manual_p"></span>
-                                            </div>
-                                            <span class="input-group-addon btn btn-default btn-file">
-                                                <span class="fileinput-new">Buscar</span>
-                                                <span class="fileinput-exists">Cambiar</span>
-                                                <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_p" id="manual_p">
-                                            </span>
-                                            <a href="#" id='remove_manual' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
-                                        </div>
+                                <div id="fileinput_manual_p" class="sidde-doc-row fileinput fileinput-new" data-provides="fileinput" data-doc-type="2">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-text-o"></i></span>
+                                    <div class="sidde-doc-body" data-trigger="fileinput">
+                                        <span class="sidde-doc-title">Manual del Participante</span>
+                                        <span class="sidde-doc-name fileinput-filename" id="l_manual_p"></span>
+                                        <span class="sidde-doc-empty">Ningún archivo seleccionado</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <span class="btn btn-default btn-sm btn-file">
+                                            <i class="fa fa-upload"></i>
+                                            <span class="fileinput-new">Seleccionar</span>
+                                            <span class="fileinput-exists">Cambiar</span>
+                                            <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="manual_p" id="manual_p">
+                                        </span>
+                                        <a href="#" id="remove_manual" class="btn btn-link btn-sm sidde-doc-remove fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
                                     </div>
                                 </div>
-                            </div>
-                            </div>
-
-                            <div class="row">
-                            <div class="form-group" >
-                                <div class="col-lg-6" >
-                                    <label for="guia" class="control-label"><i class="fa fa-book"></i> Guía</label>
-                                    <div id="fileinput_guia" class="fileinput fileinput-new" data-provides="fileinput">
-                                        <div class="input-group">
-                                            <div class="form-control uneditable-input" data-trigger="fileinput">
-                                                <i class="glyphicon glyphicon-file fileinput-exists"></i>
-                                                <span class="fileinput-filename" id="l_guia"></span>
-                                            </div>
-                                            <span class="input-group-addon btn btn-default btn-file">
-                                                <span class="fileinput-new">Buscar</span>
-                                                <span class="fileinput-exists">Cambiar</span>
-                                                <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="guia" id="guia">
-                                            </span>
-                                            <a href="#" id='remove_guide' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
-                                        </div>
+                                <div id="fileinput_guia" class="sidde-doc-row fileinput fileinput-new" data-provides="fileinput" data-doc-type="3">
+                                    <span class="sidde-doc-icon"><i class="fa fa-book"></i></span>
+                                    <div class="sidde-doc-body" data-trigger="fileinput">
+                                        <span class="sidde-doc-title">Guía</span>
+                                        <span class="sidde-doc-name fileinput-filename" id="l_guia"></span>
+                                        <span class="sidde-doc-empty">Ningún archivo seleccionado</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <span class="btn btn-default btn-sm btn-file">
+                                            <i class="fa fa-upload"></i>
+                                            <span class="fileinput-new">Seleccionar</span>
+                                            <span class="fileinput-exists">Cambiar</span>
+                                            <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="guia" id="guia">
+                                        </span>
+                                        <a href="#" id="remove_guide" class="btn btn-link btn-sm sidde-doc-remove fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
                                     </div>
                                 </div>
-                                <div class="col-lg-6" >
-                                    <label for="presentacion" class="control-label"><i class="fa fa-file-powerpoint-o"></i> Presentación</label>
-                                    <div id="fileinput_presentacion" class="fileinput fileinput-new" data-provides="fileinput">
-                                        <div class="input-group">
-                                            <div class="form-control uneditable-input" data-trigger="fileinput">
-                                                <i class="glyphicon glyphicon-file fileinput-exists"></i>
-                                                <span class="fileinput-filename" id="l_presentacion"></span>
-                                            </div>
-                                            <span class="input-group-addon btn btn-default btn-file">
-                                                <span class="fileinput-new">Buscar</span>
-                                                <span class="fileinput-exists">Cambiar</span>
-                                                <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="presentacion" id="presentacion">
-                                            </span>
-                                            <a href="#" id='remove_presentation' class="input-group-addon btn btn-default fileinput-exists" data-dismiss="fileinput">Quitar</a>
-                                        </div>
+                                <div id="fileinput_presentacion" class="sidde-doc-row fileinput fileinput-new" data-provides="fileinput" data-doc-type="4">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-powerpoint-o"></i></span>
+                                    <div class="sidde-doc-body" data-trigger="fileinput">
+                                        <span class="sidde-doc-title">Presentación</span>
+                                        <span class="sidde-doc-name fileinput-filename" id="l_presentacion"></span>
+                                        <span class="sidde-doc-empty">Ningún archivo seleccionado</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <span class="btn btn-default btn-sm btn-file">
+                                            <i class="fa fa-upload"></i>
+                                            <span class="fileinput-new">Seleccionar</span>
+                                            <span class="fileinput-exists">Cambiar</span>
+                                            <input type="file" accept=".pdf,.txt, .doc,.docx, .xls, .xlsx" name="presentacion" id="presentacion">
+                                        </span>
+                                        <a href="#" id="remove_presentation" class="btn btn-link btn-sm sidde-doc-remove fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
                         <div class="read-only-docs">
-                            <div class="form-group" >
-                                <div class="col-lg-6" >
-                                    {{ Form::label('facilitator_manual', 'Manual del Facilitador', array('class' => 'control-label'))}}
-                                    {{ Form::text('facilitator_manual', null , array('class' => 'form-control facilitator_manual','disabled'))}}
+                            <div class="sidde-doc-list">
+                                <div class="sidde-doc-row is-empty" data-doc-type="1">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-text-o"></i></span>
+                                    <div class="sidde-doc-body">
+                                        <span class="sidde-doc-title">Manual del Facilitador</span>
+                                        <span class="sidde-doc-name">Sin documento</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <a href="#" class="btn btn-default btn-sm doc-download hidden"><i class="fa fa-download"></i> Descargar</a>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6" >
-                                    {{ Form::label('participant_manual', 'Manual del Participante', array('class' => 'control-label'))}}
-                                    {{ Form::text('participant_manual', null , array('class' => 'form-control participant_manual','disabled'))}}
+                                <div class="sidde-doc-row is-empty" data-doc-type="2">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-text-o"></i></span>
+                                    <div class="sidde-doc-body">
+                                        <span class="sidde-doc-title">Manual del Participante</span>
+                                        <span class="sidde-doc-name">Sin documento</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <a href="#" class="btn btn-default btn-sm doc-download hidden"><i class="fa fa-download"></i> Descargar</a>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6" >
-                                    {{ Form::label('course_guide', 'Guia', array('class' => 'control-label'))}}
-                                    {{ Form::text('course_guide', null , array('class' => 'form-control course_guide','disabled'))}}
+                                <div class="sidde-doc-row is-empty" data-doc-type="3">
+                                    <span class="sidde-doc-icon"><i class="fa fa-book"></i></span>
+                                    <div class="sidde-doc-body">
+                                        <span class="sidde-doc-title">Guía</span>
+                                        <span class="sidde-doc-name">Sin documento</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <a href="#" class="btn btn-default btn-sm doc-download hidden"><i class="fa fa-download"></i> Descargar</a>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6" >
-                                    {{ Form::label('course_presentation', 'Presentación', array('class' => 'control-label'))}}
-                                    {{ Form::text('course_presentation', null , array('class' => 'form-control course_presentation','disabled'))}}
+                                <div class="sidde-doc-row is-empty" data-doc-type="4">
+                                    <span class="sidde-doc-icon"><i class="fa fa-file-powerpoint-o"></i></span>
+                                    <div class="sidde-doc-body">
+                                        <span class="sidde-doc-title">Presentación</span>
+                                        <span class="sidde-doc-name">Sin documento</span>
+                                    </div>
+                                    <div class="sidde-doc-actions">
+                                        <a href="#" class="btn btn-default btn-sm doc-download hidden"><i class="fa fa-download"></i> Descargar</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="no-docs">
-                            <span><h4>Este Curso No posee documentos asignados</h4></span>
+                            <i class="fa fa-folder-open-o"></i>
+                            <p>Este curso no posee documentos asignados.</p>
                         </div>
                     </div>{{-- end 4th tab --}}
                 </div>

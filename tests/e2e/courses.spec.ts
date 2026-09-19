@@ -1374,3 +1374,185 @@ test.describe.serial('Courses - Edit Flow', () => {
         expect(dbContent).toContain(testContent);
     });
 });
+
+// Legacy/imported courses may not have a capacity row. The details payload is
+// still valid but capacity is an empty array, which used to throw inside the
+// $.get success callback and leave the modal spinner running forever.
+test.describe('Courses - Details Modal', () => {
+    const NO_CAPACITY_CODE = 'E2E-NOCAP';
+    const WITH_CAPACITY_CODE = 'E2E-WITHCAP';
+    let noCapacityId = 0;
+    let withCapacityId = 0;
+
+    const tinker = (code: string) =>
+        execSync(`php artisan tinker --execute '${code}'`, {
+            cwd: process.cwd(),
+            timeout: 20000,
+        }).toString();
+
+    const extractId = (output: string): number => {
+        const match = output.match(/COURSE_ID=(\d+)/);
+        return match ? Number(match[1]) : 0;
+    };
+
+    const ensureCourse = (code: string, title: string, withCapacity: boolean) => {
+        const capacity = withCapacity
+            ? '$c->capacity()->updateOrCreate([], ["min" => 5, "max" => 15]);'
+            : '$c->capacity()->forceDelete();';
+
+        return tinker(
+            '$cat = App\\Models\\Category::first() ?? App\\Models\\Category::factory()->create(); ' +
+            '$mod = App\\Models\\Modality::first() ?? App\\Models\\Modality::factory()->create(); ' +
+            `$c = App\\Models\\Course::firstOrCreate(["code" => "${code}"], ` +
+            `["title" => "${title}", "objective" => "objetivo e2e", "duration" => 4, "addressed" => "todos", "category_id" => $cat->id, "modality_id" => $mod->id]); ` +
+            `${capacity} echo "COURSE_ID=".$c->id;`
+        );
+    };
+
+    test.beforeAll(() => {
+        noCapacityId = extractId(ensureCourse(NO_CAPACITY_CODE, 'E2E Sin Capacidad', false));
+        withCapacityId = extractId(ensureCourse(WITH_CAPACITY_CODE, 'E2E Con Capacidad', true));
+    });
+
+    test.afterAll(() => {
+        tinker(
+            `App\\Models\\Course::withTrashed()->whereIn("code", ["${NO_CAPACITY_CODE}", "${WITH_CAPACITY_CODE}"])->get()->each->forceDelete();`
+        );
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    async function openDetailsModal(page: any, id: number) {
+        await page.evaluate((url: string) => (window as any).detallesAccion(url), `/u/acciones_formacion/details/${id}`);
+        await page.waitForSelector('#accion-form:not(.hidden)');
+        await page.waitForSelector('.modal.in');
+    }
+
+    test('details modal opens and stops loading for a course without capacity', async ({ page }) => {
+        await openDetailsModal(page, noCapacityId);
+
+        await expect(page.locator('#accion-modal .loader')).toBeHidden();
+        await expect(page.locator('#accion-form')).toBeVisible();
+        expect(await page.inputValue('#titulo')).toBe('E2E Sin Capacidad');
+    });
+
+    test('details modal leaves capacity blank for a course without capacity', async ({ page }) => {
+        await openDetailsModal(page, noCapacityId);
+
+        expect(await page.inputValue('#min')).toBe('');
+        expect(await page.inputValue('#max')).toBe('');
+    });
+
+    test('edit modal opens and stops loading for a course without capacity', async ({ page }) => {
+        await page.evaluate((url: string) => (window as any).editarAccion(url), `/u/acciones_formacion/details/${noCapacityId}`);
+        await page.waitForSelector('#accion-form:not(.hidden)');
+        await page.waitForSelector('.modal.in');
+
+        await expect(page.locator('#accion-modal .loader')).toBeHidden();
+        expect(await page.inputValue('#min')).toBe('');
+    });
+
+    test('details modal still shows capacity when present', async ({ page }) => {
+        await openDetailsModal(page, withCapacityId);
+
+        await expect(page.locator('#accion-modal .loader')).toBeHidden();
+        expect(await page.inputValue('#min')).toBe('5');
+        expect(await page.inputValue('#max')).toBe('15');
+    });
+});
+
+test.describe('Courses - Documents Tab', () => {
+    const DOCS_CODE = 'E2E-DOCS';
+    let docsCourseId = 0;
+
+    const tinker = (code: string) =>
+        execSync(`php artisan tinker --execute '${code}'`, {
+            cwd: process.cwd(),
+            timeout: 20000,
+        }).toString();
+
+    // Course::forceDelete() does not remove related files/prerequisites, and
+    // those foreign keys block the delete.
+    const cleanupDocsCourse = () =>
+        tinker(
+            `$c = App\\Models\\Course::withTrashed()->where("code", "${DOCS_CODE}")->first(); ` +
+            'if ($c) { DB::table("files")->where("course_id", $c->id)->delete(); DB::table("prerequisites")->where("course_id", $c->id)->delete(); $c->forceDelete(); }'
+        );
+
+    test.beforeAll(() => {
+        cleanupDocsCourse();
+
+        const output = tinker(
+            '$cat = App\\Models\\Category::first() ?? App\\Models\\Category::factory()->create(); ' +
+            '$mod = App\\Models\\Modality::first() ?? App\\Models\\Modality::factory()->create(); ' +
+            `$c = App\\Models\\Course::create(["code" => "${DOCS_CODE}", "title" => "E2E Documentos", "objective" => "objetivo", "duration" => 4, "addressed" => "todos", "category_id" => $cat->id, "modality_id" => $mod->id]); ` +
+            '$c->file()->create(["path" => "e2e/manual-facilitador.pdf", "type_id" => 1]); ' +
+            '$c->file()->create(["path" => "e2e/presentacion.pdf", "type_id" => 4]); ' +
+            'echo "COURSE_ID=".$c->id;'
+        );
+        const match = output.match(/COURSE_ID=(\d+)/);
+        docsCourseId = match ? Number(match[1]) : 0;
+    });
+
+    test.afterAll(() => {
+        cleanupDocsCourse();
+    });
+
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+    });
+
+    test('documents tab renders a full-width card per document type', async ({ page }) => {
+        await openCourseModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(300);
+
+        await expect(page.locator('#docs .sidde-doc-row')).toHaveCount(4);
+
+        const tabWidth = await page.evaluate(() =>
+            Math.round((document.querySelector('#tab-4') as HTMLElement).getBoundingClientRect().width)
+        );
+        const widths = await page.evaluate(() =>
+            Array.from(document.querySelectorAll('#docs .sidde-doc-row')).map((el) =>
+                Math.round((el as HTMLElement).getBoundingClientRect().width)
+            )
+        );
+        widths.forEach((width) => expect(width).toBeGreaterThan(tabWidth - 5));
+
+        await expect(page.locator('#docs .sidde-doc-empty').first()).toBeVisible();
+        await expect(page.locator('#remove_facilitator')).toBeHidden();
+    });
+
+    test('details modal lists documents with download links', async ({ page }) => {
+        await page.evaluate((url: string) => (window as any).detallesAccion(url), `/u/acciones_formacion/details/${docsCourseId}`);
+        await page.waitForSelector('#accion-form:not(.hidden)');
+        await page.waitForSelector('.modal.in');
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(300);
+
+        const presentRow = page.locator('.read-only-docs .sidde-doc-row[data-doc-type="1"]');
+        await expect(presentRow.locator('.sidde-doc-name')).toHaveText('manual-facilitador.pdf');
+        await expect(presentRow.locator('.doc-download')).toHaveAttribute('href', `/download/${docsCourseId}/1`);
+
+        const emptyRow = page.locator('.read-only-docs .sidde-doc-row[data-doc-type="2"]');
+        await expect(emptyRow.locator('.sidde-doc-name')).toHaveText('Sin documento');
+        await expect(emptyRow.locator('.doc-download')).toBeHidden();
+    });
+
+    test('edit modal shows filename and remove action for an existing file', async ({ page }) => {
+        await page.evaluate((url: string) => (window as any).editarAccion(url), `/u/acciones_formacion/details/${docsCourseId}`);
+        await page.waitForSelector('#accion-form:not(.hidden)');
+        await page.waitForSelector('.modal.in');
+        await page.evaluate(() => (window as any).tabSwitch(3));
+        await page.waitForTimeout(300);
+
+        const row = page.locator('#fileinput_manual_f');
+        await expect(row).toHaveClass(/fileinput-exists/);
+        await expect(row.locator('#l_manual_f')).toHaveText('manual-facilitador.pdf');
+        await expect(page.locator('#remove_facilitator')).toBeVisible();
+    });
+});

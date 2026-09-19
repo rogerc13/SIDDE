@@ -297,58 +297,77 @@ function detallesAccion(url){
     $("#accion-aceptar").addClass("hidden");
 
     $.get(url,function(data,status){
-            
             data = typeof data === 'string' ? JSON.parse(data) : data;
 
-            $('#codigo').val(data[0].code);
+            try {
+                if(!data || data.length === 0){
+                    throw new Error("La acción de formación no pudo ser cargada.");
+                }
 
-            prerequisiteSelect(data);
+                var course = data[0];
 
-            $('#titulo').val(data[0].title);
-            $('#categoria_id').val(data[0].category_id).trigger("change");
-            $('#modalidad_id').val(data[0].modality_id).trigger("change");
-            $('#duracion').val(data[0].duration);
-            $('#dirigido').val(data[0].addressed);
-            $('#min').val(data[0].capacity[0].min);
-            $('#max').val(data[0].capacity[0].max);
-            $('#objetivo').val(data[0].objective);
-            
-            $('#accion-modal .content-list').html('');
+                $('#codigo').val(course.code);
 
-            contentData = [];
-            i = 0;
-            data[0].content.forEach(element => {
-                contentData[i] = element.text;
-                $('#accion-modal .content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
+                prerequisiteSelect(data);
 
-            });
-            $('#accion-modal .content-list')
+                $('#titulo').val(course.title);
+                $('#categoria_id').val(course.category_id).trigger("change");
+                $('#modalidad_id').val(course.modality_id).trigger("change");
+                $('#duracion').val(course.duration);
+                $('#dirigido').val(course.addressed);
+                // Some courses (legacy/imported) may not have a capacity row yet.
+                var capacity = (course.capacity && course.capacity.length > 0) ? course.capacity[0] : null;
+                $('#min').val(capacity ? capacity.min : '');
+                $('#max').val(capacity ? capacity.max : '');
+                $('#objetivo').val(course.objective);
+                
+                $('#accion-modal .content-list').html('');
 
-            if(typeof data[0].file !== 'undefined'){
+                contentData = [];
+                i = 0;
+                (course.content || []).forEach(element => {
+                    contentData[i] = element.text;
+                    $('#accion-modal .content-list').append(`<li value="${i++}" class="list-element list-group-item"><span class="list-text">${element.text}</span></li>`);
 
-                if(data[0].file.length > 0){
-                    $('.read-only-docs').show();    
+                });
+
+                var courseFiles = course.file || [];
+
+                // reset read-only document rows
+                $('#accion-modal .read-only-docs .sidde-doc-row').each(function(){
+                    var $row = $(this);
+                    $row.addClass('is-empty');
+                    $row.find('.sidde-doc-name').text('Sin documento');
+                    $row.find('.doc-download').attr('href', '#').addClass('hidden');
+                });
+
+                if(courseFiles.length > 0){
+                    $('.read-only-docs').show();
                     $('.no-docs').hide();
-                    data[0].file.forEach(element => {
-                        if(element.type_id == 1){
-                            $('.facilitator_manual').val(element.path);
+                    courseFiles.forEach(function(element){
+                        var $row = $('#accion-modal .read-only-docs .sidde-doc-row[data-doc-type="' + element.type_id + '"]');
+                        if($row.length === 0){
+                            return;
                         }
-                        if(element.type_id == 2){
-                            $('.participant_manual').val(element.path);
-                        }
-                        if(element.type_id == 3){
-                            $('.course_guide').val(element.path);
-                        }
-                        if(element.type_id == 4){
-                            $('.course_presentation').val(element.path);
-                        }
+                        var filename = (element.path || '').split('/').pop();
+                        $row.removeClass('is-empty');
+                        $row.find('.sidde-doc-name').text(filename);
+                        $row.find('.doc-download')
+                            .attr('href', '/download/' + course.id + '/' + element.type_id)
+                            .removeClass('hidden');
                     });
                 }else{
                     $('.read-only-docs').hide();
                     $('.no-docs').show();
-                    
-                }//else
-            }//if                
+                }
+            } catch (error) {
+                console.error('detallesAccion: no se pudo cargar la acción de formación.', error);
+            } finally {
+                $(".loader").addClass("hidden");
+                $("#accion-form").removeClass("hidden");
+            }
+        }).fail(function(response){
+            console.error('detallesAccion: la solicitud falló.', response);
             $(".loader").addClass("hidden");
             $("#accion-form").removeClass("hidden");
         });
@@ -430,69 +449,86 @@ function editarAccion(url){
 
     $.get(url,function(data,status){
             data = typeof data === 'string' ? JSON.parse(data) : data;
-            $('.course-id').val(data[0].id);
-            $('.course-code').val(data[0].code);
 
-            prerequisiteSelect(data);
+            try {
+                if(!data || data.length === 0){
+                    throw new Error("La acción de formación no pudo ser cargada.");
+                }
 
-            $('#titulo').val(data[0].title);
-            $('#categoria_id').val(data[0].category_id).trigger("change");
-            $('#modalidad_id').val(data[0].modality_id).trigger("change");
-            $('#duracion').val(data[0].duration);
-            $('#dirigido').val(data[0].addressed);
-            $('#min').val(data[0].capacity[0].min);
-            $('#max').val(data[0].capacity[0].max);
-            $('#objetivo').val(data[0].objective);
+                var course = data[0];
+                $('.course-id').val(course.id);
+                $('.course-code').val(course.code);
 
-            $('#accion-modal .content-list').html('');
-            const initialContent = [];
-            if (data[0].content && data[0].content.length) {
-                data[0].content.forEach(function (element) {
-                    if (element.text) {
-                        initialContent.push(element.text);
-                    }
-            });
+                prerequisiteSelect(data);
 
-            }
-            if (typeof window.setInitialContentData === 'function') {
-                window.setInitialContentData(initialContent);
-            }
+                $('#titulo').val(course.title);
+                $('#categoria_id').val(course.category_id).trigger("change");
+                $('#modalidad_id').val(course.modality_id).trigger("change");
+                $('#duracion').val(course.duration);
+                $('#dirigido').val(course.addressed);
+                // Some courses (legacy/imported) may not have a capacity row yet.
+                var capacity = (course.capacity && course.capacity.length > 0) ? course.capacity[0] : null;
+                $('#min').val(capacity ? capacity.min : '');
+                $('#max').val(capacity ? capacity.max : '');
+                $('#objetivo').val(course.objective);
 
-
-
-            // reset all document fields to "no file" state
-            $('#l_manual_f, #l_manual_p, #l_guia, #l_presentacion').text('');
-            $('#fileinput_manual_f, #fileinput_manual_p, #fileinput_guia, #fileinput_presentacion')
-                .removeClass('fileinput-exists')
-                .addClass('fileinput-new');
-
-            if (data[0].file && data[0].file.length > 0) {
-                $('.no-docs').hide();
-                data[0].file.forEach(element => {
-                    if (element.type_id == 1) {
-                        $('#l_manual_f').text(element.path);
-                        $('#fileinput_manual_f').addClass('fileinput-exists').removeClass('fileinput-new');
-                    }
-                    if (element.type_id == 2) {
-                        $('#l_manual_p').text(element.path);
-                        $('#fileinput_manual_p').addClass('fileinput-exists').removeClass('fileinput-new');
-                    }
-                    if (element.type_id == 3) {
-                        $('#l_guia').text(element.path);
-                        $('#fileinput_guia').addClass('fileinput-exists').removeClass('fileinput-new');
-                    }
-                    if (element.type_id == 4) {
-                        $('#l_presentacion').text(element.path);
-                        $('#fileinput_presentacion').addClass('fileinput-exists').removeClass('fileinput-new');
-                    }
+                $('#accion-modal .content-list').html('');
+                const initialContent = [];
+                if (course.content && course.content.length) {
+                    course.content.forEach(function (element) {
+                        if (element.text) {
+                            initialContent.push(element.text);
+                        }
                 });
-            } else {
-                $('.no-docs').show();
+
+                }
+                if (typeof window.setInitialContentData === 'function') {
+                    window.setInitialContentData(initialContent);
+                }
+
+
+
+                // reset all document fields to "no file" state
+                $('#l_manual_f, #l_manual_p, #l_guia, #l_presentacion').text('');
+                $('#fileinput_manual_f, #fileinput_manual_p, #fileinput_guia, #fileinput_presentacion')
+                    .removeClass('fileinput-exists')
+                    .addClass('fileinput-new');
+
+                if (course.file && course.file.length > 0) {
+                    $('.no-docs').hide();
+                    course.file.forEach(function (element) {
+                        var filename = (element.path || '').split('/').pop();
+                        if (element.type_id == 1) {
+                            $('#l_manual_f').text(filename);
+                            $('#fileinput_manual_f').addClass('fileinput-exists').removeClass('fileinput-new');
+                        }
+                        if (element.type_id == 2) {
+                            $('#l_manual_p').text(filename);
+                            $('#fileinput_manual_p').addClass('fileinput-exists').removeClass('fileinput-new');
+                        }
+                        if (element.type_id == 3) {
+                            $('#l_guia').text(filename);
+                            $('#fileinput_guia').addClass('fileinput-exists').removeClass('fileinput-new');
+                        }
+                        if (element.type_id == 4) {
+                            $('#l_presentacion').text(filename);
+                            $('#fileinput_presentacion').addClass('fileinput-exists').removeClass('fileinput-new');
+                        }
+                    });
+                } else {
+                    $('.no-docs').show();
+                }
+            } catch (error) {
+                console.error('editarAccion: no se pudo cargar la acción de formación.', error);
+            } finally {
+                $(".loader").addClass("hidden");
+                $("#accion-form").removeClass("hidden");
             }
 
+        }).fail(function(response){
+            console.error('editarAccion: la solicitud falló.', response);
             $(".loader").addClass("hidden");
             $("#accion-form").removeClass("hidden");
-
         });
     $("#accion-modal").modal();
     

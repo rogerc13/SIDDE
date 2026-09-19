@@ -522,6 +522,143 @@
     color: #fff;
 }
 
+/* Documents tab (course modal) */
+.sidde-modal .sidde-doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidde-modal .sidde-doc-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid #e0ece4;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sidde-modal .sidde-doc-row:hover {
+    border-color: #bfe0cc;
+    box-shadow: 0 2px 8px rgba(0, 166, 81, 0.08);
+}
+
+.sidde-modal .sidde-doc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f3f7f4;
+    color: #3f8a5c;
+    font-size: 17px;
+}
+
+.sidde-modal .sidde-doc-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.sidde-modal .sidde-doc-body[data-trigger="fileinput"] {
+    cursor: pointer;
+}
+
+.sidde-modal .sidde-doc-title {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4b5c53;
+}
+
+.sidde-modal .sidde-doc-name {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: #7b8c83;
+}
+
+/* app1.css absolutely positions .fileinput-filename; reset it inside cards */
+.sidde-modal .sidde-doc-row .fileinput-filename {
+    position: static;
+    left: auto;
+    width: auto;
+    padding-left: 0 !important;
+}
+
+.sidde-modal .sidde-doc-row.is-empty .sidde-doc-name {
+    font-style: italic;
+    color: #a7b6ad;
+}
+
+.sidde-modal .sidde-doc-empty {
+    display: none;
+    font-size: 12px;
+    font-style: italic;
+    color: #a7b6ad;
+}
+
+.sidde-modal .sidde-doc-row.fileinput-new .sidde-doc-empty {
+    display: block;
+}
+
+.sidde-modal .sidde-doc-row.fileinput-exists .sidde-doc-empty {
+    display: none;
+}
+
+.sidde-modal .sidde-doc-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.sidde-modal .sidde-doc-actions .btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.sidde-modal .sidde-doc-remove {
+    color: #c0392b;
+    text-decoration: none;
+}
+
+.sidde-modal .sidde-doc-remove:hover,
+.sidde-modal .sidde-doc-remove:focus {
+    color: #96281b;
+    text-decoration: none;
+}
+
+.sidde-modal .no-docs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 26px 18px;
+    border: 1px dashed #d8e6dd;
+    border-radius: 6px;
+    background: #f8fbf9;
+    color: #8a9a91;
+    text-align: center;
+}
+
+.sidde-modal .no-docs i {
+    font-size: 26px;
+    color: #b7cbc0;
+}
+
+.sidde-modal .no-docs p {
+    margin: 0;
+    font-size: 13px;
+}
+
 /* Danger variant (delete confirmations) */
 .sidde-modal-danger .sidde-modal-icon {
     background: #d9534f;
