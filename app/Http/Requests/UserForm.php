@@ -43,13 +43,18 @@ class UserForm extends FormRequest
 
                        ];
             case 'PUT':
+                // Admin CRUD carries the target user in the route; the profile
+                // route (/u/mis_datos) does not, so fall back to the authenticated
+                // user to avoid the e-mail uniqueness rule matching itself.
+                $ignoreUserId = $this->route('id') ?? $this->user()?->id;
+
                 return [
                         'nombre' => 'required|string|max:'.User::MAX_LENGTH_NAME,
                         'apellido' => 'required|string|max:'.User::MAX_LENGTH_LAST_NAME,
                         'ci' => 'required|string|max:'.User::MAX_LENGTH_ID_NUMBER,
                         'id_type' => 'required|integer|exists:id_types,id',
                         'rol' => 'sometimes|required|integer|exists:roles,id',                        
-                        'email' => 'required|email:rfc,filter|unique:users,email,'.$this->route('id').'|max:'.User::MAX_LENGTH_EMAIL,
+                        'email' => 'required|email:rfc,filter|unique:users,email,'.$ignoreUserId.'|max:'.User::MAX_LENGTH_EMAIL,
                         'phone' => 'nullable|string|max:45',
                         'sex' => 'required|in:Femenino,Masculino',
                         'password' => 'sometimes|confirmed',

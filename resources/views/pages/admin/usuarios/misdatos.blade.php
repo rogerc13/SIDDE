@@ -2,153 +2,198 @@
 
 @push('JS')
   <script src="{{url('assets/js/fileinput.js')}}"></script>
+  <script>
+    $(function () {
+      // Toggle password visibility
+      $(document).on('click', '.sidde-password-toggle', function () {
+        var $input = $($(this).data('target'));
+        var isPassword = $input.attr('type') === 'password';
+        $input.attr('type', isPassword ? 'text' : 'password');
+        $(this).find('i').toggleClass('fa-eye', !isPassword).toggleClass('fa-eye-slash', isPassword);
+      });
+
+      // Restrict the phone field to digits
+      $(document).on('input', '#phone', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    });
+  </script>
 @endpush
 
 @section('content')
-	
-	<h2>Mis datos</h2>
+<div class="sidde-profile">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="sidde-page-heading">
+        <span class="sidde-page-icon"><i class="fa fa-user"></i></span>
+        <div>
+          <h2>Mis datos</h2>
+          <p class="sidde-page-subtitle">Actualiza tu información personal, tus credenciales de acceso y tu foto de perfil.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-
-<div class="row">						
-	<div class="col-md-12">								
-        <div class="panel panel-info" data-collapsed="0">
-        
-          <div class="panel-heading">
-            <div class="panel-title">
-              Editar perfil
-            </div>
-            
-
+  <div class="row">
+    {{-- Profile summary --}}
+    <div class="col-md-4">
+      <div class="sidde-sticky">
+        <div class="sidde-profile-card sidde-profile-summary">
+          <div class="sidde-profile-avatar">
+            @if(!$logeado->person->avatar_path)
+              <img src="{{ asset('assets/images/photo.jpg') }}" alt="Foto de perfil">
+            @else
+              <img src="{{ asset('avatars/'.$logeado->person->avatar_path) }}" alt="Foto de perfil">
+            @endif
           </div>
-          
-          <div class="panel-body">
-            
-            <form role="form" class="form-horizontal form-groups-bordered" method="POST" enctype="multipart/form-data" action="{{ route('mis_datos_update') }}">
-              <input type="hidden" name="_method" value="PUT">
-              <input type="hidden" name="user_id" value="{{$logeado->id}}">
-              {!! csrf_field() !!}
-              
-      
-              <div class="form-group">
-                <label for="nombre" class="col-sm-3 control-label">Nombre</label>
-                
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="nombre" id="nombre"  value="{{Auth::User()->person->name}}" maxlength="45" required="true">
-                </div>
-              </div>       
+          <h3 class="sidde-profile-name">{{ $logeado->person->name }} {{ $logeado->person->last_name }}</h3>
+          <span class="sidde-profile-role">{{ $logeado->role->name }}</span>
+          <ul class="sidde-profile-meta">
+            <li><i class="fa fa-envelope-o"></i> {{ $logeado->email }}</li>
+            <li><i class="fa fa-credit-card"></i> {{ $logeado->person->id_type_id == 1 ? 'V' : 'E' }}-{{ $logeado->person->id_format() }}</li>
+            <li><i class="fa fa-phone"></i> {{ $logeado->person->phone ?: 'Sin registrar' }}</li>
+            <li><i class="fa fa-venus-mars"></i> {{ $logeado->person->sex ?: 'Sin registrar' }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
+    {{-- Edit form --}}
+    <div class="col-md-8">
+      <div class="sidde-profile-card">
+        <div class="sidde-card-header"><i class="fa fa-pencil"></i> Editar perfil</div>
+        <div class="sidde-profile-body">
+          <form role="form" class="form-horizontal" method="POST" enctype="multipart/form-data" action="{{ route('mis_datos_update') }}">
+            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="user_id" value="{{ $logeado->id }}">
+            {!! csrf_field() !!}
 
-              <div class="form-group">
-                <label for="apellido" class="col-sm-3 control-label">Apellido</label>
-                
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="apellido" id="apellido" value="{{Auth::User()->person->last_name}}" maxlength="45" required="true">
-                </div>
-              </div>
+            <h5 class="sidde-section-title"><i class="fa fa-user"></i> Datos personales</h5>
 
-
-              <div class="form-group">
-                <label for="email" class="col-sm-3 control-label">Correo</label>
-                
-                <div class="col-sm-5">
-                  <input type="email" class="form-control" name="email" id="email" value="{{Auth::User()->email}}" maxlength="60" required="true">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="nombre" class="control-label">Nombre</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                  <input type="text" class="form-control" name="nombre" id="nombre" value="{{ old('nombre', $logeado->person->name) }}" maxlength="45" required="true" placeholder="Ej: Juan">
                 </div>
               </div>
-
-              <div class="form-group">
-                <label for="ci" class="col-sm-3 control-label">C.I</label>
-                <div class="col-sm-5">
-                  <div class="input-group">
-                    <div class="input-group-btn">
-                      <select name="id_type" id="id_type" class="form-select input-group-text btn btn-default 
-                       dropdown-toggle">
-                        @foreach ($types as $type)
-                          <option value="{{$type->id}}" 
-                            @if (Auth::user()->person->id_type_id == $type->id)
-                              selected                               
-                            @endif>{{$type->inital()}}
-                          </option>
-                        @endforeach  
-                      </select>
-                    </div>
-                    <input type="text" class="form-control" name="ci" id="ci"  min="0" value="{{Auth::User()->person->id_number}}" maxlength="45" required="true">
-                  </div>  
+              <div class="col-sm-6">
+                <label for="apellido" class="control-label">Apellido</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                  <input type="text" class="form-control" name="apellido" id="apellido" value="{{ old('apellido', $logeado->person->last_name) }}" maxlength="45" required="true" placeholder="Ej: Pérez">
                 </div>
-
               </div>
-              <div class="form-group">
-                <label for="sex" class="col-sm-3 control-label">Sexo</label>
-                <div class="col-sm-5">
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="ci" class="control-label">C.I</label>
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <select name="id_type" id="id_type" class="form-select input-group-text btn btn-default dropdown-toggle">
+                      @foreach ($types as $type)
+                        <option value="{{ $type->id }}"
+                          @if (old('id_type', $logeado->person->id_type_id) == $type->id)
+                            selected
+                          @endif>{{ $type->inital() }}
+                        </option>
+                      @endforeach
+                    </select>
+                  </div>
+                  <input type="text" class="form-control" name="ci" id="ci" value="{{ old('ci', $logeado->person->id_number) }}" maxlength="45" required="true" placeholder="Ej: 12345678">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label for="sex" class="control-label">Sexo</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-venus-mars"></i></span>
                   <select name="sex" id="sex" class="form-control">
-                    <option value="Femenino" @if(Auth::User()->person->sex == 'Femenino') selected @endif>Femenino</option>
-                    <option value="Masculino" @if(Auth::User()->person->sex == 'Masculino') selected @endif>Masculino</option>
+                    <option value="Femenino" @if (old('sex', $logeado->person->sex) == 'Femenino') selected @endif>Femenino</option>
+                    <option value="Masculino" @if (old('sex', $logeado->person->sex) == 'Masculino') selected @endif>Masculino</option>
                   </select>
                 </div>
               </div>
-              <div class="form-group">
-                <label for="phone" class="col-sm-3 control-label">Teléfono</label>
-                
-                <div class="col-sm-5">
-                  <input type="phone" class="form-control" name="phone" id="phone"  min="0" value="{{Auth::User()->person->phone}}" maxlength="45" required="true">
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="phone" class="control-label">Teléfono</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-phone"></i></span>
+                  <input type="tel" class="form-control" name="phone" id="phone" value="{{ old('phone', $logeado->person->phone) }}" maxlength="45" pattern="[0-9]+" inputmode="numeric" required="true" placeholder="Ej: 04141234567">
                 </div>
               </div>
+            </div>
 
+            <h5 class="sidde-section-title"><i class="fa fa-lock"></i> Datos de acceso</h5>
 
-              <div class="form-group">
-                <label for="password" class="col-sm-3 control-label">Contraseña</label>
-                
-                <div class="col-sm-5">
-                  <input type="password" class="form-control" name="password" id="password"  maxlength="100">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="email" class="control-label">Correo</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
+                  <input type="email" class="form-control" name="email" id="email" value="{{ old('email', $logeado->email) }}" maxlength="60" required="true" placeholder="Ej: juan.perez@pdvsa.com">
                 </div>
               </div>
+            </div>
 
-
-              <div class="form-group">
-                <label for="password_confirmation" class="col-sm-3 control-label">Confirmar contraseña</label>
-                
-                <div class="col-sm-5">
-                  <input type="password" class="form-control" name="password_confirmation" id="password_confirmation"  maxlength="100">
+            <div class="row">
+              <div class="col-sm-6">
+                <label for="password" class="control-label">Contraseña</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                  <input type="password" class="form-control" name="password" id="password" maxlength="100" placeholder="Nueva contraseña">
+                  <span class="input-group-addon sidde-password-toggle" data-target="#password"><i class="fa fa-eye"></i></span>
                 </div>
               </div>
+              <div class="col-sm-6">
+                <label for="password_confirmation" class="control-label">Confirmar contraseña</label>
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                  <input type="password" class="form-control" name="password_confirmation" id="password_confirmation" maxlength="100" placeholder="Repita la contraseña">
+                  <span class="input-group-addon sidde-password-toggle" data-target="#password_confirmation"><i class="fa fa-eye"></i></span>
+                </div>
+              </div>
+            </div>
+            <small class="sidde-hint">Deje los campos de contraseña en blanco si no desea cambiarla.</small>
 
-              
-              <div class="form-group">
-                <label for="imagen" class="col-sm-3 control-label">Imagen</label>
-                
-                <div class="col-sm-5">
-                  <div class="fileinput fileinput-new" data-provides="fileinput">
-                    <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;" data-trigger="fileinput">
-                      @if(!$logeado->person->avatar_path)
-                        <img src="{{asset('assets/images/photo.jpg')}}" alt="...">
-                      @else
-                        <img src="{{asset('avatars/'.$logeado->person->avatar_path)}}" alt="...">
-                      @endif
-                    </div>
-                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px"></div>
-                    <div>
-                      <span class="btn btn-white btn-file">
-                        <span class="fileinput-new">Seleccionar imagen</span>
-                        <span class="fileinput-exists">Cambiar</span>
-                        <input type="file" name="imagen" id="imagen" accept="image/*">
-                      </span>
-                      <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Quitar</a>
-                    </div>
+            <h5 class="sidde-section-title"><i class="fa fa-camera"></i> Foto de perfil</h5>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="fileinput fileinput-new sidde-avatar-upload" data-provides="fileinput">
+                  <div class="fileinput-new thumbnail" data-trigger="fileinput">
+                    @if(!$logeado->person->avatar_path)
+                      <img src="{{ asset('assets/images/photo.jpg') }}" alt="Foto de perfil">
+                    @else
+                      <img src="{{ asset('avatars/'.$logeado->person->avatar_path) }}" alt="Foto de perfil">
+                    @endif
                   </div>
-                </div> 
-              </div> 
-
-              
-              <div class="form-group">
-                <div class="col-sm-offset-3 col-sm-5">
-                  <a href="{{URL::previous()}}" type="" class="btn btn-default">Regresar</a>
-                  <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                  <div class="fileinput-preview fileinput-exists thumbnail"></div>
+                  <div>
+                    <span class="btn btn-primary btn-file">
+                      <i class="fa fa-upload"></i>
+                      <span class="fileinput-new">Seleccionar imagen</span>
+                      <span class="fileinput-exists">Cambiar</span>
+                      <input type="file" name="imagen" id="imagen" accept="image/*">
+                    </span>
+                    <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
+                  </div>
+                  <small class="sidde-hint">Formatos de imagen (JPG, PNG). Se mostrará en tu perfil y en la barra lateral.</small>
                 </div>
               </div>
-            </form>
-            
-          </div>
-        
-        </div>	
-	</div>			
+            </div>
+
+            <div class="sidde-form-actions">
+              <a href="{{ URL::previous() }}" class="btn btn-default"><i class="fa fa-arrow-left"></i> Regresar</a>
+              <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 @stop

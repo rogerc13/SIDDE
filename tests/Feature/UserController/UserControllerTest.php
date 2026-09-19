@@ -253,4 +253,74 @@ class UserControllerTest extends TestCase
 
         $response->assertRedirect();
     }
+
+    // ==================== Profile (Mis datos) ====================
+
+    protected function profileData(User $user, array $overrides = []): array
+    {
+        return array_merge([
+            'nombre' => $user->person->name,
+            'apellido' => $user->person->last_name,
+            'ci' => $user->person->id_number,
+            'id_type' => $user->person->id_type_id,
+            'email' => $user->email,
+            'phone' => '5559998888',
+            'sex' => $user->person->sex ?: 'Masculino',
+        ], $overrides);
+    }
+
+    public function test_profile_page_renders_revamped_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/mis_datos');
+
+        $response->assertOk();
+        $response->assertSee('Mis datos');
+        $response->assertSee('sidde-profile', false);
+        $response->assertSee('id="nombre"', false);
+        $response->assertSee('placeholder="Ej: Juan"', false);
+        $response->assertSee('Guardar Cambios');
+    }
+
+    public function test_profile_update_keeps_unchanged_email_and_updates_phone(): void
+    {
+        $admin = $this->adminUser();
+
+        $response = $this->actingAs($admin)
+            ->put('/u/mis_datos', $this->profileData($admin, ['phone' => '5559998888']));
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('people', ['id' => $admin->person_id, 'phone' => '5559998888']);
+    }
+
+    public function test_profile_update_allows_changing_email(): void
+    {
+        $admin = $this->adminUser();
+
+        $response = $this->actingAs($admin)
+            ->put('/u/mis_datos', $this->profileData($admin, ['email' => 'new.profile@example.com']));
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'email' => 'new.profile@example.com']);
+    }
+
+    public function test_profile_update_rejects_mismatched_passwords(): void
+    {
+        $admin = $this->adminUser();
+        $originalPhone = $admin->person->phone;
+
+        $response = $this->actingAs($admin)
+            ->put('/u/mis_datos', $this->profileData($admin, [
+                'password' => 'password123',
+                'password_confirmation' => 'differentpassword',
+            ]));
+
+        $response->assertSessionHasErrors('password');
+
+        $this->assertDatabaseHas('people', ['id' => $admin->person_id, 'phone' => $originalPhone]);
+    }
 }
