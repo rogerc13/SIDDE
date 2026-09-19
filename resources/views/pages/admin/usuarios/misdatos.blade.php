@@ -35,38 +35,44 @@
   </div>
 
   <div class="row">
-    {{-- Profile summary --}}
-    <div class="col-md-4">
-      <div class="sidde-sticky">
-        <div class="sidde-profile-card sidde-profile-summary">
-          <div class="sidde-profile-avatar">
-            @if(!$logeado->person->avatar_path)
-              <img src="{{ asset('assets/images/photo.jpg') }}" alt="Foto de perfil">
-            @else
-              <img src="{{ asset('avatars/'.$logeado->person->avatar_path) }}" alt="Foto de perfil">
-            @endif
-          </div>
-          <h3 class="sidde-profile-name">{{ $logeado->person->name }} {{ $logeado->person->last_name }}</h3>
-          <span class="sidde-profile-role">{{ $logeado->role->name }}</span>
-          <ul class="sidde-profile-meta">
-            <li><i class="fa fa-envelope-o"></i> {{ $logeado->email }}</li>
-            <li><i class="fa fa-credit-card"></i> {{ $logeado->person->id_type_id == 1 ? 'V' : 'E' }}-{{ $logeado->person->id_format() }}</li>
-            <li><i class="fa fa-phone"></i> {{ $logeado->person->phone ?: 'Sin registrar' }}</li>
-            <li><i class="fa fa-venus-mars"></i> {{ $logeado->person->sex ?: 'Sin registrar' }}</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
     {{-- Edit form --}}
-    <div class="col-md-8">
+    <div class="col-md-12">
       <div class="sidde-profile-card">
         <div class="sidde-card-header"><i class="fa fa-pencil"></i> Editar perfil</div>
         <div class="sidde-profile-body">
-          <form role="form" class="form-horizontal" method="POST" enctype="multipart/form-data" action="{{ route('mis_datos_update') }}">
+          <form role="form" method="POST" enctype="multipart/form-data" action="{{ route('mis_datos_update') }}">
             <input type="hidden" name="_method" value="PUT">
             <input type="hidden" name="user_id" value="{{ $logeado->id }}">
             {!! csrf_field() !!}
+
+            <h5 class="sidde-section-title"><i class="fa fa-camera"></i> Foto de perfil</h5>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="fileinput fileinput-new sidde-avatar-upload" data-provides="fileinput">
+                  <div class="fileinput-new thumbnail" data-trigger="fileinput">
+                    @if(!$logeado->person->avatar_path)
+                      <img src="{{ asset('assets/images/photo.jpg') }}" alt="Foto de perfil">
+                    @else
+                      <img src="{{ asset('avatars/'.$logeado->person->avatar_path) }}" alt="Foto de perfil">
+                    @endif
+                  </div>
+                  <div class="fileinput-preview fileinput-exists thumbnail"></div>
+                  <div class="sidde-avatar-upload-body">
+                    <div>
+                      <span class="btn btn-primary btn-file">
+                        <i class="fa fa-upload"></i>
+                        <span class="fileinput-new">Seleccionar imagen</span>
+                        <span class="fileinput-exists">Cambiar</span>
+                        <input type="file" name="imagen" id="imagen" accept="image/*">
+                      </span>
+                      <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
+                    </div>
+                    <small class="sidde-hint">Formatos de imagen (JPG, PNG). Se mostrará en tu perfil y en la barra lateral.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <h5 class="sidde-section-title"><i class="fa fa-user"></i> Datos personales</h5>
 
@@ -158,33 +164,6 @@
               </div>
             </div>
             <small class="sidde-hint">Deje los campos de contraseña en blanco si no desea cambiarla.</small>
-
-            <h5 class="sidde-section-title"><i class="fa fa-camera"></i> Foto de perfil</h5>
-
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="fileinput fileinput-new sidde-avatar-upload" data-provides="fileinput">
-                  <div class="fileinput-new thumbnail" data-trigger="fileinput">
-                    @if(!$logeado->person->avatar_path)
-                      <img src="{{ asset('assets/images/photo.jpg') }}" alt="Foto de perfil">
-                    @else
-                      <img src="{{ asset('avatars/'.$logeado->person->avatar_path) }}" alt="Foto de perfil">
-                    @endif
-                  </div>
-                  <div class="fileinput-preview fileinput-exists thumbnail"></div>
-                  <div>
-                    <span class="btn btn-primary btn-file">
-                      <i class="fa fa-upload"></i>
-                      <span class="fileinput-new">Seleccionar imagen</span>
-                      <span class="fileinput-exists">Cambiar</span>
-                      <input type="file" name="imagen" id="imagen" accept="image/*">
-                    </span>
-                    <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Quitar</a>
-                  </div>
-                  <small class="sidde-hint">Formatos de imagen (JPG, PNG). Se mostrará en tu perfil y en la barra lateral.</small>
-                </div>
-              </div>
-            </div>
 
             <div class="sidde-form-actions">
               <a href="{{ URL::previous() }}" class="btn btn-default"><i class="fa fa-arrow-left"></i> Regresar</a>

@@ -623,71 +623,8 @@
     padding: 24px 26px 8px;
 }
 
-/* Summary card */
-.sidde-profile .sidde-profile-summary {
-    padding: 28px 22px;
-    text-align: center;
-}
-
-.sidde-profile .sidde-profile-avatar {
-    width: 132px;
-    height: 132px;
-    margin: 0 auto 16px;
-    border: 4px solid #e3f1e8;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #f4faf6;
-    box-shadow: 0 6px 18px rgba(0, 166, 81, 0.18);
-}
-
-.sidde-profile .sidde-profile-avatar img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.sidde-profile .sidde-profile-name {
-    margin: 0 0 6px;
-    font-size: 19px;
-    font-weight: 700;
-    color: #2c3e34;
-    text-transform: capitalize;
-}
-
-.sidde-profile .sidde-profile-role {
-    display: inline-block;
-    margin-bottom: 16px;
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: #e8f6ee;
-    color: #1f7a49;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.sidde-profile .sidde-profile-meta {
-    margin: 0;
-    padding: 16px 0 0;
-    border-top: 1px solid #eef4f0;
-    list-style: none;
-    text-align: left;
-}
-
-.sidde-profile .sidde-profile-meta li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 0;
-    color: #5b6b62;
-    font-size: 13px;
-    word-break: break-word;
-}
-
-.sidde-profile .sidde-profile-meta i {
-    width: 18px;
-    color: #00a651;
-    text-align: center;
+.sidde-profile .sidde-profile-body .row + .row {
+    margin-top: 18px;
 }
 
 /* Form */
@@ -702,8 +639,12 @@
     color: #3f8a5c;
 }
 
-.sidde-profile .sidde-section-title:not(:first-child) {
+.sidde-profile .sidde-section-title:not(:first-of-type) {
     margin-top: 26px;
+}
+
+.sidde-profile .sidde-section-title:first-of-type {
+    margin-top: 0;
 }
 
 .sidde-profile .sidde-section-title i {
@@ -711,8 +652,16 @@
 }
 
 .sidde-profile label.control-label {
+    display: block;
+    margin-bottom: 6px;
+    padding-top: 0;
     font-weight: 600;
     color: #4b5c53;
+    text-align: left;
+}
+
+.sidde-profile .input-group {
+    width: 100%;
 }
 
 .sidde-profile .input-group-addon {
@@ -747,17 +696,34 @@
     background: #e8f3ec;
 }
 
-/* Avatar upload */
+/* Avatar upload (horizontal header) */
+.sidde-profile .sidde-avatar-upload {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-bottom: 4px;
+}
+
 .sidde-profile .sidde-avatar-upload .fileinput-new.thumbnail,
 .sidde-profile .sidde-avatar-upload .fileinput-preview.thumbnail {
+    flex: 0 0 auto;
     width: 120px;
     height: 120px;
-    margin: 0 0 14px;
+    margin: 0;
     padding: 0;
     border: 3px dashed #cfe4d8;
     border-radius: 50%;
     overflow: hidden;
     background: #f8fbf9;
+}
+
+.sidde-profile .sidde-avatar-upload-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
 }
 
 .sidde-profile .sidde-avatar-upload .thumbnail img {
@@ -781,11 +747,4 @@
 
 .sidde-profile .sidde-form-actions .btn + .btn {
     margin-left: 8px;
-}
-
-@media (min-width: 992px) {
-    .sidde-profile .sidde-sticky {
-        position: sticky;
-        top: 20px;
-    }
 }
