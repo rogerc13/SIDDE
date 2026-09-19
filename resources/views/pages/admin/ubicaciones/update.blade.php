@@ -24,7 +24,7 @@
 
         $("#location-modal").on("hidden.bs.modal", function () {
             $("#location-form :input").prop('readonly', false);
-            $("#location-aceptar").removeClass("hidden").val('Crear Aula');
+            $("#location-aceptar").removeClass("hidden");
         });
     }
 

@@ -364,12 +364,15 @@
 </script>
 @endpush
 
-<div class="modal fade" id="location-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="location-modal" tabindex="-1" role="dialog" aria-labelledby="location-label" aria-hidden="true">
+    <div class="modal-dialog sidde-modal" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="location-label">Crear / Editar Aula</h4>
+                <div class="sidde-modal-heading">
+                    <span class="sidde-modal-icon"><i class="fa fa-map-marker"></i></span>
+                    <h4 class="modal-title" id="location-label">Crear / Editar Aula</h4>
+                </div>
             </div>
             <div class="loader text-center">
                 <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
@@ -380,9 +383,10 @@
                 <input type="hidden" name="_method" value="POST">
 
                 <div class="modal-body">
+                    <h5 class="sidde-section-title"><i class="fa fa-building"></i> Ubicación</h5>
                     <div class="form-group">
                         <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('building_id', 'Edificio') }}
+                            {{ Form::label('building_id', 'Edificio', ['class' => 'control-label']) }}
                             <div id="building-dropdown-group" style="display: flex; gap: 5px;">
                                 {{ Form::select('building_id', [], null, ['class' => 'form-control', 'id' => 'location_building_id', 'required', 'placeholder' => 'Seleccione un edificio']) }}
                                 <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('building')" title="Crear nuevo edificio">
@@ -396,12 +400,12 @@
                                 </button>
                             </div>
                             <div id="building-inline-create" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="building-inline-input" placeholder="Nombre del edificio" maxlength="100">
+                                <input type="text" class="form-control" id="building-inline-input" placeholder="Ej: Edificio A" maxlength="100">
                                 <button type="button" class="btn btn-success btn-sm" id="building-inline-crear" onclick="submitInlineBuilding()">Crear</button>
                                 <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('building')">Cancelar</button>
                             </div>
                             <div id="building-inline-edit" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="building-edit-input" placeholder="Nombre del edificio" maxlength="100">
+                                <input type="text" class="form-control" id="building-edit-input" placeholder="Ej: Edificio A" maxlength="100">
                                 <button type="button" class="btn btn-success btn-sm" id="building-edit-save" onclick="submitEditBuilding()">Guardar</button>
                                 <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('building')">Cancelar</button>
                             </div>
@@ -417,7 +421,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('floor_id', 'Piso') }}
+                            {{ Form::label('floor_id', 'Piso', ['class' => 'control-label']) }}
                             <div id="floor-dropdown-group" style="display: flex; gap: 5px;">
                                 {{ Form::select('floor_id', [], null, ['class' => 'form-control', 'id' => 'location_floor_id', 'required', 'placeholder' => 'Seleccione un piso']) }}
                                 <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('floor')" title="Crear nuevo piso" disabled>
@@ -431,12 +435,12 @@
                                 </button>
                             </div>
                             <div id="floor-inline-create" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="floor-inline-input" placeholder="Nombre del piso" maxlength="100">
+                                <input type="text" class="form-control" id="floor-inline-input" placeholder="Ej: Piso 1" maxlength="100">
                                 <button type="button" class="btn btn-success btn-sm" id="floor-inline-crear" onclick="submitInlineFloor()">Crear</button>
                                 <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('floor')">Cancelar</button>
                             </div>
                             <div id="floor-inline-edit" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="floor-edit-input" placeholder="Nombre del piso" maxlength="100">
+                                <input type="text" class="form-control" id="floor-edit-input" placeholder="Ej: Piso 1" maxlength="100">
                                 <button type="button" class="btn btn-success btn-sm" id="floor-edit-save" onclick="submitEditFloor()">Guardar</button>
                                 <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('floor')">Cancelar</button>
                             </div>
@@ -450,17 +454,22 @@
                             <div id="floor-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                         </div>
                     </div>
+                    <h5 class="sidde-section-title"><i class="fa fa-map-marker"></i> Aula</h5>
                     <div class="form-group">
                         <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('nombre', 'Nombre del Aula') }}
-                            {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>100, 'required', 'placeholder' => 'Ej: Aula 101')) }}
+                            {{ Form::label('nombre', 'Nombre del Aula', ['class' => 'control-label']) }}
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-map-marker"></i></span>
+                                {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>100, 'required', 'placeholder' => 'Ej: Aula 101')) }}
+                            </div>
+                            <small class="sidde-hint">Puede crear, editar o eliminar edificios y pisos sin salir de esta ventana.</small>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer" style='text-align: center;'>
-                    {{ Form::submit('Crear Aula', array('class' => 'btn btn-primary', 'id'=>'location-aceptar')) }}
-                    <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar">Cancelar</button>
+                <div class="modal-footer text-center">
+                    <button type="submit" class="btn btn-primary" id="location-aceptar"><i class="fa fa-check"></i> Guardar Aula</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" title="Cancelar"><i class="fa fa-times"></i> Cancelar</button>
                 </div>
             </form>
         </div>

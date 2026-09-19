@@ -88,6 +88,20 @@ class FacilitadorControllerTest extends TestCase
         $response->assertSee('placeholder="Buscar por cédula"', false);
     }
 
+    public function test_facilitador_modals_render_refreshed_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/facilitadores');
+
+        $response->assertOk();
+        $response->assertSee('id="facilitador-modal"', false);
+        $response->assertSee('sidde-modal', false);
+        $response->assertSee('fa fa-mortar-board', false);
+        $response->assertSee('placeholder="Ej: Juan"', false);
+        $response->assertSee('placeholder="Ej: juan.perez@pdvsa.com"', false);
+        $response->assertSee('sidde-modal-danger', false);
+    }
+
     public function test_tec_educativa_can_list_facilitadores(): void
     {
         $this->createFacilitadorUser();

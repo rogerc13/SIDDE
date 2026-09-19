@@ -75,6 +75,20 @@ class UserControllerTest extends TestCase
         $response->assertSee('placeholder="Buscar por cédula"', false);
     }
 
+    public function test_usuario_modals_render_refreshed_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/usuarios');
+
+        $response->assertOk();
+        $response->assertSee('id="usuario-modal"', false);
+        $response->assertSee('sidde-modal', false);
+        $response->assertSee('fa fa-users', false);
+        $response->assertSee('placeholder="Ej: Juan"', false);
+        $response->assertSee('placeholder="Ej: juan.perez@pdvsa.com"', false);
+        $response->assertSee('sidde-modal-danger', false);
+    }
+
     public function test_non_admin_cannot_list_users(): void
     {
         $response = $this->actingAs($this->nonAdminUser())

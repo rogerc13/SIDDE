@@ -73,6 +73,20 @@ class LocationControllerTest extends TestCase
         $response->assertSee('placeholder="Buscar por nombre de aula"', false);
     }
 
+    public function test_location_modals_render_refreshed_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/ubicaciones');
+
+        $response->assertOk();
+        $response->assertSee('id="location-modal"', false);
+        $response->assertSee('sidde-modal', false);
+        $response->assertSee('fa fa-map-marker', false);
+        $response->assertSee('placeholder="Ej: Edificio A"', false);
+        $response->assertSee('placeholder="Ej: Aula 101"', false);
+        $response->assertSee('sidde-modal-danger', false);
+    }
+
     public function test_tec_educativa_can_list_locations(): void
     {
         $response = $this->actingAs($this->tecEducativaUser())

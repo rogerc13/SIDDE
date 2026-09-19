@@ -45,4 +45,17 @@ class CategoryControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('placeholder="Buscar por nombre de área"', false);
     }
+
+    public function test_categoria_modals_render_refreshed_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/areas');
+
+        $response->assertOk();
+        $response->assertSee('id="categoria-modal"', false);
+        $response->assertSee('sidde-modal', false);
+        $response->assertSee('fa fa-sitemap', false);
+        $response->assertSee('placeholder="Ej: Formación Técnica"', false);
+        $response->assertSee('sidde-modal-danger', false);
+    }
 }

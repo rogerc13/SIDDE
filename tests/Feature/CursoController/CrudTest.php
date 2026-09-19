@@ -30,6 +30,20 @@ class CrudTest extends CursoControllerTestCase
         $response->assertSee('placeholder="Buscar por título"', false);
     }
 
+    public function test_course_create_modal_renders_refreshed_layout(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/acciones_formacion');
+
+        $response->assertOk();
+        $response->assertSee('id="accion-modal"', false);
+        $response->assertSee('sidde-modal', false);
+        $response->assertSee('sidde-steps', false);
+        $response->assertSee('fa fa-graduation-cap', false);
+        $response->assertSee('placeholder="Ej: FOR-001"', false);
+        $response->assertSee('sidde-modal-danger', false);
+    }
+
     public function test_unauthorized_role_cannot_list(): void
     {
         $this->createCourse();

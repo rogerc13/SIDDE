@@ -26,6 +26,10 @@ function tabSwitch(tabIndex){
         tabIndex = 3;
         tabSwitch(tabIndex);
     }
+
+    // sync the visual step rail with the active wizard tab
+    $('#accion-modal .sidde-step').removeClass('active')
+        .filter('[data-step="' + tabIndex + '"]').addClass('active');
 }
 
 function tabCheck(a){
@@ -273,7 +277,7 @@ function crearAccion(url){
     $(".loader").addClass("hidden");
     $("#accion-form").removeClass("hidden");
     $("[name=_method]").val("POST");
-    $("#accion-label").html("<h3>Nueva acción de formación</h3>");
+    $("#accion-label").html("Nueva acción de formación");
     $("#accion-modal").modal();   
     $(".no-docs").hide();
     $('#accion-modal .content-list').html('');

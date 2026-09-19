@@ -348,3 +348,212 @@
     height: 800px;
 }  */
 /* End Reports */
+
+
+/* ==========================================================================
+   SIDDE modal refresh
+   Scoped to .sidde-modal so it only affects the entity CRUD modals and not
+   the rest of the admin theme.
+   ========================================================================== */
+
+.sidde-modal .modal-content {
+    border: 0;
+    border-radius: 6px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+}
+
+.sidde-modal .modal-header {
+    background: #f4faf6;
+    border-bottom: 1px solid #e0ece4;
+    padding: 16px 20px;
+}
+
+.sidde-modal .modal-header .close {
+    margin-top: 4px;
+    font-size: 26px;
+    opacity: 0.45;
+}
+
+.sidde-modal .modal-header .close:hover,
+.sidde-modal .modal-header .close:focus {
+    opacity: 0.85;
+}
+
+.sidde-modal .sidde-modal-heading {
+    display: flex;
+    align-items: center;
+    padding-right: 24px;
+}
+
+.sidde-modal .sidde-modal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    border-radius: 50%;
+    background: #00a651;
+    color: #fff;
+    font-size: 17px;
+}
+
+.sidde-modal .modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #2c3e34;
+}
+
+.sidde-modal .modal-body {
+    padding: 22px 24px 8px;
+}
+
+.sidde-modal .modal-footer {
+    background: #f8fbf9;
+    border-top: 1px solid #e0ece4;
+    padding: 14px 20px;
+}
+
+.sidde-modal .form-group {
+    margin-bottom: 18px;
+}
+
+.sidde-modal label,
+.sidde-modal .control-label {
+    font-weight: 600;
+    color: #4b5c53;
+}
+
+.sidde-modal .input-group-addon {
+    width: 42px;
+    background: #f3f7f4;
+    border-color: #d8e6dd;
+    color: #5f9d77;
+    text-align: center;
+}
+
+.sidde-modal .form-control {
+    border-color: #d8e6dd;
+}
+
+.sidde-modal .form-control:focus {
+    border-color: #79c39a;
+    box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.12);
+}
+
+.sidde-modal .sidde-section-title {
+    margin: 4px 0 18px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e6efe9;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #3f8a5c;
+}
+
+.sidde-modal .sidde-section-title i {
+    margin-right: 6px;
+}
+
+.sidde-modal .sidde-hint {
+    display: block;
+    margin-top: 6px;
+    color: #8a9a91;
+    font-size: 12px;
+}
+
+/* Wizard step rail (course modal) */
+.sidde-modal .sidde-steps {
+    display: flex;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+}
+
+.sidde-modal .sidde-step {
+    position: relative;
+    flex: 1 1 0;
+    padding: 0 6px;
+    text-align: center;
+    color: #9bb0a4;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sidde-modal .sidde-step .sidde-step-icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 0 auto 6px;
+    border: 2px solid #dbe8e0;
+    border-radius: 50%;
+    background: #fff;
+    color: #9bb0a4;
+    font-size: 14px;
+}
+
+.sidde-modal .sidde-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: 50%;
+    z-index: 0;
+    width: 100%;
+    height: 2px;
+    background: #e4eee8;
+}
+
+.sidde-modal .sidde-step.active {
+    color: #00a651;
+}
+
+.sidde-modal .sidde-step.active .sidde-step-icon {
+    border-color: #00a651;
+    background: #00a651;
+    color: #fff;
+}
+
+/* Danger variant (delete confirmations) */
+.sidde-modal-danger .sidde-modal-icon {
+    background: #d9534f;
+}
+
+.sidde-modal-danger .modal-header {
+    background: #fdf6f6;
+    border-bottom-color: #f2dede;
+}
+
+.sidde-modal-danger .modal-footer {
+    background: #fdf6f6;
+    border-top-color: #f2dede;
+}
+
+.sidde-modal-danger .sidde-modal-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #f2dede;
+    border-radius: 4px;
+    background: #fdf3f3;
+    color: #a94442;
+}
+
+.sidde-modal-danger .sidde-modal-alert i {
+    margin-top: 2px;
+    font-size: 16px;
+}
+
+.sidde-modal-danger .sidde-modal-alert p {
+    margin: 0;
+}
