@@ -31,7 +31,7 @@
 		      	<div class="col-md-4 col-sm-6 col-xs-12">
 		          <label for="titulos" class="control-label">Título</label>
 		          <div class="input-group">
-		          	<input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
+		          	<input type="text" class="form-control" id="titulos" name="titulos" placeholder="Buscar por título" value="{{$titulos}}" />
 		          	<span class="input-group-btn">
 						<button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button>
 					</span>

@@ -77,6 +77,17 @@ class FacilitadorControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_facilitadores_index_filter_inputs_render_placeholders(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/facilitadores');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por nombre"', false);
+        $response->assertSee('placeholder="Buscar por apellido"', false);
+        $response->assertSee('placeholder="Buscar por cédula"', false);
+    }
+
     public function test_tec_educativa_can_list_facilitadores(): void
     {
         $this->createFacilitadorUser();

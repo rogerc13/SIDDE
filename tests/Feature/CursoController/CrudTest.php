@@ -21,6 +21,15 @@ class CrudTest extends CursoControllerTestCase
         $response->assertSee($course->title);
     }
 
+    public function test_courses_index_filter_input_renders_placeholder(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/acciones_formacion');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por título"', false);
+    }
+
     public function test_unauthorized_role_cannot_list(): void
     {
         $this->createCourse();

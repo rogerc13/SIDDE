@@ -64,6 +64,17 @@ class UserControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_usuarios_index_filter_inputs_render_placeholders(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/usuarios');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por nombre"', false);
+        $response->assertSee('placeholder="Buscar por apellido"', false);
+        $response->assertSee('placeholder="Buscar por cédula"', false);
+    }
+
     public function test_non_admin_cannot_list_users(): void
     {
         $response = $this->actingAs($this->nonAdminUser())

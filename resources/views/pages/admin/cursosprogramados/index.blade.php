@@ -53,7 +53,7 @@
 			<div class="form-group" style="display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 0; row-gap: 1rem; margin-bottom: 10px;">
 				<div class="col-md-3 col-sm-6 col-xs-12">
 		            <label for="titulos" class="control-label">Título</label>
-		            <input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
+		            <input type="text" class="form-control" id="titulos" name="titulos" placeholder="Buscar por título" value="{{$titulos}}" />
 		        </div>
 				<div class="col-md-3 col-sm-6 col-xs-12">
 		          	<label for="id_facilitador" class="control-label">Facilitador</label>

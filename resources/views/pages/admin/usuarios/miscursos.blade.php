@@ -39,7 +39,7 @@
 			<div class="form-group">
 		        <div class="col-md-4 col-sm-6 col-xs-12 margin-top">
 		            <label for="titulos" class="control-label">Título</label>
-		            <input type="text" class="form-control" id="titulos" name="titulos" value="{{$titulos}}" />
+		            <input type="text" class="form-control" id="titulos" name="titulos" placeholder="Buscar por título" value="{{$titulos}}" />
 		             
 		        </div>
 

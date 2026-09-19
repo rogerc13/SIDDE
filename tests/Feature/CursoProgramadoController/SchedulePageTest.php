@@ -548,4 +548,14 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Editar programación', false);
         $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
     }
+
+    public function test_scheduled_index_filter_input_renders_placeholder(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por título"', false);
+    }
 }

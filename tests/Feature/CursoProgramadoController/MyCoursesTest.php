@@ -108,4 +108,25 @@ class MyCoursesTest extends TestCase
         $response->assertSee('Estado');
         $response->assertSee('Por Dictar');
     }
+
+    public function test_mis_acciones_filter_input_renders_placeholder(): void
+    {
+        [$user] = $this->makeFacilitatorUser();
+
+        $response = $this->actingAs($user)->get('/u/mis_acciones');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por título"', false);
+    }
+
+    public function test_user_acciones_filter_input_renders_placeholder(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [$user] = $this->makeFacilitatorUser();
+
+        $response = $this->actingAs($admin)->get('/u/facilitadores/acciones/' . $user->id);
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por título"', false);
+    }
 }

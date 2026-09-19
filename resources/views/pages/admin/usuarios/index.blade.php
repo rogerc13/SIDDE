@@ -26,12 +26,12 @@
 
             <div class="col-md-2 col-sm-6 col-xs-12">
               <label for="nombres" class="control-label">Nombre</label>              
-              <input type="text" class="form-control" id="nombres" name="nombres" value="{{$nombres}}" />                
+              <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Buscar por nombre" value="{{$nombres}}" />                
             </div>
 
             <div class="col-md-2 col-sm-6 col-xs-12">
               <label for="apellidos" class="control-label">Apellido</label>              
-              <input type="text" class="form-control" id="apellidos" name="apellidos" value="{{$apellidos}}" />                
+              <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Buscar por apellido" value="{{$apellidos}}" />                
             </div>
 
             <div class="col-md-2 col-sm-6 col-xs-12">
@@ -59,7 +59,7 @@
                         @endforeach  
                     </select>
                 </div>
-                <input type="text" class="form-control" id="cis" name="cis" value="{{$cis}}" />
+                <input type="text" class="form-control" id="cis" name="cis" placeholder="Buscar por cédula" value="{{$cis}}" />
                 <span class="input-group-btn"> <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button> </span>
               </div>
             </div>

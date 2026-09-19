@@ -15,7 +15,7 @@
                 <div class="col-md-4 col-sm-6 col-xs-12">
                     <label for="name" class="control-label">Nombre</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="name" name="name" value="{{ $name }}" />
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Buscar por nombre de aula" value="{{ $name }}" />
                         <span class="input-group-btn">
                             <button class="btn btn-primary btn-lg" type="submit"><i class='entypo-search'></i></button>
                         </span>

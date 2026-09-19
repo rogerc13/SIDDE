@@ -64,6 +64,15 @@ class LocationControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_ubicaciones_index_filter_input_renders_placeholder(): void
+    {
+        $response = $this->actingAs($this->adminUser())
+            ->get('/u/ubicaciones');
+
+        $response->assertOk();
+        $response->assertSee('placeholder="Buscar por nombre de aula"', false);
+    }
+
     public function test_tec_educativa_can_list_locations(): void
     {
         $response = $this->actingAs($this->tecEducativaUser())
