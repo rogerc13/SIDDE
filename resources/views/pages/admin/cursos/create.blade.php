@@ -38,31 +38,28 @@
                     <div role="tabpanel" class="tab-pane active" id="tab-1">{{-- 1st tab --}}
                         <h5 class="sidde-section-title"><i class="fa fa-info-circle"></i> Información general</h5>
                         <div class="row">
-                            <div class="form-group">
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('codigo', 'Código',array('class' => 'control-label')) }}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('codigo', 'Código', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-barcode"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-barcode"></i></span>
                                         {{ Form::text('codigo', null , array('class' => '0-tab-input form-control course-code is-invalid', 'maxlength'=>300 ,'required','aria-describedby'=>"helpBlock",'placeholder'=>'Ej: FOR-001')) }}
                                     </div>
                                     <span id="helpBlock" class="has-error help-block code-error-text">Este código ya se encuentra asignado a otra Acción de Formación.</span>
                                 </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <label for="Prerequisite" class="control-label">Prerequisito</label>
-                                    <div class="radio radio-replace neon-cb-replacement checked radio-1 radio-prerequisite no-prerequisite">
-                                        <label class="cb-wrapper">
-                                            <input type="radio" id="rd-1" name="radio1" checked="" data-gtm-form-interact-field-id="2">
-                                            <div class="checked"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label" id="prerequisite-label">Prerequisito</label>
+                                    <div class="sidde-segmented" role="radiogroup" aria-labelledby="prerequisite-label">
+                                        <label class="sidde-segmented-option radio-prerequisite no-prerequisite checked">
+                                            <input type="radio" name="radio1" id="rd-1" value="no" checked>
+                                            <i class="fa fa-ban" aria-hidden="true"></i> No posee
                                         </label>
-                                        <label>No Posee Prerequisito</label>
-                                    </div>
-                                    <div class="radio radio-replace neon-cb-replacement radio-2 radio-prerequisite">
-                                         <label class="cb-wrapper">
-                                            <input type="radio" id="rd-2" name="radio1" data-gtm-form-interact-field-id="0">
-                                            <div class="checked">
-                                            </div>
+                                        <label class="sidde-segmented-option radio-prerequisite">
+                                            <input type="radio" name="radio1" id="rd-2" value="si">
+                                            <i class="fa fa-link" aria-hidden="true"></i> Sí posee
                                         </label>
-                                        <label>Si Posee Prerequisito</label>
                                     </div>
                                     <div class="select-prerequisite-helper">
                                         <select name="prerequisite" class="select2" id="prerequisite" data-allow-clear="true">
@@ -72,16 +69,18 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group">
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('titulo', 'Título',array('class' => 'control-label')) }}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('titulo', 'Título', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-font"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-font"></i></span>
                                         {{ Form::text('titulo', null , array('class' => '0-tab-input form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ej: Inducción a la Seguridad Laboral')) }}
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('categoria_id', 'Área de conocimiento',array('class' => 'control-label')) }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('categoria_id', 'Área de conocimiento', array('class' => 'control-label')) }}
                                     <select name="categoria_id" class="select2" id="categoria_id" data-allow-clear="true" required="true">
                                         <option></option>
                                         @foreach($categorias as $categ)
@@ -96,10 +95,10 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group" >
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('modalidad_id', 'Modalidad',array('class' => 'control-label')) }}
-                                    <select name="modalidad_id" class="select2 " id="modalidad_id" data-allow-clear="true" required="true">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('modalidad_id', 'Modalidad', array('class' => 'control-label')) }}
+                                    <select name="modalidad_id" class="select2" id="modalidad_id" data-allow-clear="true" required="true">
                                         <option></option>
                                         @foreach($modalities as $modality)
                                             @if(old('modalidad_id') == $modality->id)
@@ -110,10 +109,12 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('duracion', 'Duración (Horas)',array('class' => 'control-label')) }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('duracion', 'Duración (Horas)', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-clock-o"></i></span>
                                         {{ Form::number('duracion', null , array('class' => '0-tab-input form-control', 'min' => '1', 'required','placeholder'=>'Ej: 40')) }}
                                     </div>
                                 </div>
@@ -122,31 +123,32 @@
                     </div>{{-- end 1st tab --}}
                     <div role="tabpanel" class="tab-pane" id="tab-2"> {{-- 2nd tab --}}
                         <h5 class="sidde-section-title"><i class="fa fa-users"></i> Capacidad y participantes</h5>
-                        <h5 style="font-weight: bold; color: #444444">Número de Participantes</h5>
                         <div class="row">
-                            <div class="form-group" >
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('min', 'Mínimo',array('class' => 'control-label')) }}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('min', 'Mínimo', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-user-plus"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-user-plus"></i></span>
                                         {{ Form::number('min', null , array('class' => '1-tab-input form-control', 'min' => '1', 'required','placeholder'=>'Ej: 5')) }}
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6" >
-                                    {{ Form::label('max', 'Máximo',array('class' => 'control-label')) }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::label('max', 'Máximo', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-users"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-users"></i></span>
                                         {{ Form::number('max', null , array('class' => '1-tab-input form-control', 'min' => '1', 'required','placeholder'=>'Ej: 20')) }}
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group" >
-                                <div class="col-lg-12" >
-                                    {{ Form::label('dirigido', 'Dirigido a',array('class' => 'control-label')) }}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ Form::label('dirigido', 'Dirigido a', array('class' => 'control-label')) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon"><i class="fa fa-crosshairs"></i></span>
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-crosshairs"></i></span>
                                         {{ Form::text('dirigido', null , array('class' => '1-tab-input form-control', 'maxlength'=>300 ,'required','placeholder'=>'Ej: Personal administrativo y operativo')) }}
                                     </div>
                                 </div>
@@ -156,27 +158,27 @@
                     <div role="tabpanel" class="tab-pane" id="tab-3">{{-- 3rd tab --}}
                         <h5 class="sidde-section-title"><i class="fa fa-list-ol"></i> Objetivo y contenido</h5>
                         <div class="row">
-                            <div class="form-group">
-                                <div class="col-lg-12" >
-                                    {{ Form::label('objetivo', 'Objetivo',array('class' => 'control-label')) }}
-                                    {{ Form::textarea('objetivo', null , array('class' => '2-tab-input form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: none;','required','placeholder'=>'Describa el objetivo general de la acción de formación...')) }}
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {{ Form::label('objetivo', 'Objetivo', array('class' => 'control-label')) }}
+                                    {{ Form::textarea('objetivo', null , array('class' => '2-tab-input form-control','maxlength'=>3000 , 'rows'=>'7', 'style'=>'resize: vertical;','required','placeholder'=>'Describa el objetivo general de la acción de formación...')) }}
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group">
-                                <div class="col-lg-12" >
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label for="contenido" class="control-label">Contenido</label>
-                                    <div class="input-group mb-2 content-input-group">
-                                        <span class="input-group-addon"><i class="fa fa-list-ol"></i></span>
-                                        <input type="text" class="form-control content-input" placeholder="Escriba un contenido y presione Añadir...">
-                                        <div class="input-group-append">
+                                    <div class="input-group content-input-group">
+                                        <span class="input-group-addon" aria-hidden="true"><i class="fa fa-list-ol"></i></span>
+                                        <input type="text" id="contenido" class="form-control content-input" placeholder="Escriba un contenido y presione Añadir...">
+                                        <div class="input-group-btn">
                                             <button class="btn btn-success add-content-btn" type="button">
                                                 <span class="fa fa-plus"></span> Añadir
                                             </button>
                                         </div>
                                     </div>
-                                    <ul class="content-list list-group mt-2"></ul>
+                                    <ul class="content-list list-group"></ul>
                                     <small class="form-text text-muted">Puede agregar, editar o eliminar los contenidos antes de guardar el curso.</small>
                                 </div>
                             </div>

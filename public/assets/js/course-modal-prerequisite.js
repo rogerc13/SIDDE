@@ -5,58 +5,60 @@ $(document).ready(function(){
         },
     });
     $('.select-prerequisite-helper').hide();
-    console.log("active");
-    $(".radio-prerequisite").on('click',function(e){
-        $('.radio-prerequisite').not(this).removeClass('checked');
-        $(this).addClass('checked');
-        if($(this).hasClass('no-prerequisite')){
-            console.log('no-prerequisite');
-        }else{
-            console.log('has-prerequiste');
-            $.ajax({
-                type: "POST",
-                url: "prerequisite",
-                dataType: 'JSON',
-                success: function(response){
-                    $(".radio-prerequisite").hide();
-                    $(".select-prerequisite-helper").show();
-                    $("#prerequisite").html('');
-                    response.courses.forEach(element => {
-                        $('#prerequisite').append(`<option value="${element.code}">
-                                                            ${element.code} |
-                                                            ${element.title}
-                                                            </option>`);
-                    });
-                    $("#prerequisite").append(
-                        `<option value="">No Posee Prerequisito</option>`
-                    );
-                    console.log(response.courses);
-                },
-                error: function(response){
-                    console.log(response);
-                }
-            });
-        }  
-        //if option NO is selected
-            //set new course prerequisite value to NULL
-        //if option YES is selected
-            //get list of courses from database
-            //hide radio buttons
-            //draw select input with list of courses
-                //need id of course and name
-                //need to add Ninguno option to list with value of NULL
+
+    // Bound on the option (not the radio) so it stays clickable even while the
+    // form inputs are disabled in the create wizard.
+    $('.sidde-segmented-option').on('click', function(){
+        var option = $(this);
+
+        if(option.hasClass('checked')){
+            return;
+        }
+
+        $('.sidde-segmented-option').removeClass('checked');
+        option.addClass('checked');
+        option.find('input[type=radio]').prop('checked', true);
+
+        if(option.hasClass('no-prerequisite')){
+            // "No posee": keep the selector hidden and clear any previous choice
+            $('.select-prerequisite-helper').hide();
+            $('#prerequisite').val('').change();
+            return;
+        }
+
+        // "Sí posee": reveal the selector and load the selectable courses
+        $.ajax({
+            type: "POST",
+            url: "prerequisite",
+            dataType: 'JSON',
+            success: function(response){
+                $(".sidde-segmented").hide();
+                $(".select-prerequisite-helper").show();
+                $("#prerequisite").html('');
+                response.courses.forEach(function (element){
+                    $('#prerequisite').append(`<option value="${element.code}">
+                                                        ${element.code} |
+                                                        ${element.title}
+                                                        </option>`);
+                });
+                $("#prerequisite").append(
+                    `<option value="">No Posee Prerequisito</option>`
+                );
+            },
+            error: function(response){
+                console.log(response);
+            }
+        });
     });
 
-
-    //check if update modal is selected
-    //empty and draw new prerequisite list
-
-    //on modal open/close remove select course list if exists and show radio buttons
+    // reset the prerequisite control whenever any modal closes
     $('.modal').on('hidden.bs.modal',function(){
         $(".select-prerequisite-helper").hide();
-        $('.radio-prerequisite').show();
+        $('.sidde-segmented').show();
+        $('.sidde-segmented-option').removeClass('checked');
         $('.no-prerequisite').addClass('checked');
-        $('.no-prerequisite').siblings().removeClass('checked');
-    })
-    
+        $('#rd-1').prop('checked', true);
+        $('#rd-2').prop('checked', false);
+    });
+
 })

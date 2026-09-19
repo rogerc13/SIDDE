@@ -199,7 +199,7 @@ function setCourse(deleteHelper){
 function prerequisiteSelect(data){
     
     if($('#accion-label').html() == 'Detalles Acción de formación'){ //DETAILS MODAL
-        $('.radio-prerequisite').hide();
+        $('.sidde-segmented').hide();
         $('.select-prerequisite-helper').show();
         $('#prerequisite').html('');
         if(data[0].prerequisite.length > 0){
@@ -218,7 +218,7 @@ function prerequisiteSelect(data){
             $('#prerequisite').append(`<option>No Posee Prerequisito</option>`).trigger('change');
         }
     }else if($('#accion-label').html() == 'Editar Acción de formación'){ //EDIT MODAL
-        $('.radio-prerequisite').hide();
+        $('.sidde-segmented').hide();
         $('.select-prerequisite-helper').show();
         //get course list to draw select
         $.ajax({
@@ -648,8 +648,9 @@ function modalOpens(){
             $('.tab-button-next').removeClass('disabled');
             //eventRefresh('Details Modal');
         }else{
-            $('.create-course-form :input').prop('disabled',true);
-            console.log('Edit Disabled on Modal Open');
+            // Create modal: every field starts editable. Previously these were
+            // disabled, which left the create form unusable except for the code.
+            $('.create-course-form :input').prop('disabled',false);
             eventRefresh('Create Modal');
         }
 

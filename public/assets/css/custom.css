@@ -422,27 +422,196 @@
     margin-bottom: 18px;
 }
 
+/* These forms keep the .form-horizontal class from the old theme, but now use
+   an explicit Bootstrap grid. Neutralise the horizontal-form label/group
+   offsets so labels sit left-aligned above their controls. */
+.sidde-modal .form-horizontal .form-group {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.sidde-modal .form-horizontal .control-label {
+    text-align: left;
+}
+
 .sidde-modal label,
 .sidde-modal .control-label {
+    display: block;
+    margin-bottom: 6px;
     font-weight: 600;
     color: #4b5c53;
 }
 
-.sidde-modal .input-group-addon {
-    width: 42px;
-    background: #f3f7f4;
+/* Uniform control metrics (42px controls, 6px radius) */
+.sidde-modal .form-control {
+    height: 42px;
     border-color: #d8e6dd;
-    color: #5f9d77;
-    text-align: center;
+    border-radius: 6px;
 }
 
-.sidde-modal .form-control {
-    border-color: #d8e6dd;
+.sidde-modal textarea.form-control {
+    height: auto;
+    min-height: 140px;
+    padding: 10px 12px;
+    line-height: 1.5;
 }
 
 .sidde-modal .form-control:focus {
     border-color: #79c39a;
     box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.12);
+}
+
+.sidde-modal .help-block {
+    margin: 6px 0 0;
+    font-size: 12px;
+}
+
+/* Input groups fill their column and share one height */
+.sidde-modal .input-group {
+    width: 100%;
+}
+
+.sidde-modal .input-group .form-control {
+    border-radius: 0 6px 6px 0;
+}
+
+.sidde-modal .input-group-addon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    line-height: 40px;
+    background: #f3f7f4;
+    border-color: #d8e6dd;
+    border-radius: 6px 0 0 6px;
+    color: #5f9d77;
+    text-align: center;
+}
+
+.sidde-modal .input-group-addon i {
+    font-size: 14px;
+}
+
+.sidde-modal .input-group-btn .btn {
+    height: 42px;
+    border-radius: 0 6px 6px 0;
+}
+
+/* Select2 matches the uniform control metrics */
+.sidde-modal .select2-container {
+    display: block;
+    width: 100% !important;
+}
+
+.sidde-modal .select2-container .select2-choice {
+    position: relative;
+    height: 42px;
+    line-height: 41px;
+    padding-left: 38px;
+    border: 1px solid #d8e6dd;
+    border-radius: 6px;
+    color: #555555;
+}
+
+.sidde-modal .select2-container .select2-choice .select2-arrow {
+    height: 40px;
+    line-height: 40px;
+}
+
+.sidde-modal .select2-drop,
+.sidde-modal .select2-dropdown {
+    border-color: #d8e6dd;
+    border-radius: 6px;
+}
+
+/* Field icons on selects (select2 v3 container ids) */
+.sidde-modal #s2id_categoria_id .select2-choice:before,
+.sidde-modal #s2id_modalidad_id .select2-choice:before,
+.sidde-modal #s2id_prerequisite .select2-choice:before {
+    position: absolute;
+    top: 0;
+    left: 14px;
+    z-index: 1;
+    font-family: FontAwesome;
+    font-size: 14px;
+    line-height: 41px;
+    color: #5f9d77;
+}
+
+.sidde-modal #s2id_categoria_id .select2-choice:before {
+    content: "\f0e8";
+}
+
+.sidde-modal #s2id_modalidad_id .select2-choice:before {
+    content: "\f109";
+}
+
+.sidde-modal #s2id_prerequisite .select2-choice:before {
+    content: "\f0c1";
+}
+
+/* Segmented control (prerequisito) */
+.sidde-modal .sidde-segmented {
+    display: inline-flex;
+    overflow: hidden;
+    height: 42px;
+    border: 1px solid #d8e6dd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.sidde-modal .sidde-segmented-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0 18px;
+    font-weight: 600;
+    color: #4b5c53;
+    cursor: pointer;
+}
+
+.sidde-modal .sidde-segmented-option + .sidde-segmented-option {
+    border-left: 1px solid #d8e6dd;
+}
+
+.sidde-modal .sidde-segmented-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidde-modal .sidde-segmented-option.checked {
+    background: #00a651;
+    color: #fff;
+}
+
+.sidde-modal .sidde-segmented-option i {
+    font-size: 13px;
+}
+
+/* Content builder */
+.sidde-modal .content-input-group {
+    margin-bottom: 12px;
+}
+
+.sidde-modal .content-input-group .form-control {
+    border-radius: 0;
+}
+
+.sidde-modal .content-list {
+    margin-bottom: 8px;
+}
+
+/* Location modal: keep inline action buttons aligned with the 42px controls */
+.sidde-modal [id$="-dropdown-group"] .btn,
+.sidde-modal [id$="-inline-create"] .btn,
+.sidde-modal [id$="-inline-edit"] .btn,
+.sidde-modal [id$="-delete-confirm"] .btn {
+    height: 42px;
 }
 
 .sidde-modal .sidde-section-title {

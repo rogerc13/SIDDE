@@ -384,85 +384,91 @@
 
                 <div class="modal-body">
                     <h5 class="sidde-section-title"><i class="fa fa-building"></i> Ubicación</h5>
-                    <div class="form-group">
-                        <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('building_id', 'Edificio', ['class' => 'control-label']) }}
-                            <div id="building-dropdown-group" style="display: flex; gap: 5px;">
-                                {{ Form::select('building_id', [], null, ['class' => 'form-control', 'id' => 'location_building_id', 'required', 'placeholder' => 'Seleccione un edificio']) }}
-                                <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('building')" title="Crear nuevo edificio">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm btn-edit" onclick="showInlineEdit('building')" title="Editar edificio" disabled>
-                                    <i class="fa fa-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm btn-delete" onclick="showDeleteConfirm('building')" title="Eliminar edificio" disabled>
-                                    <i class="fa fa-trash"></i>
-                                </button>
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="form-group">
+                                {{ Form::label('building_id', 'Edificio', ['class' => 'control-label']) }}
+                                <div id="building-dropdown-group" style="display: flex; gap: 5px;">
+                                    {{ Form::select('building_id', [], null, ['class' => 'form-control', 'id' => 'location_building_id', 'required', 'placeholder' => 'Seleccione un edificio']) }}
+                                    <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('building')" title="Crear nuevo edificio">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-default btn-sm btn-edit" onclick="showInlineEdit('building')" title="Editar edificio" disabled>
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-delete" onclick="showDeleteConfirm('building')" title="Eliminar edificio" disabled>
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div id="building-inline-create" class="hidden" style="display: flex; gap: 5px;">
+                                    <input type="text" class="form-control" id="building-inline-input" placeholder="Ej: Edificio A" maxlength="100">
+                                    <button type="button" class="btn btn-success btn-sm" id="building-inline-crear" onclick="submitInlineBuilding()">Crear</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('building')">Cancelar</button>
+                                </div>
+                                <div id="building-inline-edit" class="hidden" style="display: flex; gap: 5px;">
+                                    <input type="text" class="form-control" id="building-edit-input" placeholder="Ej: Edificio A" maxlength="100">
+                                    <button type="button" class="btn btn-success btn-sm" id="building-edit-save" onclick="submitEditBuilding()">Guardar</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('building')">Cancelar</button>
+                                </div>
+                                <div id="building-delete-confirm" class="hidden" style="display: flex; gap: 5px; align-items: center;">
+                                    <small class="text-danger">¿Eliminar "<span id="building-delete-name"></span>"?</small>
+                                    <button type="button" class="btn btn-danger btn-sm" id="building-delete-yes" onclick="submitDeleteBuilding()">Sí</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideDeleteConfirm('building')">No</button>
+                                </div>
+                                <div id="building-inline-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
+                                <div id="building-edit-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
+                                <div id="building-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                             </div>
-                            <div id="building-inline-create" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="building-inline-input" placeholder="Ej: Edificio A" maxlength="100">
-                                <button type="button" class="btn btn-success btn-sm" id="building-inline-crear" onclick="submitInlineBuilding()">Crear</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('building')">Cancelar</button>
-                            </div>
-                            <div id="building-inline-edit" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="building-edit-input" placeholder="Ej: Edificio A" maxlength="100">
-                                <button type="button" class="btn btn-success btn-sm" id="building-edit-save" onclick="submitEditBuilding()">Guardar</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('building')">Cancelar</button>
-                            </div>
-                            <div id="building-delete-confirm" class="hidden" style="display: flex; gap: 5px; align-items: center;">
-                                <small class="text-danger">¿Eliminar "<span id="building-delete-name"></span>"?</small>
-                                <button type="button" class="btn btn-danger btn-sm" id="building-delete-yes" onclick="submitDeleteBuilding()">Sí</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideDeleteConfirm('building')">No</button>
-                            </div>
-                            <div id="building-inline-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
-                            <div id="building-edit-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
-                            <div id="building-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('floor_id', 'Piso', ['class' => 'control-label']) }}
-                            <div id="floor-dropdown-group" style="display: flex; gap: 5px;">
-                                {{ Form::select('floor_id', [], null, ['class' => 'form-control', 'id' => 'location_floor_id', 'required', 'placeholder' => 'Seleccione un piso']) }}
-                                <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('floor')" title="Crear nuevo piso" disabled>
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm btn-edit" onclick="showInlineEdit('floor')" title="Editar piso" disabled>
-                                    <i class="fa fa-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm btn-delete" onclick="showDeleteConfirm('floor')" title="Eliminar piso" disabled>
-                                    <i class="fa fa-trash"></i>
-                                </button>
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="form-group">
+                                {{ Form::label('floor_id', 'Piso', ['class' => 'control-label']) }}
+                                <div id="floor-dropdown-group" style="display: flex; gap: 5px;">
+                                    {{ Form::select('floor_id', [], null, ['class' => 'form-control', 'id' => 'location_floor_id', 'required', 'placeholder' => 'Seleccione un piso']) }}
+                                    <button type="button" class="btn btn-success btn-sm btn-create" onclick="showInlineCreate('floor')" title="Crear nuevo piso" disabled>
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-default btn-sm btn-edit" onclick="showInlineEdit('floor')" title="Editar piso" disabled>
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-delete" onclick="showDeleteConfirm('floor')" title="Eliminar piso" disabled>
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div id="floor-inline-create" class="hidden" style="display: flex; gap: 5px;">
+                                    <input type="text" class="form-control" id="floor-inline-input" placeholder="Ej: Piso 1" maxlength="100">
+                                    <button type="button" class="btn btn-success btn-sm" id="floor-inline-crear" onclick="submitInlineFloor()">Crear</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('floor')">Cancelar</button>
+                                </div>
+                                <div id="floor-inline-edit" class="hidden" style="display: flex; gap: 5px;">
+                                    <input type="text" class="form-control" id="floor-edit-input" placeholder="Ej: Piso 1" maxlength="100">
+                                    <button type="button" class="btn btn-success btn-sm" id="floor-edit-save" onclick="submitEditFloor()">Guardar</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('floor')">Cancelar</button>
+                                </div>
+                                <div id="floor-delete-confirm" class="hidden" style="display: flex; gap: 5px; align-items: center;">
+                                    <small class="text-danger">¿Eliminar "<span id="floor-delete-name"></span>"?</small>
+                                    <button type="button" class="btn btn-danger btn-sm" id="floor-delete-yes" onclick="submitDeleteFloor()">Sí</button>
+                                    <button type="button" class="btn btn-default btn-sm" onclick="hideDeleteConfirm('floor')">No</button>
+                                </div>
+                                <div id="floor-inline-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
+                                <div id="floor-edit-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
+                                <div id="floor-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                             </div>
-                            <div id="floor-inline-create" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="floor-inline-input" placeholder="Ej: Piso 1" maxlength="100">
-                                <button type="button" class="btn btn-success btn-sm" id="floor-inline-crear" onclick="submitInlineFloor()">Crear</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideInlineCreate('floor')">Cancelar</button>
-                            </div>
-                            <div id="floor-inline-edit" class="hidden" style="display: flex; gap: 5px;">
-                                <input type="text" class="form-control" id="floor-edit-input" placeholder="Ej: Piso 1" maxlength="100">
-                                <button type="button" class="btn btn-success btn-sm" id="floor-edit-save" onclick="submitEditFloor()">Guardar</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideInlineEdit('floor')">Cancelar</button>
-                            </div>
-                            <div id="floor-delete-confirm" class="hidden" style="display: flex; gap: 5px; align-items: center;">
-                                <small class="text-danger">¿Eliminar "<span id="floor-delete-name"></span>"?</small>
-                                <button type="button" class="btn btn-danger btn-sm" id="floor-delete-yes" onclick="submitDeleteFloor()">Sí</button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="hideDeleteConfirm('floor')">No</button>
-                            </div>
-                            <div id="floor-inline-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
-                            <div id="floor-edit-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
-                            <div id="floor-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                         </div>
                     </div>
                     <h5 class="sidde-section-title"><i class="fa fa-map-marker"></i> Aula</h5>
-                    <div class="form-group">
-                        <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1">
-                            {{ Form::label('nombre', 'Nombre del Aula', ['class' => 'control-label']) }}
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-map-marker"></i></span>
-                                {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>100, 'required', 'placeholder' => 'Ej: Aula 101')) }}
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <div class="form-group">
+                                {{ Form::label('nombre', 'Nombre del Aula', ['class' => 'control-label']) }}
+                                <div class="input-group">
+                                    <span class="input-group-addon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
+                                    {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>100, 'required', 'placeholder' => 'Ej: Aula 101')) }}
+                                </div>
+                                <small class="sidde-hint">Puede crear, editar o eliminar edificios y pisos sin salir de esta ventana.</small>
                             </div>
-                            <small class="sidde-hint">Puede crear, editar o eliminar edificios y pisos sin salir de esta ventana.</small>
                         </div>
                     </div>
                 </div>

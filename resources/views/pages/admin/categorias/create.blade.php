@@ -33,11 +33,11 @@
 
                 <div class="modal-body">
                     <div class="row">
-                        <div class="form-group">
-                            <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3">
+                        <div class="col-md-6 col-md-offset-3">
+                            <div class="form-group">
                                 {{ Form::label('nombre', 'Nombre', ['class' => 'control-label']) }}
                                 <div class="input-group">
-                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                    <span class="input-group-addon" aria-hidden="true"><i class="fa fa-tag"></i></span>
                                     {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>60, 'required', 'placeholder' => 'Ej: Formación Técnica')) }}
                                 </div>
                                 <small class="sidde-hint">Nombre con el que se agruparán las acciones de formación.</small>

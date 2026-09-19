@@ -1556,3 +1556,92 @@ test.describe('Courses - Documents Tab', () => {
         await expect(page.locator('#remove_facilitator')).toBeVisible();
     });
 });
+
+test.describe('Courses - Form Layout', () => {
+    test.beforeEach(async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/u/acciones_formacion');
+        await openCourseModal(page);
+    });
+
+    test('input groups fill their column', async ({ page }) => {
+        await page.evaluate(() => (window as any).tabSwitch(0));
+        await page.waitForTimeout(300);
+
+        const groups = await page.evaluate(() =>
+            Array.from(document.querySelectorAll('#tab-1 .input-group')).map((group) => {
+                const field = group.closest('.form-group') as HTMLElement | null;
+                return {
+                    group: Math.round(group.getBoundingClientRect().width),
+                    field: field ? Math.round(field.getBoundingClientRect().width) : 0,
+                };
+            })
+        );
+
+        expect(groups.length).toBeGreaterThan(0);
+        groups.forEach(({ group, field }) => {
+            expect(field).toBeGreaterThan(0);
+            expect(group).toBeLessThanOrEqual(field + 1);
+            expect(group).toBeGreaterThan(field - 5);
+        });
+    });
+
+    test('text inputs and selects share one height', async ({ page }) => {
+        const heights: number[] = [];
+
+        for (const tab of [0, 1, 2]) {
+            await page.evaluate((index: number) => (window as any).tabSwitch(index), tab);
+            await page.waitForTimeout(200);
+
+            const tabHeights = await page.evaluate((index: number) => {
+                const pane = document.querySelector(`#tab-${index + 1}`) as HTMLElement;
+                const result: number[] = [];
+                pane.querySelectorAll('input.form-control, .select2-container .select2-choice').forEach((el) => {
+                    if (!(el as HTMLElement).offsetParent) return;
+                    result.push(Math.round(el.getBoundingClientRect().height));
+                });
+                return result;
+            }, tab);
+            heights.push(...tabHeights);
+        }
+
+        expect(heights.length).toBeGreaterThan(0);
+        heights.forEach((height) => expect(height).toBe(42));
+    });
+
+    test('prerequisite segmented control reveals the selector', async ({ page }) => {
+        await page.evaluate(() => (window as any).tabSwitch(0));
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('.select-prerequisite-helper')).toBeHidden();
+        await expect(page.locator('.sidde-segmented')).toBeVisible();
+
+        await page.locator('.sidde-segmented-option', { hasText: 'Sí posee' }).click();
+        await expect(page.locator('.select-prerequisite-helper')).toBeVisible();
+        await expect(page.locator('.sidde-segmented')).toBeHidden();
+    });
+
+    test('prerequisite control resets when the modal reopens', async ({ page }) => {
+        await page.evaluate(() => (window as any).tabSwitch(0));
+        await page.locator('.sidde-segmented-option', { hasText: 'Sí posee' }).click();
+        await expect(page.locator('.select-prerequisite-helper')).toBeVisible();
+
+        await page.click('.modal.in .close');
+        await page.waitForTimeout(500);
+        await openCourseModal(page);
+        await page.evaluate(() => (window as any).tabSwitch(0));
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('.select-prerequisite-helper')).toBeHidden();
+        await expect(page.locator('.sidde-segmented')).toBeVisible();
+        await expect(page.locator('.sidde-segmented-option.no-prerequisite')).toHaveClass(/checked/);
+    });
+
+    test('content input is associated with its label', async ({ page }) => {
+        await page.evaluate(() => (window as any).tabSwitch(2));
+        await page.waitForTimeout(200);
+
+        await expect(page.locator('#contenido')).toBeAttached();
+        await expect(page.locator('label[for="contenido"]')).toBeAttached();
+    });
+});
