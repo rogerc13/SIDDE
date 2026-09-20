@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReportType;
+use App\Services\Reports\InsightBuilder;
 use App\Services\Reports\PuppeteerChartRenderer;
+use App\Services\Reports\ReportQueryService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -21,6 +23,8 @@ class ReportPdfController extends Controller
 
     public function __construct(
         private readonly PuppeteerChartRenderer $chartRenderer,
+        private readonly ReportQueryService $queries,
+        private readonly InsightBuilder $insights,
     ) {
     }
 
@@ -31,27 +35,25 @@ class ReportPdfController extends Controller
         $charts = $request->input('charts', []);
         $this->providedCharts = is_array($charts) ? array_values(array_filter($charts, fn ($c) => is_array($c))) : [];
 
-        $allowed = [
-            'date',
-            'category',
-            'status',
-            'most-scheduled',
-            'not-scheduled',
-            'participant-by-quantity',
-            'duration',
-            'participant-by-status',
-            'gender',
-            'canceled',
-            'participant-average',
-        ];
+        $allowed = array_map(fn (ReportType $type) => $type->value, ReportType::cases());
 
         abort_unless(in_array($type, $allowed, true), 422, 'Tipo de reporte inválido.');
 
-        $data = $this->getReportData($type, $request);
+        $reportType = ReportType::from($type);
+        $result = $this->queries->run($reportType, $request);
+        $data = $result->raw;
 
         $pages = $this->buildPages($type, $data);
 
-        $reportTitle = $this->reportDisplayName($type);
+        if ($reportType->hasInsight() && ($insights = $this->insights->build($result)) !== []) {
+            array_unshift($pages, [
+                'kind' => 'summary',
+                'title' => 'Resumen Ejecutivo',
+                'lines' => $insights,
+            ]);
+        }
+
+        $reportTitle = $reportType->label();
 
         [$startDate, $endDate] = $this->resolveDateRange($type, $data, $request);
 
@@ -138,53 +140,6 @@ class ReportPdfController extends Controller
         }
     }
 
-    private function reportDisplayName(string $type): string
-    {
-        return match ($type) {
-            'date' => 'Cantidad de Acciones de Formación',
-            'category' => 'Cantidad de Acciones de Formación Por Áreas de Conocimiento',
-            'status' => 'Cantidad de Acciones de Formación Por Estatus',
-            'most-scheduled' => 'Acciones de Formación más Programadas (Histórico)',
-            'not-scheduled' => 'Acciones de Formación No Programadas (Histórico)',
-            'canceled' => 'Acciones de Formación Canceladas',
-            'participant-by-quantity' => 'Acciones de Formación por Cantidad de Participantes',
-            'duration' => 'Duración de Acciones de Formación',
-            'participant-by-status' => 'Estatus de Participantes',
-            'participant-average' => 'Promedio de Participantes',
-            'gender' => 'Distribución de Participantes por Género',
-            default => 'Reportes',
-        };
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getReportData(string $type, Request $request): array
-    {
-        $controller = app(ReportController::class);
-
-        $result = match ($type) {
-            'date' => $controller->byDate($request),
-            'category' => $controller->byCategory($request),
-            'status' => $controller->byStatus($request),
-            'duration' => $controller->byCourseDuration($request),
-            'participant-by-status' => $controller->participantsByStatus($request),
-            'participant-by-quantity' => $controller->courseByParticipantQuantity($request),
-            'gender' => $controller->participantsByGender($request),
-            'most-scheduled' => $controller->mostScheduled($request),
-            'canceled' => $controller->byCanceled($request),
-            'participant-average' => $controller->participantAverage($request),
-            'not-scheduled' => $controller->notScheduled($request),
-            default => [],
-        };
-
-        if ($result instanceof JsonResponse) {
-            return (array) $result->getData(true);
-        }
-
-        return [];
-    }
-
     /**
      * @param  array<string, mixed>  $data
      * @return array<int, array<string, mixed>>
@@ -200,6 +155,7 @@ class ReportPdfController extends Controller
             'participant-by-quantity' => $this->pagesByParticipantQuantity($data),
             'gender' => $this->pagesByGender($data),
             'most-scheduled' => $this->pagesByMostScheduled($data),
+            'least-scheduled' => $this->pagesByLeastScheduled($data),
             'canceled' => $this->pagesByCanceled($data),
             'participant-average' => $this->pagesByParticipantAverage($data),
             'not-scheduled' => $this->pagesByNotScheduled($data),
@@ -942,6 +898,33 @@ class ReportPdfController extends Controller
         return [[
             'kind' => 'table',
             'title' => "Acciones de Formación más programadas (Histórico) (Total: {$total})",
+            'columns' => ['Código', 'Título', 'Cantidad'],
+            'rows' => $rows,
+        ]];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function pagesByLeastScheduled(array $data): array
+    {
+        $amountData = (array) Arr::get($data, 'amountData', []);
+        $courseData = collect((array) Arr::get($data, 'courseData', []))
+            ->sortBy(fn ($course) => (int) ($amountData[(string) ($course['id'] ?? '')] ?? 0))
+            ->values();
+
+        $rows = [];
+        $total = 0;
+        foreach ($courseData as $c) {
+            $id = (string) ($c['id'] ?? '');
+            $amount = (int) ($amountData[$id] ?? 0);
+            $total += $amount;
+            $rows[] = [(string) ($c['code'] ?? ''), (string) ($c['title'] ?? ''), (string) $amount];
+        }
+
+        return [[
+            'kind' => 'table',
+            'title' => "Acciones de Formación menos programadas (Histórico) (Total: {$total})",
             'columns' => ['Código', 'Título', 'Cantidad'],
             'rows' => $rows,
         ]];

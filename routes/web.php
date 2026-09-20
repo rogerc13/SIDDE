@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\ReportType;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportPdfController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -180,22 +183,22 @@ Route::group(['middleware' => 'auth'], function ()
         Route::group(['middleware' => ['reports']], function () {
                 Route::group(['prefix' => 'reports'], function () {
                         Route::get('/', function () {
-                                return view('pages.admin.usuarios.reports');
+                                return view('pages.admin.usuarios.reports', [
+                                        'reportTypes' => ReportType::options(),
+                                ]);
                         });
-                               Route::post('/pdf', 'App\Http\Controllers\ReportPdfController@download');
-                        Route::post('/date', 'App\Http\Controllers\ReportController@byDate');
-                        Route::post('/category', 'App\Http\Controllers\ReportController@byCategory');
-                        Route::post('/status', 'App\Http\Controllers\ReportController@byStatus');
-                        Route::post('/duration', 'App\Http\Controllers\ReportController@byCourseDuration');
-                        Route::post('/canceled', 'App\Http\Controllers\ReportController@byCanceled');
-                        Route::post('/participant-by-quantity', 'App\Http\Controllers\ReportController@courseByParticipantQuantity');
-                        Route::post('/participant-by-status', 'App\Http\Controllers\ReportController@participantsByStatus');
-                        Route::post('/gender', 'App\Http\Controllers\ReportController@participantsByGender');
-                        Route::post('/participant-average', 'App\Http\Controllers\ReportController@participantAverage');
-                        Route::post('/most-scheduled', 'App\Http\Controllers\ReportController@mostScheduled');
-                        Route::post('/not-scheduled', 'App\Http\Controllers\ReportController@notScheduled');
 
-                        Route::get('/participant-status-select', 'App\Http\Controllers\ReportController@participantStatus');
+                        Route::post('/pdf', [ReportPdfController::class, 'download']);
+                        Route::post('/summary', [ReportController::class, 'summary']);
+                        Route::post('/export', [ReportController::class, 'export']);
+                        Route::get('/options', [ReportController::class, 'options']);
+                        Route::get('/participant-status-select', [ReportController::class, 'participantStatus']);
+
+                        // Every report type shares one registry-driven endpoint.
+                        foreach (ReportType::cases() as $reportType) {
+                                Route::post('/'.$reportType->value, [ReportController::class, 'show'])
+                                        ->defaults('reportType', $reportType->value);
+                        }
                 });
         });
 

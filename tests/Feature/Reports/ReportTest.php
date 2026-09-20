@@ -90,9 +90,9 @@ class ReportTest extends TestCase
 
     private function decodeAsCurrentContract($response): array
     {
-        // Several endpoints currently return json_encode() strings instead of
-        // JsonResponse. This helper decodes both styles.
-        return json_decode($response->getContent(), true);
+        // The reporting suite now returns a normalized envelope; report-specific
+        // data lives under the "raw" key.
+        return $response->json('raw') ?? [];
     }
 
     // ------------------------------------------------------------ auth matrix
@@ -136,7 +136,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/date', $this->inRangeDates());
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         foreach (['x', 'y', 'total', 'yData', 'start_date', 'end_date'] as $key) {
             $this->assertArrayHasKey($key, $data);
@@ -268,7 +268,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/participant-by-status');
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $this->assertCount(1, $data['byAllTime']);
         $this->assertNotSame(now()->toDateString(), $data['dateRange']['startDate']);
@@ -295,7 +295,7 @@ class ReportTest extends TestCase
             ]);
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $this->assertSame(2, $data['total'], 'Boundary-date runs must be counted exactly once across buckets');
         $this->assertSame(2, array_sum($data['y']));
@@ -350,7 +350,7 @@ class ReportTest extends TestCase
             ]);
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $rows = $data['data'];
         $boundaryOccurrences = collect($rows)->where('scheduled_id', $boundaryRun->id)->count();
@@ -379,7 +379,7 @@ class ReportTest extends TestCase
             ]);
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $rows = collect($data['data'])->where('scheduled_id', $run->id);
         $this->assertCount(1, $rows, 'Run must appear once in its bucket');
@@ -400,7 +400,7 @@ class ReportTest extends TestCase
         $post = fn (string $start, string $end) => $this->actingAs($this->admin())
             ->withHeaders(['Accept' => 'application/json'])
             ->post('/reports/most-scheduled', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
-            ->json();
+            ->json('raw');
 
         $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
         $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
@@ -426,7 +426,7 @@ class ReportTest extends TestCase
         $post = fn (string $start, string $end) => $this->actingAs($this->admin())
             ->withHeaders(['Accept' => 'application/json'])
             ->post('/reports/not-scheduled', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
-            ->json();
+            ->json('raw');
 
         $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
         $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
@@ -456,7 +456,7 @@ class ReportTest extends TestCase
             ]);
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $this->assertCount(1, $data['byAllTime'], 'Only Aprobado participants must be returned');
         $this->assertSame('Aprobado', $data['byAllTime'][0]['participant_status']['name']);
@@ -488,7 +488,7 @@ class ReportTest extends TestCase
         $post = fn (string $start, string $end) => $this->actingAs($this->admin())
             ->withHeaders(['Accept' => 'application/json'])
             ->post('/reports/status', ['start_date' => $start, 'end_date' => $end, 'step' => '1 month'])
-            ->json();
+            ->json('raw');
 
         $rangeA = $post(now()->subDays(20)->toDateString(), now()->toDateString());
         $rangeB = $post(now()->subYear()->toDateString(), now()->subYear()->addDays(10)->toDateString());
@@ -518,7 +518,7 @@ class ReportTest extends TestCase
             ]);
 
         $response->assertOk();
-        $rates = $response->json('rates');
+        $rates = $response->json('raw.rates');
 
         $this->assertSame(4, $rates['total']);
         $this->assertEquals(50, $rates['completionRate']);   // 2 / 4
@@ -538,7 +538,7 @@ class ReportTest extends TestCase
         ]);
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         foreach (['dateRange', 'byAllTime', 'byStatusByDateRange', 'allStatusbyDateRange', 'labels'] as $key) {
             $this->assertArrayHasKey($key, $data);
@@ -559,7 +559,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/gender', $this->inRangeDates());
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $this->assertSame(3, $data['total']);
         $rows = array_column($data['rows'], 'amount', 'label');
@@ -700,7 +700,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/canceled');
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         foreach (['dateRange', 'total', 'data'] as $key) {
             $this->assertArrayHasKey($key, $data);
@@ -736,7 +736,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/participant-average', $this->inRangeDates());
 
         $response->assertOk();
-        $data = $response->json();
+        $data = $response->json('raw');
 
         $this->assertArrayHasKey('data', $data);
         $this->assertIsArray($data['data']);
@@ -757,7 +757,7 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->admin())->post('/reports/participant-average', $this->inRangeDates());
 
         $response->assertOk();
-        $this->assertSame([], $response->json('data'));
+        $this->assertSame([], $response->json('raw.data'));
     }
 
     public function test_participants_by_status_filters_by_status_param(): void
@@ -776,7 +776,7 @@ class ReportTest extends TestCase
         $filtered = $this->actingAs($this->admin())
             ->post('/reports/participant-by-status', $payload)
             ->assertOk()
-            ->json();
+            ->json('raw');
 
         $this->assertCount(1, $filtered['byAllTime']);
         $this->assertSame(Participant::APROBADO, $filtered['byAllTime'][0]['participant_status_id']);

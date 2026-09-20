@@ -12,6 +12,8 @@
         .ficha-red-line { border: 1px solid red; }
         h2 { font-size: 14px; margin: 0 0 10px 0; }
         .chart img { width: 94%; height: auto; display: block; margin: 0 auto; }
+        .executive-summary { font-size: 13px; line-height: 1.6; }
+        .executive-summary p { margin: 0 0 8px 0; }
         /* Match existing index PDF table styling */
         th, td {
             text-align: center;
@@ -40,14 +42,21 @@
         </div>
         @if(($page['kind'] ?? '') === 'chart')
             <div class="chart">
-                <img src="{{ $page['image'] ?? '' }}" alt="chart">
+                <img src="{{ $page['image'] ?? '' }}" alt="{{ $page['title'] ?? 'Gráfico del reporte' }}">
+            </div>
+        @elseif(($page['kind'] ?? '') === 'summary')
+            <div class="executive-summary">
+                @foreach(($page['lines'] ?? []) as $line)
+                    <p>{{ $line }}</p>
+                @endforeach
             </div>
         @elseif(($page['kind'] ?? '') === 'table')
             <table class="table table-striped table-bordered table-center">
+                <caption class="sr-only">{{ $page['title'] ?? ($reportTitle ?? 'Reportes') }}</caption>
                 <thead>
                 <tr>
                     @foreach(($page['columns'] ?? []) as $col)
-                        <th>{{ $col }}</th>
+                        <th scope="col">{{ $col }}</th>
                     @endforeach
                 </tr>
                 </thead>

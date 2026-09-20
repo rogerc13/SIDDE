@@ -1,90 +1,492 @@
-.graph-container, .doughnut-container {
-    width: 100% !important;
-    max-width: 100%;
-    height: 400px !important;
-    min-height: 300px;
+/* ═══════════════════════════════════════════════════════════════════
+   Reports page — scoped design system
+   All rules are namespaced under .reports-page so no other screen is
+   affected. Colors stay consistent with the app's red admin theme.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.reports-page {
+    --rp-accent: #EF3E36;
+    --rp-accent-dark: #cf2f28;
+    --rp-accent-text: #b3271f;
+    --rp-ink: #1f2733;
+    --rp-muted: #6b7684;
+    --rp-muted-strong: #59616d;
+    --rp-surface: #ffffff;
+    --rp-surface-2: #f6f7f9;
+    --rp-border: #e3e6ea;
+    --rp-radius: 10px;
+    --rp-radius-sm: 6px;
+    --rp-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+    --rp-shadow-lg: 0 8px 24px rgba(16, 24, 40, .10);
+
+    color: var(--rp-ink);
 }
 
-#myChart, #doughnut {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100%;
-    display: block;
+/* ── Page header ─────────────────────────────────────────────────── */
+.reports-page .report-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 16px;
 }
 
-/* ── Report filter rows (flex layout matching app convention) ──────── */
-.report-form .form-group.report-filters-row,
-.report-form .form-group.report-date-row {
+.reports-page .report-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--rp-accent-text);
+}
+
+.reports-page .report-title {
+    margin: 2px 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--rp-ink);
+}
+
+.reports-page .report-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: var(--rp-muted-strong);
+}
+
+/* ── Sticky toolbar / filter card ────────────────────────────────── */
+.reports-page .report-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius);
+    box-shadow: var(--rp-shadow);
+}
+
+.reports-page .report-form .form-group.report-filters-row,
+.reports-page .report-form .form-group.report-date-row {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     gap: 1rem;
+    margin-bottom: 0;
 }
 
-/* Reset Bootstrap column floats inside flex rows */
-.report-form .form-group.report-filters-row > [class*="col-"],
-.report-form .form-group.report-date-row > [class*="col-"] {
+.reports-page .report-form .form-group.report-filters-row > [class*="col-"],
+.reports-page .report-form .form-group.report-date-row > [class*="col-"] {
     flex: none;
     width: auto;
+    padding: 0;
 }
 
-.report-form .form-group.report-filters-row > .col-md-3 { width: 25%; }
-.report-form .form-group.report-filters-row > .col-md-2 { width: 16.6667%; }
-.report-form .form-group.report-filters-row > .col-md-4 { width: 33.3333%; }
+.reports-page .report-form .report-filters-row > .col-md-3 { width: 25%; }
+.reports-page .report-form .report-filters-row > .col-md-2 { width: 16.6667%; }
+.reports-page .report-form .report-filters-row > .col-md-4 { width: 33.3333%; }
+.reports-page .report-form .report-date-row > .col-md-2 { width: 16.6667%; }
+.reports-page .report-form .report-date-row > .col-md-8 { width: 66.6667%; }
 
-.report-form .form-group.report-date-row > .col-md-2 { width: 16.6667%; }
-.report-form .form-group.report-date-row > .col-md-8 { width: 66.6667%; }
+.reports-page .report-form .control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--rp-muted-strong);
+    margin-bottom: 4px;
+}
 
-/* Action buttons row */
-.report-actions-buttons {
+.reports-page .report-form .form-control {
+    height: 38px;
+    border-radius: var(--rp-radius-sm);
+    border-color: var(--rp-border);
+    box-shadow: none;
+}
+
+.reports-page .report-form .form-control:focus {
+    border-color: var(--rp-accent);
+    box-shadow: 0 0 0 3px rgba(239, 62, 54, .15);
+}
+
+/* Actions */
+.reports-page .report-actions-buttons {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
-/* ── Date-range preset buttons ─────────────────────────────────────── */
-.date-preset-buttons {
+.reports-page .report-actions-buttons .btn {
+    min-height: 38px;
+    border-radius: var(--rp-radius-sm);
+    font-weight: 600;
+}
+
+.reports-page .report-actions-buttons .generate {
+    background: var(--rp-accent);
+    border-color: var(--rp-accent-dark);
+}
+
+.reports-page .report-actions-buttons .generate:hover,
+.reports-page .report-actions-buttons .generate:focus {
+    background: var(--rp-accent-dark);
+}
+
+/* Presets */
+.reports-page .date-preset-buttons {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 4px;
 }
 
-.date-preset-btn {
-    border-radius: 4px;
+.reports-page .date-preset-btn {
+    border-radius: var(--rp-radius-sm);
     font-size: 12px;
-    padding: 5px 12px;
+    padding: 6px 12px;
+    min-height: 32px;
     white-space: nowrap;
-    transition: background-color 0.15s, color 0.15s;
+    transition: background-color .15s, color .15s, border-color .15s;
 }
 
-.date-preset-btn.active {
-    background-color: #00a651;
-    border-color: #008d45;
+.reports-page .date-preset-btn.active {
+    background-color: var(--rp-accent);
+    border-color: var(--rp-accent-dark);
     color: #fff;
 }
 
-.date-preset-btn:not(.active):hover {
-    background-color: #e6e6e6;
-    border-color: #adadad;
+.reports-page .date-preset-btn:not(.active):hover {
+    background-color: var(--rp-surface-2);
+    border-color: var(--rp-border);
 }
 
-/* ── Responsive ────────────────────────────────────────────────────── */
+/* ── KPI hero grid ───────────────────────────────────────────────── */
+.reports-page .row-graphs,
+.reports-page .report-summary {
+    display: grid;
+}
+
+/* Bootstrap .row clearfix pseudo-elements become grid items and shift
+   placement; neutralize them inside the grid containers. */
+.reports-page .row-graphs::before,
+.reports-page .row-graphs::after,
+.reports-page .report-summary::before,
+.reports-page .report-summary::after {
+    display: none;
+    content: none;
+}
+
+.reports-page .report-summary {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 0 0 16px;
+}
+
+.reports-page .report-summary .kpi-card {
+    padding: 14px 16px;
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius);
+    box-shadow: var(--rp-shadow);
+}
+
+.reports-page .report-summary .kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--rp-muted-strong);
+}
+
+.reports-page .report-summary .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--rp-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.reports-page .report-summary .kpi-unit {
+    font-size: 11px;
+    color: var(--rp-muted-strong);
+}
+
+.reports-page .report-summary .kpi-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.reports-page .report-summary .kpi-delta.kpi-up {
+    color: #1f6f3f;
+    background: #e7f4ec;
+}
+
+.reports-page .report-summary .kpi-delta.kpi-down {
+    color: #9a2c22;
+    background: #fdecea;
+}
+
+/* ── Insight callout ─────────────────────────────────────────────── */
+.reports-page .report-insight {
+    margin: 0 0 16px;
+}
+
+.reports-page .report-insight .panel {
+    margin: 0;
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius);
+    box-shadow: var(--rp-shadow);
+}
+
+.reports-page .report-insight .panel-heading {
+    padding: 14px 18px 0;
+    background: transparent;
+    border: 0;
+}
+
+.reports-page .report-insight .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--rp-accent-text);
+}
+
+.reports-page .report-insight .panel-body {
+    padding: 10px 18px 16px;
+}
+
+.reports-page .report-insight-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.reports-page .report-insight-list li {
+    margin-bottom: 6px;
+}
+
+/* ── Charts grid + cards ─────────────────────────────────────────── */
+.reports-page .row-graphs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    margin: 0 0 16px;
+}
+
+.reports-page .row-graphs > [class*="col-"] {
+    width: 100%;
+    float: none;
+    padding: 0;
+}
+
+.reports-page .panel {
+    margin: 0;
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius);
+    box-shadow: var(--rp-shadow);
+    overflow: hidden;
+}
+
+.reports-page .panel-heading {
+    padding: 14px 18px 0;
+    background: transparent;
+    border: 0;
+}
+
+.reports-page .panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--rp-ink);
+}
+
+.reports-page .panel-body {
+    padding: 14px 18px 18px;
+}
+
+.reports-page .graph-container,
+.reports-page .doughnut-container {
+    position: relative;
+    width: 100% !important;
+    max-width: 100%;
+    height: 340px !important;
+    min-height: 280px;
+}
+
+.reports-page #myChart,
+.reports-page #doughnut,
+.reports-page #genderDoughnut,
+.reports-page #genderBar {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    display: block;
+}
+
+/* ── Table cards ─────────────────────────────────────────────────── */
+.reports-page .table-col-helper > .panel,
+.reports-page .table-col-helper > section {
+    margin-bottom: 16px;
+}
+
+.reports-page .table-col-helper .panel-body,
+.reports-page .table-col-helper .report-card__body {
+    overflow-x: auto;
+}
+
+.reports-page table {
+    margin-bottom: 0;
+    background: var(--rp-surface);
+}
+
+.reports-page thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--rp-surface-2) !important;
+    color: var(--rp-ink);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 2px solid var(--rp-border) !important;
+}
+
+.reports-page tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.reports-page tbody td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Pagination controls ─────────────────────────────────────────── */
+.reports-page .report-pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.reports-page .report-pagination-controls button {
+    min-width: 32px;
+    min-height: 32px;
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius-sm);
+    background: var(--rp-surface);
+    color: var(--rp-ink);
+}
+
+.reports-page .report-pagination-controls button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* ── Loader / skeleton ───────────────────────────────────────────── */
+.reports-page .loader {
+    padding: 28px 0;
+    color: var(--rp-muted);
+}
+
+.reports-page.is-loading .row-graphs,
+.reports-page.is-loading .table-col-helper {
+    opacity: .45;
+    transition: opacity .15s;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.reports-page .report-empty {
+    padding: 28px 18px;
+    text-align: center;
+    color: var(--rp-muted-strong);
+    background: var(--rp-surface-2);
+    border: 1px dashed var(--rp-border);
+    border-radius: var(--rp-radius);
+}
+
+/* ── Focus + motion ──────────────────────────────────────────────── */
+.reports-page :focus-visible {
+    outline: 2px solid var(--rp-accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reports-page *,
+    .reports-page *::before,
+    .reports-page *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 991px) {
-    .report-form .form-group.report-filters-row > [class*="col-"],
-    .report-form .form-group.report-date-row > [class*="col-"] {
+    .reports-page .report-form .form-group.report-filters-row > [class*="col-"],
+    .reports-page .report-form .form-group.report-date-row > [class*="col-"] {
         width: 100%;
+    }
+
+    .reports-page .row-graphs {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 767px) {
-    .date-preset-buttons {
-        gap: 4px;
+    .reports-page .report-title {
+        font-size: 22px;
     }
-    .date-preset-btn {
+
+    .reports-page .report-summary {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .reports-page .date-preset-btn {
         font-size: 11px;
-        padding: 4px 8px;
+        padding: 5px 9px;
     }
-    .report-actions-buttons {
-        flex-wrap: wrap;
+
+    .reports-page .report-actions-buttons {
+        width: 100%;
+    }
+}
+
+/* ── Print ───────────────────────────────────────────────────────── */
+@media print {
+    .reports-page .report-toolbar,
+    .reports-page .report-page-header .report-actions-buttons,
+    .reports-page .report-pagination-controls,
+    .reports-page .loader,
+    .reports-page .hide-print {
+        display: none !important;
+    }
+
+    .reports-page .row-graphs {
+        display: block;
+    }
+
+    .reports-page .row-graphs > [class*="col-"],
+    .reports-page .row-graphs > .panel {
+        width: 100% !important;
+        page-break-inside: avoid;
+        margin-bottom: 12px;
+    }
+
+    .reports-page .panel,
+    .reports-page .report-summary .kpi-card {
+        box-shadow: none;
+        border-color: #ccc;
+    }
+
+    .reports-page thead th {
+        position: static;
     }
 }
