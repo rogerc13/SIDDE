@@ -144,7 +144,7 @@ Route::group(['middleware' => 'auth'], function ()
 
                 Route::post('/schedule', 'App\Http\Controllers\CursoProgramadoController@schedule');
                 Route::get('/blocked-slots', 'App\Http\Controllers\CursoProgramadoController@getBlockedSlots');
-                Route::post('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
+                Route::get('/assignList', 'App\Http\Controllers\CursoProgramadoController@assignList');
 
                 Route::get('/{id}', 'App\Http\Controllers\CursoProgramadoController@get');
                 Route::put('/{id}', 'App\Http\Controllers\CursoProgramadoController@updateSchedule');
@@ -244,4 +244,3 @@ Route::group(['middleware' => 'auth'], function ()
                         ->name('database.courses.restore');
         });
 });
-

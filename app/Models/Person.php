@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -65,5 +66,33 @@ class Person extends Model
 
     public function idType(){
         return $this->belongsTo(IdType::class);
+    }
+
+    public function scopeWithoutSessionConflict(Builder $query, Scheduled $scheduledCourse): Builder
+    {
+        return $query->whereNotExists(function ($query) use ($scheduledCourse) {
+            $query->selectRaw('1')
+                ->from('participants as existing_participants')
+                ->join('scheduled_course as existing_scheduled', 'existing_scheduled.id', '=', 'existing_participants.scheduled_id')
+                ->join('course_sessions as existing_sessions', 'existing_sessions.scheduled_course_id', '=', 'existing_scheduled.id')
+                ->whereColumn('existing_participants.person_id', 'people.id')
+                ->where('existing_scheduled.id', '!=', $scheduledCourse->id)
+                ->where('existing_participants.participant_status_id', '!=', Participant::CANCELADO)
+                ->whereNull('existing_participants.deleted_at')
+                ->where('existing_scheduled.course_status_id', '!=', CourseStatus::CANCELADO)
+                ->whereNull('existing_scheduled.deleted_at')
+                ->where('existing_sessions.status', '!=', 'cancelled')
+                ->whereNull('existing_sessions.deleted_at')
+                ->whereExists(function ($targetSessions) use ($scheduledCourse) {
+                    $targetSessions->selectRaw('1')
+                        ->from('course_sessions as target_sessions')
+                        ->where('target_sessions.scheduled_course_id', $scheduledCourse->id)
+                        ->where('target_sessions.status', '!=', 'cancelled')
+                        ->whereNull('target_sessions.deleted_at')
+                        ->whereColumn('existing_sessions.session_date', 'target_sessions.session_date')
+                        ->whereColumn('existing_sessions.start_time', '<', 'target_sessions.end_time')
+                        ->whereColumn('existing_sessions.end_time', '>', 'target_sessions.start_time');
+                });
+        });
     }
 }   

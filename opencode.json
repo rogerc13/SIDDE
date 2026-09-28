@@ -28,7 +28,7 @@
                 "npx",
                 "@playwright/mcp@latest",
                 "--browser",
-                "chromium"
+                "chrome"
             ]
         }
     }

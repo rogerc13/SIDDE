@@ -144,6 +144,16 @@ class ParticipanteCursoController extends Controller
                 ->with("alert", Funciones::getAlert("danger", "Error", "El curso programado se encuentra a su máxima capacidad."));
         }
 
+        $participanteEsElegible = Person::query()
+            ->whereKey($request->participante)
+            ->withoutSessionConflict($cursoprogramado)
+            ->exists();
+
+        if (!$participanteEsElegible) {
+            return Redirect::back()
+                ->with("alert", Funciones::getAlert("danger", "Error", "El participante no está disponible para esta acción de formación por un cruce de horario o porque no es un participante registrado."));
+        }
+
         $yaAsignado = Participant::where('scheduled_id', $request->curso_p_id)
             ->where('person_id', $request->participante)
             ->exists();

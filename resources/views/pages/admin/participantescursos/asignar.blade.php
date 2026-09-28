@@ -6,65 +6,96 @@
         }
     });
 
-    $('#asignar-modal').on('hidden.bs.modal', function () {
-        $('#participante').empty().append(new Option('', '')).val('').trigger('change');
-        $('.capacity-error-text').empty().hide();
+    $(function () {
+        const $modal = $('#asignar-modal');
+        const $participant = $('#participante');
+        const $error = $modal.find('.capacity-error-text');
+        let ajaxSearchRequest = null;
+
+        $modal.on('shown.bs.modal', function () {
+            if (!$participant.data('select2')) {
+                $participant.select2({
+                    allowClear: true,
+                    placeholder: 'Buscar por nombre, apellido o cédula',
+                    minimumInputLength: 0,
+                    ajax: {
+                        url: '{{ url('u/af_programadas/assignList') }}',
+                        type: 'GET',
+                        dataType: 'json',
+                        quietMillis: 250,
+                        data: function (term, page) {
+                            return {
+                                scheduled_id: $('#curso_p_id').val(),
+                                q: term,
+                                page: page || 1
+                            };
+                        },
+                        results: function (response) {
+                            if (response.message) {
+                                $error.text(response.message).show();
+                            } else {
+                                $error.empty().hide();
+                            }
+
+                            return {
+                                results: response.results || [],
+                                more: response.more || false
+                            };
+                        },
+                        transport: function (options) {
+                            if (ajaxSearchRequest) {
+                                ajaxSearchRequest.abort();
+                            }
+
+                            ajaxSearchRequest = $.ajax(options);
+                            ajaxSearchRequest.fail(function (response, status) {
+                                if (status === 'abort') {
+                                    return;
+                                }
+
+                                const message = response.responseJSON && response.responseJSON.message;
+                                $error.text(message || 'Ocurrió un error al buscar participantes.').show();
+                            });
+
+                            return ajaxSearchRequest;
+                        }
+                    },
+                    formatNoMatches: function () {
+                        return 'No se encontraron participantes disponibles.';
+                    },
+                    formatSearching: function () {
+                        return 'Buscando participantes...';
+                    }
+                });
+            }
+
+            $participant.select2('open');
+        });
+
+        $modal.on('hidden.bs.modal', function () {
+            if (ajaxSearchRequest) {
+                ajaxSearchRequest.abort();
+                ajaxSearchRequest = null;
+            }
+
+            $participant.val('').trigger('change');
+            $error.empty().hide();
+        });
     });
 
     function asignarParticipanteLista(url, id) {
         const $modal = $('#asignar-modal');
         const $form = $('#asignar-form');
-        const $participant = $('#participante');
-        const $loader = $modal.find('.loader');
         const $error = $modal.find('.capacity-error-text');
 
         $form[0].reset();
         $form.attr('action', url);
         $form.find('[name="_method"]').val('POST');
         $form.find('[name="curso_p_id"]').val(id);
-        $participant.empty().append(new Option('', '')).val('').trigger('change');
         $error.empty().hide();
-        $form.addClass('hidden');
-        $loader.removeClass('hidden');
+        $form.removeClass('hidden');
         $('#asignar-label').text('Asignar participante');
         $modal.modal('show');
-
-        $.ajax({
-            type: 'POST',
-            url: '{{ url('u/af_programadas/assignList') }}',
-            data: { scheduled_id: id },
-            dataType: 'json',
-            success: function (response) {
-                if (!response.success) {
-                    $error.text(response.message || 'No fue posible cargar los participantes disponibles.').show();
-                    return;
-                }
-
-                if (!response.list || response.list.length === 0) {
-                    $error.text('No hay participantes disponibles para asignar a esta acción de formación.').show();
-                    return;
-                }
-
-                response.list.forEach(function (person) {
-                    const idType = person.id_type_id == 1 ? 'V' : 'E';
-                    const idNumber = String(person.id_number).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                    const option = new Option(person.name + ' ' + person.last_name + ' C.I: ' + idType + '-' + idNumber, person.id);
-
-                    $(option).attr('personid', person.id);
-                    $participant.append(option);
-                });
-
-                $participant.val('').trigger('change');
-            },
-            error: function (response) {
-                const message = response.responseJSON && response.responseJSON.message;
-                $error.text(message || 'Ocurrió un error al cargar los participantes disponibles.').show();
-            },
-            complete: function () {
-                $loader.addClass('hidden');
-                $form.removeClass('hidden');
-            }
-        });
     }
 </script>
 @endpush
@@ -79,10 +110,6 @@
                     <h4 class="modal-title" id="asignar-label">Asignar participante</h4>
                 </div>
             </div>
-            <div class="loader text-center">
-                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-                <span class="sr-only">Cargando...</span>
-            </div>
             <form class="form-horizontal hidden" method="POST" id="asignar-form">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
@@ -91,9 +118,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="participante" class="control-label">Participante</label>
-                        <select name="participante" class="select2 form-control" id="participante" data-allow-clear="true" required>
-                            <option value=""></option>
-                        </select>
+                        <input type="text" name="participante" class="form-control" id="participante" data-allow-clear="true" autocomplete="off" required>
                         <span class="has-error help-block capacity-error-text" role="alert" aria-live="polite"></span>
                     </div>
                 </div>

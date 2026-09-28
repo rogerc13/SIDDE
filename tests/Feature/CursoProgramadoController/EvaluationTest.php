@@ -4,6 +4,7 @@ namespace Tests\Feature\CursoProgramadoController;
 
 use App\Models\Capacity;
 use App\Models\Course;
+use App\Models\CourseSession;
 use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Participant;
@@ -211,10 +212,7 @@ class EvaluationTest extends TestCase
         $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
 
         $response = $this->actingAs($programador)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->post('/u/af_programadas/assignList', [
-                'scheduled_id' => $scheduled->id,
-            ]);
+            ->get('/u/af_programadas/assignList?scheduled_id=' . $scheduled->id);
 
         $response->assertForbidden();
         $this->assertFalse($programador->can('store', Participant::class));
@@ -294,6 +292,169 @@ class EvaluationTest extends TestCase
             ->assertSessionHas('alert');
 
         $this->assertDatabaseCount('participants', 1);
+    }
+
+    public function test_assignment_rejects_participant_with_a_colliding_course_session(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $targetDate = now()->addDays(8)->toDateString();
+        $targetScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, $targetDate);
+        $otherScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, $targetDate);
+        $participantUser = User::factory()->participante()->create();
+        $location = \App\Models\Location::factory()->create();
+
+        CourseSession::create([
+            'scheduled_course_id' => $targetScheduled->id,
+            'location_id' => $location->id,
+            'session_date' => $targetDate,
+            'start_time' => '09:00',
+            'end_time' => '11:00',
+            'status' => 'scheduled',
+        ]);
+        CourseSession::create([
+            'scheduled_course_id' => $otherScheduled->id,
+            'location_id' => $location->id,
+            'session_date' => $targetDate,
+            'start_time' => '10:30',
+            'end_time' => '12:00',
+            'status' => 'scheduled',
+        ]);
+        Participant::create([
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $otherScheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $this->actingAs($admin)
+            ->from('/u/af_programadas/' . $targetScheduled->id . '/participantes')
+            ->post('/u/af_programadas/' . $targetScheduled->id . '/asignarParticipante', [
+                'participante' => $participantUser->person_id,
+                'curso_p_id' => $targetScheduled->id,
+            ])
+            ->assertSessionHas('alert');
+
+        $this->assertDatabaseMissing('participants', [
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $targetScheduled->id,
+        ]);
+    }
+
+    public function test_assignment_allows_overlapping_course_dates_when_sessions_do_not_collide(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $targetDate = now()->addDays(8)->toDateString();
+        $otherDate = now()->addDays(9)->toDateString();
+        $targetScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, $targetDate);
+        $otherScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, $targetDate);
+        $participantUser = User::factory()->participante()->create();
+        $location = \App\Models\Location::factory()->create();
+
+        CourseSession::create([
+            'scheduled_course_id' => $targetScheduled->id,
+            'location_id' => $location->id,
+            'session_date' => $targetDate,
+            'start_time' => '09:00',
+            'end_time' => '11:00',
+            'status' => 'scheduled',
+        ]);
+        CourseSession::create([
+            'scheduled_course_id' => $otherScheduled->id,
+            'location_id' => $location->id,
+            'session_date' => $otherDate,
+            'start_time' => '09:00',
+            'end_time' => '11:00',
+            'status' => 'scheduled',
+        ]);
+        Participant::create([
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $otherScheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $this->actingAs($admin)
+            ->from('/u/af_programadas/' . $targetScheduled->id . '/participantes')
+            ->post('/u/af_programadas/' . $targetScheduled->id . '/asignarParticipante', [
+                'participante' => $participantUser->person_id,
+                'curso_p_id' => $targetScheduled->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('participants', [
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $targetScheduled->id,
+        ]);
+    }
+
+    public function test_assignment_does_not_apply_date_range_fallback_to_legacy_schedules_without_sessions(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $targetDate = now()->addDays(8)->toDateString();
+        $targetScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, $targetDate);
+        $legacyScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, $targetDate);
+        $participantUser = User::factory()->participante()->create();
+
+        Participant::create([
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $legacyScheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $this->actingAs($admin)
+            ->from('/u/af_programadas/' . $targetScheduled->id . '/participantes')
+            ->post('/u/af_programadas/' . $targetScheduled->id . '/asignarParticipante', [
+                'participante' => $participantUser->person_id,
+                'curso_p_id' => $targetScheduled->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('participants', [
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $targetScheduled->id,
+        ]);
+    }
+
+    public function test_assignment_allows_participant_when_overlapping_session_is_cancelled(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $sessionDate = now()->addDays(8)->toDateString();
+        $targetScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, $sessionDate);
+        $otherScheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, $sessionDate);
+        $participantUser = User::factory()->participante()->create();
+        $location = \App\Models\Location::factory()->create();
+
+        foreach ([$targetScheduled, $otherScheduled] as $scheduled) {
+            CourseSession::create([
+                'scheduled_course_id' => $scheduled->id,
+                'location_id' => $location->id,
+                'session_date' => $sessionDate,
+                'start_time' => '09:00',
+                'end_time' => '11:00',
+                'status' => $scheduled->id === $otherScheduled->id ? 'cancelled' : 'scheduled',
+            ]);
+        }
+
+        Participant::create([
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $otherScheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $this->actingAs($admin)
+            ->from('/u/af_programadas/' . $targetScheduled->id . '/participantes')
+            ->post('/u/af_programadas/' . $targetScheduled->id . '/asignarParticipante', [
+                'participante' => $participantUser->person_id,
+                'curso_p_id' => $targetScheduled->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('participants', [
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $targetScheduled->id,
+        ]);
     }
 
     public function test_asignar_participante_respects_max_capacity(): void
@@ -481,6 +642,12 @@ class EvaluationTest extends TestCase
         $response->assertSee('modal-dialog sidde-modal', false);
         $response->assertSee('fa-user-plus', false);
         $response->assertSee('id="participante"', false);
+        $response->assertSee('placeholder: \'Buscar por nombre, apellido o cédula\'', false);
+        $response->assertSee('af_programadas/assignList', false);
+        $response->assertSee('type: \'GET\'', false);
+        $response->assertSee('ajaxSearchRequest.abort()', false);
+        $response->assertSee('page: page || 1', false);
+        $response->assertDontSee('response.list.forEach', false);
         $response->assertDontSee('af_programadas/participantes/assignList', false);
     }
 

@@ -529,104 +529,127 @@ class CursoProgramadoController extends Controller
                 ->with('usuario',$usuario);
     }
 
-    public function assignList(Request $request){
-
+    public function assignList(Request $request)
+    {
         $user = Auth::user();
+
         if ($user->cannot('store', Participant::class)) {
-            $message = "No tienes permisos para realizar esta acción.";
-            if ($request->expectsJson()) {
-                return response()->json(['success' => false, 'message' => $message], 403);
-            }
-            return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Acceder", $message));
+            return response()->json(['results' => [], 'more' => false], 403);
         }
 
-        $scheduledId = $request->scheduled_id;
+        $validated = $request->validate([
+            'scheduled_id' => ['required', 'integer', 'exists:scheduled_course,id'],
+            'q' => ['nullable', 'string', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
 
-        $scheduledCourse = Scheduled::with('course.capacity')->find($scheduledId);
-
-        if (!$scheduledCourse) {
-            return response()->json([
-                'success' => false,
-                'message' => 'La acción de formación programada no pudo ser encontrada.'
-            ]);
-        }
+        $scheduledCourse = Scheduled::with(['course.capacity'])
+            ->findOrFail($validated['scheduled_id']);
 
         if (!$scheduledCourse->isPorDictar()) {
             return response()->json([
-                'success' => false,
-                'message' => 'No se pueden asignar participantes a una acción de formación que no esté por dictar.'
+                'results' => [],
+                'more' => false,
+                'message' => 'No se pueden asignar participantes a una acción de formación que no esté por dictar.',
             ]);
         }
 
-        $courseMaxCapacity = $scheduledCourse->course->capacity[0]->max;
+        $courseMaxCapacity = (int) ($scheduledCourse->course->capacity->first()?->max ?? 0);
+        $participantAmount = Participant::query()
+            ->where('scheduled_id', $scheduledCourse->id)
+            ->count();
 
-        //check current amount of participants
-        $participantAmount = Participant::where('scheduled_id',$scheduledId)->count();
-        
-        //get prerequisite of selected course
-        $coursePrerequisite = Prerequisite::where('course_id', $scheduledCourse->course->id)->select('prerequisite')->get();
-        
-        if($participantAmount == $courseMaxCapacity){ //check if course is at max capacity
-            $response = ['success' => false, 'message'=>'Capacidad Máxima de Participantes Alcanzada.'];
-            return response()->json($response);
-        }else{
-            
-            if((count($coursePrerequisite) === 0) || $coursePrerequisite[0]->prerequisite === null){ //if course has no prerequisite
-                                
-                //get scheduled id's of scheduled courses that overlap with selected course and without status
-                $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
-                )->where('course_status_id','!=', CourseStatus::CANCELADO)->pluck('id');
-                
-                //get all participants on participants' table that match the scheduled course id and status is different of canceled
-                $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
-                /* ->where('participant_status_id','!=' ,4) */
-                ->pluck('person_id');
+        if ($courseMaxCapacity === 0 || $participantAmount >= $courseMaxCapacity) {
+            return response()->json([
+                'results' => [],
+                'more' => false,
+                'message' => 'Capacidad Máxima de Participantes Alcanzada.',
+            ]);
+        }
 
-                //get list of all participants
-                $participantList = Person::whereHas('user', function($query){
-                    $query->where('role_id',Role::PARTICIPANTE);
-                })->pluck('id');
+        $coursePrerequisite = Prerequisite::query()
+            ->where('course_id', $scheduledCourse->course_id)
+            ->orderBy('id')
+            ->value('prerequisite');
 
-                //getparticipants without those who are in a course that overlap
-                $availableParticipants = $participantList->diff($participantsOverlap);
+        $people = Person::query()
+            ->select(['people.id', 'people.name', 'people.last_name', 'people.id_number', 'people.id_type_id'])
+            ->whereHas('user', function ($query) {
+                $query->where('role_id', Role::PARTICIPANTE);
+            })
+            ->withoutSessionConflict($scheduledCourse);
 
-                $people = Person::whereIn('id',$availableParticipants)->get();
+        if ($coursePrerequisite !== null) {
+            $people->whereExists(function ($query) use ($coursePrerequisite) {
+                $query->selectRaw('1')
+                    ->from('participants as prerequisite_participants')
+                    ->join('scheduled_course as prerequisite_scheduled', 'prerequisite_scheduled.id', '=', 'prerequisite_participants.scheduled_id')
+                    ->join('courses as prerequisite_courses', 'prerequisite_courses.id', '=', 'prerequisite_scheduled.course_id')
+                    ->whereColumn('prerequisite_participants.person_id', 'people.id')
+                    ->where('prerequisite_participants.participant_status_id', Participant::APROBADO)
+                    ->where('prerequisite_scheduled.course_status_id', CourseStatus::CULMINADO)
+                    ->where('prerequisite_courses.code', $coursePrerequisite)
+                    ->whereNull('prerequisite_participants.deleted_at')
+                    ->whereNull('prerequisite_scheduled.deleted_at')
+                    ->whereNull('prerequisite_courses.deleted_at');
+            });
+        }
 
-                $response = ['success' => true, 'message'=> 'No Prerequisite, List of Available Participants','list'=>$people];
-                return response()->json($response);
+        $searchTerm = trim((string) ($validated['q'] ?? ''));
 
-            }else{ //if course has a prerequisite
+        if ($searchTerm !== '') {
+            $searchTerm = Funciones::normalizeSearchTerm($searchTerm);
+            $isSqlite = $people->getConnection()->getDriverName() === 'sqlite';
+            $searchTokens = preg_split('/\s+/', $searchTerm, -1, PREG_SPLIT_NO_EMPTY) ?: [$searchTerm];
 
-                //get list of courses that met the prerequsite
-                $courseList = Scheduled::whereHas('Course',function($query) use($coursePrerequisite){
-                    $query->where('code',$coursePrerequisite[0]->prerequisite)->where('course_status_id','3');
-                })->pluck('id');
-                
-                //get scheduled id's of scheduled courses that overlap with selected course and without status
-                $scheduledOverlap = Scheduled::whereBetween('start_date', array($scheduledCourse->start_date, $scheduledCourse->end_date)
-                )->where('course_status_id','!=', CourseStatus::CANCELADO)->pluck('id');
-                
-                //get all participants on participants' table that match the scheduled course id and status is different of canceled
-                $participantsOverlap = Participant::whereIn('scheduled_id',$scheduledOverlap)
-                /* ->where('participant_status_id','!=' ,4) */
-                ->pluck('person_id');
+            foreach ($searchTokens as $token) {
+                $escapedToken = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $token);
+                $pattern = '%' . $escapedToken . '%';
+                $idToken = preg_replace('/\D+/', '', $token);
 
-                //get all participants that met the prerequisite
-                $participantsWithPrerequisite = Participant::whereIn('scheduled_id',$courseList)
-                ->where('participant_status_id','3')->whereNotIn('id',Participant::where('scheduled_id',$scheduledId)->select('id'))
-                ->pluck('person_id');
+                $people->where(function ($query) use ($pattern, $idToken, $isSqlite) {
+                    foreach (['people.name', 'people.last_name'] as $index => $column) {
+                        $searchExpression = $isSqlite
+                            ? 'lower(strip_accents(' . $column . ')) LIKE ? ESCAPE \'!\''
+                            : $column . ' LIKE ? ESCAPE \'!\'';
 
-                $availableParticipants = $participantsWithPrerequisite->diff($participantsOverlap);
-                
-                $people = Person::whereIn('id',$availableParticipants)->get();
+                        if ($index === 0) {
+                            $query->whereRaw($searchExpression, [$pattern]);
+                        } else {
+                            $query->orWhereRaw($searchExpression, [$pattern]);
+                        }
+                    }
 
-                $response = ['success' => true, 'message'=> 'List of Available Participants','list'=>$people];
-                return response()->json($response);
-
+                    if ($idToken !== '') {
+                        $escapedIdToken = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $idToken);
+                        $idPattern = '%' . $escapedIdToken . '%';
+                        $query->orWhereRaw('people.id_number LIKE ? ESCAPE \'!\'', [$idPattern]);
+                    }
+                });
             }
-        }//end max capacity check  
-    }//end assignList()
+        }
+
+        $paginator = $people
+            ->orderBy('people.last_name')
+            ->orderBy('people.name')
+            ->orderBy('people.id')
+            ->simplePaginate(20, ['*'], 'page', (int) ($validated['page'] ?? 1));
+
+        $results = collect($paginator->items())->map(function (Person $person) {
+            $idType = (int) $person->id_type_id === 1 ? 'V' : 'E';
+            $idNumber = preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $person->id_number);
+
+            return [
+                'id' => $person->id,
+                'text' => $person->name . ' ' . $person->last_name . ' C.I: ' . $idType . '-' . $idNumber,
+            ];
+        })->values();
+
+        return response()->json([
+            'results' => $results,
+            'more' => $paginator->hasMorePages(),
+        ]);
+    }
 
     public function cancel($id) //cancel af programadas / courses
     {

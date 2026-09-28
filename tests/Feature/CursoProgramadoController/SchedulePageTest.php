@@ -160,6 +160,12 @@ class SchedulePageTest extends TestCase
         $response->assertSee('modal-dialog sidde-modal', false);
         $response->assertSee('fa-user-plus', false);
         $response->assertSee('id="participante"', false);
+        $response->assertSee('placeholder: \'Buscar por nombre, apellido o cédula\'', false);
+        $response->assertSee('af_programadas/assignList', false);
+        $response->assertSee('type: \'GET\'', false);
+        $response->assertSee('ajaxSearchRequest.abort()', false);
+        $response->assertSee('page: page || 1', false);
+        $response->assertDontSee('response.list.forEach', false);
     }
 
     public function test_details_documents_tab_lists_course_files(): void
@@ -551,6 +557,12 @@ class SchedulePageTest extends TestCase
         $response->assertSee('modal-dialog sidde-modal', false);
         $response->assertSee('fa-user-plus', false);
         $response->assertSee('id="participante"', false);
+        $response->assertSee('placeholder: \'Buscar por nombre, apellido o cédula\'', false);
+        $response->assertSee('af_programadas/assignList', false);
+        $response->assertSee('type: \'GET\'', false);
+        $response->assertSee('ajaxSearchRequest.abort()', false);
+        $response->assertSee('page: page || 1', false);
+        $response->assertDontSee('response.list.forEach', false);
         $response->assertSee('Editar programación', false);
         $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
     }
