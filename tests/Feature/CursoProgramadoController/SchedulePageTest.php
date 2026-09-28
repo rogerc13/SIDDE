@@ -157,6 +157,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('programa-modal-cancel', false);
         $response->assertSee('programa-modal-delete', false);
         $response->assertSee('asignar-modal', false);
+        $response->assertSee('modal-dialog sidde-modal', false);
+        $response->assertSee('fa-user-plus', false);
+        $response->assertSee('id="participante"', false);
     }
 
     public function test_details_documents_tab_lists_course_files(): void
@@ -545,6 +548,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('title="Más funciones"', false);
         $response->assertSee('data-toggle="dropdown"', false);
         $response->assertSee('Asignar participante', false);
+        $response->assertSee('modal-dialog sidde-modal', false);
+        $response->assertSee('fa-user-plus', false);
+        $response->assertSee('id="participante"', false);
         $response->assertSee('Editar programación', false);
         $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
     }

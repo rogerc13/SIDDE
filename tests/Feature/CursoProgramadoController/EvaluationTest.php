@@ -478,6 +478,9 @@ class EvaluationTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('/u/af_programadas/assignList', false);
+        $response->assertSee('modal-dialog sidde-modal', false);
+        $response->assertSee('fa-user-plus', false);
+        $response->assertSee('id="participante"', false);
         $response->assertDontSee('af_programadas/participantes/assignList', false);
     }
 

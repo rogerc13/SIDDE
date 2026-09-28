@@ -549,6 +549,10 @@
     content: "\f0c1";
 }
 
+.sidde-modal #s2id_participante .select2-choice:before {
+    content: "\f0c0";
+}
+
 /* Segmented control (prerequisito) */
 .sidde-modal .sidde-segmented {
     display: inline-flex;
