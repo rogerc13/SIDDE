@@ -2,7 +2,10 @@
    Reports page — scoped design system
    All rules are namespaced under .reports-page so no other screen is
    affected. Colors stay consistent with the app's red admin theme.
+   Token values are aliased to the shared SIDDE UI design system.
    ═══════════════════════════════════════════════════════════════════ */
+
+@import url("sidde-ui.css");
 
 .reports-page {
     --rp-accent: #EF3E36;

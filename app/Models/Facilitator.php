@@ -19,6 +19,16 @@ class Facilitator extends Model
         return $this->hasMany(Scheduled::class);
     }
 
+    public function sessions()
+    {
+        return $this->hasManyThrough(
+            CourseSession::class,
+            Scheduled::class,
+            'facilitator_id',
+            'scheduled_course_id',
+        );
+    }
+
     public function person(){
         return $this->belongsTo(Person::class);
     }

@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SIDDE shared UI design system
+   Namespaced under .sidde-ui. Tokens mirror the values used by the
+   reports page so every screen shares one visual language. The legacy
+   red admin theme is the source of the accent colour.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sidde-ui {
+    --sidde-accent: #EF3E36;
+    --sidde-accent-dark: #cf2f28;
+    --sidde-accent-text: #b3271f;
+    --sidde-ink: #1f2733;
+    --sidde-muted: #6b7684;
+    --sidde-muted-strong: #59616d;
+    --sidde-surface: #ffffff;
+    --sidde-surface-2: #f6f7f9;
+    --sidde-border: #e3e6ea;
+    --sidde-radius: 10px;
+    --sidde-radius-sm: 6px;
+    --sidde-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+    --sidde-shadow-lg: 0 8px 24px rgba(16, 24, 40, .10);
+
+    color: var(--sidde-ink);
+}
+
+/* ── Page header ─────────────────────────────────────────────────── */
+.sidde-ui .sidde-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 16px;
+}
+
+.sidde-ui .sidde-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--sidde-accent-text);
+}
+
+.sidde-ui .sidde-title {
+    margin: 2px 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--sidde-ink);
+}
+
+.sidde-ui .sidde-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: var(--sidde-muted-strong);
+}
+
+/* ── Panel card ──────────────────────────────────────────────────── */
+.sidde-ui .sidde-panel {
+    display: block;
+    margin: 0 0 16px;
+    background: var(--sidde-surface);
+    border: 1px solid var(--sidde-border);
+    border-radius: var(--sidde-radius);
+    box-shadow: var(--sidde-shadow);
+    overflow: hidden;
+}
+
+.sidde-ui .sidde-panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px 0;
+    background: transparent;
+    border: 0;
+}
+
+.sidde-ui .sidde-panel-heading::before {
+    content: "";
+    width: 3px;
+    height: 15px;
+    border-radius: 2px;
+    background: var(--sidde-accent);
+    flex: 0 0 3px;
+}
+
+.sidde-ui .sidde-panel-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--sidde-ink);
+}
+
+.sidde-ui .sidde-panel-body {
+    padding: 14px 18px 18px;
+}
+
+.sidde-ui .sidde-panel-body.is-flush {
+    padding: 0;
+}
+
+/* ── KPI card ────────────────────────────────────────────────────── */
+.sidde-ui .sidde-kpi {
+    padding: 14px 16px;
+    background: var(--sidde-surface);
+    border: 1px solid var(--sidde-border);
+    border-radius: var(--sidde-radius);
+    box-shadow: var(--sidde-shadow);
+}
+
+.sidde-ui .sidde-kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--sidde-muted-strong);
+}
+
+.sidde-ui .sidde-kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--sidde-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.sidde-ui .sidde-kpi-unit {
+    font-size: 11px;
+    color: var(--sidde-muted-strong);
+}
+
+/* ── Dashboard primitives ────────────────────────────────────────── */
+.sidde-ui .sidde-dashboard-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sidde-ui .sidde-dashboard-kpis .sidde-kpi {
+    min-width: 0;
+    min-height: 104px;
+}
+
+.sidde-ui .sidde-dashboard-main {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(300px, 5fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.sidde-ui .sidde-dashboard-rail {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+.sidde-ui .sidde-agenda-row {
+    display: grid;
+    grid-template-columns: 58px minmax(180px, 1fr) minmax(100px, 150px) 84px 28px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 18px;
+    border-top: 1px solid #f4f5f7;
+}
+
+.sidde-ui .sidde-agenda-row:first-child {
+    border-top: 0;
+}
+
+.sidde-ui .sidde-agenda-row:hover {
+    background: var(--sidde-surface-2);
+}
+
+.sidde-ui .sidde-agenda-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border: 1px solid var(--sidde-border);
+    border-radius: var(--sidde-radius-sm);
+    background: var(--sidde-surface-2);
+    color: var(--sidde-accent-text);
+    line-height: 1;
+}
+
+.sidde-ui .sidde-agenda-date-day {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sidde-ui .sidde-agenda-date-month {
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.sidde-ui .sidde-agenda-course,
+.sidde-ui .sidde-agenda-meta {
+    min-width: 0;
+}
+
+.sidde-ui .sidde-agenda-course-title {
+    display: block;
+    overflow: hidden;
+    color: var(--sidde-ink);
+    font-size: 13px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-agenda-course-sub,
+.sidde-ui .sidde-agenda-meta {
+    display: block;
+    margin-top: 3px;
+    overflow: hidden;
+    color: var(--sidde-muted-strong);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 18px 10px;
+}
+
+.sidde-ui .sidde-rail-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
+    padding: 10px 0;
+    border-top: 1px solid #f4f5f7;
+}
+
+.sidde-ui .sidde-rail-list-item:first-child {
+    border-top: 0;
+}
+
+.sidde-ui .sidde-rail-person,
+.sidde-ui .sidde-rail-course {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-rail-course {
+    color: var(--sidde-muted-strong);
+    font-size: 12px;
+}
+
+@media (max-width: 991px) {
+    .sidde-ui .sidde-dashboard-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sidde-ui .sidde-dashboard-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .sidde-ui .sidde-dashboard-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .sidde-ui .sidde-agenda-row {
+        grid-template-columns: 48px minmax(0, 1fr) 28px;
+        gap: 10px;
+    }
+
+    .sidde-ui .sidde-agenda-meta,
+    .sidde-ui .sidde-agenda-row > .sidde-status,
+    .sidde-ui .sidde-agenda-row > .sidde-action {
+        display: none;
+    }
+}
+
+/* ── Tables ──────────────────────────────────────────────────────── */
+.sidde-ui .sidde-table {
+    width: 100%;
+    margin-bottom: 0;
+    background: var(--sidde-surface);
+}
+
+.sidde-ui .sidde-table > thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--sidde-ink);
+    background: var(--sidde-surface-2);
+    border-bottom: 2px solid var(--sidde-border);
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-table > tbody > tr > td {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 13px;
+    color: var(--sidde-ink);
+    border-top: 1px solid #f4f5f7;
+    vertical-align: middle;
+    font-variant-numeric: tabular-nums;
+}
+
+.sidde-ui .sidde-table > tbody > tr:nth-child(even) > td {
+    background: #fafbfc;
+}
+
+.sidde-ui .sidde-table > tbody > tr:hover > td {
+    background: var(--sidde-surface-2);
+}
+
+.sidde-ui .sidde-table > tbody > tr > td.text-center,
+.sidde-ui .sidde-table > thead > tr > th.text-center {
+    text-align: center;
+}
+
+/* ── Focus + motion ──────────────────────────────────────────────── */
+.sidde-ui :focus-visible {
+    outline: 2px solid var(--sidde-accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidde-ui *,
+    .sidde-ui *::before,
+    .sidde-ui *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}

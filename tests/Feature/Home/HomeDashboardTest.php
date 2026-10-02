@@ -1,0 +1,238 @@
+<?php
+
+namespace Tests\Feature\Home;
+
+use App\Models\Capacity;
+use App\Models\Course;
+use App\Models\CourseSession;
+use App\Models\CourseStatus;
+use App\Models\Facilitator;
+use App\Models\Location;
+use App\Models\Participant;
+use App\Models\Person;
+use App\Models\Role;
+use App\Models\Scheduled;
+use App\Models\User;
+use App\Services\Dashboard\HomeDashboardService;
+use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class HomeDashboardTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(\Database\Seeders\IdTypeSeeder::class);
+        $this->seed(\Database\Seeders\CourseStatusSeeder::class);
+        $this->seed(\Database\Seeders\ParticipantStatusSeeder::class);
+    }
+
+    private function userWithRole(int $roleId): User
+    {
+        return User::factory()->create(['role_id' => $roleId]);
+    }
+
+    /**
+     * @return array{0: Scheduled, 1: Facilitator, 2: Course}
+     */
+    private function makeScheduled(?string $sessionDate = null, array $scheduledOverrides = []): array
+    {
+        $course = Course::factory()->create();
+        Capacity::create(['min' => 1, 'max' => 20, 'course_id' => $course->id]);
+
+        $facilitator = Facilitator::create([
+            'person_id' => Person::factory()->create()->id,
+        ]);
+
+        $scheduled = Scheduled::create(array_merge([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->id,
+            'course_status_id' => CourseStatus::POR_DICTAR,
+            'start_date' => CarbonImmutable::today()->addDays(3)->toDateString(),
+            'end_date' => CarbonImmutable::today()->addDays(10)->toDateString(),
+        ], $scheduledOverrides));
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => Location::factory()->create()->id,
+            'session_date' => $sessionDate ?? CarbonImmutable::today()->addDays(5)->toDateString(),
+            'start_time' => '08:00',
+            'end_time' => '10:00',
+            'status' => 'scheduled',
+        ]);
+
+        return [$scheduled, $facilitator, $course];
+    }
+
+    public function test_guest_is_redirected_to_login(): void
+    {
+        $this->get('/home')->assertRedirect(route('login'));
+    }
+
+    public function test_admin_sees_overview_dashboard(): void
+    {
+        $this->makeScheduled();
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Facilitadores activos');
+        $response->assertSee('Participantes activos');
+        $response->assertSee('Próximas Acciones de Formación');
+    }
+
+    public function test_participant_does_not_see_organisation_wide_widgets(): void
+    {
+        $this->makeScheduled();
+
+        $response = $this->actingAs($this->userWithRole(Role::PARTICIPANTE))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Mis acciones de formación');
+        $response->assertDontSee('Facilitadores activos');
+        $response->assertDontSee('Participantes activos');
+    }
+
+    public function test_active_facilitators_only_counts_sessions_within_the_window(): void
+    {
+        $this->makeScheduled();
+        $this->makeScheduled(CarbonImmutable::today()->addDays(90)->toDateString());
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertSame(1, $overview['kpis']['activeFacilitators']);
+    }
+
+    public function test_active_participants_counts_distinct_people(): void
+    {
+        [$scheduled] = $this->makeScheduled();
+
+        $person = Person::factory()->create();
+        Participant::create([
+            'person_id' => $person->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+        Participant::create([
+            'person_id' => $person->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertSame(1, $overview['kpis']['activeParticipants']);
+    }
+
+    public function test_cancelled_participants_are_not_counted_as_active(): void
+    {
+        [$scheduled] = $this->makeScheduled();
+
+        Participant::create([
+            'person_id' => Person::factory()->create()->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::CANCELADO,
+        ]);
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertSame(0, $overview['kpis']['activeParticipants']);
+    }
+
+    public function test_upcoming_scheduled_is_ordered_by_start_date(): void
+    {
+        $this->makeScheduled(null, ['start_date' => CarbonImmutable::today()->addDays(20)->toDateString()]);
+        $this->makeScheduled(null, ['start_date' => CarbonImmutable::today()->addDays(2)->toDateString()]);
+
+        $upcoming = app(HomeDashboardService::class)->overview()['upcomingScheduled'];
+
+        $this->assertSame(
+            CarbonImmutable::today()->addDays(2)->toDateString(),
+            $upcoming->first()->start_date,
+        );
+    }
+
+    public function test_facilitator_sees_only_own_scheduled_courses(): void
+    {
+        [$scheduled, , $course] = $this->makeScheduled();
+
+        $user = User::factory()->facilitador()->create(['person_id' => $scheduled->facilitator->person_id]);
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertOk();
+        $response->assertSee($course->title);
+        $response->assertSee('Mis próximas acciones de formación');
+    }
+
+    public function test_participant_sees_own_enrolments(): void
+    {
+        [$scheduled, , $course] = $this->makeScheduled();
+
+        $user = User::factory()->participante()->create();
+        Participant::create([
+            'person_id' => $user->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertOk();
+        $response->assertSee($course->title);
+        $response->assertSee('Mis acciones de formación');
+    }
+
+    public function test_cancelled_scheduled_courses_are_not_active(): void
+    {
+        [$scheduled] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CANCELADO]);
+
+        Participant::create([
+            'person_id' => Person::factory()->create()->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertSame(0, $overview['kpis']['activeFacilitators']);
+        $this->assertSame(0, $overview['kpis']['activeParticipants']);
+        $this->assertTrue($overview['activeFacilitators']->isEmpty());
+        $this->assertTrue($overview['activeParticipants']->isEmpty());
+    }
+
+    public function test_in_progress_scheduled_appears_in_upcoming(): void
+    {
+        $this->makeScheduled(CarbonImmutable::today()->addDays(2)->toDateString(), [
+            'start_date' => CarbonImmutable::today()->subDays(3)->toDateString(),
+            'end_date' => CarbonImmutable::today()->addDays(10)->toDateString(),
+        ]);
+
+        $upcoming = app(HomeDashboardService::class)->overview()['upcomingScheduled'];
+
+        $this->assertCount(1, $upcoming);
+        $this->assertSame(
+            CarbonImmutable::today()->subDays(3)->toDateString(),
+            $upcoming->first()->start_date,
+        );
+    }
+
+    public function test_upcoming_scheduled_respects_the_limit(): void
+    {
+        for ($i = 1; $i <= HomeDashboardService::UPCOMING_LIMIT + 3; $i++) {
+            $this->makeScheduled(null, [
+                'start_date' => CarbonImmutable::today()->addDays($i)->toDateString(),
+                'end_date' => CarbonImmutable::today()->addDays($i + 5)->toDateString(),
+            ]);
+        }
+
+        $upcoming = app(HomeDashboardService::class)->overview()['upcomingScheduled'];
+
+        $this->assertCount(HomeDashboardService::UPCOMING_LIMIT, $upcoming);
+    }
+}
