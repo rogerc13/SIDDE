@@ -1,9 +1,11 @@
 @php
+	$window = 'próximos '.$dashboard['windowDays'].' días';
 	$kpis = $dashboard['kpis'];
 	$cards = [
 		[
 			'value' => $kpis['courses'],
-			'label' => 'Acciones',
+			'label' => 'Acciones de formación',
+			'unit' => 'en el catálogo',
 			'icon' => 'entypo-book-open',
 			'color' => '#5d9cec',
 			'ability' => 'getAll',
@@ -13,6 +15,7 @@
 		[
 			'value' => $kpis['scheduled'],
 			'label' => 'Programadas',
+			'unit' => 'en total',
 			'icon' => 'entypo-calendar',
 			'color' => '#f0ad4e',
 			'ability' => 'getAll',
@@ -22,6 +25,7 @@
 		[
 			'value' => $kpis['activeFacilitators'],
 			'label' => 'Facilitadores',
+			'unit' => 'activos · '.$window,
 			'icon' => 'entypo-users',
 			'color' => '#8dc63f',
 			'ability' => 'getAllFacilitador',
@@ -31,7 +35,8 @@
 		[
 			'value' => $kpis['activeParticipants'],
 			'label' => 'Participantes',
-			'icon' => 'fa fa-graduation-cap',
+			'unit' => 'activos · '.$window,
+			'icon' => 'entypo-graduation-cap',
 			'color' => '#a97fe0',
 			'ability' => 'getAllParticipante',
 			'model' => \App\Models\User::class,
@@ -52,8 +57,9 @@
 				<i class="{{ $card['icon'] }}"></i>
 			</span>
 			<span class="kpi-text">
-				<span class="sidde-kpi-value">{{ number_format($card['value'], 0, ',', '.') }}</span>
 				<span class="sidde-kpi-label">{{ $card['label'] }}</span>
+				<span class="sidde-kpi-value">{{ number_format($card['value'], 0, ',', '.') }}</span>
+				<span class="sidde-kpi-unit">{{ $card['unit'] }}</span>
 			</span>
 		@if ($allowed)
 			</a>

@@ -8,19 +8,19 @@
 @import url("sidde-ui.css");
 
 .reports-page {
-    --rp-accent: #EF3E36;
-    --rp-accent-dark: #cf2f28;
-    --rp-accent-text: #b3271f;
-    --rp-ink: #1f2733;
-    --rp-muted: #6b7684;
-    --rp-muted-strong: #59616d;
-    --rp-surface: #ffffff;
-    --rp-surface-2: #f6f7f9;
-    --rp-border: #e3e6ea;
-    --rp-radius: 10px;
-    --rp-radius-sm: 6px;
-    --rp-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
-    --rp-shadow-lg: 0 8px 24px rgba(16, 24, 40, .10);
+    --rp-accent: var(--sidde-accent);
+    --rp-accent-dark: var(--sidde-accent-dark);
+    --rp-accent-text: var(--sidde-accent-text);
+    --rp-ink: var(--sidde-ink);
+    --rp-muted: var(--sidde-muted);
+    --rp-muted-strong: var(--sidde-muted-strong);
+    --rp-surface: var(--sidde-surface);
+    --rp-surface-2: var(--sidde-surface-2);
+    --rp-border: var(--sidde-border);
+    --rp-radius: var(--sidde-radius);
+    --rp-radius-sm: var(--sidde-radius-sm);
+    --rp-shadow: var(--sidde-shadow);
+    --rp-shadow-lg: var(--sidde-shadow-lg);
 
     color: var(--rp-ink);
 }

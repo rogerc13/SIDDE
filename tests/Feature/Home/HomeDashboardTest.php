@@ -235,4 +235,133 @@ class HomeDashboardTest extends TestCase
 
         $this->assertCount(HomeDashboardService::UPCOMING_LIMIT, $upcoming);
     }
+
+    public function test_cancelled_scheduled_courses_are_not_listed_as_upcoming(): void
+    {
+        [$cancelled] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CANCELADO]);
+        [$active] = $this->makeScheduled(null, ['start_date' => CarbonImmutable::today()->addDays(4)->toDateString()]);
+
+        $upcoming = app(HomeDashboardService::class)->overview()['upcomingScheduled'];
+
+        $this->assertCount(1, $upcoming);
+        $this->assertSame($active->id, $upcoming->first()->id);
+        $this->assertNotContains($cancelled->id, $upcoming->pluck('id')->all());
+    }
+
+    public function test_personalised_dashboards_title_their_panel_with_a_second_level_heading(): void
+    {
+        [$scheduled] = $this->makeScheduled();
+
+        $facilitator = User::factory()->facilitador()->create(['person_id' => $scheduled->facilitator->person_id]);
+        $facilitatorResponse = $this->actingAs($facilitator)->get('/home');
+
+        $facilitatorResponse->assertOk();
+        $facilitatorResponse->assertSee('<h2 class="sidde-panel-title">Mis próximas acciones de formación</h2>', false);
+        $facilitatorResponse->assertDontSee('<h4 class="sidde-panel-title"', false);
+
+        $participant = User::factory()->participante()->create();
+        Participant::create([
+            'person_id' => $participant->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+        $participantResponse = $this->actingAs($participant)->get('/home');
+
+        $participantResponse->assertOk();
+        $participantResponse->assertSee('<h2 class="sidde-panel-title">Mis acciones de formación</h2>', false);
+        $participantResponse->assertDontSee('<h4 class="sidde-panel-title"', false);
+    }
+
+    public function test_overview_renders_the_status_breakdown_widget(): void
+    {
+        $this->makeScheduled();
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Programas por estado');
+        $response->assertSee('Por Dictar');
+        $response->assertSee('Ver todas (1)');
+    }
+
+    public function test_overview_surfaces_the_activity_window_and_kpi_units(): void
+    {
+        $window = HomeDashboardService::ACTIVITY_WINDOW_DAYS;
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('en el catálogo');
+        $response->assertSee('próximos '.$window.' días');
+        $response->assertSee('activos · próximos '.$window.' días');
+    }
+
+    public function test_facilitator_dashboard_caps_the_list_and_reports_totals(): void
+    {
+        $total = HomeDashboardService::LIST_LIMIT + 2;
+        $rows = [];
+
+        for ($i = 1; $i <= $total; $i++) {
+            [$scheduled] = $this->makeScheduled(null, [
+                'start_date' => CarbonImmutable::today()->addDays($i)->toDateString(),
+                'end_date' => CarbonImmutable::today()->addDays($i + 5)->toDateString(),
+            ]);
+            $rows[] = $scheduled;
+        }
+
+        $facilitatorId = $rows[0]->facilitator_id;
+        foreach ($rows as $row) {
+            $row->update(['facilitator_id' => $facilitatorId]);
+        }
+
+        $user = User::factory()->facilitador()->create(['person_id' => $rows[0]->facilitator->person_id]);
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Ver todas ('.$total.')');
+        $response->assertSee('Cupos disponibles');
+        $response->assertSee($rows[0]->course->title);
+        $response->assertDontSee($rows[$total - 1]->course->title);
+    }
+
+    public function test_participant_dashboard_caps_the_list_and_reports_totals(): void
+    {
+        $total = HomeDashboardService::LIST_LIMIT + 2;
+        $rows = [];
+        $user = User::factory()->participante()->create();
+
+        for ($i = 1; $i <= $total; $i++) {
+            [$scheduled] = $this->makeScheduled();
+            Participant::create([
+                'person_id' => $user->person_id,
+                'scheduled_id' => $scheduled->id,
+                'participant_status_id' => Participant::ENCURSO,
+            ]);
+            $rows[] = $scheduled;
+        }
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Ver todas ('.$total.')');
+        $response->assertSee($rows[$total - 1]->course->title);
+        $response->assertDontSee($rows[0]->course->title);
+    }
+
+    public function test_participant_dashboard_links_to_programme_details(): void
+    {
+        [$scheduled] = $this->makeScheduled();
+        $user = User::factory()->participante()->create();
+        Participant::create([
+            'person_id' => $user->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('u/af_programadas/'.$scheduled->id.'/ver', false);
+    }
 }

@@ -1,11 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════
    SIDDE shared UI design system
-   Namespaced under .sidde-ui. Tokens mirror the values used by the
-   reports page so every screen shares one visual language. The legacy
-   red admin theme is the source of the accent colour.
+   Tokens live on :root so every consumer (.sidde-ui pages, the reports
+   page aliases) reads one source of truth. Component rules stay
+   namespaced under .sidde-ui. The legacy red admin theme is the source
+   of the accent colour.
    ═══════════════════════════════════════════════════════════════════ */
 
-.sidde-ui {
+:root {
     --sidde-accent: #EF3E36;
     --sidde-accent-dark: #cf2f28;
     --sidde-accent-text: #b3271f;
@@ -19,7 +20,9 @@
     --sidde-radius-sm: 6px;
     --sidde-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
     --sidde-shadow-lg: 0 8px 24px rgba(16, 24, 40, .10);
+}
 
+.sidde-ui {
     color: var(--sidde-ink);
 }
 
@@ -92,6 +95,26 @@
     color: var(--sidde-ink);
 }
 
+.sidde-ui .sidde-panel-caption {
+    font-size: 11px;
+    color: var(--sidde-muted-strong);
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-panel-link {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sidde-accent-text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.sidde-ui .sidde-panel-link:hover,
+.sidde-ui .sidde-panel-link:focus-visible {
+    text-decoration: underline;
+}
+
 .sidde-ui .sidde-panel-body {
     padding: 14px 18px 18px;
 }
@@ -141,6 +164,14 @@
 .sidde-ui .sidde-dashboard-kpis .sidde-kpi {
     min-width: 0;
     min-height: 104px;
+}
+
+.sidde-ui .sidde-dashboard-kpis.sidde-kpi-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sidde-ui .sidde-dashboard-kpis.sidde-kpi-strip .sidde-kpi {
+    min-height: 88px;
 }
 
 .sidde-ui .sidde-dashboard-main {
@@ -205,13 +236,25 @@
 }
 
 .sidde-ui .sidde-agenda-course-title {
-    display: block;
+    display: -webkit-box;
     overflow: hidden;
     color: var(--sidde-ink);
     font-size: 13px;
     font-weight: 600;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sidde-ui a.sidde-agenda-course-title {
+    text-decoration: none;
+}
+
+.sidde-ui a.sidde-agenda-course-title:hover,
+.sidde-ui a.sidde-agenda-course-title:focus-visible {
+    color: var(--sidde-accent-text);
+    text-decoration: underline;
 }
 
 .sidde-ui .sidde-agenda-course-sub,
@@ -258,6 +301,20 @@
     font-size: 12px;
 }
 
+.sidde-ui .sidde-count {
+    flex: 0 0 auto;
+    min-width: 28px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--sidde-surface-2);
+    border: 1px solid var(--sidde-border);
+    color: var(--sidde-ink);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 991px) {
     .sidde-ui .sidde-dashboard-kpis {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -269,19 +326,49 @@
 }
 
 @media (max-width: 767px) {
-    .sidde-ui .sidde-dashboard-kpis {
-        grid-template-columns: 1fr;
+    /* Two columns stay readable at phone widths; a single column only at
+       the narrowest breakpoint (see below). */
+    .sidde-ui .sidde-dashboard-kpis.sidde-kpi-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .sidde-ui .sidde-agenda-row {
-        grid-template-columns: 48px minmax(0, 1fr) 28px;
-        gap: 10px;
+        grid-template-columns: 48px minmax(0, 1fr) auto 28px;
+        grid-template-areas:
+            "date course status action"
+            "date meta   meta   meta";
+        gap: 6px 10px;
     }
 
-    .sidde-ui .sidde-agenda-meta,
-    .sidde-ui .sidde-agenda-row > .sidde-status,
+    .sidde-ui .sidde-agenda-date {
+        grid-area: date;
+    }
+
+    .sidde-ui .sidde-agenda-course {
+        grid-area: course;
+    }
+
+    .sidde-ui .sidde-agenda-meta {
+        grid-area: meta;
+        margin-top: 0;
+    }
+
+    .sidde-ui .sidde-agenda-row > .sidde-status {
+        grid-area: status;
+    }
+
     .sidde-ui .sidde-agenda-row > .sidde-action {
-        display: none;
+        grid-area: action;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidde-ui .sidde-dashboard-kpis {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sidde-ui .sidde-dashboard-kpis.sidde-kpi-strip {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -331,6 +418,108 @@
     text-align: center;
 }
 
+/* Stacked table rows: each cell becomes a label/value pair so the
+   personal panels stay readable without horizontal scrolling. */
+@media (max-width: 767px) {
+    .sidde-ui .sidde-table,
+    .sidde-ui .sidde-table > tbody,
+    .sidde-ui .sidde-table > tbody > tr {
+        display: block;
+    }
+
+    .sidde-ui .sidde-table > thead {
+        display: none;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr {
+        padding: 10px 16px;
+        border-top: 1px solid var(--sidde-border);
+    }
+
+    .sidde-ui .sidde-table > tbody > tr:first-child {
+        border-top: 0;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: 10px;
+        padding: 3px 0;
+        border-top: 0;
+        text-align: left;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td::before {
+        content: attr(data-label);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+        color: var(--sidde-muted-strong);
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td.text-center {
+        text-align: left;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td .btn {
+        justify-self: start;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td[colspan] {
+        display: block;
+        padding: 12px 0;
+    }
+
+    .sidde-ui .sidde-table > tbody > tr > td[colspan]::before {
+        content: none;
+    }
+}
+
+/* ── Accessible status colours ─────────────────────────────────────
+   The Neon palette pairs small white text with pastel accents
+   (e.g. #fad839 + white = 1.4:1). Inside the SIDDE UI scope badges and
+   info buttons use tinted backgrounds with dark text instead, all above
+   the 4.5:1 WCAG AA threshold for small text.
+   ─────────────────────────────────────────────────────────────── */
+.sidde-ui .badge.badge-warning {
+    background-color: #fdf3cd;
+    color: #7a5a00;
+}
+
+.sidde-ui .badge.badge-info {
+    background-color: #e3f4fb;
+    color: #0b5f80;
+}
+
+.sidde-ui .badge.badge-success {
+    background-color: #e6f6ec;
+    color: #0b6b34;
+}
+
+.sidde-ui .badge.badge-danger {
+    background-color: #fdeaea;
+    color: #a01e1e;
+}
+
+.sidde-ui .badge.badge-default,
+.sidde-ui .badge.badge-secondary {
+    background-color: #eceef1;
+    color: #4b5461;
+}
+
+.sidde-ui .btn.btn-info {
+    background-color: #0b6f9c;
+    border-color: #0b6f9c;
+    color: #fff;
+}
+
+.sidde-ui .btn.btn-info:hover,
+.sidde-ui .btn.btn-info:focus {
+    background-color: #095b80;
+    border-color: #095b80;
+}
+
 /* ── Focus + motion ──────────────────────────────────────────────── */
 .sidde-ui :focus-visible {
     outline: 2px solid var(--sidde-accent);
@@ -343,5 +532,137 @@
     .sidde-ui *::after {
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
+    }
+}
+
+/* ── Home dashboard ────────────────────────────────────────────────
+   Page-level additions for /home. They live here so this file stays
+   the single owner of the SIDDE landing-page look, including the
+   tablet/mobile shell rules that only the home page overrides.
+   ─────────────────────────────────────────────────────────────── */
+.home-dashboard {
+    padding-bottom: 24px;
+}
+
+.home-dashboard .sidde-kpi {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.home-dashboard a.sidde-kpi {
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home-dashboard a.sidde-kpi:hover,
+.home-dashboard a.sidde-kpi:focus-visible {
+    border-color: var(--sidde-accent);
+    box-shadow: var(--sidde-shadow-lg);
+}
+
+.home-dashboard .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--sidde-radius);
+    font-size: 24px;
+    color: #fff;
+    flex: 0 0 56px;
+}
+
+.home-dashboard .kpi-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.home-dashboard .sui-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    flex: 0 0 30px;
+}
+
+.home-dashboard .count-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sidde-accent-text);
+    background: #fdecea;
+    border: 1px solid #f6c9c4;
+}
+
+.home-dashboard .empty-state {
+    color: var(--sidde-muted-strong);
+    padding: 14px 18px;
+    font-size: 13px;
+}
+
+.home-dashboard .badge {
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-dashboard a.sidde-kpi {
+        transition: none;
+    }
+}
+
+/* Tablet/mobile shell: the sidebar becomes a full-width block above the
+   content. Neon leaves it as display:table-cell, which shrink-wraps to a
+   narrow island, so the display override is required alongside width. */
+@media (max-width: 991px) {
+    .home-page .page-container {
+        display: block;
+        padding-left: 0 !important;
+    }
+
+    .home-page .page-container .sidebar-menu {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        min-height: 0 !important;
+    }
+
+    .home-page .page-container .sidebar-menu.fixed .sidebar-menu-inner {
+        position: relative !important;
+        width: 100% !important;
+    }
+
+    .home-page .page-container .sidebar-menu .logo-env {
+        padding: 15px 20px;
+    }
+
+    .home-page .page-container .sidebar-menu .sidebar-collapse {
+        display: none !important;
+    }
+
+    .home-page .page-container .sidebar-menu .sidebar-mobile-menu {
+        display: block !important;
+    }
+
+    /* Collapsed by default like every other page, but NOT !important:
+       the menu toggle sets an inline display that !important would beat,
+       leaving the navigation permanently unreachable. */
+    .home-page .page-container .sidebar-menu #main-menu {
+        display: none;
+    }
+
+    .home-page .page-container .main-content {
+        display: block !important;
+        min-height: auto !important;
+        padding: 20px !important;
     }
 }

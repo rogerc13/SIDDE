@@ -1,6 +1,9 @@
 <section class="sidde-panel" aria-labelledby="upcoming-heading">
 	<div class="sidde-panel-heading">
-		<h2 class="sidde-panel-title hd-card-title" id="upcoming-heading">Próximas Acciones de Formación</h2>
+		<h2 class="sidde-panel-title" id="upcoming-heading">Próximas Acciones de Formación</h2>
+		@can('getAll', \App\Models\Scheduled::class)
+			<a class="sidde-panel-link" href="{{ url('u/af_programadas') }}">Ver todas</a>
+		@endcan
 	</div>
 	<div class="sidde-agenda">
 		@forelse ($dashboard['upcomingScheduled'] as $scheduled)
@@ -10,7 +13,11 @@
 					<span class="sidde-agenda-date-month">{{ \Carbon\Carbon::parse($scheduled->start_date)->locale('es')->translatedFormat('M') }}</span>
 				</div>
 				<div class="sidde-agenda-course">
-					<span class="sidde-agenda-course-title">{{ $scheduled->course->title }}</span>
+					@can('get', $scheduled)
+						<a class="sidde-agenda-course-title" href="{{ url('u/af_programadas/'.$scheduled->id.'/ver') }}">{{ $scheduled->course->title }}</a>
+					@else
+						<span class="sidde-agenda-course-title">{{ $scheduled->course->title }}</span>
+					@endcan
 					<span class="sidde-agenda-course-sub">{{ $scheduled->facilitator->person->name }} {{ $scheduled->facilitator->person->last_name }} · {{ $scheduled->participants_count }}/{{ $scheduled->course->capacity->first()->max ?? 0 }} registrados</span>
 				</div>
 				<span class="sidde-agenda-meta">Culmina @date($scheduled->end_date)</span>

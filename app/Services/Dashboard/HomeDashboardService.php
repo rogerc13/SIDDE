@@ -29,6 +29,12 @@ final class HomeDashboardService
     public const ACTIVE_LIMIT = 6;
 
     /**
+     * Rows a personalised panel renders before the "Ver todas" link takes
+     * over; keeps the landing page scannable when a user has many rows.
+     */
+    public const LIST_LIMIT = 10;
+
+    /**
      * Full organisation dashboard for Administrador / Tec. Educativa / Programador.
      *
      * @return array<string, mixed>
@@ -59,6 +65,9 @@ final class HomeDashboardService
     /**
      * Personalised dashboard for facilitadores: their own upcoming programmes.
      *
+     * The window-bounded query is cheap enough to aggregate over the whole
+     * set; only the rendered list is capped at {@see self::LIST_LIMIT}.
+     *
      * @return array<string, mixed>
      */
     public function forFacilitator(User $user): array
@@ -76,11 +85,17 @@ final class HomeDashboardService
                 ->orderBy('start_date')
                 ->get();
 
+        $seats = (int) $scheduled->sum(fn (Scheduled $item) => (int) ($item->course->capacity->first()->max ?? 0));
+        $registered = (int) $scheduled->sum('participants_count');
+
         return [
             'mode' => 'facilitator',
             'windowDays' => self::ACTIVITY_WINDOW_DAYS,
             'facilitator' => $facilitator,
-            'scheduled' => $scheduled,
+            'scheduled' => $scheduled->take(self::LIST_LIMIT)->values(),
+            'scheduledTotal' => $scheduled->count(),
+            'participantsTotal' => $registered,
+            'seatsAvailable' => max(0, $seats - $registered),
         ];
     }
 
@@ -106,7 +121,8 @@ final class HomeDashboardService
         return [
             'mode' => 'participant',
             'windowDays' => self::ACTIVITY_WINDOW_DAYS,
-            'participants' => $participants,
+            'participants' => $participants->take(self::LIST_LIMIT)->values(),
+            'participantsTotal' => $participants->count(),
         ];
     }
 
@@ -130,6 +146,9 @@ final class HomeDashboardService
     }
 
     /**
+     * Programmes that have not finished yet, nearest start first. Cancelled
+     * programmes are excluded so the panel never advertises a dead course.
+     *
      * @return Collection<int, Scheduled>
      */
     private function upcomingScheduled(): Collection
@@ -138,6 +157,7 @@ final class HomeDashboardService
             ->with(['course.capacity', 'facilitator.person', 'courseStatus'])
             ->withCount('participants')
             ->whereDate('end_date', '>=', $this->windowStart())
+            ->where('course_status_id', '!=', CourseStatus::CANCELADO)
             ->orderBy('start_date')
             ->limit(self::UPCOMING_LIMIT)
             ->get();

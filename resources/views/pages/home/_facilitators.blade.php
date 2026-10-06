@@ -1,6 +1,10 @@
 <section class="sidde-panel" aria-labelledby="active-facilitators-heading">
 	<div class="sidde-panel-heading">
-		<h2 class="sidde-panel-title hd-card-title" id="active-facilitators-heading">Facilitadores activos</h2>
+		<h2 class="sidde-panel-title" id="active-facilitators-heading">Facilitadores activos</h2>
+		<span class="sidde-panel-caption">Próximos {{ $dashboard['windowDays'] }} días</span>
+		@can('getAllFacilitador', \App\Models\User::class)
+			<a class="sidde-panel-link" href="{{ url('u/facilitadores') }}">Ver todos</a>
+		@endcan
 	</div>
 	<ul class="sidde-rail-list">
 		@forelse ($dashboard['activeFacilitators'] as $facilitator)
@@ -13,8 +17,8 @@
 					@endif
 					{{ $facilitator->person->name }} {{ $facilitator->person->last_name }}
 				</span>
-				<span class="count-pill" title="Sesiones en los próximos {{ $dashboard['windowDays'] }} días">
-					{{ $facilitator->upcoming_sessions_count }}
+				<span class="count-pill">
+					{{ (int) $facilitator->upcoming_sessions_count }} {{ (int) $facilitator->upcoming_sessions_count === 1 ? 'sesión' : 'sesiones' }}
 				</span>
 			</li>
 		@empty
