@@ -6,6 +6,12 @@
 
 <a href="javascript:crearLocation('{{ url('u/ubicaciones') }}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Crear / Editar Aula</a>
 
+<form action="pdf/locations" method="GET" style='all:unset'>
+    @csrf
+    <input type="hidden" name="hidden_name" value="{{ request()->name }}">
+    <button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Aulas</button>
+</form>
+
 <br><br>
 
 <div class="row filtros">

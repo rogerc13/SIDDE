@@ -33,6 +33,9 @@
 	@include('includes.admin.page-heading', ['icon' => 'entypo-calendar', 'title' => 'Acciones de Formación Programadas'])
 	@can('store','App\Models\Scheduled')
 		<a href="{{ url('u/af_programadas/crear') }}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
+	@endcan
+
+	@can('getAll','App\Models\Scheduled')
 		<form action="pdf/scheduled" method="GET" style='all:unset'>
 			@csrf
 			<input type="hidden" id="hidden_title" name="hidden_title" value="{{request()->titulos}}">
@@ -41,12 +44,10 @@
 			<input type="hidden" id="hidden_date" name="hidden_date" value="{{request()->fechas}}">
 			<button class="btn btn-blue print-list-button"><i class="fa fa-file-pdf-o"></i> Descargar Lista de Acciones de Formación Programadas</button> 
 		</form>
-		
-		<!-- <a href="{{url('u/pdf/scheduled')}}" class="btn btn-blue print-list-button"><i class="glyphicon glyphicon-print"></i> Descargar Lista de Acciones de Formación Programadas</a> -->
-
-		<br>
-		<br>
 	@endcan
+
+	<br>
+	<br>
 <div class="row filtros">
 	<div class="col-md-12">
 		<form class="form-horizontal" method="GET" action="{{ url('u/af_programadas') }}">

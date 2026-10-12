@@ -89,6 +89,37 @@ class PdfAccessTest extends TestCase
         $this->assertStringContainsString('registros', $html);
     }
 
+    public function test_admin_can_download_locations_pdf(): void
+    {
+        $admin = User::factory()->administrador()->create();
+
+        $this->actingAs($admin)->get('/u/pdf/locations')->assertOk();
+    }
+
+    public function test_facilitador_cannot_download_locations_pdf(): void
+    {
+        $facilitador = User::factory()->facilitador()->create();
+
+        $this->actingAs($facilitador)
+            ->from('/')
+            ->get('/u/pdf/locations')
+            ->assertRedirect('/');
+    }
+
+    public function test_locations_list_view_renders_rows_and_shared_layout(): void
+    {
+        \App\Models\Location::create(['name' => 'Aula de Prueba 321']);
+
+        $html = view('pdf.locations', [
+            'locations' => \App\Models\Location::with('floor.building')->get(),
+        ])->render();
+
+        $this->assertStringContainsString('Lista de Aulas', $html);
+        $this->assertStringContainsString('table class="data"', $html);
+        $this->assertStringContainsString('Aula de Prueba 321', $html);
+        $this->assertStringContainsString('registros', $html);
+    }
+
     public function test_admin_can_download_scheduled_course_participants_pdf(): void
     {
         $admin = User::factory()->administrador()->create();

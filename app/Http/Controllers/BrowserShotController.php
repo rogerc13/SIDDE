@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Scheduled;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Location;
 use App\Models\Funciones;
 
 use Illuminate\Http\Request;
@@ -43,6 +44,23 @@ class BrowserShotController extends Controller
 
         $pdf = Pdf::loadView('pdf.category',['categories' => $categories]);
         return $pdf->download('Lista de Áreas de Conocimiento.pdf');
+    }
+
+    public function locations(Request $request){
+        if (Auth::user()->cannot('getAll', Location::class)) {
+            return $this->denyRoster();
+        }
+
+        $locations = Location::with('floor.building')->orderBy('name');
+
+        if(!empty($request->hidden_name)){
+            $locations = $locations->where('name','LIKE',"%".Funciones::escapeLike($request->hidden_name)."%");
+        }
+
+        $locations = $locations->get();
+
+        $pdf = Pdf::loadView('pdf.locations', ['locations' => $locations]);
+        return $pdf->download('Lista de Aulas.pdf');
     }
 
 
