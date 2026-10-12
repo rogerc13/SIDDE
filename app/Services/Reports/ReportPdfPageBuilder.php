@@ -258,7 +258,8 @@ final class ReportPdfPageBuilder
             ],
             [
                 'kind' => 'table',
-                'title' => 'Acciones de Formación según cantidad de horas',
+                // All-time ranking (independent of the selected range).
+                'title' => 'Cursos con más horas de duración (Histórico)',
                 'columns' => ['Código', 'Título', 'Duración en Horas'],
                 'rows' => $mostDuration,
             ],

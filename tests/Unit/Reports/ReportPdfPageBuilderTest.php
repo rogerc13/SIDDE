@@ -42,6 +42,11 @@ class ReportPdfPageBuilderTest extends TestCase
         $this->assertCount(2, $tables);
         $this->assertSame('Curso A', $tables[0]['rows'][0][0]);
         $this->assertSame('C-1', $tables[1]['rows'][0][0]);
+
+        // The hours ranking is all-time, so its title must say so (unlike the
+        // range-scoped table above it).
+        $this->assertStringContainsString('durante el período', $tables[0]['title']);
+        $this->assertStringContainsString('Histórico', $tables[1]['title']);
     }
 
     public function test_most_scheduled_sums_collection_amounts(): void
