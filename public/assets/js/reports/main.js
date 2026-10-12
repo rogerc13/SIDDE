@@ -324,14 +324,10 @@ $(document).ready(function(){
             if (!el) {
                 return '';
             }
-            const panel = el.closest('.panel');
-            if (panel) {
-                const t = panel.querySelector('.panel-title');
-                if (t && t.textContent) {
-                    return t.textContent.replace(/\s+/g, ' ').trim();
-                }
-            }
-            return '';
+            const block = el.closest('.report-block');
+            const t = (block && block.querySelector('.report-block-title'))
+                || (el.closest('.panel') && el.closest('.panel').querySelector('.panel-title'));
+            return t && t.textContent ? t.textContent.replace(/\s+/g, ' ').trim() : '';
         }
 
         function canvasToPngDataUrl(canvas){

@@ -10,18 +10,14 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
     // Shared status palette (single source of truth, synced with the PDF).
     const getCourseStatusColor = (statusName) => paletteCourseStatusColor(statusName);
     $(".row-graphs")
-        .append(`<div class="col-md-6">
-            <div class="panel panel-success by-status-line-panel">
-                <div class="panel-heading">
-                    <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
-                </div>
-                <div class="panel-body">
-                    <div class="h-25 col-xs-12 col-md-12 graph-container">
-                        <canvas id="myChart"></canvas>
-                    </div>
+        .append(`<section class="report-block">
+            <h3 class="report-block-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</h3>
+            <div class="report-block-card is-chart">
+                <div class="graph-container">
+                    <canvas id="myChart"></canvas>
                 </div>
             </div>
-        </div>`);
+        </section>`);
 
     const ctx = document.getElementById('myChart'); //linear graph selector
 
@@ -121,18 +117,14 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
     // Doughnuts stop being legible past a handful of slices.
     if (doughnutData.length <= 6) {
         $(".row-graphs")
-            .append(`<div class="col-md-6">
-                <div class="panel panel-success by-status-doughnut-panel">
-                    <div class="panel-heading">
-                        <div class="panel-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="doughnut-container">
-                            <canvas id="doughnut"></canvas>
-                        </div>
+            .append(`<section class="report-block">
+                <h3 class="report-block-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</h3>
+                <div class="report-block-card is-chart">
+                    <div class="doughnut-container">
+                        <canvas id="doughnut"></canvas>
                     </div>
                 </div>
-            </div>`);
+            </section>`);
 
         const doughnut = document.getElementById('doughnut');
 
@@ -161,17 +153,17 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
     //list data table
 
     $(".table-col-helper").append(
-        `<div class="panel panel-success course-status-panel">
-        <div class="panel-heading">
-            <div class="panel-title">Cantidad de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</div>
-        </div>
-        <div class="panel-body with-table table-responsive"> 
+        `<section class="report-block course-status-panel">
+        <h3 class="report-block-title">Cantidad de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</h3>
+        <div class="report-block-card">
+        <div class="table-responsive">
         <table class="course-status-amount-table table table-striped table-bordered table-center">
             <thead></thead>
             <tbody></tbody>
         </table>
         </div>
-        </div>`
+        </div>
+        </section>`
     );
 
     $(".course-status-amount-table thead").append(`<tr>
@@ -181,19 +173,19 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
      $(".course-status-amount-table tbody").append(`<tr></tr>`);
     
     $(".table-col-helper")
-        .append(`<div class="panel panel-success courses-by-date-range-status">
-        <div class="panel-heading">
-            <div class="panel-title">Acciones de Formación Durante el período ${startFmt} - ${endFmt}</div>
-        </div>
-        <div class="panel-body with-table table-responsive">
+        .append(`<section class="report-block courses-by-date-range-status">
+        <h3 class="report-block-title">Acciones de Formación Durante el período ${startFmt} - ${endFmt}</h3>
+        <div class="report-block-card">
+                <div class="table-responsive">
                     <table class="course-list table table-striped table-bordered table-center">
                     <thead>
                     </thead>
                     <tbody>
                     </tbody>
                     </table>
+                </div>
         </div>
-                </div>`);
+                </section>`);
     $(".course-list thead").append(`<tr>
                         <th>Título</th>
                         <th>Fecha de Inicio</th>

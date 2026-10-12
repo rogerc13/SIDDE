@@ -29,30 +29,22 @@ export function reportByGender(response, payload = {}){
 
     // Graph containers
     $(".row-graphs").append(`
-        <div class="col-md-6">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <div class="panel-title">Distribución de Participantes por Género (Barras)</div>
-                </div>
-                <div class="panel-body">
-                    <div class="h-25 col-xs-12 col-md-12 graph-container">
-                        <canvas id="genderBar"></canvas>
-                    </div>
+        <section class="report-block">
+            <h3 class="report-block-title">Distribución de Participantes por Género (Barras)</h3>
+            <div class="report-block-card is-chart">
+                <div class="graph-container">
+                    <canvas id="genderBar"></canvas>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <div class="panel-title">Distribución de Participantes por Género (Dona)</div>
-                </div>
-                <div class="panel-body">
-                    <div class="doughnut-container">
-                        <canvas id="genderDoughnut"></canvas>
-                    </div>
+        </section>
+        <section class="report-block">
+            <h3 class="report-block-title">Distribución de Participantes por Género (Dona)</h3>
+            <div class="report-block-card is-chart">
+                <div class="doughnut-container">
+                    <canvas id="genderDoughnut"></canvas>
                 </div>
             </div>
-        </div>
+        </section>
     `);
 
     // Shared gender palette (single source of truth, synced with the PDF).
@@ -117,17 +109,17 @@ export function reportByGender(response, payload = {}){
 
     // Table (fixed columns: Masculino / Femenino / Total)
     $(".table-col-helper").append(
-        `<div class="panel panel-success" style="page-break-inside: avoid">
-            <div class="panel-heading">
-                <div class="panel-title">Cantidad de Participantes por Género durante el período ${startFmt} - ${endFmt}</div>
-            </div>
-            <div class="panel-body with-table table-responsive">
+        `<section class="report-block" style="page-break-inside: avoid">
+            <h3 class="report-block-title">Cantidad de Participantes por Género durante el período ${startFmt} - ${endFmt}</h3>
+            <div class="report-block-card">
+                <div class="table-responsive">
                 <table class="gender-amount-table table table-striped table-bordered table-center">
                     <thead></thead>
                     <tbody></tbody>
                 </table>
+                </div>
             </div>
-        </div>`
+        </section>`
     );
 
     $(".gender-amount-table thead").append(`<tr>

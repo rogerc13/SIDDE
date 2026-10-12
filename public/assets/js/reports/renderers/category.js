@@ -7,18 +7,14 @@ export function reportByCategory(response, payload = {}){
 
     renderReportHero({ meta: payload.meta });
     $(".row-graphs")
-        .append(`<div class="col-md-6">
-            <div class="panel panel-success line-graph-panel">
-                <div class="panel-heading">
-                    <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
-                </div>
-                <div class="panel-body">
-                    <div class="graph-container">
-                        <canvas id="myChart"></canvas>
-                    </div>
+        .append(`<section class="report-block">
+            <h3 class="report-block-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
+            <div class="report-block-card is-chart">
+                <div class="graph-container">
+                    <canvas id="myChart"></canvas>
                 </div>
             </div>
-        </div>`);
+        </section>`);
 
     const ctx = document.getElementById('myChart');
 
@@ -97,20 +93,14 @@ export function reportByCategory(response, payload = {}){
     // one when there are few enough categories. The bar chart always remains.
     if (chartEntries.length <= 6) {
         $(".row-graphs").append(`
-            <div class="col-md-6">
-                <div class="panel panel-success doughnut-panel">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-Distribución de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="doughnut-container">
-                            <canvas id="doughnut"></canvas>
-                        </div>
+            <section class="report-block">
+                <h3 class="report-block-title">Distribución de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
+                <div class="report-block-card is-chart">
+                    <div class="doughnut-container">
+                        <canvas id="doughnut"></canvas>
                     </div>
                 </div>
-            </div>`);
+            </section>`);
 
         const doughnutEl = document.getElementById('doughnut');
         new Chart(doughnutEl, {
@@ -136,18 +126,17 @@ Distribución de Acciones de Formación por Áreas de Conocimiento durante el pe
 
     //tables
     $(".table-col-helper")
-        .append(`<div class="panel panel-success course-by-category-list" style="page-break-inside: avoid">
-                    
-                    <div class="panel-heading">
-                        <div class="panel-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
-                    </div>         
-                    <div class="panel-body with-table table-responsive">   
+        .append(`<section class="report-block course-by-category-list" style="page-break-inside: avoid">
+                    <h3 class="report-block-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
+                    <div class="report-block-card">
+                    <div class="table-responsive">
                     <table class="course-category-list table table-striped table-bordered table-center">
                         <thead></thead>
                         <tbody></tbody>
                     </table>
                     </div>
-                </div>`);
+                    </div>
+                </section>`);
     
     $('.course-category-list thead').append(`<tr>
         <th>Área de Conocimiento</th>
@@ -162,17 +151,17 @@ Distribución de Acciones de Formación por Áreas de Conocimiento durante el pe
     // Paginate the (potentially long) category summary table
     initTablePagination(document.querySelector('.course-category-list'), 25);
     
-    $(".table-col-helper").append(`<div class="panel panel-success course-by-category-by-date-range" style="page-break-inside: avoid">
-            <div class="panel-heading">
-            <div class="panel-title">Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</div>
-        </div>
-            <div class="panel-body with-table table-responsive">
+    $(".table-col-helper").append(`<section class="report-block course-by-category-by-date-range" style="page-break-inside: avoid">
+            <h3 class="report-block-title">Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
+            <div class="report-block-card">
+                <div class="table-responsive">
                 <table class="course-data-category-list table table-striped table-bordered table-center">
                     <thead></thead>
                     <tbody></tbody>
                 </table>
+                </div>
             </div>
-        </div>`);
+        </section>`);
 
     $(".course-data-category-list thead").append(`<tr>
                         <th>Título</th>

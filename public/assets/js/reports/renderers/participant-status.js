@@ -11,30 +11,22 @@ export function reportByParticipantStatus(response, payload = {}){
 
     // Chart containers (were missing, so charts had no canvas to render into)
     $(".row-graphs").append(`
-        <div class="col-md-6">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <div class="panel-title">Distribución de Participantes por Estatus (Barras)</div>
-                </div>
-                <div class="panel-body">
-                    <div class="h-25 col-xs-12 col-md-12 graph-container">
-                        <canvas id="myChart"></canvas>
-                    </div>
+        <section class="report-block">
+            <h3 class="report-block-title">Distribución de Participantes por Estatus (Barras)</h3>
+            <div class="report-block-card is-chart">
+                <div class="graph-container">
+                    <canvas id="myChart"></canvas>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <div class="panel-title">Distribución de Participantes por Estatus (Dona)</div>
-                </div>
-                <div class="panel-body">
-                    <div class="doughnut-container">
-                        <canvas id="doughnut"></canvas>
-                    </div>
+        </section>
+        <section class="report-block">
+            <h3 class="report-block-title">Distribución de Participantes por Estatus (Dona)</h3>
+            <div class="report-block-card is-chart">
+                <div class="doughnut-container">
+                    <canvas id="doughnut"></canvas>
                 </div>
             </div>
-        </div>
+        </section>
     `);
 
     const start_date = (response.dateRange && response.dateRange.startDate)
@@ -137,17 +129,17 @@ export function reportByParticipantStatus(response, payload = {}){
     });
 
     $(".table-col-helper").append(
-        `<div class="panel panel-success participant-during-period-with-status">
-            <div class="panel-heading">
-                <div class="panel-title">Cantidad de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</div>
-            </div>
-            <div class="panel-body with-table table-responsive">
+        `<section class="report-block participant-during-period-with-status">
+            <h3 class="report-block-title">Cantidad de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</h3>
+            <div class="report-block-card">
+                <div class="table-responsive">
                 <table class="status-amount-table table table-striped table-bordered table-center">
                     <thead></thead>
                     <tbody></tbody>
                 </table>
+                </div>
             </div>
-        </div>`
+        </section>`
     );
 
     // Build a robust status -> count map (avoid depending on label order/indexes)
@@ -182,18 +174,18 @@ export function reportByParticipantStatus(response, payload = {}){
 
     // list of participants (all statuses) during the selected period
     $(".table-col-helper").append(
-        `<div class="panel panel-success participant-with-status">
-        <div class="panel-heading">
-            <div class="panel-title">Lista de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</div>
-        </div>
-        <div class="panel-body with-table table-responsive">
+        `<section class="report-block participant-with-status">
+        <h3 class="report-block-title">Lista de Participantes Durante el Período ${start_date_fmt} - ${end_date_fmt}</h3>
+        <div class="report-block-card">
+        <div class="table-responsive">
         <table class="all-time-list-table table table-striped table-bordered table-center">
 
                                 <thead></thead>
                                 <tbody></tbody>
                             </table>
         </div>
-        </div>`
+        </div>
+        </section>`
     );
 
     $(".all-time-list-table thead").append(`<tr>

@@ -92,8 +92,10 @@ export function initTablePagination(tableEl, pageSize){
             <button type="button" class="btn btn-default btn-sm report-pagination-next">Siguiente</button>
         `;
 
-        // Insert right after the table
-        tableEl.parentNode.insertBefore(controls, tableEl.nextSibling);
+        // Place the controls right after the card so they sit outside it
+        // (the card holds only the table).
+        const anchor = tableEl.closest('.report-block-card') || tableEl;
+        anchor.parentNode.insertBefore(controls, anchor.nextSibling);
     }
 
     renderTablePage(tableEl);

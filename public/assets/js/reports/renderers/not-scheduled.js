@@ -6,21 +6,19 @@ export function reportByCourseNotScheduled(response, payload = {}){
     if (response.data.length != 0) {
         renderReportHero({ meta: payload.meta });
 
-        $(".table-col-helper").append(`<div class="panel panel-success">
-            <div class="panel-heading">
-				<div class="panel-title">
-			  		Acciones de Formación No Programadas (Histórico)
-				</div>
-			</div>
-            <div class="panel-body with-table table-responsive">
+        $(".table-col-helper").append(`<section class="report-block">
+            <h3 class="report-block-title">Acciones de Formación No Programadas (Histórico)</h3>
+            <div class="report-block-card">
+                <div class="table-responsive">
                 <table class="course-list table table-striped table-bordered table-center">
                     <thead>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
+                </div>
             </div>
-        </div>`);
+        </section>`);
 
         $(".course-list thead").append(`<tr>
                                         <th>Código</th>

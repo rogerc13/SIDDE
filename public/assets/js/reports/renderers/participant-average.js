@@ -25,16 +25,14 @@ export function reportByParticipantAverage(response, payload = {}){
         return { x: d, y: round2(avg) };
     });
 
-    $(".row-graphs").append(`<div class="panel panel-success by-average-line">
-        <div class="panel-heading">
-            <div class="panel-title">Promedio de Participantes por Acción de Formación durante el Período ${startFmt} - ${endFmt}</div>
-        </div>
-        <div class="panel-body">
-            <div class="col-xs-12 col-md-12 graph-container">
+    $(".row-graphs").append(`<section class="report-block by-average-line">
+        <h3 class="report-block-title">Promedio de Participantes por Acción de Formación durante el Período ${startFmt} - ${endFmt}</h3>
+        <div class="report-block-card is-chart">
+            <div class="graph-container">
                 <canvas id="myChart"></canvas>
             </div>
         </div>
-    </div>`);
+    </section>`);
 
     renderReportHero({ meta: payload.meta });
 

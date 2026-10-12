@@ -8,11 +8,10 @@ export function reportByDuration(response, payload = {}){ //reports by course du
     //tables
     //Finished runs within the period (Culminado only)
     $(".table-col-helper")
-        .append(`<div class="panel panel-success courses-by-day-span">
-            <div class="panel-heading">
-                <div class="panel-title">Acciones de Formación Culminadas en el período según cantidad de horas y días que abarcan</div>
-            </div>
-            <div class="panel-body with-table table-responsive">
+        .append(`<section class="report-block courses-by-day-span">
+            <h3 class="report-block-title">Acciones de Formación Culminadas en el período según cantidad de horas y días que abarcan</h3>
+            <div class="report-block-card">
+            <div class="table-responsive">
             <table class="course-day-span-all-time-list table table-striped table-bordered table-center">
             
                 <thead>
@@ -21,7 +20,8 @@ export function reportByDuration(response, payload = {}){ //reports by course du
                 </tbody>
             </table>
             </div>
-            </div>`);
+            </div>
+            </section>`);
 
     $('.course-day-span-all-time-list thead').append(`<tr>
         <th>Título</th>
@@ -49,11 +49,10 @@ export function reportByDuration(response, payload = {}){ //reports by course du
 
     //Most duration hours — all-time, independent of the selected period
     $(".table-col-helper")
-        .append(`<div class="panel panel-success courses-by-hours">
-        <div class="panel-heading">
-            <div class="panel-title">Cursos con más horas de duración (Histórico)</div>
-        </div>
-        <div class="panel-body with-table table-responsive">
+        .append(`<section class="report-block courses-by-hours">
+        <h3 class="report-block-title">Cursos con más horas de duración (Histórico)</h3>
+        <div class="report-block-card">
+        <div class="table-responsive">
         <table class="course-most-duration-all-time-list table table-striped table-bordered table-center">
                 <thead>
                 </thead>
@@ -61,7 +60,8 @@ export function reportByDuration(response, payload = {}){ //reports by course du
                 </tbody>
             </table>
         </div>
-        </div>`);
+        </div>
+        </section>`);
 
     $('.course-most-duration-all-time-list thead').append(`<tr>
     <th>Código</th>

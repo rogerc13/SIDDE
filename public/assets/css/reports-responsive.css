@@ -363,10 +363,35 @@
     margin: 0 0 16px;
 }
 
-.reports-page .row-graphs > [class*="col-"] {
+.reports-page .row-graphs > [class*="col-"],
+.reports-page .row-graphs > .report-block {
     width: 100%;
+    min-width: 0;
     float: none;
     padding: 0;
+}
+
+/* ── Result blocks (charts + tables) ─────────────────────────────── */
+/* A block is a heading plus a card that holds only the visual: the
+   table or the chart canvas. Nothing else lives inside the card. */
+.reports-page .report-block-title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--rp-ink);
+}
+
+.reports-page .report-block-card {
+    background: var(--rp-surface);
+    border: 1px solid var(--rp-border);
+    border-radius: var(--rp-radius);
+    box-shadow: var(--rp-shadow);
+    overflow: hidden;
+}
+
+.reports-page .report-block-card.is-chart {
+    padding: 14px 18px 18px;
 }
 
 .reports-page .panel {
@@ -421,8 +446,13 @@
 }
 
 .reports-page .table-col-helper .panel-body,
-.reports-page .table-col-helper .report-card__body {
+.reports-page .table-col-helper .report-card__body,
+.reports-page .report-block-card .table-responsive {
     overflow-x: auto;
+}
+
+.reports-page .report-block-card .table-responsive {
+    margin: 0;
 }
 
 .reports-page table {
@@ -563,13 +593,15 @@
     }
 
     .reports-page .row-graphs > [class*="col-"],
-    .reports-page .row-graphs > .panel {
+    .reports-page .row-graphs > .panel,
+    .reports-page .row-graphs > .report-block {
         width: 100% !important;
         page-break-inside: avoid;
         margin-bottom: 12px;
     }
 
     .reports-page .panel,
+    .reports-page .report-block-card,
     .reports-page .report-summary .kpi-card {
         box-shadow: none;
         border-color: #ccc;

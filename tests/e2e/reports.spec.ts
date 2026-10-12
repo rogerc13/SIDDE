@@ -80,6 +80,28 @@ test.describe('Reports', () => {
         await expect(page.locator('.report-toolbar')).toBeVisible();
     });
 
+    test('result blocks keep the title and pagination outside the card', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        await page.selectOption('#report-type', 'category');
+        await page.click('.generate');
+
+        // Chart block: the heading sits outside the card that holds the canvas.
+        const chartBlock = page.locator('.row-graphs .report-block').first();
+        await expect(chartBlock.locator('.report-block-title')).toBeVisible({ timeout: 15000 });
+        await expect(chartBlock.locator('.report-block-card canvas')).toBeAttached();
+        await expect(chartBlock.locator('.report-block-card .report-block-title')).toHaveCount(0);
+
+        // Table block: heading and pagination are outside the card.
+        const tableBlock = page.locator('.table-col-helper .report-block').first();
+        await expect(tableBlock.locator('.report-block-title')).toBeVisible();
+        await expect(tableBlock.locator('.report-block-card table')).toBeAttached();
+        await expect(tableBlock.locator('.report-block-card .report-block-title')).toHaveCount(0);
+        await expect(tableBlock.locator('.report-block-card .report-pagination-controls')).toHaveCount(0);
+        await expect(tableBlock.locator(':scope > .report-pagination-controls')).toHaveCount(1);
+    });
+
     test('reports page has no serious accessibility violations', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto('/reports');

@@ -14,6 +14,23 @@ export function emptyState(message) {
 }
 
 /**
+ * Title of the result block a canvas/table belongs to. Prefers the block
+ * heading (now rendered outside the card), falling back to a legacy
+ * in-card panel title.
+ */
+function blockTitle(el) {
+    if (!el) {
+        return '';
+    }
+
+    const block = el.closest('.report-block');
+    const titleEl = (block && block.querySelector('.report-block-title'))
+        || (el.closest('.panel') && el.closest('.panel').querySelector('.panel-title'));
+
+    return titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : '';
+}
+
+/**
  * Give every report table an accessible caption and column scopes.
  */
 export function enhanceReportTables(root) {
@@ -21,10 +38,7 @@ export function enhanceReportTables(root) {
 
     scope.querySelectorAll('table').forEach((table) => {
         if (!table.querySelector('caption')) {
-            const panel = table.closest('.panel');
-            const title = panel && panel.querySelector('.panel-title')
-                ? panel.querySelector('.panel-title').textContent.replace(/\s+/g, ' ').trim()
-                : '';
+            const title = blockTitle(table);
 
             if (title) {
                 const caption = document.createElement('caption');
@@ -54,12 +68,7 @@ export function applyCanvasA11y(root) {
         }
 
         if (!canvas.getAttribute('aria-label')) {
-            const panel = canvas.closest('.panel');
-            const title = panel && panel.querySelector('.panel-title')
-                ? panel.querySelector('.panel-title').textContent.replace(/\s+/g, ' ').trim()
-                : '';
-
-            canvas.setAttribute('aria-label', title || 'Gráfico del reporte');
+            canvas.setAttribute('aria-label', blockTitle(canvas) || 'Gráfico del reporte');
         }
     });
 }

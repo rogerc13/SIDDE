@@ -3,16 +3,14 @@ export function reportByDate(response, payload = {}){ //reports by date
     refresh();
     const startDateFmt = formatServerDate(response.start_date);
     const endDateFmt = formatServerDate(response.end_date);
-    $(".row-graphs").append(`<div class="panel panel-success by-date-line">
-        <div class="panel-heading">
-            <div class="panel-title">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</div>
-        </div>    
-        <div class="panel-body">
-            <div class="h-25 col-xs-12 col-md-12 graph-container">
+    $(".row-graphs").append(`<section class="report-block by-date-line">
+        <h3 class="report-block-title">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</h3>
+        <div class="report-block-card is-chart">
+            <div class="graph-container">
                 <canvas id="myChart"></canvas>
             </div>
         </div>
-        </div>`);
+        </section>`);
 
     renderReportHero({ meta: payload.meta });
 

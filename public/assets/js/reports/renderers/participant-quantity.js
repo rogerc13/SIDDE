@@ -13,13 +13,10 @@ export function reportByParticipantQuantity(response, payload = {}){
         renderReportHero({ meta: payload.meta });
 
         //draw list
-        $(".table-col-helper").append(`<div class="panel panel-success">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    Acciones de Formación por Cantidad de Participantes
-                </div>
-            </div>
-            <div class="panel-body with-table table-responsive">
+        $(".table-col-helper").append(`<section class="report-block">
+            <h3 class="report-block-title">Acciones de Formación por Cantidad de Participantes</h3>
+            <div class="report-block-card">
+            <div class="table-responsive">
             <table class="course-list table table-striped table-bordered table-center">
                 <thead>
                 </thead>
@@ -27,7 +24,8 @@ export function reportByParticipantQuantity(response, payload = {}){
                 </tbody>
             </table>
             </div>
-            </div>`);
+            </div>
+            </section>`);
 
         $('.course-list thead').append(`<tr>
         <th>Título</th>
