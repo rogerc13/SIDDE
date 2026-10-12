@@ -139,6 +139,29 @@ class ReportSuiteTest extends TestCase
         }
     }
 
+    public function test_summary_actions_kpi_tracks_the_selected_range(): void
+    {
+        // Two actions inside the recent window, three in the older one.
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(3)->toDateString());
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(4)->toDateString());
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(60)->toDateString());
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(61)->toDateString());
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(62)->toDateString());
+
+        $actions = fn (array $payload) => (int) collect(
+            $this->actingAs($this->admin())->post('/reports/summary', $payload)->json('kpis')
+        )->firstWhere('key', 'actions')['value'];
+
+        $recent = $actions($this->range());
+        $older = $actions([
+            'start_date' => now()->subDays(75)->toDateString(),
+            'end_date' => now()->subDays(45)->toDateString(),
+        ]);
+
+        $this->assertSame(2, $recent);
+        $this->assertSame(3, $older);
+    }
+
     public function test_export_csv_downloads_a_file(): void
     {
         $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(3)->toDateString());

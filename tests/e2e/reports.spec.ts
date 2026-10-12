@@ -214,6 +214,33 @@ test.describe('Reports', () => {
         await expect(chart.or(emptyState).first()).toBeVisible();
     });
 
+    test('preset date range is submitted with the report and KPI requests', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        // Presets lock the date inputs; the range must still be submitted.
+        await page.click('.date-preset-btn[data-preset="year"]');
+
+        const expectedStart = `${new Date().getFullYear()}-01-01`;
+
+        const summaryRequest = page.waitForRequest(
+            (req) => req.url().includes('/reports/summary') && req.method() === 'POST',
+        );
+        const reportRequest = page.waitForRequest(
+            (req) => req.url().includes('/reports/date') && req.method() === 'POST',
+        );
+
+        await page.click('.generate');
+
+        const summaryBody = (await summaryRequest).postData() ?? '';
+        const reportBody = (await reportRequest).postData() ?? '';
+
+        for (const body of [summaryBody, reportBody]) {
+            expect(body).toContain(`start_date=${expectedStart}`);
+            expect(body).toMatch(/end_date=\d{4}-\d{2}-\d{2}/);
+        }
+    });
+
     test('participant by status exposes its status filter', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto('/reports');

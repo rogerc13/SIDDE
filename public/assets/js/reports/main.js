@@ -8,6 +8,33 @@ $(document).ready(function(){
     // Sync chart colors with the backend palette (single source of truth).
     loadTheme();
 
+    /**
+     * Serialize the filter form while guaranteeing the selected date range is
+     * always submitted. Presets lock the date inputs (disabled), and jQuery's
+     * serialize() drops disabled fields, which previously made every request
+     * fall back to the server's default range.
+     */
+    function reportFormFields() {
+        var fields = $('.report-form').serializeArray().filter(function (item) {
+            return item.name !== 'start_date' && item.name !== 'end_date';
+        });
+
+        var start = $('#start_date').val();
+        var end = $('#end_date').val();
+        if (start) {
+            fields.push({ name: 'start_date', value: start });
+        }
+        if (end) {
+            fields.push({ name: 'end_date', value: end });
+        }
+
+        return fields;
+    }
+
+    function serializeReportForm() {
+        return $.param(reportFormFields());
+    }
+
     // Sorting: use event delegation so it works for dynamically generated report tables.
     $(document)
         .off('click.reportSort', '.table-col-helper table thead th')
@@ -291,7 +318,7 @@ $(document).ready(function(){
         }
 
         const action = '/reports/pdf';
-        const data = $form.serializeArray();
+        const data = reportFormFields();
 
         function getPanelTitleFor(el){
             if (!el) {
@@ -421,7 +448,7 @@ $(document).ready(function(){
                 $('#participant_status').val('');
             }
 
-            let formData = $('.report-form').serialize();
+            let formData = serializeReportForm();
             // Keep the executive KPI strip aligned with the chosen range.
             loadSummary();
             //reset graph container
@@ -565,7 +592,7 @@ $(document).ready(function(){
 
         $.ajax({
             type: "POST",
-            data: $('.report-form').serialize(),
+            data: serializeReportForm(),
             url: '/reports/summary',
             dataType: 'json',
             success: function (summary) {
@@ -579,10 +606,14 @@ $(document).ready(function(){
         e.preventDefault();
 
         var format = $(this).data('format') || 'csv';
-        var $clone = $('.report-form').clone();
-        $clone.attr('method', 'POST').attr('action', '/reports/export');
-        $clone.append('<input type="hidden" name="format" value="' + format + '">');
-        $clone.appendTo('body').hide().submit().remove();
+        var fields = reportFormFields();
+        fields.push({ name: 'format', value: format });
+
+        var $form = $('<form>', { method: 'POST', action: '/reports/export' }).hide();
+        fields.forEach(function (item) {
+            $('<input>', { type: 'hidden', name: item.name, value: item.value ?? '' }).appendTo($form);
+        });
+        $form.appendTo('body').submit().remove();
     });
 
     // Populate the KPI strip on first load.
