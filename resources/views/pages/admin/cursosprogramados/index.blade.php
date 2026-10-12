@@ -30,7 +30,7 @@
 
 
 @endpush
-	<h3>Acciones de Formación Programadas</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-calendar', 'title' => 'Acciones de Formación Programadas'])
 	@can('store','App\Models\Scheduled')
 		<a href="{{ url('u/af_programadas/crear') }}" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Programar Acción de Formación</a>
 		<form action="pdf/scheduled" method="GET" style='all:unset'>

@@ -2,7 +2,7 @@
 
 @section('content')
 	
-	<h3>Facilitadores</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-users', 'title' => 'Facilitadores'])
 
 	<a href="javascript:crearFacilitador('{{url('u/facilitadores')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo Facilitador</a>
 

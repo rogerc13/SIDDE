@@ -20,7 +20,7 @@
 @endpush
 
 
-	<h3>Mis acciones de formación</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-list', 'title' => 'Mis acciones de formación'])
 
 	<br>
 	<form action="pdf/mycourses" method="GET" style='all:unset'>

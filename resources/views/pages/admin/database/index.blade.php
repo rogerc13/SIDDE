@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-	<h3>Administrador</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-tools', 'title' => 'Administrador'])
 
 	<div class="row">
 		<div class="col-md-12">

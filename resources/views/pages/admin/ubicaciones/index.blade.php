@@ -2,7 +2,7 @@
 
 @section('content')
 
-<h3>Gestión de Aulas</h3>
+@include('includes.admin.page-heading', ['icon' => 'entypo-location', 'title' => 'Gestión de Aulas'])
 
 <a href="javascript:crearLocation('{{ url('u/ubicaciones') }}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Crear / Editar Aula</a>
 

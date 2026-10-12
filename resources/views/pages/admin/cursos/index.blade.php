@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-	<h3>Acciones de Formación</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-book-open', 'title' => 'Acciones de Formación'])
 	<a href="javascript:crearAccion('{{url('u/acciones_formacion')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva acción de formación</a>
 	<form action="pdf/courses" method="GET" style='all:unset'>
 			@csrf

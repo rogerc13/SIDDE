@@ -1058,3 +1058,36 @@
 .sidde-profile .sidde-form-actions .btn + .btn {
     margin-left: 8px;
 }
+
+/* ── Page heading (index pages) ──────────────────────────────────────
+   Title with the section's sidebar icon. Mirrors the reports page
+   header; colours are literal because sidde-ui tokens aren't loaded on
+   the legacy admin pages. */
+.page-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 16px;
+}
+
+.page-heading .page-heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 10px;
+    background: #fdecea;
+    color: #b3271f;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.page-heading .page-heading-title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #1f2733;
+}

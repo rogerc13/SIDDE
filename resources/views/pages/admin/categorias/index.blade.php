@@ -2,7 +2,7 @@
 
 @section('content')	
 
-	<h3>Áreas de Conocimiento</h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-tag', 'title' => 'Áreas de Conocimiento'])
 
 	<a href="javascript:crearCategoria('{{url('u/areas')}}')" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Nueva Área de Conocimiento</a>
   	<form action="pdf/categories" method="GET" style='all:unset'>
