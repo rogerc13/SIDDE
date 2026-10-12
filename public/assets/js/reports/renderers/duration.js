@@ -1,22 +1,9 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByDuration(response){ //reports by course duration
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByDuration(response, payload = {}){ //reports by course duration
     console.log("duration");
 
     refresh();
-    const startFmt = formatServerDate(response.dateRange && response.dateRange.startDate ? response.dateRange.startDate : '');
-    const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
-
-    const deltaBadge = (value) => {
-        if (value === null || value === undefined) return '';
-        const cls = value > 0 ? 'text-success' : value < 0 ? 'text-danger' : '';
-        const sign = value > 0 ? '+' : '';
-        return cls ? ` <span class="${cls}">${sign}${value}% vs período anterior</span>` : '';
-    };
-
-    $(".course-amount-number").html(
-        `<h3>Total de horas impartidas durante el período ${startFmt} - ${endFmt} : ${response.finishedByDateRange} Horas` +
-        deltaBadge(response.hoursDelta) + `</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     //tables
     //Finished runs within the period (Culminado only)

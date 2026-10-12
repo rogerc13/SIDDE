@@ -1,5 +1,5 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByDate(response){ //reports by date
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByDate(response, payload = {}){ //reports by date
     refresh();
     const startDateFmt = formatServerDate(response.start_date);
     const endDateFmt = formatServerDate(response.end_date);
@@ -14,10 +14,7 @@ export function reportByDate(response){ //reports by date
         </div>
         </div>`);
 
-    $('.course-amount-number span').html("");
-    $(".course-amount-number span").append(
-        `<h3 class="text-center">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     // Build array of {x, y} objects for time-based line chart, just like the other working graphs
     let lineData = [];

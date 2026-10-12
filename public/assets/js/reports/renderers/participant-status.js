@@ -1,16 +1,10 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByParticipantStatus(response){
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByParticipantStatus(response, payload = {}){
     //reports by participant status
     console.log("participant-by-status");
     refresh();
 
-    const totalParticipants = (response.byAllTime || []).length;
-    const approvalRate = response.approvalRate;
-    $(".course-amount-number").html(
-        `<h3>Participantes en el período: ${totalParticipants}` +
-        (approvalRate !== null ? ` &middot; Tasa de aprobación: ${approvalRate}%` : '') +
-        `</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     // Shared status palette (single source of truth, synced with the PDF).
     const getParticipantStatusColor = (statusName) => paletteParticipantStatusColor(statusName);

@@ -1,7 +1,7 @@
 import { $, moment } from "./globals.js";
 export function refresh(){
-    // keep the inner span: several renderers write summaries into it
-    $(".course-amount-number").html("<span></span>");
+    // The hero is fully re-rendered by renderReportHero() in each renderer.
+    $(".course-amount-number").html("");
     $('.row-graphs').html('');
     $(".table-col-helper").html("");
 }

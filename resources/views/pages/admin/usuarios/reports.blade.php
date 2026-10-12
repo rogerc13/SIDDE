@@ -15,7 +15,7 @@
         <div>
             <div class="report-eyebrow">Reportes</div>
             <h1 class="report-title">S.I.D.D.E. Reportes</h1>
-            <p class="report-subtitle" id="report-range-label">Seleccione los filtros y genere un reporte.</p>
+            <p class="report-subtitle">Analice las acciones de formación por período, área, estatus y participantes.</p>
         </div>
     </div>
 
@@ -87,12 +87,7 @@
         </form>
     </div>
 
-    <div class="row">
-        <div class="course-amount-number">
-            <span></span>
-        </div>
-        <div class="course-pie-graph"></div>
-    </div>
+    <div class="course-amount-number" aria-live="polite"></div>
 
     <div class="report-summary row hidden" aria-live="polite"></div>
     <div class="report-insight hidden" aria-live="polite"></div>

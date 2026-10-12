@@ -1,12 +1,10 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByCourseNotScheduled(response){
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByCourseNotScheduled(response, payload = {}){
     console.log("not-scheduled");
     refresh();
     //draw table and show amount of courses
     if (response.data.length != 0) {
-        $(".course-amount-number").append(
-            `<h3>Cantidad de Acciones de Formación No Programadas (Histórico): ${response.data.length}</h3>`
-        );
+        renderReportHero({ meta: payload.meta });
 
         $(".table-col-helper").append(`<div class="panel panel-success">
             <div class="panel-heading">
@@ -38,9 +36,7 @@ export function reportByCourseNotScheduled(response){
                                     </tr>`);
         });
     } else {
-        $(".course-amount-number").append(
-            "<h3>No existen Acciones de Formación sin programar</h3>"
-        );
+        renderReportHero({ meta: payload.meta, empty: 'No existen Acciones de Formación sin programar' });
     }
 
     // Paginate the (potentially long) not-scheduled list

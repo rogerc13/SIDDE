@@ -1,5 +1,5 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByCourseMostScheduled(response){ //reports by course most scheduled
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByCourseMostScheduled(response, payload = {}){ //reports by course most scheduled
     console.log("most-scheduled");
     //draw list of courses
     refresh();
@@ -29,7 +29,6 @@ export function reportByCourseMostScheduled(response){ //reports by course most 
         <th>Cantidad</th>
     </tr>`);
 
-    let totalAmountOfCourses = 0;
     sorted.forEach((element) => {
         const amount = amountOf(element) || 0;
         $(".course-list tbody").append(`<tr>
@@ -37,12 +36,9 @@ export function reportByCourseMostScheduled(response){ //reports by course most 
                                     <td>${element.title}</td>
                                     <td>${amount}
                                     </td></tr>`);
-        totalAmountOfCourses = totalAmountOfCourses + amount;
     });
 
-    $('.course-amount-number span').html(
-        `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     // Paginate the (potentially long) historical most-scheduled list
     initTablePagination(document.querySelector('.course-list'), 25);

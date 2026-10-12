@@ -1,6 +1,6 @@
-import { $, refresh, initTablePagination } from '../shared.js';
+import { $, refresh, renderReportHero, initTablePagination } from '../shared.js';
 
-export function reportByCourseLeastScheduled(response) {
+export function reportByCourseLeastScheduled(response, payload = {}) {
     refresh();
 
     // Sort by scheduled-run count, ascending (a "least scheduled" ranking),
@@ -35,7 +35,6 @@ export function reportByCourseLeastScheduled(response) {
         <th>Cantidad</th>
     </tr>`);
 
-    let totalAmountOfCourses = 0;
     sorted.forEach((element) => {
         const amount = amountOf(element) || 0;
         $(".course-list tbody").append(`<tr>
@@ -43,12 +42,9 @@ export function reportByCourseLeastScheduled(response) {
                                     <td>${element.title}</td>
                                     <td>${amount}
                                     </td></tr>`);
-        totalAmountOfCourses = totalAmountOfCourses + amount;
     });
 
-    $('.course-amount-number span').html(
-        `<h3>Cantidad Total de Cursos Programados: ${totalAmountOfCourses}</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     // Paginate the (potentially long) historical least-scheduled list
     initTablePagination(document.querySelector('.course-list'), 25);

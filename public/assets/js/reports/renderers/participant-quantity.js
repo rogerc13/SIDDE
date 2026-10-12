@@ -1,5 +1,5 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByParticipantQuantity(response){
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByParticipantQuantity(response, payload = {}){
     //reports by participant quantity
     console.log("participant-by-quantity");
     refresh();
@@ -10,15 +10,7 @@ export function reportByParticipantQuantity(response){
         : [];
 
     if (withParticipants.length !== 0) {
-        const fillRows = withParticipants.filter((e) => e.fillRate !== null);
-        const avgFill = fillRows.length
-            ? Math.round(fillRows.reduce((s, e) => s + Number(e.fillRate), 0) / fillRows.length)
-            : null;
-        $(".course-amount-number span").html(
-            `<h3>Acciones de Formación con Participantes en el período: ${withParticipants.length}` +
-            (avgFill !== null ? ` &middot; Ocupación promedio: ${avgFill}%` : '') +
-            `</h3>`
-        );
+        renderReportHero({ meta: payload.meta });
 
         //draw list
         $(".table-col-helper").append(`<div class="panel panel-success">
@@ -55,7 +47,7 @@ export function reportByParticipantQuantity(response){
             </tr>`);
         });
     } else {
-        $('.course-amount-number').append('<h3>No existen Acciones de Formación con participantes asignados en este período de tiempo</h3>');
+        renderReportHero({ meta: payload.meta, empty: 'No existen Acciones de Formación con participantes asignados' });
     }
 
     // Paginate the (potentially long) participant-quantity table

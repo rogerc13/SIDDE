@@ -1,4 +1,4 @@
-import { $ , moment, decorateSortableReportTables, initTablePagination, renderTablePage, getPaginationState, sortTableByColumn, participantStatusSelect, loadTheme, formatServerDate } from './shared.js';
+import { $ , moment, decorateSortableReportTables, initTablePagination, renderTablePage, getPaginationState, sortTableByColumn, participantStatusSelect, loadTheme } from './shared.js';
 import { renderers } from './renderers/index.js';
 import { applyCanvasA11y, enhanceReportTables } from './ui.js';
 $(document).ready(function(){
@@ -481,14 +481,15 @@ $(document).ready(function(){
 
                 const renderer = renderers[selected];
                 if (typeof renderer === 'function') {
-                    renderer(data);
+                    // Pass both the report-specific data and the full envelope
+                    // (renderers read the canonical title/dates from payload.meta).
+                    renderer(data, payload);
                 }
 
                 // After the report draws its tables, mark headers as sortable.
                 decorateSortableReportTables($('.table-col-helper'));
                 enhanceReportTables(document.querySelector('.table-col-helper'));
                 applyCanvasA11y(document.querySelector('.row-graphs'));
-                updateRangeLabel(payload);
                 $('.reports-page').removeClass('is-loading').removeAttr('aria-busy');
             }, 
             error:function(response){
@@ -499,26 +500,6 @@ $(document).ready(function(){
             });
             e.preventDefault();
         });
-
-    /**
-     * Reflect the active period in the page subtitle.
-     */
-    function updateRangeLabel(payload) {
-        var $label = $('#report-range-label');
-        if (!$label.length) {
-            return;
-        }
-
-        var meta = (payload && payload.meta) || {};
-        var start = meta.startDate ? formatServerDate(meta.startDate) : '';
-        var end = meta.endDate ? formatServerDate(meta.endDate) : '';
-
-        if (start && end) {
-            $label.text('Período: ' + start + ' – ' + end);
-        } else {
-            $label.text('Histórico completo');
-        }
-    }
 
     /**
      * Render the deterministic executive summary paragraphs.

@@ -162,6 +162,52 @@
     border-color: var(--rp-border);
 }
 
+/* ── Results heading ─────────────────────────────────────────────── */
+.reports-page .course-amount-number:empty {
+    display: none;
+}
+
+.reports-page .report-result-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin: 0 0 16px;
+    padding: 2px 0 14px;
+    border-bottom: 1px solid var(--rp-border);
+}
+
+.reports-page .report-result-titles {
+    min-width: 0;
+    padding-left: 12px;
+    border-left: 4px solid var(--rp-accent);
+}
+
+.reports-page .report-result-title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--rp-ink);
+}
+
+.reports-page .report-result-period {
+    margin: 4px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--rp-muted-strong);
+}
+
+.reports-page .report-result-empty {
+    align-self: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rp-muted-strong);
+}
+
 /* ── KPI hero grid ───────────────────────────────────────────────── */
 .reports-page .row-graphs,
 .reports-page .report-summary {

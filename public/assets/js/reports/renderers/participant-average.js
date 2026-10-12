@@ -1,5 +1,5 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByParticipantAverage(response){
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByParticipantAverage(response, payload = {}){
     console.log("participant-average");
     refresh();
     const rows = Array.isArray(response.data) ? response.data : [];
@@ -7,9 +7,7 @@ export function reportByParticipantAverage(response){
     const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
 
     if (rows.length === 0) {
-        $(".course-amount-number").append(
-            `<h3>No existen Acciones de Formación en el período ${startFmt} - ${endFmt}</h3>`
-        );
+        renderReportHero({ meta: payload.meta, empty: 'No existen Acciones de Formación' });
         return;
     }
 
@@ -27,8 +25,6 @@ export function reportByParticipantAverage(response){
         return { x: d, y: round2(avg) };
     });
 
-    const overallAvgTotal = round2(rows.reduce((s, r) => s + (Number(r.total) || 0), 0) / rows.length);
-
     $(".row-graphs").append(`<div class="panel panel-success by-average-line">
         <div class="panel-heading">
             <div class="panel-title">Promedio de Participantes por Acción de Formación durante el Período ${startFmt} - ${endFmt}</div>
@@ -40,10 +36,7 @@ export function reportByParticipantAverage(response){
         </div>
     </div>`);
 
-    $('.course-amount-number span').html("");
-    $(".course-amount-number span").append(
-        `<h3 class="text-center">Promedio de Participantes por Acción de Formación: ${overallAvgTotal}</h3>`
-    );
+    renderReportHero({ meta: payload.meta });
 
     const palette = [
         { label: 'Promedio de Participantes', key: 'total', color: categoryColor(0) },

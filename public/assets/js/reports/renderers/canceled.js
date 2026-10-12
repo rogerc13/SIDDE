@@ -1,5 +1,5 @@
-import { $, Chart, moment, refresh, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
-export function reportByCanceled(response){
+import { $, Chart, moment, refresh, renderReportHero, formatServerDate, initTablePagination, decorateSortableReportTables, buildSeriesFor, applySmartLineMarkers, getMaxYFromDatasets, shouldConnectLineGaps, categoryColor, othersColor, courseStatusColor as paletteCourseStatusColor, participantStatusColor as paletteParticipantStatusColor, genderColor as paletteGenderColor, hexToRgba } from "../shared.js";
+export function reportByCanceled(response, payload = {}){
     console.log("canceled");
     refresh();
     const list = Array.isArray(response.data) ? response.data : [];
@@ -7,9 +7,7 @@ export function reportByCanceled(response){
     const endFmt = formatServerDate(response.dateRange && response.dateRange.endDate ? response.dateRange.endDate : '');
 
     if (list.length !== 0) {
-        $(".course-amount-number span").html(
-            `<h3>Cantidad de Acciones de Formación Canceladas ${startFmt} - ${endFmt}: ${response.total ?? list.length}</h3>`
-        );
+        renderReportHero({ meta: payload.meta });
 
         $(".table-col-helper").append(`<div class="panel panel-success">
             <div class="panel-heading">
@@ -45,9 +43,7 @@ export function reportByCanceled(response){
                                     </tr>`);
         });
     } else {
-        $(".course-amount-number").append(
-            `<h3>No existen Acciones de Formación Canceladas en el período ${startFmt} - ${endFmt}</h3>`
-        );
+        renderReportHero({ meta: payload.meta, empty: 'No existen Acciones de Formación Canceladas' });
     }
 
     // Paginate the (potentially long) canceled-courses table

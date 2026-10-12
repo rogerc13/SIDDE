@@ -198,7 +198,7 @@ test.describe('Reports', () => {
 
         // either the table renders or the friendly empty-state message does
         const table = page.locator('.table-col-helper table.course-list');
-        const emptyState = page.locator('.course-amount-number h3', { hasText: 'Canceladas' });
+        const emptyState = page.locator('.report-result-header', { hasText: 'Canceladas' });
         await expect(table.or(emptyState).first()).toBeVisible();
     });
 
@@ -210,7 +210,7 @@ test.describe('Reports', () => {
         await page.click('.generate');
 
         const chart = page.locator('#myChart');
-        const emptyState = page.locator('.course-amount-number h3', { hasText: 'No existen' });
+        const emptyState = page.locator('.report-result-header', { hasText: 'No existen' });
         await expect(chart.or(emptyState).first()).toBeVisible();
     });
 
@@ -238,6 +238,36 @@ test.describe('Reports', () => {
         for (const body of [summaryBody, reportBody]) {
             expect(body).toContain(`start_date=${expectedStart}`);
             expect(body).toMatch(/end_date=\d{4}-\d{2}-\d{2}/);
+        }
+    });
+
+    test('every report type renders the standardized results hero', async ({ page }) => {
+        test.slow();
+
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        const types = [
+            'date', 'category', 'status', 'duration', 'canceled',
+            'participant-by-quantity', 'participant-by-status', 'participant-average',
+            'gender', 'most-scheduled', 'least-scheduled', 'not-scheduled',
+        ];
+
+        for (const type of types) {
+            await page.selectOption('#report-type', type);
+            await page.click('.generate');
+
+            const header = page.locator('.report-result-header');
+            const title = header.locator('.report-result-title');
+            const period = header.locator('.report-result-period');
+
+            await expect(title, `${type}: hero title`).toBeVisible({ timeout: 15000 });
+            await expect(title, `${type}: hero title text`).not.toBeEmpty();
+
+            // Every report shows the heading and its period ("Histórico" for
+            // the range-independent reports).
+            await expect(period, `${type}: hero period`).toBeVisible();
+            await expect(period, `${type}: hero period text`).not.toBeEmpty();
         }
     });
 
