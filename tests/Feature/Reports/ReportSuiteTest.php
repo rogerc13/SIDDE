@@ -117,6 +117,23 @@ class ReportSuiteTest extends TestCase
         }
     }
 
+    public function test_date_report_counts_actions_for_a_daily_range(): void
+    {
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(3)->toDateString());
+        $this->makeScheduled(CourseStatus::EN_CURSO, now()->subDays(2)->toDateString());
+
+        $response = $this->actingAs($this->admin())
+            ->post('/reports/date', $this->range() + ['step' => '1 day']);
+
+        $response->assertOk();
+        $data = $response->json('raw');
+
+        // Daily buckets used to collapse to zero because the bucket end was
+        // set equal to its start, so every run landed outside every bucket.
+        $this->assertSame(2, $data['total']);
+        $this->assertSame(2, array_sum($data['y']));
+    }
+
     public function test_summary_endpoint_returns_documented_kpis(): void
     {
         $this->makeScheduled(CourseStatus::CULMINADO, now()->subDays(3)->toDateString());

@@ -305,11 +305,14 @@ test.describe('Reports', () => {
         }
     });
 
-    test('every report type renders the standardized results hero', async ({ page }) => {
+    test('every report type renders the standardized results hero without errors', async ({ page }) => {
         test.slow();
 
         await loginAs(page, 'admin');
         await page.goto('/reports');
+
+        const problems: string[] = [];
+        page.on('pageerror', (err) => problems.push(`pageerror: ${err.message}`));
 
         const types = [
             'date', 'category', 'status', 'duration', 'canceled',
@@ -333,6 +336,22 @@ test.describe('Reports', () => {
             await expect(period, `${type}: hero period`).toBeVisible();
             await expect(period, `${type}: hero period text`).not.toBeEmpty();
         }
+
+        expect(problems, problems.join('\n')).toEqual([]);
+    });
+
+    test('status report renders its chart and detail table rows', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        await page.selectOption('#report-type', 'status');
+        await page.click('.generate');
+
+        // The course list is built by the renderer; it used to crash on an
+        // implicit global, leaving the table empty.
+        const rows = page.locator('.table-col-helper .report-block table tbody tr');
+        await expect(rows.first()).toBeVisible({ timeout: 15000 });
+        expect(await rows.count()).toBeGreaterThan(0);
     });
 
     test('participant by status exposes its status filter', async ({ page }) => {

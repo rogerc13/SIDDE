@@ -41,9 +41,11 @@ final class DateBuckets
         foreach ($this->dates as $k => $start) {
             $isLast = $k === $last;
 
+            // Half-open [start, next boundary); the last bucket is inclusive
+            // up to the range end (see bucketIndexFor). Works for daily too.
             $buckets[] = [
                 'start' => $start,
-                'end' => $this->day ? $start : ($this->dates[min($k + 1, $last)] ?? $start),
+                'end' => $this->dates[min($k + 1, $last)] ?? $start,
                 'isLast' => $isLast,
             ];
         }

@@ -55,7 +55,7 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
     const maxY = getMaxYFromDatasets(statuses);
 
     //doughnut data
-    courseData = response.courseData;
+    const courseData = response.courseData;
 
     let doughnutData = [];
     let doughnutLabels = [];

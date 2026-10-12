@@ -16,7 +16,7 @@ final class ProvidedCharts
     /**
      * @param  array<string, mixed>  $charts
      */
-    private function __construct(private readonly array $charts)
+    public function __construct(private readonly array $charts = [])
     {
     }
 
