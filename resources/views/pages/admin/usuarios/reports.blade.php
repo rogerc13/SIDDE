@@ -12,11 +12,7 @@
 <img class="hidden-lg hidden-md hidden-sm hidden-xs visible-print" src="{{asset('assets/images/PDV_S.A._logo.svg')}}" alt="">
 <div class="container-fluid reports-page">
     <div class="report-page-header">
-        <div>
-            <div class="report-eyebrow">Reportes</div>
-            <h1 class="report-title">S.I.D.D.E. Reportes</h1>
-            <p class="report-subtitle">Analice las acciones de formación por período, área, estatus y participantes.</p>
-        </div>
+        <h1 class="report-title">S.I.D.D.E. Reportes</h1>
     </div>
 
     <div class="report-toolbar hidden-print">

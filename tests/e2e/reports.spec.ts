@@ -199,9 +199,7 @@ test.describe('Reports', () => {
             };
 
             const selectors = [
-                '.report-eyebrow',
                 '.report-title',
-                '.report-subtitle',
                 '.report-form .control-label',
                 '.report-summary .kpi-label',
                 '.report-summary .kpi-value',
