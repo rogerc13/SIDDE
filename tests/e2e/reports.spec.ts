@@ -102,6 +102,35 @@ test.describe('Reports', () => {
         await expect(tableBlock.locator(':scope > .report-pagination-controls')).toHaveCount(1);
     });
 
+    test('chart canvases carry a stable key for the PDF', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        await page.selectOption('#report-type', 'category');
+        await page.click('.generate');
+
+        await expect(page.locator('.row-graphs canvas[data-chart-key="category_bar"]')).toBeAttached({ timeout: 15000 });
+        await expect(page.locator('.row-graphs canvas[data-chart-key="category_doughnut"]')).toBeAttached();
+    });
+
+    test('print submits the charts keyed for the PDF', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        await page.selectOption('#report-type', 'category');
+        await page.click('.generate');
+        await expect(page.locator('.row-graphs canvas[data-chart-key="category_bar"]')).toBeAttached({ timeout: 15000 });
+
+        const requestPromise = page.waitForRequest(
+            (req) => req.url().includes('/reports/pdf') && req.method() === 'POST',
+        );
+        await page.click('.print-report');
+
+        const body = (await requestPromise).postData() ?? '';
+        expect(body).toContain('charts%5Bcategory_bar%5D');
+        expect(body).toContain('data%3Aimage%2Fpng%3Bbase64');
+    });
+
     test('table column headers use the project green', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto('/reports');

@@ -29,7 +29,7 @@ export function reportByParticipantAverage(response, payload = {}){
         <h3 class="report-block-title">Promedio de Participantes por Acción de Formación durante el Período ${startFmt} - ${endFmt}</h3>
         <div class="report-block-card is-chart">
             <div class="graph-container">
-                <canvas id="myChart"></canvas>
+                <canvas id="myChart" data-chart-key="participant_average_line"></canvas>
             </div>
         </div>
     </section>`);

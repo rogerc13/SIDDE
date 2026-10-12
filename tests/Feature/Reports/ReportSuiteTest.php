@@ -244,16 +244,39 @@ class ReportSuiteTest extends TestCase
         $this->assertLessThan((int) $amounts[$common->course_id], (int) $amounts[$rare->course_id]);
     }
 
-    public function test_pdf_download_returns_a_pdf(): void
+    public function test_pdf_download_returns_a_pdf_for_representative_report_types(): void
     {
         $this->makeScheduled(CourseStatus::CULMINADO, now()->subDays(3)->toDateString());
 
-        foreach (['date', 'least-scheduled'] as $type) {
+        // A representative mix: chart + table, ranged + historical.
+        $types = ['date', 'category', 'gender', 'least-scheduled'];
+
+        foreach ($types as $type) {
             $this->actingAs($this->admin())
                 ->post('/reports/pdf', $this->range() + ['report-type' => $type])
                 ->assertOk()
-                ->assertHeader('content-type', 'application/pdf');
+                ->assertHeader('content-type', 'application/pdf')
+                ->assertDownload();
         }
+    }
+
+    public function test_pdf_accepts_browser_supplied_charts(): void
+    {
+        $this->makeScheduled(CourseStatus::CULMINADO, now()->subDays(3)->toDateString());
+
+        $png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+        $this->actingAs($this->admin())
+            ->post('/reports/pdf', $this->range() + [
+                'report-type' => 'category',
+                'charts' => [
+                    'category_bar' => ['title' => 'Gráfico', 'image' => $png],
+                    'category_doughnut' => ['title' => 'Dona', 'image' => $png],
+                ],
+            ])
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertDownload();
     }
 
     public function test_options_endpoint_exposes_registry_and_palette(): void

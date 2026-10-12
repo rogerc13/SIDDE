@@ -14,7 +14,7 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
             <h3 class="report-block-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</h3>
             <div class="report-block-card is-chart">
                 <div class="graph-container">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="myChart" data-chart-key="status_bar"></canvas>
                 </div>
             </div>
         </section>`);
@@ -121,7 +121,7 @@ export function reportByCourseStatus(response, payload = {}){ //reports by cours
                 <h3 class="report-block-title">Distribución de Acciones de Formación por Estatus durante el período ${startFmt} - ${endFmt}</h3>
                 <div class="report-block-card is-chart">
                     <div class="doughnut-container">
-                        <canvas id="doughnut"></canvas>
+                        <canvas id="doughnut" data-chart-key="status_doughnut"></canvas>
                     </div>
                 </div>
             </section>`);

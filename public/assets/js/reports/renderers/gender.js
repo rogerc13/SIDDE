@@ -33,7 +33,7 @@ export function reportByGender(response, payload = {}){
             <h3 class="report-block-title">Distribución de Participantes por Género (Barras)</h3>
             <div class="report-block-card is-chart">
                 <div class="graph-container">
-                    <canvas id="genderBar"></canvas>
+                    <canvas id="genderBar" data-chart-key="gender_bar"></canvas>
                 </div>
             </div>
         </section>
@@ -41,7 +41,7 @@ export function reportByGender(response, payload = {}){
             <h3 class="report-block-title">Distribución de Participantes por Género (Dona)</h3>
             <div class="report-block-card is-chart">
                 <div class="doughnut-container">
-                    <canvas id="genderDoughnut"></canvas>
+                    <canvas id="genderDoughnut" data-chart-key="gender_doughnut"></canvas>
                 </div>
             </div>
         </section>

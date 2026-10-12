@@ -4,25 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Enums\ReportType;
 use App\Services\Reports\InsightBuilder;
-use App\Services\Reports\PuppeteerChartRenderer;
+use App\Services\Reports\ProvidedCharts;
 use App\Services\Reports\ReportQueryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 class ReportPdfController extends Controller
 {
     private const DISPLAY_DATE_FORMAT = 'd-m-Y';
 
-    /**
-     * @var array<int, array{title?: string, image?: string}>
-     */
-    private array $providedCharts = [];
+    private ?ProvidedCharts $providedCharts = null;
 
     public function __construct(
-        private readonly PuppeteerChartRenderer $chartRenderer,
         private readonly ReportQueryService $queries,
         private readonly InsightBuilder $insights,
     ) {
@@ -32,8 +27,7 @@ class ReportPdfController extends Controller
     {
         $type = (string) $request->input('report-type', '');
 
-        $charts = $request->input('charts', []);
-        $this->providedCharts = is_array($charts) ? array_values(array_filter($charts, fn ($c) => is_array($c))) : [];
+        $this->providedCharts = ProvidedCharts::fromRequest($request);
 
         $allowed = array_map(fn (ReportType $type) => $type->value, ReportType::cases());
 
@@ -164,52 +158,23 @@ class ReportPdfController extends Controller
     }
 
     /**
-     * @param  array<string, mixed>  $chartConfig
+     * A chart page for the given key, or null when the browser didn't supply
+     * an image. Reports omit the chart instead of showing a failure message.
+     *
+     * @return array<string, mixed>|null
      */
-    private function safeRenderChart(array $chartConfig): ?string
+    private function chartPage(string $key, string $title): ?array
     {
-        try {
-            return $this->chartRenderer->renderChartToDataUri($chartConfig);
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
+        $image = $this->providedCharts?->image($key);
 
-    private function consumeProvidedChart(?string $fallbackTitle = null): ?array
-    {
-        if (count($this->providedCharts) === 0) {
-            return null;
-        }
-
-        $chart = array_shift($this->providedCharts);
-        if (! is_array($chart)) {
-            return null;
-        }
-
-        $img = $chart['image'] ?? null;
-        if (! is_string($img) || ! str_starts_with($img, 'data:image/')) {
+        if ($image === null) {
             return null;
         }
 
         return [
             'kind' => 'chart',
-            'title' => (string) ($chart['title'] ?? $fallbackTitle ?? ''),
-            'image' => $img,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function chartFailurePage(string $title): array
-    {
-        return [
-            'kind' => 'table',
             'title' => $title,
-            'columns' => ['Mensaje'],
-            'rows' => [[
-                'No se pudo generar el gráfico automáticamente en el servidor. Se incluye la tabla/datos disponibles.',
-            ]],
+            'image' => $image,
         ];
     }
 
@@ -218,71 +183,17 @@ class ReportPdfController extends Controller
      */
     private function pagesByDate(array $data): array
     {
-        $x = Arr::get($data, 'x', []);
-        $y = Arr::get($data, 'y', []);
         $start = (string) Arr::get($data, 'start_date', '');
         $end = (string) Arr::get($data, 'end_date', '');
         $startDisplay = $this->formatDateForDisplay($start);
         $endDisplay = $this->formatDateForDisplay($end);
         $total = (int) Arr::get($data, 'total', 0);
 
-        $labels = array_map(fn ($v) => (string) $v, (array) $x);
-        $values = [];
-        foreach ($labels as $idx => $date) {
-            $count = $y[$idx] ?? null;
-            $values[] = is_numeric($count) ? (int) $count : 0;
-        }
-
         $title = "Cantidad de Acciones de Formación durante el Período {$startDisplay} - {$endDisplay} : {$total}";
 
-        $chartConfig = [
-            'type' => 'line',
-            'data' => [
-                'labels' => $labels,
-                'datasets' => [[
-                    'label' => 'Cantidad de Acciones de Formación',
-                    'data' => $values,
-                    'borderColor' => 'rgb(75, 192, 192)',
-                    'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                    'borderWidth' => 3,
-                    'tension' => 0.35,
-                    'spanGaps' => true,
-                    'pointRadius' => 0,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-                'scales' => [
-                    'x' => [
-                        'type' => 'category',
-                        'title' => ['display' => true, 'text' => 'Período de Tiempo'],
-                    ],
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['stepSize' => 1, 'precision' => 0],
-                    ],
-                ],
-            ],
-        ];
+        $page = $this->chartPage('date_line', $title);
 
-        if ($provided = $this->consumeProvidedChart($title)) {
-            return [$provided];
-        }
-
-        $img = $this->safeRenderChart($chartConfig);
-        if (! $img) {
-            return [$this->chartFailurePage($title)];
-        }
-
-        return [[
-            'kind' => 'chart',
-            'title' => $title,
-            'image' => $img,
-        ]];
+        return $page !== null ? [$page] : [];
     }
 
     /**
@@ -290,14 +201,6 @@ class ReportPdfController extends Controller
      */
     private function pagesByCategory(array $data): array
     {
-        $palette = [
-            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
-        ];
-
-        $x = (array) Arr::get($data, 'x', []);
-        $rows = (array) Arr::get($data, 'y', []);
-        $categories = (array) Arr::get($data, 'categories', []);
         $courseData = (array) Arr::get($data, 'courseData', []);
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
@@ -305,91 +208,17 @@ class ReportPdfController extends Controller
         $startDisplay = $this->formatDateForDisplay($start);
         $endDisplay = $this->formatDateForDisplay($end);
 
-        $labels = array_map(fn ($v) => (string) $v, (array) $x);
-        $datasets = [];
-        foreach ($categories as $i => $categoryName) {
-            $values = [];
-            foreach ($labels as $date) {
-                $found = collect($rows)->first(function ($r) use ($categoryName, $date) {
-                    return ($r['category'] ?? null) === $categoryName && ($r['x'] ?? null) === $date;
-                });
-                $value = $found['y'] ?? null;
-                $values[] = is_numeric($value) ? (int) $value : 0;
-            }
-
-            $datasets[] = [
-                'label' => $categoryName,
-                'data' => $values,
-                'borderColor' => $palette[$i % count($palette)],
-                'backgroundColor' => $palette[$i % count($palette)],
-                'borderWidth' => 2,
-                'tension' => 0.25,
-                'spanGaps' => true,
-                'pointRadius' => 0,
-            ];
-        }
-
         $lineTitle = "Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período {$startDisplay} - {$endDisplay}";
-
-        $lineConfig = [
-            'type' => 'line',
-            'data' => ['labels' => $labels, 'datasets' => $datasets],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $lineTitle],
-                ],
-                'scales' => [
-                    'x' => [
-                        'type' => 'category',
-                        'title' => ['display' => true, 'text' => 'Período de Tiempo'],
-                    ],
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['stepSize' => 1, 'precision' => 0],
-                        'title' => ['display' => true, 'text' => 'Cantidad de Acciones de Formación'],
-                    ],
-                ],
-            ],
-        ];
-
         $doughnutTitle = "Distribución de Acciones de Formación por Áreas de Conocimiento durante el período {$startDisplay} - {$endDisplay}";
-        $doughnutLabels = [];
-        $doughnutData = [];
-        $doughnutColors = [];
-
-        foreach ($courseData as $i => $row) {
-            $doughnutLabels[] = (string) ($row['categoryName'] ?? '');
-            $doughnutData[] = (int) ($row['amount'] ?? 0);
-            $doughnutColors[] = $palette[$i % count($palette)];
-        }
-
-        $doughnutConfig = [
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => $doughnutLabels,
-                'datasets' => [[
-                    'data' => $doughnutData,
-                    'backgroundColor' => $doughnutColors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $doughnutTitle],
-                ],
-            ],
-        ];
 
         $pages = [];
 
-        $pages[] = $this->consumeProvidedChart($lineTitle)
-            ?? (($img = $this->safeRenderChart($lineConfig)) ? ['kind' => 'chart', 'title' => $lineTitle, 'image' => $img] : $this->chartFailurePage($lineTitle));
-
-        $pages[] = $this->consumeProvidedChart($doughnutTitle)
-            ?? (($img = $this->safeRenderChart($doughnutConfig)) ? ['kind' => 'chart', 'title' => $doughnutTitle, 'image' => $img] : $this->chartFailurePage($doughnutTitle));
+        if ($page = $this->chartPage('category_bar', $lineTitle)) {
+            $pages[] = $page;
+        }
+        if ($page = $this->chartPage('category_doughnut', $doughnutTitle)) {
+            $pages[] = $page;
+        }
 
         $pages[] = [
             'kind' => 'table',
@@ -429,14 +258,6 @@ class ReportPdfController extends Controller
      */
     private function pagesByStatus(array $data): array
     {
-        $palette = [
-            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
-        ];
-
-        $x = (array) Arr::get($data, 'x', []);
-        $rows = (array) Arr::get($data, 'y', []);
-        $statuses = (array) Arr::get($data, 'statuses', []);
         $courseData = (array) Arr::get($data, 'courseData', []);
         $range = Arr::get($data, 'dateRange', ['startDate' => '', 'endDate' => '']);
         $start = (string) Arr::get($range, 'startDate', '');
@@ -444,90 +265,23 @@ class ReportPdfController extends Controller
         $startDisplay = $this->formatDateForDisplay($start);
         $endDisplay = $this->formatDateForDisplay($end);
 
-        $labels = array_map(fn ($v) => (string) $v, (array) $x);
-        $datasets = [];
-        foreach ($statuses as $i => $statusName) {
-            $values = [];
-            foreach ($labels as $date) {
-                $found = collect($rows)->first(function ($r) use ($statusName, $date) {
-                    return ($r['status'] ?? null) === $statusName && ($r['x'] ?? null) === $date;
-                });
-                $value = $found['y'] ?? null;
-                $values[] = is_numeric($value) ? (int) $value : 0;
-            }
-
-            $datasets[] = [
-                'label' => $statusName,
-                'data' => $values,
-                'borderColor' => $palette[$i % count($palette)],
-                'backgroundColor' => $palette[$i % count($palette)],
-                'borderWidth' => 2,
-                'tension' => 0.25,
-                'spanGaps' => true,
-                'pointRadius' => 0,
-            ];
-        }
-
-        $lineTitle = "Distribución de Acciones de Formación por Estatus durante el período {$startDisplay} - {$endDisplay}";
-
-        $lineConfig = [
-            'type' => 'line',
-            'data' => ['labels' => $labels, 'datasets' => $datasets],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $lineTitle],
-                ],
-                'scales' => [
-                    'x' => [
-                        'type' => 'category',
-                        'title' => ['display' => true, 'text' => 'Período de Tiempo'],
-                    ],
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['stepSize' => 1, 'precision' => 0],
-                        'title' => ['display' => true, 'text' => 'Cantidad de Acciones de Formación'],
-                    ],
-                ],
-            ],
-        ];
+        $chartTitle = "Distribución de Acciones de Formación por Estatus durante el período {$startDisplay} - {$endDisplay}";
 
         $doughnutLabels = [];
         $doughnutData = [];
-        $doughnutColors = [];
-
-        foreach ($courseData as $i => $row) {
+        foreach ($courseData as $row) {
             $doughnutLabels[] = (string) ($row['statusName'] ?? '');
             $doughnutData[] = (int) ($row['amount'] ?? 0);
-            $doughnutColors[] = $palette[$i % count($palette)];
         }
-
-        $doughnutConfig = [
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => $doughnutLabels,
-                'datasets' => [[
-                    'data' => $doughnutData,
-                    'backgroundColor' => $doughnutColors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $lineTitle],
-                ],
-            ],
-        ];
 
         $pages = [];
 
-        $pages[] = $this->consumeProvidedChart($lineTitle)
-            ?? (($img = $this->safeRenderChart($lineConfig)) ? ['kind' => 'chart', 'title' => $lineTitle, 'image' => $img] : $this->chartFailurePage($lineTitle));
-
-        $pages[] = $this->consumeProvidedChart($lineTitle)
-            ?? (($img = $this->safeRenderChart($doughnutConfig)) ? ['kind' => 'chart', 'title' => $lineTitle, 'image' => $img] : $this->chartFailurePage($lineTitle));
+        if ($page = $this->chartPage('status_bar', $chartTitle)) {
+            $pages[] = $page;
+        }
+        if ($page = $this->chartPage('status_doughnut', $chartTitle)) {
+            $pages[] = $page;
+        }
 
         $pages[] = [
             'kind' => 'table',
@@ -644,73 +398,17 @@ class ReportPdfController extends Controller
             }
         }
 
-        $chartLabels = array_keys($statusTotals);
-        $chartData = array_values($statusTotals);
-
-        $palette = [
-            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
-        ];
-
-        $colors = [];
-        foreach ($chartLabels as $i => $lbl) {
-            $colors[] = $palette[$i % count($palette)];
-        }
-
-        $title = "Distribución de Participantes por Estatus en el Período {$startDisplay} - {$endDisplay}";
-
-        $barConfig = [
-            'type' => 'bar',
-            'data' => [
-                'labels' => $chartLabels,
-                'datasets' => [[
-                    'data' => $chartData,
-                    'backgroundColor' => $colors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => false],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-                'scales' => [
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['stepSize' => 1, 'precision' => 0],
-                    ],
-                ],
-            ],
-        ];
-
-        $doughnutConfig = [
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => $chartLabels,
-                'datasets' => [[
-                    'data' => $chartData,
-                    'backgroundColor' => $colors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-            ],
-        ];
-
         $pages = [];
 
         $barPageTitle = 'Distribución de Participantes por Estatus (Barras)';
         $doughnutPageTitle = 'Distribución de Participantes por Estatus (Dona)';
 
-        $pages[] = $this->consumeProvidedChart($barPageTitle)
-            ?? (($img = $this->safeRenderChart($barConfig)) ? ['kind' => 'chart', 'title' => $barPageTitle, 'image' => $img] : $this->chartFailurePage($barPageTitle));
-
-        $pages[] = $this->consumeProvidedChart($doughnutPageTitle)
-            ?? (($img = $this->safeRenderChart($doughnutConfig)) ? ['kind' => 'chart', 'title' => $doughnutPageTitle, 'image' => $img] : $this->chartFailurePage($doughnutPageTitle));
+        if ($page = $this->chartPage('participant_status_bar', $barPageTitle)) {
+            $pages[] = $page;
+        }
+        if ($page = $this->chartPage('participant_status_doughnut', $doughnutPageTitle)) {
+            $pages[] = $page;
+        }
 
         // Fixed order (as used in frontend)
         $statusOrder = ['En Curso', 'Reprobado', 'Aprobado', 'Cancelado', 'Por Iniciar'];
@@ -799,59 +497,7 @@ class ReportPdfController extends Controller
         $endDisplay = $this->formatDateForDisplay($end);
 
         $rows = (array) Arr::get($data, 'rows', []);
-        $labels = array_map(fn ($r) => (string) ($r['label'] ?? ''), $rows);
-        $values = array_map(fn ($r) => (int) ($r['amount'] ?? 0), $rows);
-        $total = (int) Arr::get($data, 'total', array_sum($values));
-
-        $title = "Distribución de Participantes por Género en el Período {$startDisplay} - {$endDisplay}";
-
-        $palette = ['#1f77b4', '#ff7f0e', '#7f7f7f'];
-        $colors = [];
-        foreach ($labels as $i => $lbl) {
-            $colors[] = $palette[$i % count($palette)];
-        }
-
-        $barConfig = [
-            'type' => 'bar',
-            'data' => [
-                'labels' => $labels,
-                'datasets' => [[
-                    'data' => $values,
-                    'backgroundColor' => $colors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => false],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-                'scales' => [
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['stepSize' => 1, 'precision' => 0],
-                    ],
-                ],
-            ],
-        ];
-
-        $doughnutConfig = [
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => $labels,
-                'datasets' => [[
-                    'data' => $values,
-                    'backgroundColor' => $colors,
-                ]],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-            ],
-        ];
+        $total = (int) Arr::get($data, 'total', 0);
 
         $male = collect($rows)->firstWhere('label', 'Masculino');
         $female = collect($rows)->firstWhere('label', 'Femenino');
@@ -859,14 +505,16 @@ class ReportPdfController extends Controller
         $femaleCount = (int) ($female['amount'] ?? 0);
 
         $pages = [];
-        $barPageTitle = $title.' (Barras)';
-        $doughnutPageTitle = $title.' (Dona)';
 
-        $pages[] = $this->consumeProvidedChart($barPageTitle)
-            ?? (($img = $this->safeRenderChart($barConfig)) ? ['kind' => 'chart', 'title' => $barPageTitle, 'image' => $img] : $this->chartFailurePage($barPageTitle));
+        $barPageTitle = 'Distribución de Participantes por Género (Barras)';
+        $doughnutPageTitle = 'Distribución de Participantes por Género (Dona)';
 
-        $pages[] = $this->consumeProvidedChart($doughnutPageTitle)
-            ?? (($img = $this->safeRenderChart($doughnutConfig)) ? ['kind' => 'chart', 'title' => $doughnutPageTitle, 'image' => $img] : $this->chartFailurePage($doughnutPageTitle));
+        if ($page = $this->chartPage('gender_bar', $barPageTitle)) {
+            $pages[] = $page;
+        }
+        if ($page = $this->chartPage('gender_doughnut', $doughnutPageTitle)) {
+            $pages[] = $page;
+        }
 
         $pages[] = [
             'kind' => 'table',
@@ -930,9 +578,6 @@ class ReportPdfController extends Controller
         ]];
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     /**
      * @return array<int, array<string, mixed>>
      */
@@ -1042,56 +687,12 @@ class ReportPdfController extends Controller
         );
 
         $title = 'Promedio de Participantes por Acción de Formación';
-        $lineConfig = [
-            'type' => 'line',
-            'data' => [
-                'labels' => $labels,
-                'datasets' => [
-                    [
-                        'label' => 'Promedio Total',
-                        'data' => $avgTotal,
-                        'borderColor' => 'rgb(75, 192, 192)',
-                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                        'fill' => false,
-                        'tension' => 0.5,
-                    ],
-                    [
-                        'label' => 'Promedio Aprobados',
-                        'data' => $avgApproved,
-                        'borderColor' => 'rgb(54, 162, 235)',
-                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-                        'fill' => false,
-                        'tension' => 0.5,
-                    ],
-                    [
-                        'label' => 'Promedio Reprobados',
-                        'data' => $avgFailed,
-                        'borderColor' => 'rgb(255, 99, 132)',
-                        'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                        'fill' => false,
-                        'tension' => 0.5,
-                    ],
-                ],
-            ],
-            'options' => [
-                'responsive' => false,
-                'plugins' => [
-                    'legend' => ['display' => true],
-                    'title' => ['display' => true, 'text' => $title],
-                ],
-                'scales' => [
-                    'y' => [
-                        'beginAtZero' => true,
-                        'ticks' => ['precision' => 0],
-                    ],
-                ],
-            ],
-        ];
 
         $pages = [];
 
-        $pages[] = $this->consumeProvidedChart($title)
-            ?? (($img = $this->safeRenderChart($lineConfig)) ? ['kind' => 'chart', 'title' => $title, 'image' => $img] : $this->chartFailurePage($title));
+        if ($page = $this->chartPage('participant_average_line', $title)) {
+            $pages[] = $page;
+        }
 
         $tableRows = [];
         foreach ($labels as $i => $d) {

@@ -7,7 +7,7 @@ export function reportByDate(response, payload = {}){ //reports by date
         <h3 class="report-block-title">Cantidad de Acciones de Formación durante el Período ${startDateFmt} - ${endDateFmt} : ${response.total}</h3>
         <div class="report-block-card is-chart">
             <div class="graph-container">
-                <canvas id="myChart"></canvas>
+                <canvas id="myChart" data-chart-key="date_line"></canvas>
             </div>
         </div>
         </section>`);

@@ -15,7 +15,7 @@ export function reportByParticipantStatus(response, payload = {}){
             <h3 class="report-block-title">Distribución de Participantes por Estatus (Barras)</h3>
             <div class="report-block-card is-chart">
                 <div class="graph-container">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="myChart" data-chart-key="participant_status_bar"></canvas>
                 </div>
             </div>
         </section>
@@ -23,7 +23,7 @@ export function reportByParticipantStatus(response, payload = {}){
             <h3 class="report-block-title">Distribución de Participantes por Estatus (Dona)</h3>
             <div class="report-block-card is-chart">
                 <div class="doughnut-container">
-                    <canvas id="doughnut"></canvas>
+                    <canvas id="doughnut" data-chart-key="participant_status_doughnut"></canvas>
                 </div>
             </div>
         </section>

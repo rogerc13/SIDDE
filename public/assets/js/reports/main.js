@@ -338,16 +338,22 @@ $(document).ready(function(){
                     return null;
                 }
 
+                // Cap the capture width so the POST payload stays reasonable.
+                const maxWidth = 1400;
+                const scale = w > maxWidth ? maxWidth / w : 1;
+                const outWidth = Math.max(1, Math.round(w * scale));
+                const outHeight = Math.max(1, Math.round(h * scale));
+
                 const tmp = document.createElement('canvas');
-                tmp.width = w;
-                tmp.height = h;
+                tmp.width = outWidth;
+                tmp.height = outHeight;
                 const ctx = tmp.getContext('2d');
                 if (!ctx) {
                     return null;
                 }
                 ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, w, h);
-                ctx.drawImage(canvas, 0, 0);
+                ctx.fillRect(0, 0, outWidth, outHeight);
+                ctx.drawImage(canvas, 0, 0, outWidth, outHeight);
 
                 // PNG is lossless and keeps chart text/lines crisp in PDFs.
                 return tmp.toDataURL('image/png');
@@ -363,13 +369,16 @@ $(document).ready(function(){
             canvases = Array.from(document.querySelectorAll('.report-view canvas'));
         }
         canvases.forEach((canvas, idx) => {
+            // Charts are keyed by a stable id so the server maps each image to
+            // the right page instead of relying on DOM order.
+            const key = canvas.dataset ? canvas.dataset.chartKey : null;
             const img = canvasToPngDataUrl(canvas);
-            if (!img) {
+            if (!img || !key) {
                 return;
             }
             const title = getPanelTitleFor(canvas) || `Gráfico ${idx + 1}`;
-            data.push({ name: `charts[${idx}][title]`, value: title });
-            data.push({ name: `charts[${idx}][image]`, value: img });
+            data.push({ name: `charts[${key}][title]`, value: title });
+            data.push({ name: `charts[${key}][image]`, value: img });
         });
 
         // Ensure report-type is included (it is, but keep this defensive)

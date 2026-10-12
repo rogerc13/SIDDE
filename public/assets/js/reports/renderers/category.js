@@ -11,7 +11,7 @@ export function reportByCategory(response, payload = {}){
             <h3 class="report-block-title">Cantidad de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
             <div class="report-block-card is-chart">
                 <div class="graph-container">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="myChart" data-chart-key="category_bar"></canvas>
                 </div>
             </div>
         </section>`);
@@ -97,7 +97,7 @@ export function reportByCategory(response, payload = {}){
                 <h3 class="report-block-title">Distribución de Acciones de Formación por Áreas de Conocimiento durante el período ${startFmt} - ${endFmt}</h3>
                 <div class="report-block-card is-chart">
                     <div class="doughnut-container">
-                        <canvas id="doughnut"></canvas>
+                        <canvas id="doughnut" data-chart-key="category_doughnut"></canvas>
                     </div>
                 </div>
             </section>`);
