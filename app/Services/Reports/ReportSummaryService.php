@@ -72,14 +72,15 @@ final class ReportSummaryService
         $previous = $this->previousPeriodTotal($start, $end);
         $delta = $previous > 0 ? (int) round(($total - $previous) / $previous * 100) : null;
 
+        // Ordered as two groups: volume metrics first, then rates.
         return [
             'dateRange' => ['startDate' => $start, 'endDate' => $end],
             'kpis' => [
                 $this->kpi('actions', 'Acciones de formación', $total, 'acciones', 'Conteo de acciones con fecha de inicio en el período.', $delta),
-                $this->kpi('completion', 'Tasa de culminación', $total > 0 ? round(100 * $completed / $total, 1) : 0, '%', 'Acciones culminadas / total de acciones del período.'),
-                $this->kpi('cancellation', 'Tasa de cancelación', $total > 0 ? round(100 * $canceled / $total, 1) : 0, '%', 'Acciones canceladas / total de acciones del período.'),
                 $this->kpi('hours', 'Horas impartidas', $hours, 'horas', 'Suma de duración de acciones culminadas en el período.'),
                 $this->kpi('participants', 'Participantes', $participants, 'personas', 'Participantes asignados a acciones iniciadas en el período.'),
+                $this->kpi('completion', 'Tasa de culminación', $total > 0 ? round(100 * $completed / $total, 1) : 0, '%', 'Acciones culminadas / total de acciones del período.'),
+                $this->kpi('cancellation', 'Tasa de cancelación', $total > 0 ? round(100 * $canceled / $total, 1) : 0, '%', 'Acciones canceladas / total de acciones del período.'),
                 $this->kpi('approval', 'Tasa de aprobación', $participants > 0 ? round(100 * $approved / $participants, 1) : 0, '%', 'Participantes aprobados / participantes del período.'),
             ],
         ];
@@ -97,7 +98,9 @@ final class ReportSummaryService
             'unit' => $unit,
             'formula' => $formula,
             'delta' => $delta,
-            'display' => $unit === '%' ? $value . '%' : number_format((float) $value, 0, ',', '.'),
+            // The unit is rendered separately, so the display is the bare
+            // number; percentages would otherwise read "1.1%" + "%".
+            'display' => $unit === '%' ? (string) $value : number_format((float) $value, 0, ',', '.'),
         ];
     }
 

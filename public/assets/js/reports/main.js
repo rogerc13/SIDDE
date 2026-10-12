@@ -543,20 +543,35 @@ $(document).ready(function(){
             return;
         }
 
+        var esc = function (value) {
+            return $('<div>').text(value === null || value === undefined ? '' : value).html();
+        };
+
         var html = '';
         kpis.forEach(function (kpi) {
+            // Always render the trend slot so every card keeps the same height;
+            // the pill only appears when the metric reports a delta.
             var delta = '';
             if (kpi.delta !== null && kpi.delta !== undefined) {
                 var positive = kpi.delta >= 0;
-                delta = '<span class="kpi-delta ' + (positive ? 'kpi-up' : 'kpi-down') + '">'
-                    + (positive ? '▲' : '▼') + ' ' + Math.abs(kpi.delta) + '%</span>';
+                delta = '<span class="kpi-delta ' + (positive ? 'kpi-up' : 'kpi-down') + '" '
+                    + 'title="Variación respecto al período anterior">'
+                    + (positive ? '▲' : '▼') + ' ' + Math.abs(kpi.delta) + '%'
+                    + '<span class="kpi-delta-context" aria-hidden="true">vs. ant.</span>'
+                    + '<span class="sr-only"> respecto al período anterior</span>'
+                    + '</span>';
             }
 
-            html += '<div class="kpi-card" title="' + $('<div>').text(kpi.formula || '').html() + '">'
-                + '<div class="kpi-label">' + $('<div>').text(kpi.label || '').html() + '</div>'
-                + '<div class="kpi-value">' + $('<div>').text(kpi.display || '').html() + '</div>'
-                + '<div class="kpi-unit">' + $('<div>').text(kpi.unit || '').html() + '</div>'
-                + delta
+            var unit = (kpi.unit !== null && kpi.unit !== undefined && kpi.unit !== '')
+                ? '<span class="kpi-unit">' + esc(kpi.unit) + '</span>'
+                : '';
+
+            html += '<div class="kpi-card" title="' + esc(kpi.formula) + '">'
+                + '<div class="kpi-label">' + esc(kpi.label) + '</div>'
+                + '<div class="kpi-metrics">'
+                + '<div class="kpi-value">' + esc(kpi.display) + unit + '</div>'
+                + '<div class="kpi-delta-slot">' + delta + '</div>'
+                + '</div>'
                 + '</div>';
         });
 

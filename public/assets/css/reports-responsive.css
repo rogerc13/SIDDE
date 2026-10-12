@@ -225,12 +225,23 @@
 }
 
 .reports-page .report-summary {
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     margin: 0 0 16px;
 }
 
+/* Six headline KPIs on one row, but only once the content column is wide
+   enough to keep each card legible. */
+@media (min-width: 1200px) {
+    .reports-page .report-summary {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
 .reports-page .report-summary .kpi-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 112px;
     padding: 14px 16px;
     background: var(--rp-surface);
     border: 1px solid var(--rp-border);
@@ -246,28 +257,51 @@
     color: var(--rp-muted-strong);
 }
 
+/* Push the value block to the bottom so the figures line up even when a
+   label wraps to a different number of lines. */
+.reports-page .report-summary .kpi-metrics {
+    margin-top: auto;
+}
+
 .reports-page .report-summary .kpi-value {
     font-size: 26px;
     font-weight: 700;
-    line-height: 1.15;
+    line-height: 1.1;
     color: var(--rp-ink);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .reports-page .report-summary .kpi-unit {
-    font-size: 11px;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--rp-muted-strong);
+}
+
+/* Fixed-height trend row keeps every card the same height. */
+.reports-page .report-summary .kpi-delta-slot {
+    min-height: 20px;
+    margin-top: 6px;
 }
 
 .reports-page .report-summary .kpi-delta {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    margin-top: 6px;
-    padding: 2px 8px;
+    max-width: 100%;
+    padding: 2px 7px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.reports-page .report-summary .kpi-delta-context {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: .85;
 }
 
 .reports-page .report-summary .kpi-delta.kpi-up {
@@ -495,7 +529,7 @@
     }
 
     .reports-page .report-summary {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .reports-page .date-preset-btn {
@@ -505,6 +539,12 @@
 
     .reports-page .report-actions-buttons {
         width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .reports-page .report-summary {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 

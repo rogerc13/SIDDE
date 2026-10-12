@@ -139,6 +139,31 @@ class ReportSuiteTest extends TestCase
         }
     }
 
+    public function test_summary_kpis_are_grouped_and_percentages_are_not_duplicated(): void
+    {
+        $this->makeScheduled(CourseStatus::CULMINADO, now()->subDays(3)->toDateString());
+
+        $kpis = collect(
+            $this->actingAs($this->admin())->post('/reports/summary', $this->range())->json('kpis')
+        );
+
+        // Volume metrics first, then rates.
+        $this->assertSame(
+            ['actions', 'hours', 'participants', 'completion', 'cancellation', 'approval'],
+            $kpis->pluck('key')->all(),
+        );
+
+        foreach (['completion', 'cancellation', 'approval'] as $key) {
+            $kpi = $kpis->firstWhere('key', $key);
+            $this->assertSame('%', $kpi['unit']);
+            $this->assertStringNotContainsString('%', (string) $kpi['display']);
+        }
+
+        $actions = $kpis->firstWhere('key', 'actions');
+        $this->assertSame('acciones', $actions['unit']);
+        $this->assertStringNotContainsString('%', (string) $actions['display']);
+    }
+
     public function test_summary_actions_kpi_tracks_the_selected_range(): void
     {
         // Two actions inside the recent window, three in the older one.
