@@ -1,6 +1,5 @@
 <div class="sidde-page-header">
 	<div>
-		<div class="sidde-eyebrow">Inicio</div>
 		<h1 class="sidde-title">Hola, {{ $logeado->person?->name }}</h1>
 		<p class="sidde-subtitle">Tu agenda de acciones de formación</p>
 	</div>

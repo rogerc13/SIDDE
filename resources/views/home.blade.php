@@ -12,7 +12,6 @@
 		@if ($dashboard['mode'] === 'overview')
 			<div class="sidde-page-header">
 				<div>
-					<div class="sidde-eyebrow">Inicio</div>
 					<h1 class="sidde-title">Bienvenido a SIDDE</h1>
 					<p class="sidde-subtitle">Sistema de Desarrollo y Diseño Educativo</p>
 				</div>
