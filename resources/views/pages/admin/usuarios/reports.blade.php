@@ -12,7 +12,10 @@
 <img class="hidden-lg hidden-md hidden-sm hidden-xs visible-print" src="{{asset('assets/images/PDV_S.A._logo.svg')}}" alt="">
 <div class="container-fluid reports-page">
     <div class="report-page-header">
-        <h1 class="report-title">S.I.D.D.E. Reportes</h1>
+        <div class="report-title-group">
+            <span class="report-title-icon" aria-hidden="true"><i class="entypo-chart-area"></i></span>
+            <h1 class="report-title">S.I.D.D.E. Reportes</h1>
+        </div>
     </div>
 
     <div class="report-toolbar hidden-print">
