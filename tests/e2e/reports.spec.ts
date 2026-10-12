@@ -102,6 +102,19 @@ test.describe('Reports', () => {
         await expect(tableBlock.locator(':scope > .report-pagination-controls')).toHaveCount(1);
     });
 
+    test('table column headers use the project green', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/reports');
+
+        await page.selectOption('#report-type', 'category');
+        await page.click('.generate');
+
+        const th = page.locator('.table-col-helper table thead th').first();
+        await expect(th).toBeVisible({ timeout: 15000 });
+        await expect(th).toHaveCSS('background-color', 'rgb(189, 237, 188)');
+        await expect(th).toHaveCSS('color', 'rgb(4, 87, 2)');
+    });
+
     test('reports page has no serious accessibility violations', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto('/reports');

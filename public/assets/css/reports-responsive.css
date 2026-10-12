@@ -460,17 +460,24 @@
     background: var(--rp-surface);
 }
 
-.reports-page thead th {
+/* Neon success green, matching the heading bar on the project's index cards.
+   The extra .report-block-card in the selector outranks the theme's
+   `.table-bordered > thead > tr > th` rule that would otherwise grey it out. */
+.reports-page .report-block-card table thead th {
     position: sticky;
     top: 0;
     z-index: 2;
-    background: var(--rp-surface-2) !important;
-    color: var(--rp-ink);
+    background: #bdedbc !important;
+    color: #045702 !important;
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: .03em;
-    border-bottom: 2px solid var(--rp-border) !important;
+    border-bottom: 2px solid #b4e8a8 !important;
+}
+
+.reports-page .report-block-card table thead th .report-sort-icon {
+    color: #045702;
 }
 
 .reports-page tbody tr:nth-child(even) {
