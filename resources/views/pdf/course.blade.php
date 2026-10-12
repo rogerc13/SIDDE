@@ -1,63 +1,31 @@
-<html>
-<head>
-	<link rel="stylesheet" href="{{public_path('assets/css/bootstrap.css')}}">
-</head>
-<style>
-    .ficha-red-line{
-    border: 1px solid red;
-    }
-    th, td {
-        text-align: center;
-        
-    }
-    .table > tbody > tr > td {
-        vertical-align: middle !important;
-        font-size: 14px;
-    }
-    th{   
-        background-color: #EF3E36 !important;
-        color: white;
+@extends('pdf.list')
 
-    }
-</style>
+@section('title', 'Lista de Acciones de Formación')
+@section('subtitle', $courses->count().' registros · Generado el '.now()->format('d-m-Y H:i'))
 
-<div class="container-fluid">
-    <div class="header">
-        <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
-        <hr class = "ficha-red-line">
-        <br>
-        <h1>S.I.D.D.E.</h1>
-    </div>
-    <br>
-    <br>
-    <div>
-        <h3>Acciones de Formación</h3>
-    </div>
-    <br>
-    
-    <div class="row">  
-        <table class="table table-bordered">
-            <thead>
+@section('content')
+    <table class="data">
+        <thead>
+            <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Título</th>
+                <th scope="col">Área</th>
+                <th scope="col">Duración</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($courses as $course)
                 <tr>
-                    <th>Código</th>
-                    <th>Título</th>
-                    <th>Area</th>
-                    <th>Duración</th>
+                    <td>{{ $course->code }}</td>
+                    <td>{{ $course->title }}</td>
+                    <td>{{ $course->category->name }}</td>
+                    <td>{{ $course->duration }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($courses as $course)
-                    <tr>
-                        <td>{{$course->code}}</td>
-                        <td>{{$course->title}}</td>
-                        <td>{{$course->category->name}}</td>
-                        <td>{{$course->duration}}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>       
-    </div>
-</div>
-    <script src="{{public_path('assets/js/jquery-1.11.3.min.js')}}"></script>
-    <script src="{{public_path('assets/js/bootstrap.js')}}"></script>
-</html>
+            @empty
+                <tr>
+                    <td colspan="4">No se han encontrado resultados.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+@endsection

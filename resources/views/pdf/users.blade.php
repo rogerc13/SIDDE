@@ -1,55 +1,33 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="{{public_path('assets/css/bootstrap.css')}}">
-    </head>
-    <style>
-        .ficha-red-line{
-        border: 1px solid red;
-        }
-        th, td {
-            text-align: center;
-            
-        }
-        .table > tbody > tr > td {
-            vertical-align: middle !important;
-            font-size: 14px;
-        }
-        th{   
-            background-color: #EF3E36 !important;
-            color: white;
+@extends('pdf.list')
 
-        }
-    </style>
-    <div class="header">
-        <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
-        <hr class = "ficha-red-line">
-        <br>
-        <h1>S.I.D.D.E.</h1>
-        <h3>Usuarios</h3>
-        <br>
-    </div>
-<div class="containter-fluid">   
-    <table class="table table-striped table-bordered table-center">
+@section('title', 'Usuarios')
+@section('subtitle', $users->count().' registros · Generado el '.now()->format('d-m-Y H:i'))
+
+@section('content')
+    <table class="data">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>C.I.</th>
-                <th>Correo</th>
-                <th>Rol</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">C.I.</th>
+                <th scope="col">Correo</th>
+                <th scope="col">Rol</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($users as $user)
+            @forelse ($users as $user)
                 <tr>
-                    <td>{{$user->person->name}}</td>
-                    <td>{{$user->person->last_name}}</td>
-                    <td>{{$user->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$user->person->id_format()}}</td>
-                    <td>{{$user->email}}</td>
-                    <td>{{$user->role->name}}</td>
+                    <td>{{ $user->person->name }}</td>
+                    <td>{{ $user->person->last_name }}</td>
+                    <td>{{ $user->person->id_type_id == 1 ? 'V' : 'E' }}-{{ $user->person->id_format() }}</td>
+                    <td>{{ $user->email }}</td>
+                    <td>{{ $user->role->name }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="5">No se han encontrado resultados.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
-</div>
-</html>
+@endsection

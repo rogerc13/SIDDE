@@ -1,53 +1,31 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="{{public_path('assets/css/bootstrap.css')}}">
-    </head>
-    <style>
-        .ficha-red-line{
-        border: 1px solid red;
-        }
-        th, td {
-            text-align: center;
-            
-        }
-        .table > tbody > tr > td {
-            vertical-align: middle !important;
-            font-size: 14px;
-        }
-        th{   
-            background-color: #EF3E36 !important;
-            color: white;
+@extends('pdf.list')
 
-        }
-    </style>
-    <div class="header">
-        <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
-        <hr class = "ficha-red-line">
-        <br>
-        <h1>S.I.D.D.E.</h1>
-        <h3>Participantes</h3>
-        <br>
-    </div>
-    <div class="container-fluid">
-        <table class="participant-list table table-striped table-bordered table-center">
-            <thead>
+@section('title', 'Lista de Participantes')
+@section('subtitle', $participants->count().' registros · Generado el '.now()->format('d-m-Y H:i'))
+
+@section('content')
+    <table class="data">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">C.I.</th>
+                <th scope="col">Correo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($participants as $participant)
                 <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>C.I.</th>
-                    <th>Correo</th>
+                    <td>{{ $participant->person->name }}</td>
+                    <td>{{ $participant->person->last_name }}</td>
+                    <td>{{ $participant->person->id_type_id == 1 ? 'V' : 'E' }}-{{ $participant->person->id_format() }}</td>
+                    <td>{{ $participant->email }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($participants as $participant)
-                    <tr>
-                        <td>{{$participant->person->name}}</td>
-                        <td>{{$participant->person->last_name}}</td>
-                        <td>{{$participant->person->id_type_id  == 1 ? 'V' : 'E'}}-{{$participant->person->id_format()}}</td>
-                        <td>{{$participant->email}}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</html>
+            @empty
+                <tr>
+                    <td colspan="4">No se han encontrado resultados.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+@endsection

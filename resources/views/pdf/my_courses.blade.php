@@ -1,67 +1,39 @@
-<html>    
-    <head>
-        <link rel="stylesheet" href="{{public_path('assets/css/bootstrap.css')}}">
-    </head>
-    <style>
+@extends('pdf.list')
 
-        .ficha-red-line{
-            border: 1px solid red;
-        }
+@section('title', 'Mis Acciones de Formación Programadas')
+@section('subtitle', $scheduled->count().' registros · Generado el '.now()->format('d-m-Y H:i'))
 
-        th, td {
-            text-align: center;
-            
-        }
-        .table > tbody > tr > td {
-            vertical-align: middle !important;
-            font-size: 14px;
-        }
-        th{   
-            background-color: #EF3E36 !important;
-            color: white;
-        }
-    </style>
-    <div class="header">
-        <img  src="{{public_path('assets/images/PDV_S.A._logo.svg')}}" alt="">
-        <hr class = "ficha-red-line">
-        <br>
-        <h1>S.I.D.D.E.</h1>
-        <h3>Mis Acciones de Formación Programadas</h3>
-        <br>
-    </div>
-    <div class="container-fluid">
-        <table class="table table-bordered">
+@section('content')
+    <table class="data">
         <thead>
             <tr>
-                <th>Título</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Culminación</th>
+                <th scope="col">Título</th>
+                <th scope="col">Fecha Inicio</th>
+                <th scope="col">Fecha Culminación</th>
                 @if ($participant)
-                    <th>Facilitador</th>
+                    <th scope="col">Facilitador</th>
                 @else
-                    <th>Registrados</th>
+                    <th scope="col">Registrados</th>
                 @endif
             </tr>
         </thead>
         <tbody>
-            @foreach ($scheduled as $course)
+            @forelse ($scheduled as $course)
                 <tr>
-                    <td>{{$course->course->title}}</td>
+                    <td>{{ $course->course->title }}</td>
                     <td>@date($course->start_date)</td>
                     <td>@date($course->end_date)</td>
                     @if ($participant)
-                        <td>{{$course->facilitator->person->name}} {{$course->facilitator->person->last_name}}</td>
+                        <td>{{ $course->facilitator->person->name }} {{ $course->facilitator->person->last_name }}</td>
                     @else
-                        <td>{{count($course->participants)}}/{{$course->course->capacity[0]->max}}</td>    
+                        <td>{{ count($course->participants) }}/{{ $course->course->capacity[0]->max ?? 0 }}</td>
                     @endif
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="4">No se han encontrado resultados.</td>
+                </tr>
+            @endforelse
         </tbody>
-        </table>
-        
-    </div>
-    
-    <script src="{{public_path('assets/js/jquery-1.11.3.min.js')}}"></script>
-    <script src="{{public_path('assets/js/bootstrap.js')}}"></script>
-
-</html>
+    </table>
+@endsection

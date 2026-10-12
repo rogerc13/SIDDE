@@ -77,6 +77,18 @@ class PdfAccessTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_category_list_view_renders_rows_and_shared_layout(): void
+    {
+        \App\Models\Category::create(['name' => 'Área de Prueba 123']);
+
+        $html = view('pdf.category', ['categories' => \App\Models\Category::all()])->render();
+
+        $this->assertStringContainsString('Lista de Áreas de Conocimiento', $html);
+        $this->assertStringContainsString('table class="data"', $html);
+        $this->assertStringContainsString('Área de Prueba 123', $html);
+        $this->assertStringContainsString('registros', $html);
+    }
+
     public function test_admin_can_download_scheduled_course_participants_pdf(): void
     {
         $admin = User::factory()->administrador()->create();
