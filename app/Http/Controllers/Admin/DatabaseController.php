@@ -248,6 +248,80 @@ class DatabaseController extends Controller
                 ]);
             }
 
+            if ($table === 'floors') {
+                $pageRows = collect($rows->items());
+                $buildingIds = $pageRows->pluck('building_id')->filter()->unique()->values()->all();
+
+                $buildingNameMap = empty($buildingIds)
+                    ? []
+                    : DB::table('buildings')
+                        ->whereIn('id', $buildingIds)
+                        ->pluck('name', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'building_id' => $buildingNameMap,
+                    ],
+                ]);
+            }
+
+            if ($table === 'locations') {
+                $pageRows = collect($rows->items());
+                $floorIds = $pageRows->pluck('floor_id')->filter()->unique()->values()->all();
+
+                $floorNameMap = empty($floorIds)
+                    ? []
+                    : DB::table('floors')
+                        ->whereIn('id', $floorIds)
+                        ->pluck('name', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'floor_id' => $floorNameMap,
+                    ],
+                ]);
+            }
+
+            if ($table === 'course_sessions') {
+                $pageRows = collect($rows->items());
+                $scheduledIds = $pageRows->pluck('scheduled_course_id')->filter()->unique()->values()->all();
+                $locationIds = $pageRows->pluck('location_id')->filter()->unique()->values()->all();
+
+                $scheduledLabelMap = empty($scheduledIds)
+                    ? []
+                    : DB::table('scheduled_course')
+                        ->whereIn('scheduled_course.id', $scheduledIds)
+                        ->join('courses', 'scheduled_course.course_id', '=', 'courses.id')
+                        ->selectRaw("scheduled_course.id as id, CONCAT(scheduled_course.start_date, ' - ', courses.title) as label")
+                        ->pluck('label', 'id')
+                        ->all();
+
+                $locationNameMap = empty($locationIds)
+                    ? []
+                    : DB::table('locations')
+                        ->whereIn('id', $locationIds)
+                        ->pluck('name', 'id')
+                        ->all();
+
+                return view($tableView, [
+                    'table' => $table,
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'valueMaps' => [
+                        'scheduled_course_id' => $scheduledLabelMap,
+                        'location_id' => $locationNameMap,
+                    ],
+                ]);
+            }
+
             return view($tableView, [
                 'table' => $table,
                 'columns' => $columns,

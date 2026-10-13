@@ -23,7 +23,7 @@ Route::get('/', function () {
     return redirect()->route("home");
 });
 
-Auth::routes();
+Auth::routes(['register' => false]);
 
 Route::get('login','App\Http\Controllers\Auth\LoginController@getViewLogin')->name('login');
 Route::post('login','App\Http\Controllers\Auth\LoginController@login')->middleware('throttle:5,1');
@@ -207,14 +207,18 @@ Route::group(['middleware' => 'auth'], function ()
         Route::middleware(['admin'])->group(function () {
                 Route::get('database', 'App\Http\Controllers\Admin\DatabaseController@index')->name('database.index');
 
+                Route::get('database/buildings', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'buildings')->name('database.tables.buildings');
                 Route::get('database/capacities', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'capacities')->name('database.tables.capacities');
                 Route::get('database/categories', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'categories')->name('database.tables.categories');
                 Route::get('database/contents', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'contents')->name('database.tables.contents');
+                Route::get('database/course_sessions', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'course_sessions')->name('database.tables.course_sessions');
                 Route::get('database/course_status', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'course_status')->name('database.tables.course_status');
                 Route::get('database/courses', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'courses')->name('database.tables.courses');
                 Route::get('database/facilitators', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'facilitators')->name('database.tables.facilitators');
                 Route::get('database/files', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'files')->name('database.tables.files');
+                Route::get('database/floors', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'floors')->name('database.tables.floors');
                 Route::get('database/id_types', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'id_types')->name('database.tables.id_types');
+                Route::get('database/locations', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'locations')->name('database.tables.locations');
                 Route::get('database/modalities', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'modalities')->name('database.tables.modalities');
                 Route::get('database/participant_status', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'participant_status')->name('database.tables.participant_status');
                 Route::get('database/participants', 'App\Http\Controllers\Admin\DatabaseController@show')->defaults('table', 'participants')->name('database.tables.participants');

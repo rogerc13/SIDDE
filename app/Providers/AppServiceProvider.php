@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Paginator::useBootstrap();
+        Paginator::useBootstrapThree();
 
         Blade::directive('date', function ($expression) {
             return "<?php echo e(\\App\\Models\\Funciones::formatDate($expression)); ?>";
