@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 @section('content')
-	<h3>Administrador <small>Base de datos</small></h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-database', 'title' => 'Base de datos'])
 
 	<a class="btn btn-default" href="{{ route('database.index') }}">
 		<i class="entypo-left-open"></i>
@@ -10,5 +10,5 @@
 	<br>
 	<br>
 
-	@include('pages.admin.database.partials.table', ['table' => $table, 'columns' => $columns, 'rows' => $rows])
+	@include('pages.admin.database.partials.table', $tableProps)
 @stop

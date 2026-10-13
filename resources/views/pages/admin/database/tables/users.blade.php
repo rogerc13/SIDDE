@@ -1,78 +1,17 @@
-@push('CSS')
-	<link rel="stylesheet" href="{{ asset('assets/css/database-tables.css') }}">
-@endpush
-
 @extends('layouts.admin')
 @section('content')
-	<h3>Administrador <small>Base de datos</small></h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-database', 'title' => 'Base de datos'])
 
 	<a class="btn btn-default" href="{{ route('database.index') }}">
 		<i class="entypo-left-open"></i>
 		Volver
 	</a>
 
-	<div class="database-page">
-		<section class="database-block">
-			<h3 class="database-block-title">{{ $table }}</h3>
+	<br>
+	<br>
 
-			<div class="database-card">
-				<div class="table-responsive">
-					<table class="table table-striped table-bordered table-center">
-						<thead>
-							<tr>
-								@foreach($columns as $column)
-									<th>{{ $column }}</th>
-								@endforeach
-								<th><i class="fa fa-cogs"></i></th>
-							</tr>
-						</thead>
-						<tbody>
-							@if($rows->count() === 0)
-								<tr>
-									<td colspan="{{ count($columns) + 1 }}">No hay registros para mostrar.</td>
-								</tr>
-							@endif
-
-							@foreach($rows as $row)
-								<tr>
-									@foreach($columns as $column)
-										@php($rawValue = data_get($row, $column))
-										@php($valueMaps = $valueMaps ?? [])
-										@if(isset($valueMaps[$column]) && $rawValue !== null)
-											<td>{{ $valueMaps[$column][$rawValue] ?? $rawValue }}</td>
-										@else
-											<td>{{ $rawValue }}</td>
-										@endif
-									@endforeach
-									<td style="white-space: nowrap;">
-										@php($rowId = data_get($row, 'id'))
-										@if($rowId)
-											<a
-												class="btn btn-default btn-xs js-user-edit"
-												title="Editar"
-												href="#"
-												data-toggle="modal"
-												data-target="#userEditModal"
-												data-id="{{ $rowId }}"
-												data-update-url="{{ route('database.users.update', ['id' => 0]) }}"
-												data-email="{{ e((string) data_get($row, 'email')) }}"
-												data-role-id="{{ e((string) data_get($row, 'role_id')) }}"
-											>
-												<i class="entypo-pencil"></i>
-											</a>
-										@endif
-									</td>
-								</tr>
-							@endforeach
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="database-pagination">{!! $rows->links() !!}</div>
-		</section>
-	</div>
-@stop
+	@include('pages.admin.database.partials.table', $tableProps)
+@endsection
 
 @section('modals')
 	<div class="modal fade" id="userEditModal" tabindex="-1" role="dialog" aria-hidden="true">

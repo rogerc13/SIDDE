@@ -1,10 +1,6 @@
-@push('CSS')
-	<link rel="stylesheet" href="{{ asset('assets/css/database-tables.css') }}">
-@endpush
-
 @extends('layouts.admin')
 @section('content')
-	<h3>Administrador <small>Base de datos</small></h3>
+	@include('includes.admin.page-heading', ['icon' => 'entypo-database', 'title' => 'Base de datos'])
 
 	<a class="btn btn-default" href="{{ route('database.index') }}">
 		<i class="entypo-left-open"></i>
@@ -14,105 +10,7 @@
 	<br>
 	<br>
 
-	<div class="database-page">
-		<section class="database-block">
-			<h3 class="database-block-title">{{ $table }}</h3>
-
-			<div class="database-card">
-				<div class="table-responsive">
-					@php($categoryNameById = isset($categories) ? collect($categories)->pluck('name', 'id') : collect())
-					@php($modalityNameById = isset($modalities) ? collect($modalities)->pluck('name', 'id') : collect())
-					<table class="table table-striped table-bordered table-center">
-						<thead>
-							<tr>
-								@foreach($columns as $column)
-									<th>{{ $column }}</th>
-								@endforeach
-								<th><i class="fa fa-cogs"></i></th>
-							</tr>
-						</thead>
-						<tbody>
-							@if($rows->count() === 0)
-								<tr>
-									<td colspan="{{ count($columns) + 1 }}">No hay registros para mostrar.</td>
-								</tr>
-							@endif
-
-							@foreach($rows as $row)
-								<tr>
-									@foreach($columns as $column)
-										@php($rawValue = data_get($row, $column))
-										@if($column === 'category_id')
-											@php($categoryName = (string) ($categoryNameById[(int) $rawValue] ?? $rawValue))
-											<td title="{{ $categoryName }}">{{ \Illuminate\Support\Str::limit($categoryName, 30) }}</td>
-											@elseif($column === 'objective')
-												@php($objectiveText = (string) ($rawValue ?? ''))
-												<td title="{{ $objectiveText }}">{{ \Illuminate\Support\Str::limit($objectiveText, 60) }}</td>
-										@elseif($column === 'modality_id')
-											<td>{{ (string) ($modalityNameById[(int) $rawValue] ?? $rawValue) }}</td>
-										@else
-											<td>{{ $rawValue }}</td>
-										@endif
-									@endforeach
-									<td style="white-space: nowrap;">
-										@php($rowId = data_get($row, 'id'))
-										@php($deletedAt = data_get($row, 'deleted_at'))
-										@if($rowId)
-											<a
-												class="btn btn-default btn-xs js-course-edit"
-												title="Editar"
-												href="#"
-												data-toggle="modal"
-												data-target="#courseEditModal"
-												data-id="{{ $rowId }}"
-												data-update-url="{{ route('database.courses.update', ['id' => 0]) }}"
-												data-code="{{ e((string) data_get($row, 'code')) }}"
-												data-title="{{ e((string) data_get($row, 'title')) }}"
-												data-objective="{{ e((string) data_get($row, 'objective')) }}"
-												data-duration="{{ e((string) data_get($row, 'duration')) }}"
-												data-addressed="{{ e((string) data_get($row, 'addressed')) }}"
-												data-category-id="{{ e((string) data_get($row, 'category_id')) }}"
-												data-modality-id="{{ e((string) data_get($row, 'modality_id')) }}"
-												data-deleted="{{ $deletedAt ? 1 : 0 }}"
-											>
-												<i class="entypo-pencil"></i>
-											</a>
-											@if($deletedAt)
-												<form method="POST" action="{{ route('database.courses.restore', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('¿Deseas restaurar este curso?');">
-													@csrf
-													@method('PATCH')
-													<button type="submit" class="btn btn-success btn-xs" title="Restaurar curso">
-														<i class="entypo-ccw"></i>
-													</button>
-												</form>
-												<form method="POST" action="{{ route('database.courses.forceDestroy', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('ELIMINAR PERMANENTEMENTE: esto borrará el curso y todos los datos vinculados (programadas, inscripciones, archivos, contenidos, capacidades, prerrequisitos). ¿Deseas continuar?');">
-													@csrf
-													@method('DELETE')
-													<button type="submit" class="btn btn-danger btn-xs" title="Eliminar permanentemente">
-														<i class="entypo-trash"></i>
-													</button>
-												</form>
-											@else
-												<form method="POST" action="{{ route('database.courses.destroy', ['id' => $rowId]) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('¿Deseas eliminar (soft delete) este curso?');">
-													@csrf
-													@method('DELETE')
-													<button type="submit" class="btn btn-danger btn-xs" title="Eliminar curso">
-														<i class="entypo-trash"></i>
-													</button>
-												</form>
-											@endif
-										@endif
-									</td>
-								</tr>
-							@endforeach
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="database-pagination">{!! $rows->links() !!}</div>
-		</section>
-	</div>
+	@include('pages.admin.database.partials.table', $tableProps)
 @stop
 
 @section('modals')

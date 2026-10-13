@@ -19,24 +19,58 @@ use App\Models\Prerequisite;
 use App\Models\Role;
 use App\Models\Scheduled;
 use App\Models\User;
+use App\Services\Database\DatabaseTablePresenter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\View as ViewFacade;
 use Illuminate\Support\Facades\File as IlluminateFile;
 
 class DatabaseController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $presenter = app(DatabaseTablePresenter::class);
+
+        $search = trim((string) $request->query('q', ''));
+
         $tables = $this->getTableNames();
 
+        if ($search !== '') {
+            $needle = mb_strtolower($search);
+            $tables = array_values(array_filter(
+                $tables,
+                fn (string $table): bool => str_contains(mb_strtolower($table), $needle)
+            ));
+        }
+
+        $domain = [];
+        $catalog = [];
+
+        foreach ($tables as $table) {
+            $entry = [
+                'name' => $table,
+                'rows' => DB::table($table)->count(),
+                'columns' => count(Schema::getColumnListing($table)),
+            ];
+
+            if ($presenter->isDomainTable($table)) {
+                $domain[] = $entry;
+            } else {
+                $catalog[] = $entry;
+            }
+        }
+
         return view('pages.admin.database.index', [
-            'tables' => $tables,
+            'search' => $search,
+            'groups' => array_values(array_filter([
+                ['label' => 'Datos del sistema', 'tables' => $domain],
+                ['label' => 'Catálogos', 'tables' => $catalog],
+            ], fn (array $group): bool => $group['tables'] !== [])),
         ]);
     }
 
@@ -46,293 +80,79 @@ class DatabaseController extends Controller
 
         abort_unless(in_array($table, $tables, true), 404);
 
-        $columns = Schema::getColumnListing($table);
+        $presenter = app(DatabaseTablePresenter::class);
+        $columns = $presenter->columns($table);
+        $columnNames = array_column($columns, 'name');
+
+        $sort = (string) request()->query('sort', '');
+        if (! in_array($sort, $columnNames, true)) {
+            $sort = in_array('id', $columnNames, true) ? 'id' : ($columnNames[0] ?? '');
+        }
+
+        $dir = strtolower((string) request()->query('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $search = trim((string) request()->query('q', ''));
+
+        $perPage = (int) request()->query('per_page', 100);
+        if (! in_array($perPage, DatabaseTablePresenter::PAGE_SIZES, true)) {
+            $perPage = 100;
+        }
+
+        $showAllColumns = request()->boolean('cols_all');
+        $hideDeleted = request()->boolean('hide_deleted');
+        $hasDeleted = in_array('deleted_at', $columnNames, true);
+
         $query = DB::table($table);
 
-        $orderColumn = null;
-        if (in_array('id', $columns, true)) {
-            $orderColumn = 'id';
-        } elseif (isset($columns[0])) {
-            $orderColumn = $columns[0];
+        if ($hideDeleted && $hasDeleted) {
+            $query->whereNull('deleted_at');
         }
 
-        if ($orderColumn) {
-            $query->orderBy($orderColumn);
+        $presenter->applySearch($query, $columns, $search);
+
+        if ($sort !== '') {
+            $query->orderBy($sort, $dir);
         }
 
-        $rows = $query->paginate(100);
+        $rows = $query->paginate($perPage)->withQueryString();
 
-        $tableView = 'pages.admin.database.tables.' . $table;
+        $tableProps = [
+            'table' => $table,
+            'rows' => $rows,
+            'presenter' => $presenter,
+            'displayColumns' => $presenter->displayColumns($columns, $showAllColumns),
+            'valueMaps' => $presenter->valueMaps($table, collect($rows->items())),
+            'sort' => $sort,
+            'dir' => $dir,
+            'search' => $search,
+            'perPage' => $perPage,
+            'showAllColumns' => $showAllColumns,
+            'hideDeleted' => $hideDeleted,
+            'hasDeleted' => $hasDeleted,
+            'actionsView' => match ($table) {
+                'courses' => 'pages.admin.database.partials.course-actions',
+                'users' => 'pages.admin.database.partials.user-actions',
+                default => null,
+            },
+        ];
 
-        if (ViewFacade::exists($tableView)) {
-            if ($table === 'courses') {
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
-                    'modalities' => Modality::query()->orderBy('name')->get(['id', 'name']),
-                ]);
-            }
+        if ($table === 'courses') {
+            return view('pages.admin.database.tables.courses', [
+                'tableProps' => $tableProps,
+                'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
+                'modalities' => Modality::query()->orderBy('name')->get(['id', 'name']),
+            ]);
+        }
 
-            if ($table === 'users') {
-                $roleMap = Role::query()->orderBy('name')->pluck('name', 'id')->all();
-                $personNameMap = Person::query()
-                    ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
-                    ->pluck('full_name', 'id')
-                    ->all();
-
-                $roles = Role::query()->orderBy('name')->get(['id', 'name']);
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'roles' => $roles,
-                    'valueMaps' => [
-                        'role_id' => $roleMap,
-                        'person_id' => $personNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'scheduled_course') {
-                $courseLabelMap = DB::table('courses')
-                    ->selectRaw("id, CONCAT(code, ' - ', title) as label")
-                    ->pluck('label', 'id')
-                    ->all();
-
-                $facilitatorNameMap = DB::table('facilitators')
-                    ->leftJoin('people', 'facilitators.person_id', '=', 'people.id')
-                    ->selectRaw("facilitators.id as id, CONCAT(people.name, ' ', people.last_name) as full_name")
-                    ->pluck('full_name', 'id')
-                    ->all();
-
-                $statusNameMap = DB::table('course_status')
-                    ->pluck('name', 'id')
-                    ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'course_id' => $courseLabelMap,
-                        'facilitator_id' => $facilitatorNameMap,
-                        'course_status_id' => $statusNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'people') {
-                $idTypeNameMap = DB::table('id_types')
-                    ->pluck('name', 'id')
-                    ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'id_type_id' => $idTypeNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'participants') {
-                $pageRows = collect($rows->items());
-
-                $personIds = $pageRows->pluck('person_id')->filter()->unique()->values()->all();
-                $statusIds = $pageRows->pluck('participant_status_id')->filter()->unique()->values()->all();
-                $scheduledIds = $pageRows->pluck('scheduled_id')->filter()->unique()->values()->all();
-
-                $personNameMap = empty($personIds)
-                    ? []
-                    : DB::table('people')
-                        ->whereIn('id', $personIds)
-                        ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
-                        ->pluck('full_name', 'id')
-                        ->all();
-
-                $participantStatusMap = empty($statusIds)
-                    ? []
-                    : DB::table('participant_status')
-                        ->whereIn('id', $statusIds)
-                        ->pluck('name', 'id')
-                        ->all();
-
-                $scheduledLabelMap = empty($scheduledIds)
-                    ? []
-                    : DB::table('scheduled_course')
-                        ->whereIn('scheduled_course.id', $scheduledIds)
-                        ->join('courses', 'scheduled_course.course_id', '=', 'courses.id')
-                        ->selectRaw("scheduled_course.id as id, CONCAT(scheduled_course.start_date, ' - ', courses.title) as label")
-                        ->pluck('label', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'person_id' => $personNameMap,
-                        'participant_status_id' => $participantStatusMap,
-                        'scheduled_id' => $scheduledLabelMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'facilitators') {
-                $pageRows = collect($rows->items());
-                $personIds = $pageRows->pluck('person_id')->filter()->unique()->values()->all();
-
-                $personNameMap = empty($personIds)
-                    ? []
-                    : DB::table('people')
-                        ->whereIn('id', $personIds)
-                        ->selectRaw("id, CONCAT(name, ' ', last_name) as full_name")
-                        ->pluck('full_name', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'person_id' => $personNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'contents') {
-                $pageRows = collect($rows->items());
-                $courseIds = $pageRows->pluck('course_id')->filter()->unique()->values()->all();
-
-                $courseLabelMap = empty($courseIds)
-                    ? []
-                    : DB::table('courses')
-                        ->whereIn('id', $courseIds)
-                        ->selectRaw("id, CONCAT(code, ' - ', title) as label")
-                        ->pluck('label', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'course_id' => $courseLabelMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'capacities') {
-                $pageRows = collect($rows->items());
-                $courseIds = $pageRows->pluck('course_id')->filter()->unique()->values()->all();
-
-                $courseLabelMap = empty($courseIds)
-                    ? []
-                    : DB::table('courses')
-                        ->whereIn('id', $courseIds)
-                        ->selectRaw("id, CONCAT(code, ' - ', title) as label")
-                        ->pluck('label', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'course_id' => $courseLabelMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'floors') {
-                $pageRows = collect($rows->items());
-                $buildingIds = $pageRows->pluck('building_id')->filter()->unique()->values()->all();
-
-                $buildingNameMap = empty($buildingIds)
-                    ? []
-                    : DB::table('buildings')
-                        ->whereIn('id', $buildingIds)
-                        ->pluck('name', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'building_id' => $buildingNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'locations') {
-                $pageRows = collect($rows->items());
-                $floorIds = $pageRows->pluck('floor_id')->filter()->unique()->values()->all();
-
-                $floorNameMap = empty($floorIds)
-                    ? []
-                    : DB::table('floors')
-                        ->whereIn('id', $floorIds)
-                        ->pluck('name', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'floor_id' => $floorNameMap,
-                    ],
-                ]);
-            }
-
-            if ($table === 'course_sessions') {
-                $pageRows = collect($rows->items());
-                $scheduledIds = $pageRows->pluck('scheduled_course_id')->filter()->unique()->values()->all();
-                $locationIds = $pageRows->pluck('location_id')->filter()->unique()->values()->all();
-
-                $scheduledLabelMap = empty($scheduledIds)
-                    ? []
-                    : DB::table('scheduled_course')
-                        ->whereIn('scheduled_course.id', $scheduledIds)
-                        ->join('courses', 'scheduled_course.course_id', '=', 'courses.id')
-                        ->selectRaw("scheduled_course.id as id, CONCAT(scheduled_course.start_date, ' - ', courses.title) as label")
-                        ->pluck('label', 'id')
-                        ->all();
-
-                $locationNameMap = empty($locationIds)
-                    ? []
-                    : DB::table('locations')
-                        ->whereIn('id', $locationIds)
-                        ->pluck('name', 'id')
-                        ->all();
-
-                return view($tableView, [
-                    'table' => $table,
-                    'columns' => $columns,
-                    'rows' => $rows,
-                    'valueMaps' => [
-                        'scheduled_course_id' => $scheduledLabelMap,
-                        'location_id' => $locationNameMap,
-                    ],
-                ]);
-            }
-
-            return view($tableView, [
-                'table' => $table,
-                'columns' => $columns,
-                'rows' => $rows,
+        if ($table === 'users') {
+            return view('pages.admin.database.tables.users', [
+                'tableProps' => $tableProps,
+                'roles' => Role::query()->orderBy('name')->get(['id', 'name']),
             ]);
         }
 
         return view('pages.admin.database.table', [
-            'table' => $table,
-            'columns' => $columns,
-            'rows' => $rows,
+            'tableProps' => $tableProps,
         ]);
     }
 

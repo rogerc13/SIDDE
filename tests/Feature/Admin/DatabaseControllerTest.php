@@ -278,6 +278,97 @@ class DatabaseControllerTest extends TestCase
         );
     }
 
+    public function test_search_filters_rows_accent_insensitively(): void
+    {
+        Category::factory()->create(['name' => 'Ética Profesional']);
+        Category::factory()->create(['name' => 'Matemática Aplicada']);
+
+        $response = $this->actingAs($this->admin())
+            ->get('/database/categories?q=Etica')
+            ->assertOk();
+
+        $response->assertSee('Ética Profesional');
+        $response->assertDontSee('Matemática Aplicada');
+    }
+
+    public function test_sorting_orders_rows_by_the_requested_column(): void
+    {
+        Category::factory()->create(['name' => 'Zeta']);
+        Category::factory()->create(['name' => 'Alfa']);
+        Category::factory()->create(['name' => 'Media']);
+
+        $response = $this->actingAs($this->admin())
+            ->get('/database/categories?sort=name&dir=asc')
+            ->assertOk();
+
+        $response->assertSeeInOrder(['Alfa', 'Media', 'Zeta']);
+    }
+
+    public function test_unknown_sort_column_is_ignored(): void
+    {
+        Category::factory()->create(['name' => 'Alfa']);
+
+        $this->actingAs($this->admin())
+            ->get('/database/categories?sort=not_a_column&dir=desc')
+            ->assertOk();
+    }
+
+    public function test_per_page_limits_the_rows(): void
+    {
+        foreach (range(1, 30) as $index) {
+            Category::factory()->create(['name' => sprintf('Cat%02d', $index)]);
+        }
+
+        $response = $this->actingAs($this->admin())
+            ->get('/database/categories?per_page=25')
+            ->assertOk();
+
+        $response->assertSee('Cat25');
+        $response->assertDontSee('Cat26');
+    }
+
+    public function test_technical_columns_are_hidden_by_default_and_shown_with_the_flag(): void
+    {
+        $hidden = $this->actingAs($this->admin())->get('/database/roles')->assertOk();
+        $hidden->assertDontSee('Creado');
+        $hidden->assertDontSee('Actualizado');
+
+        $shown = $this->actingAs($this->admin())->get('/database/roles?cols_all=1')->assertOk();
+        $shown->assertSee('Creado');
+        $shown->assertSee('Actualizado');
+    }
+
+    public function test_soft_deleted_rows_render_a_deleted_badge_and_can_be_hidden(): void
+    {
+        $category = Category::factory()->create(['name' => 'Obsoleta']);
+        $category->delete();
+
+        $visible = $this->actingAs($this->admin())->get('/database/categories')->assertOk();
+        $visible->assertSee('Obsoleta');
+        $visible->assertSee('Eliminado');
+
+        $hidden = $this->actingAs($this->admin())->get('/database/categories?hide_deleted=1')->assertOk();
+        $hidden->assertDontSee('Obsoleta');
+    }
+
+    public function test_index_groups_tables_and_reports_counts(): void
+    {
+        $response = $this->actingAs($this->admin())->get(route('database.index'))->assertOk();
+
+        $response->assertSee('Datos del sistema');
+        $response->assertSee('Catálogos');
+        $response->assertSee('registros');
+        $response->assertSee('courses');
+    }
+
+    public function test_index_can_filter_tables_by_name(): void
+    {
+        $response = $this->actingAs($this->admin())->get('/database?q=course')->assertOk();
+
+        $response->assertSee('course_sessions');
+        $response->assertDontSee('participants');
+    }
+
     private function isDescendantOf(\DOMNode $node, \DOMNode $ancestor): bool
     {
         for ($parent = $node->parentNode; $parent !== null; $parent = $parent->parentNode) {
