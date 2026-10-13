@@ -243,6 +243,33 @@ class BrowserShotController extends Controller
         return $pdf->download('Lista de Participantes.pdf');
     }
 
+    public function schedule($id){
+        $scheduled = Scheduled::with([
+            'course',
+            'facilitator.person',
+            'sessions.location' => function ($query) {
+                $query->withTrashed();
+            },
+        ])->find($id);
+
+        if (!$scheduled || Auth::user()->cannot('get', $scheduled)) {
+            return $this->denyRoster();
+        }
+
+        $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        $rows = $scheduled->weeklyScheduleGrid();
+
+        $pdf = Pdf::loadView('pdf.schedule', [
+            'scheduled' => $scheduled,
+            'dayNames' => $dayNames,
+            'rows' => $rows,
+        ])->setPaper('a4', 'landscape');
+
+        $title = trim(str_replace(['/', '\\'], '-', $scheduled->course->title));
+
+        return $pdf->download($title.' - Horario.pdf');
+    }
+
     public function reportCourse(Request $request){
         if (Auth::user()->cannot('getAll', Scheduled::class)) {
             return $this->denyRoster();

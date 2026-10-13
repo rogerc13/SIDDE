@@ -91,19 +91,6 @@
         body.printing-ficha #tab-ficha { display: block !important; }
         body.printing-ficha .details-tab-content { border: 0; padding: 0; margin: 0; background: transparent; }
 
-        body.printing-horario .details-header,
-        body.printing-horario .details-stats,
-        body.printing-horario .details-tabs,
-        body.printing-horario #panel-sesiones,
-        body.printing-horario #tab-participantes,
-        body.printing-horario #tab-documentos,
-        body.printing-horario #tab-ficha { display: none !important; }
-        body.printing-horario .details-tab-content { display: block !important; border: 0; padding: 0; margin: 0; background: transparent; }
-        body.printing-horario .details-tab-content .tab-pane { display: none !important; }
-        body.printing-horario #tab-programacion { display: block !important; }
-        body.printing-horario .semana-panel { border: 0; box-shadow: none; margin: 0 !important; }
-        body.printing-horario .semana-panel .panel-heading { display: none !important; }
-        body.printing-horario .semana-panel .panel-body { padding: 0; border: 0; }
         @page { size: landscape; margin: 10mm; }
     }
     .ficha-actions { margin-bottom: 14px; text-align: right; }
@@ -136,27 +123,7 @@
     }
 
     $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    $printGroups = [];
-    foreach ($existingSessions as $s) {
-        $weekday = \Carbon\Carbon::parse($s['session_date'])->dayOfWeekIso;
-        $key = $weekday . '|' . $s['start_time'] . '|' . $s['end_time'] . '|' . $s['location_id'];
-        if (!isset($printGroups[$key])) {
-            $printGroups[$key] = [
-                'weekday' => $weekday,
-                'start_time' => $s['start_time'],
-                'end_time' => $s['end_time'],
-                'location_name' => $s['location_name'],
-                'dates' => [],
-            ];
-        }
-        $dateLabel = \Carbon\Carbon::parse($s['session_date'])->format('d-m-Y');
-        if (!in_array($dateLabel, $printGroups[$key]['dates'], true)) {
-            $printGroups[$key]['dates'][] = $dateLabel;
-        }
-    }
-    usort($printGroups, function ($a, $b) {
-        return [$a['weekday'], $a['start_time']] <=> [$b['weekday'], $b['start_time']];
-    });
+    $printGroups = $scheduled->weeklySessionGroups();
     $printHorarioCourse = $scheduled->course->title;
     $printHorarioFacilitator = trim($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
 @endphp
@@ -262,7 +229,7 @@
 <div class="tab-content details-tab-content">
     <div role="tabpanel" class="tab-pane active" id="tab-programacion">
         <div class="horario-actions no-print">
-            <button type="button" class="btn btn-success" id="print-horario-btn"><i class="fa fa-print"></i> Imprimir horario</button>
+            <a href="{{ url('u/pdf/schedule/'.$scheduled->id) }}" class="btn btn-success"><i class="fa fa-file-pdf-o"></i> Descargar horario</a>
         </div>
         <div class="panel panel-success" data-collapsed="0" id="panel-sesiones">
             <div class="panel-heading">
@@ -390,15 +357,6 @@ $(function() {
     });
     window.addEventListener('afterprint', function () {
         document.body.classList.remove('printing-ficha');
-    });
-
-    $('#print-horario-btn').on('click', function () {
-        document.body.classList.add('printing-horario');
-        window.print();
-        document.body.classList.remove('printing-horario');
-    });
-    window.addEventListener('afterprint', function () {
-        document.body.classList.remove('printing-horario');
     });
 });
 </script>

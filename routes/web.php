@@ -53,6 +53,7 @@ Route::group(['middleware' => 'auth'], function ()
                 Route::get('/participants/{id}', 'App\Http\Controllers\BrowserShotController@courseParticipants')->name('course-participants');
                 Route::get('/mycourses', 'App\Http\Controllers\BrowserShotController@myCourses')->name('my-courses');
                 Route::get('/person_courses/{id}', 'App\Http\Controllers\BrowserShotController@personCourses')->name('person-courses');
+                Route::get('/schedule/{id}', 'App\Http\Controllers\BrowserShotController@schedule')->name('pdf.schedule');
         });
 
         

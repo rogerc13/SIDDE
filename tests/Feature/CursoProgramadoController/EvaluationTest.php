@@ -781,7 +781,8 @@ class EvaluationTest extends TestCase
         $response->assertSee($scheduled->course->title);
         $response->assertSee('Programación');
         $response->assertSee('Ficha Técnica');
-        $response->assertSee('Imprimir horario');
+        $response->assertSee('Descargar horario');
+        $response->assertSee(url('u/pdf/schedule/' . $scheduled->id), false);
         $response->assertDontSee('href="#tab-participantes"', false);
         $response->assertDontSee('Creada:');
         $response->assertDontSee('Registrados');

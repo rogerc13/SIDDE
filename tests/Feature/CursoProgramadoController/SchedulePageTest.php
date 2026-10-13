@@ -150,8 +150,8 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Área de conocimiento');
         $response->assertSee('print-ficha-btn', false);
         $response->assertSee('Imprimir Ficha Técnica');
-        $response->assertSee('print-horario-btn', false);
-        $response->assertSee('Imprimir horario');
+        $response->assertSee('Descargar horario');
+        $response->assertSee(url('u/pdf/schedule/' . $scheduled->id), false);
         $response->assertSee('semana-grid', false);
         $response->assertSee('semana-block', false);
         $response->assertSee('Lunes');

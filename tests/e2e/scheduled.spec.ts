@@ -348,7 +348,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(page.locator('#tab-participantes')).toBeVisible();
     });
 
-    test('prints only the weekly horario from the details page', async ({ page }) => {
+    test('downloads the weekly horario PDF from the details page', async ({ page }) => {
         await scheduleFutureCourse(page);
 
         const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
@@ -356,18 +356,17 @@ test.describe('Scheduled Courses CRUD', () => {
         await row.locator('a[title="Ver detalles"]').click();
         await page.waitForLoadState('load');
 
-        await expect(page.locator('#print-horario-btn')).toBeVisible();
-
-        await page.emulateMedia({ media: 'print' });
-        await page.evaluate(() => document.body.classList.add('printing-horario'));
-
         await expect(page.locator('#details-semana')).toBeVisible();
         await expect(page.locator('#details-semana .semana-grid')).toBeVisible();
-        await expect(page.locator('.details-header')).toBeHidden();
-        await expect(page.locator('.details-tabs')).toBeHidden();
 
-        await page.evaluate(() => document.body.classList.remove('printing-horario'));
-        await page.emulateMedia({ media: 'screen' });
+        const downloadLink = page.locator('.horario-actions a', { hasText: 'Descargar horario' });
+        await expect(downloadLink).toBeVisible();
+        await expect(downloadLink).toHaveAttribute('href', /\/u\/pdf\/schedule\/\d+/);
+
+        const downloadPromise = page.waitForEvent('download');
+        await downloadLink.click();
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toContain('.pdf');
     });
 });
 
