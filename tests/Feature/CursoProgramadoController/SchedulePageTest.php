@@ -152,7 +152,9 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Imprimir Ficha Técnica');
         $response->assertSee('print-horario-btn', false);
         $response->assertSee('Imprimir horario');
-        $response->assertSee('print-horario', false);
+        $response->assertSee('semana-grid', false);
+        $response->assertSee('semana-block', false);
+        $response->assertSee('Lunes');
         $response->assertDontSee('onclick="window.print()"', false);
         $response->assertSee('programa-modal-cancel', false);
         $response->assertSee('programa-modal-delete', false);
@@ -197,7 +199,7 @@ class SchedulePageTest extends TestCase
         $response->assertSee('No disponible');
     }
 
-    public function test_details_print_horario_merges_repeated_sessions(): void
+    public function test_details_week_grid_merges_repeated_sessions(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
         $course = $this->makeCourse(['duration' => 4]);
@@ -216,7 +218,7 @@ class SchedulePageTest extends TestCase
         $response->assertOk();
         $response->assertSee('17-09-2026');
         $response->assertSee('24-09-2026');
-        $this->assertSame(1, substr_count($response->getContent(), 'class="ph-block"'));
+        $this->assertSame(1, substr_count($response->getContent(), 'class="semana-block"'));
     }
 
     public function test_create_page_renders_new_ui_elements(): void

@@ -334,7 +334,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.waitForLoadState('load');
 
         await expect(page.locator('#tab-programacion')).toBeVisible();
-        await expect(page.locator('#details-calendar')).toBeVisible();
+        await expect(page.locator('#details-semana')).toBeVisible();
 
         await page.click('a[href="#tab-ficha"]');
         await expect(page.locator('#tab-ficha')).toBeVisible();
@@ -361,8 +361,8 @@ test.describe('Scheduled Courses CRUD', () => {
         await page.emulateMedia({ media: 'print' });
         await page.evaluate(() => document.body.classList.add('printing-horario'));
 
-        await expect(page.locator('#print-horario')).toBeVisible();
-        await expect(page.locator('#print-horario .print-horario-grid')).toBeVisible();
+        await expect(page.locator('#details-semana')).toBeVisible();
+        await expect(page.locator('#details-semana .semana-grid')).toBeVisible();
         await expect(page.locator('.details-header')).toBeHidden();
         await expect(page.locator('.details-tabs')).toBeHidden();
 
@@ -758,7 +758,7 @@ test.describe('Participant Scheduled View', () => {
 
         await expect(page).toHaveURL(/\/u\/af_programadas\/\d+\/ver/);
         await expect(page.locator('#tab-programacion')).toBeVisible();
-        await expect(page.locator('#details-calendar')).toBeVisible();
+        await expect(page.locator('#details-semana')).toBeVisible();
         await expect(page.locator('a[href="#tab-participantes"]')).toHaveCount(0);
         await expect(page.locator('a[href="#tab-documentos"]')).toBeVisible();
         await expect(page.locator('a[href="#tab-ficha"]')).toBeVisible();

@@ -1,7 +1,6 @@
 @extends('layouts.admin')
 
 @push('CSS')
-<link rel="stylesheet" href="{{url('assets/js/fullcalendar-2/fullcalendar.min.css')}}">
 <style>
     .details-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
     .details-header-main { min-width: 0; }
@@ -60,15 +59,25 @@
     .details-actions .dropdown-menu > li > a > i { width: 16px; text-align: center; margin-right: 6px; color: #7a8794; }
     .details-actions .dropdown-menu > li.disabled > a { pointer-events: none; }
 
-    /* Unified section spacing */
-    #details-calendar { background: #fff; }
-    #details-calendar .fc-header-title { font-size: 15px !important; line-height: 22px !important; margin: 0 !important; }
-    #details-calendar .fc-ev-sub { display: block; font-size: 10px; line-height: 1.15; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #details-calendar .fc-event .fc-title { display: block; overflow: hidden; }
-    #details-calendar .fc-event { overflow: hidden; }
-    #details-calendar .fc-month-view .fc-ev-sub { display: none; }
+    /* Static weekly schedule grid */
+    .semana-caption { margin-bottom: 10px; font-size: 12px; color: #555; }
+    .semana-caption strong { display: block; font-size: 14px; color: #333; margin-bottom: 2px; }
+    .semana-caption > span { display: block; }
+    .semana-grid { display: flex; border: 1px solid #d5dbe1; border-radius: 3px; overflow: hidden; background: #fff; }
+    .semana-gutter { width: 58px; flex-shrink: 0; border-right: 1px solid #d5dbe1; background: #fafbfc; }
+    .semana-gutter-spacer { height: 28px; border-bottom: 1px solid #d5dbe1; }
+    .semana-hour { height: 40px; font-size: 10px; color: #7a8794; text-align: right; padding-right: 6px; box-sizing: border-box; border-bottom: 1px solid #eef1f4; }
+    .semana-days { display: flex; flex: 1; }
+    .semana-day { flex: 1 1 0; min-width: 0; border-right: 1px solid #eef1f4; }
+    .semana-day:last-child { border-right: 0; }
+    .semana-day-head { height: 28px; line-height: 28px; text-align: center; font-size: 11px; font-weight: 600; background: #f5f7f9; border-bottom: 1px solid #d5dbe1; }
+    .semana-day-body { position: relative; height: 640px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, #eef1f4 39px, #eef1f4 40px); }
+    .semana-block { position: absolute; left: 2px; right: 2px; box-sizing: border-box; background: #eef8f1; border: 1px solid #27ae60; border-left: 3px solid #27ae60; border-radius: 3px; padding: 3px 5px; font-size: 9px; line-height: 1.25; overflow: hidden; color: #2c3e50; }
+    .semana-block span { display: block; }
+    .semana-block .sb-time { font-weight: 700; }
+    .semana-block .sb-aula { color: #1f7a44; }
+    .semana-block .sb-dates { color: #444; margin-top: 2px; }
     .calendar-legend { margin-top: 8px; font-size: 12px; color: #777; }
-    .calendar-legend .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
     .calendar-legend .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
     @media print {
         .sidebar-nav, .panel-options, .no-print { display: none !important; }
@@ -85,31 +94,20 @@
         body.printing-horario .details-header,
         body.printing-horario .details-stats,
         body.printing-horario .details-tabs,
-        body.printing-horario .details-tab-content { display: none !important; }
-        body.printing-horario #print-horario { display: block !important; }
+        body.printing-horario #panel-sesiones,
+        body.printing-horario #tab-participantes,
+        body.printing-horario #tab-documentos,
+        body.printing-horario #tab-ficha { display: none !important; }
+        body.printing-horario .details-tab-content { display: block !important; border: 0; padding: 0; margin: 0; background: transparent; }
+        body.printing-horario .details-tab-content .tab-pane { display: none !important; }
+        body.printing-horario #tab-programacion { display: block !important; }
+        body.printing-horario .semana-panel { border: 0; box-shadow: none; margin: 0 !important; }
+        body.printing-horario .semana-panel .panel-heading { display: none !important; }
+        body.printing-horario .semana-panel .panel-body { padding: 0; border: 0; }
         @page { size: landscape; margin: 10mm; }
     }
     .ficha-actions { margin-bottom: 14px; text-align: right; }
     .horario-actions { margin-bottom: 14px; text-align: right; }
-
-    /* Printable date-agnostic week (horario) */
-    #print-horario { display: none; color: #000; }
-    #print-horario .print-horario-header { margin-bottom: 12px; }
-    #print-horario .print-horario-header h3 { margin: 0 0 4px; font-size: 16px; }
-    #print-horario .print-horario-header p { margin: 0; font-size: 12px; }
-    .print-horario-grid { display: flex; border: 1px solid #ccc; page-break-inside: avoid; }
-    .ph-gutter { width: 58px; flex-shrink: 0; border-right: 1px solid #ccc; }
-    .ph-gutter-spacer { height: 28px; border-bottom: 1px solid #ccc; }
-    .ph-hour-label { height: 40px; font-size: 10px; color: #555; text-align: right; padding-right: 6px; box-sizing: border-box; border-bottom: 1px solid #eee; }
-    .ph-days { display: flex; flex: 1; }
-    .ph-day { flex: 1 1 0; min-width: 0; border-right: 1px solid #ccc; }
-    .ph-day:last-child { border-right: 0; }
-    .ph-day-head { height: 28px; line-height: 28px; text-align: center; font-size: 11px; font-weight: 600; background: #f5f5f5; border-bottom: 1px solid #ccc; }
-    .ph-day-body { position: relative; height: 640px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, #eee 39px, #eee 40px); }
-    .ph-block { position: absolute; left: 2px; right: 2px; box-sizing: border-box; background: #eef8f1; border: 1px solid #27ae60; border-left: 3px solid #27ae60; border-radius: 3px; padding: 3px 5px; font-size: 9px; line-height: 1.25; overflow: hidden; }
-    .ph-block span { display: block; }
-    .ph-block .ph-time { font-weight: 700; }
-    .ph-block .ph-dates { color: #444; margin-top: 2px; }
 </style>
 @endpush
 
@@ -266,7 +264,7 @@
         <div class="horario-actions no-print">
             <button type="button" class="btn btn-success" id="print-horario-btn"><i class="fa fa-print"></i> Imprimir horario</button>
         </div>
-        <div class="panel panel-success" data-collapsed="0">
+        <div class="panel panel-success" data-collapsed="0" id="panel-sesiones">
             <div class="panel-heading">
                 <div class="panel-title">Sesiones</div>
             </div>
@@ -299,13 +297,22 @@
             </div>
         </div>
 
-        <div class="panel panel-success" data-collapsed="0" style="margin-top: 15px;">
-            <div class="panel-heading">
-                <div class="panel-title">Calendario</div>
+        <div class="panel panel-success semana-panel" data-collapsed="0" style="margin-top: 15px;">
+            <div class="panel-heading no-print">
+                <div class="panel-title">Calendario semanal</div>
             </div>
             <div class="panel-body">
-                <div id="details-calendar-wrap">
-                    <div id="details-calendar"></div>
+                <div id="details-semana">
+                    <div class="semana-caption">
+                        <strong>{{ $scheduled->course->title }}</strong>
+                        <span>{{ $printHorarioFacilitator }} <span aria-hidden="true">·</span> @date($scheduled->start_date) <span aria-hidden="true">→</span> @date($scheduled->end_date)</span>
+                    </div>
+                    @include('pages.admin.cursosprogramados._semana_grid', [
+                        'printGroups' => $printGroups,
+                        'dayNames' => $dayNames,
+                        'printHorarioCourse' => $printHorarioCourse,
+                        'printHorarioFacilitator' => $printHorarioFacilitator,
+                    ])
                 </div>
                 <div class="calendar-legend no-print">
                     <span class="legend-swatch" style="background:#27ae60;"></span>Sesiones de este curso
@@ -355,49 +362,6 @@
         @include('pages.public.partials.ficha_tecnica_body', ['curso' => $scheduled->course])
     </div>
 </div>
-
-<div id="print-horario">
-    <div class="print-horario-header">
-        <h3>{{ $scheduled->course->title }}</h3>
-        <p>{{ $printHorarioFacilitator }} <span aria-hidden="true">·</span> @date($scheduled->start_date) <span aria-hidden="true">→</span> @date($scheduled->end_date)</p>
-    </div>
-    <div class="print-horario-grid">
-        <div class="ph-gutter">
-            <div class="ph-gutter-spacer"></div>
-            @for($h = 6; $h <= 21; $h++)
-                <div class="ph-hour-label">{{ sprintf('%02d:00', $h) }}</div>
-            @endfor
-        </div>
-        <div class="ph-days">
-            @foreach($dayNames as $i => $dayName)
-                <div class="ph-day">
-                    <div class="ph-day-head">{{ $dayName }}</div>
-                    <div class="ph-day-body">
-                        @foreach($printGroups as $g)
-                            @if($g['weekday'] === $i + 1)
-                                @php
-                                    $start = \Carbon\Carbon::parse($g['start_time']);
-                                    $end = \Carbon\Carbon::parse($g['end_time']);
-                                    $startMin = min(max($start->hour * 60 + $start->minute, 360), 1320);
-                                    $endMin = min(max($end->hour * 60 + $end->minute, 360), 1320);
-                                    $top = round(($startMin - 360) / 960 * 100, 3);
-                                    $height = round(max(2, $endMin - $startMin) / 960 * 100, 3);
-                                @endphp
-                                <div class="ph-block" style="top: {{ $top }}%; height: {{ $height }}%;">
-                                    <span class="ph-time">{{ $start->format('g:i A') }} – {{ $end->format('g:i A') }}</span>
-                                    <span class="ph-aula">{{ $g['location_name'] }}</span>
-                                    <span class="ph-course">{{ $printHorarioCourse }}</span>
-                                    <span class="ph-fac">{{ $printHorarioFacilitator }}</span>
-                                    <span class="ph-dates">{{ implode(', ', $g['dates']) }}</span>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</div>
 @endsection
 
 @section('modals')
@@ -418,98 +382,7 @@
 <script src="{{asset('assets/js/evaluation.js')}}"></script>
 @endif
 <script>
-var detailSessions = @json($existingSessions);
-var detailCourseTitle = @json($scheduled->course->title);
-var detailFacilitatorName = @json($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
-
-function detailLocationColor(locationId) {
-    var n = parseInt(locationId, 10);
-    var hue = isNaN(n) ? 145 : (n * 137.508) % 360;
-    return 'hsl(' + Math.round(hue) + ', 65%, 45%)';
-}
-
-function detailTime12(t) {
-    var parts = String(t).split(':');
-    if (parts.length < 2) return t;
-    var h = parseInt(parts[0], 10);
-    var m = parts[1];
-    var period = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return h + ':' + m + ' ' + period;
-}
-
-function detailDateLabel(iso) {
-    var parts = String(iso).split('-');
-    return parts.length === 3 ? parts[2] + '-' + parts[1] + '-' + parts[0] : iso;
-}
-
-var detailsCalendarInitialized = false;
-
-function initDetailsCalendar() {
-    if (detailsCalendarInitialized || !$('#tab-programacion').hasClass('active')) return;
-    detailsCalendarInitialized = true;
-    $('#details-calendar').fullCalendar({
-        timezone: 'America/Caracas',
-        firstDay: 1,
-        header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
-        defaultView: 'agendaWeek',
-        slotDuration: '00:30:00',
-        allDaySlot: false,
-        minTime: '06:00:00',
-        maxTime: '22:00:00',
-        contentHeight: 480,
-        buttonText: {
-            today: 'Hoy',
-            month: 'Mes',
-            agendaWeek: 'Semana',
-            agendaDay: 'Día'
-        },
-        monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-        monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
-        dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
-        dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sá'],
-        columnFormat: { week: 'ddd D/M' },
-        eventClick: function(event) { return false; },
-        events: function(start, end, timezone, callback) {
-            var sessionEvents = detailSessions.map(function(s) {
-                return {
-                    id: 'session-' + s.id,
-                    title: s.location_name,
-                    start: s.session_date + 'T' + s.start_time,
-                    end: s.session_date + 'T' + s.end_time,
-                    color: detailLocationColor(s.location_id),
-                    allDay: false,
-                    courseName: detailCourseTitle,
-                    facilitatorName: detailFacilitatorName,
-                    tooltip: [s.location_name, detailCourseTitle, detailFacilitatorName, detailDateLabel(s.session_date) + ' ' + detailTime12(s.start_time) + ' – ' + detailTime12(s.end_time)].filter(Boolean).join(' · ')
-                };
-            });
-            callback(sessionEvents);
-        },
-        eventRender: function(event, element) {
-            element.attr('title', event.tooltip || event.title);
-            var sub = [event.courseName, event.facilitatorName].filter(Boolean).join(' · ');
-            var $content = element.find('.fc-content');
-            if (sub && $content.length && !element.closest('.fc-month-view').length) {
-                $content.append($('<span class="fc-ev-sub"></span>').text(sub));
-            }
-        }
-    });
-
-    if (detailSessions.length) {
-        var dates = detailSessions.map(function(s) { return s.session_date; }).sort();
-        $('#details-calendar').fullCalendar('gotoDate', dates[0]);
-    }
-}
-
 $(function() {
-    if ($('#tab-programacion').hasClass('active')) {
-        initDetailsCalendar();
-    }
-    $('a[href="#tab-programacion"]').on('shown.bs.tab', function () {
-        initDetailsCalendar();
-    });
-
     $('#print-ficha-btn').on('click', function () {
         document.body.classList.add('printing-ficha');
         window.print();
