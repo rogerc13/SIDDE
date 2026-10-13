@@ -1,13 +1,13 @@
-<br>
+@push('CSS')
+	<link rel="stylesheet" href="{{ asset('assets/css/database-tables.css') }}">
+@endpush
 
-<div class="row">
-	<div class="col-md-12">
-		<div class="panel panel-success" data-collapsed="0">
-			<div class="panel-heading">
-				<div class="panel-title">{{ $table }}</div>
-			</div>
+<div class="database-page">
+	<section class="database-block">
+		<h3 class="database-block-title">{{ $table }}</h3>
 
-			<div class="panel-body with-table table-responsive">
+		<div class="database-card">
+			<div class="table-responsive">
 				<table class="table table-striped table-bordered table-center">
 					<thead>
 						<tr>
@@ -38,9 +38,9 @@
 						@endforeach
 					</tbody>
 				</table>
-
-				<div align="center">{!! $rows->links() !!}</div>
 			</div>
 		</div>
-	</div>
+
+		<div class="database-pagination">{!! $rows->links() !!}</div>
+	</section>
 </div>

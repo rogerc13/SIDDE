@@ -241,6 +241,54 @@ class DatabaseControllerTest extends TestCase
         $this->assertDatabaseMissing('prerequisites', ['course_id' => $course->id]);
     }
 
+    public function test_table_page_renders_title_and_pagination_outside_the_card(): void
+    {
+        $html = (string) $this->actingAs($this->admin())
+            ->get('/database/roles')
+            ->assertOk()
+            ->getContent();
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML($html);
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+
+        $cards = $xpath->query('//*[contains(@class, "database-card")]');
+        $titles = $xpath->query('//*[contains(@class, "database-block-title")]');
+        $pagers = $xpath->query('//*[contains(@class, "database-pagination")]');
+
+        $this->assertGreaterThan(0, $cards->length, 'Expected a database card.');
+        $this->assertGreaterThan(0, $titles->length, 'Expected a block title.');
+        $this->assertGreaterThan(0, $pagers->length, 'Expected a pagination container.');
+
+        $card = $cards->item(0);
+
+        $this->assertGreaterThan(0, $xpath->query('.//table', $card)->length, 'The card must hold the table.');
+
+        $this->assertFalse(
+            $this->isDescendantOf($titles->item(0), $card),
+            'The table title must render outside the card.'
+        );
+
+        $this->assertFalse(
+            $this->isDescendantOf($pagers->item(0), $card),
+            'The pagination must render outside the card.'
+        );
+    }
+
+    private function isDescendantOf(\DOMNode $node, \DOMNode $ancestor): bool
+    {
+        for ($parent = $node->parentNode; $parent !== null; $parent = $parent->parentNode) {
+            if ($parent === $ancestor) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function test_registration_routes_are_disabled(): void
     {
         $this->assertFalse(Route::has('register'));

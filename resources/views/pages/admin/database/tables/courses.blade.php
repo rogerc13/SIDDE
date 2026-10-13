@@ -1,3 +1,7 @@
+@push('CSS')
+	<link rel="stylesheet" href="{{ asset('assets/css/database-tables.css') }}">
+@endpush
+
 @extends('layouts.admin')
 @section('content')
 	<h3>Administrador <small>Base de datos</small></h3>
@@ -10,14 +14,12 @@
 	<br>
 	<br>
 
-	<div class="row">
-		<div class="col-md-12">
-			<div class="panel panel-success" data-collapsed="0">
-				<div class="panel-heading">
-					<div class="panel-title">{{ $table }}</div>
-				</div>
+	<div class="database-page">
+		<section class="database-block">
+			<h3 class="database-block-title">{{ $table }}</h3>
 
-				<div class="panel-body with-table table-responsive">
+			<div class="database-card">
+				<div class="table-responsive">
 					@php($categoryNameById = isset($categories) ? collect($categories)->pluck('name', 'id') : collect())
 					@php($modalityNameById = isset($modalities) ? collect($modalities)->pluck('name', 'id') : collect())
 					<table class="table table-striped table-bordered table-center">
@@ -105,11 +107,11 @@
 							@endforeach
 						</tbody>
 					</table>
-
-					<div align="center">{!! $rows->links() !!}</div>
 				</div>
 			</div>
-		</div>
+
+			<div class="database-pagination">{!! $rows->links() !!}</div>
+		</section>
 	</div>
 @stop
 

@@ -1,0 +1,72 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Admin database browser — table blocks
+   Reuses the SIDDE design tokens so the table cards match the Reports
+   pages: the block title lives outside the card, the card holds only the
+   table, and the pagination sits below the card. Rules are namespaced
+   under .database-page so no other screen is affected.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url("sidde-ui.css");
+
+.database-page {
+    color: var(--sidde-ink);
+}
+
+.database-page .database-block {
+    margin-bottom: 16px;
+}
+
+.database-page .database-block-title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--sidde-ink);
+}
+
+.database-page .database-card {
+    background: var(--sidde-surface);
+    border: 1px solid var(--sidde-border);
+    border-radius: var(--sidde-radius);
+    box-shadow: var(--sidde-shadow);
+    overflow: hidden;
+}
+
+.database-page .database-card .table-responsive {
+    margin: 0;
+    overflow-x: auto;
+}
+
+.database-page table {
+    margin-bottom: 0;
+    background: var(--sidde-surface);
+}
+
+/* Neon success green, matching the Reports table headers (and the project's
+   index cards). The .database-card in the selector outranks the theme's
+   `.table-bordered > thead > tr > th` rule that would otherwise grey it out. */
+.database-page .database-card table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #bdedbc !important;
+    color: #045702 !important;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 2px solid #b4e8a8 !important;
+}
+
+.database-page tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.database-page tbody td {
+    font-variant-numeric: tabular-nums;
+}
+
+.database-page .database-pagination {
+    margin-top: 10px;
+    text-align: right;
+}
