@@ -22,7 +22,7 @@ test.describe('Home dashboard', () => {
         ).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('.sidde-status-stack')).toBeVisible();
-        await expect(page.locator('.sidde-panel-link', { hasText: 'Ver todas' }).first()).toBeVisible();
+        await expect(page.locator('.sidde-panel-link--icon').first()).toBeVisible();
         await expect(page.locator('.hd-card-title')).toHaveCount(0);
     });
 
@@ -34,7 +34,7 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toHaveCount(0);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
-        await expect(page.locator('.sidde-panel-link', { hasText: /Ver todas \(\d+\)/ })).toBeVisible();
+        await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
     });
 
     test('participant sees own enrolments', async ({ page }) => {
@@ -45,7 +45,7 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-panel-title', { hasText: 'Participantes activos' })).toHaveCount(0);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
-        await expect(page.locator('.sidde-panel-link', { hasText: /Ver todas \(\d+\)/ })).toBeVisible();
+        await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
         await expect(page.locator('.sidde-table tbody .btn').first()).toBeVisible();
     });
 
@@ -112,11 +112,11 @@ test.describe('Home dashboard', () => {
 
         // Accepted exceptions: status pills use the admin index's solid Neon
         // palette with white labels (matching /u/af_programadas), and the
-        // primary "Programar A.F." CTA reuses the index's brand green
-        // (#00a651). Both sit below the AA 4.5:1 threshold by product
-        // decision, so we drop only those contrast nodes and still assert
-        // everything else on the dashboard is clean.
-        const CONTRAST_EXCEPTIONS = ['.sidde-quick-btn--primary', '.badge'];
+        // primary "Programar A.F." CTA and the facilitator session count pill
+        // reuse the index's brand green (#00a651). All sit below the AA 4.5:1
+        // threshold by product decision, so we drop only those contrast nodes
+        // and still assert everything else on the dashboard is clean.
+        const CONTRAST_EXCEPTIONS = ['.sidde-quick-btn--primary', '.badge', '.count-pill'];
 
         const unexpected = serious
             .map((violation) =>

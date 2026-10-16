@@ -281,7 +281,7 @@ class HomeDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('Programas por estado');
         $response->assertSee('Por Dictar');
-        $response->assertSee('Ver todas (1)');
+        $response->assertSee('aria-label="Ver todas las acciones de formación (1)"', false);
     }
 
     public function test_overview_surfaces_the_activity_window_and_kpi_units(): void
@@ -319,7 +319,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Ver todas ('.$total.')');
+        $response->assertSee('aria-label="Ver todas mis acciones de formación ('.$total.')"', false);
         $response->assertSee('Cupos disponibles');
         $response->assertSee($rows[0]->course->title);
         $response->assertDontSee($rows[$total - 1]->course->title);
@@ -344,7 +344,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Ver todas ('.$total.')');
+        $response->assertSee('aria-label="Ver todas mis acciones de formación ('.$total.')"', false);
         $response->assertSee($rows[$total - 1]->course->title);
         $response->assertDontSee($rows[0]->course->title);
     }

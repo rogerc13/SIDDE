@@ -68,7 +68,7 @@
 	<div class="sidde-panel-heading">
 		<h2 class="sidde-panel-title">Mis próximas acciones de formación</h2>
 		@can('misCursos', \App\Models\Scheduled::class)
-			<a class="sidde-panel-link" href="{{ route('mis_acciones') }}">Ver todas ({{ $dashboard['scheduledTotal'] }})</a>
+			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ route('mis_acciones') }}" title="Ver todas" aria-label="Ver todas mis acciones de formación ({{ $dashboard['scheduledTotal'] }})"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
 		@endcan
 	</div>
 	<div class="sidde-panel-body is-flush table-responsive">

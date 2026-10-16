@@ -3,7 +3,7 @@
 		<h2 class="sidde-panel-title" id="active-participants-heading">Participantes activos</h2>
 		<span class="sidde-panel-caption">Próximos {{ $dashboard['windowDays'] }} días</span>
 		@can('getAllParticipante', \App\Models\User::class)
-			<a class="sidde-panel-link" href="{{ url('u/participantes') }}">Ver todos</a>
+			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ url('u/participantes') }}" title="Ver todos" aria-label="Ver todos los participantes activos"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
 		@endcan
 	</div>
 	<ul class="sidde-rail-list">

@@ -3,7 +3,7 @@
 		<h2 class="sidde-panel-title" id="active-facilitators-heading">Facilitadores activos</h2>
 		<span class="sidde-panel-caption">Próximos {{ $dashboard['windowDays'] }} días</span>
 		@can('getAllFacilitador', \App\Models\User::class)
-			<a class="sidde-panel-link" href="{{ url('u/facilitadores') }}">Ver todos</a>
+			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ url('u/facilitadores') }}" title="Ver todos" aria-label="Ver todos los facilitadores activos"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
 		@endcan
 	</div>
 	<ul class="sidde-rail-list">

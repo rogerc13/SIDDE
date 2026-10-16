@@ -8,7 +8,7 @@
 	<div class="sidde-panel-heading">
 		<h2 class="sidde-panel-title" id="upcoming-heading">Próximas Acciones de Formación</h2>
 		@can('getAll', \App\Models\Scheduled::class)
-			<a class="sidde-panel-link" href="{{ url('u/af_programadas') }}">Ver todas</a>
+			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ url('u/af_programadas') }}" title="Ver todas" aria-label="Ver todas las acciones de formación"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
 		@endcan
 	</div>
 	<div class="sidde-agenda">

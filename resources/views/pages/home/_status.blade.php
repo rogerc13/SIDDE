@@ -7,7 +7,7 @@
 	<div class="sidde-panel-heading">
 		<h2 class="sidde-panel-title" id="status-breakdown-heading">Programas por estado</h2>
 		@if ($canListScheduled)
-			<a class="sidde-panel-link" href="{{ url('u/af_programadas') }}">Ver todas ({{ $totalScheduled }})</a>
+			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ url('u/af_programadas') }}" title="Ver todas" aria-label="Ver todas las acciones de formación ({{ $totalScheduled }})"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
 		@endif
 	</div>
 

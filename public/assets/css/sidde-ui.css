@@ -127,6 +127,33 @@
     text-decoration: underline;
 }
 
+/* Icon-only variant for the "Ver todas/os" affordance: a quiet round
+   button that only picks up the brand green on hover/focus. */
+.sidde-ui .sidde-panel-link--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--sidde-border);
+    border-radius: 50%;
+    background: var(--sidde-surface);
+    color: var(--sidde-muted-strong);
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.sidde-ui .sidde-panel-link--icon:hover,
+.sidde-ui .sidde-panel-link--icon:focus-visible {
+    background: var(--sidde-surface-2);
+    border-color: var(--sidde-green);
+    color: var(--sidde-green);
+    text-decoration: none;
+}
+
 .sidde-ui .sidde-panel-body {
     padding: 14px 18px 18px;
 }
@@ -1016,10 +1043,10 @@
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 400;
     color: #ffffff;
-    background: var(--sidde-accent-dark);
-    border: 1px solid var(--sidde-accent-dark);
+    background: var(--sidde-green);
+    border: 1px solid var(--sidde-green);
 }
 
 .home-dashboard .empty-state {
