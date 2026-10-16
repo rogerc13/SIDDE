@@ -94,7 +94,7 @@ final class HomeDashboardService
                     'course.modality',
                     'courseStatus',
                     'sessions' => fn (Builder $query) => $this->withinWindow($query)
-                        ->with('location')
+                        ->with(['location' => fn ($location) => $location->withTrashed()])
                         ->orderBy('session_date')
                         ->orderBy('start_time'),
                 ])
@@ -136,7 +136,7 @@ final class HomeDashboardService
                 'scheduled.courseStatus',
                 'scheduled.facilitator.person',
                 'scheduled.sessions' => fn (Builder $query) => $this->withinWindow($query)
-                    ->with('location')
+                    ->with(['location' => fn ($location) => $location->withTrashed()])
                     ->orderBy('session_date')
                     ->orderBy('start_time'),
             ])
@@ -206,7 +206,7 @@ final class HomeDashboardService
                 'sessions' => fn (Builder $query) => $query
                     ->whereDate('session_date', '>=', $this->windowStart())
                     ->where('status', '!=', 'cancelled')
-                    ->with('location')
+                    ->with(['location' => fn ($location) => $location->withTrashed()])
                     ->orderBy('session_date')
                     ->orderBy('start_time'),
             ])
@@ -227,7 +227,7 @@ final class HomeDashboardService
     private function upcomingSessions(): Collection
     {
         return CourseSession::query()
-            ->with(['scheduled.course', 'scheduled.facilitator.person', 'location'])
+            ->with(['scheduled.course', 'scheduled.facilitator.person', 'location' => fn ($query) => $query->withTrashed()])
             ->whereBetween('session_date', [$this->windowStart(), $this->focusWindowEnd()])
             ->where('status', '!=', 'cancelled')
             ->whereHas('scheduled', fn (Builder $query) => $this->activeProgram($query))

@@ -40,7 +40,7 @@ class HomeDashboardTest extends TestCase
     /**
      * @return array{0: Scheduled, 1: Facilitator, 2: Course}
      */
-    private function makeScheduled(?string $sessionDate = null, array $scheduledOverrides = []): array
+    private function makeScheduled(?string $sessionDate = null, array $scheduledOverrides = [], ?int $locationId = null): array
     {
         $course = Course::factory()->create();
         Capacity::create(['min' => 1, 'max' => 20, 'course_id' => $course->id]);
@@ -59,7 +59,7 @@ class HomeDashboardTest extends TestCase
 
         CourseSession::create([
             'scheduled_course_id' => $scheduled->id,
-            'location_id' => Location::factory()->create()->id,
+            'location_id' => $locationId ?? Location::factory()->create()->id,
             'session_date' => $sessionDate ?? CarbonImmutable::today()->addDays(5)->toDateString(),
             'start_time' => '08:00',
             'end_time' => '10:00',
@@ -429,5 +429,44 @@ class HomeDashboardTest extends TestCase
         $response->assertSee('Activas');
         $response->assertSee('Sesiones próximas');
         $response->assertSee('Aprobadas');
+    }
+
+    public function test_agenda_keeps_the_aula_name_when_its_location_is_soft_deleted(): void
+    {
+        $location = Location::factory()->create(['name' => 'Aula Retirada']);
+        $location->delete();
+
+        $this->makeScheduled(null, [], $location->id);
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Agenda de Sesiones');
+        $response->assertSee('Aula Retirada');
+        $response->assertDontSee('Sin aula');
+    }
+
+    public function test_personalised_views_keep_the_aula_name_when_its_location_is_soft_deleted(): void
+    {
+        $location = Location::factory()->create(['name' => 'Aula Retirada']);
+        $location->delete();
+
+        [$scheduled] = $this->makeScheduled(null, [], $location->id);
+
+        $facilitator = User::factory()->facilitador()->create(['person_id' => $scheduled->facilitator->person_id]);
+        $this->actingAs($facilitator)->get('/home')
+            ->assertOk()
+            ->assertSee('Aula Retirada');
+
+        $participant = User::factory()->participante()->create();
+        Participant::create([
+            'person_id' => $participant->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        $this->actingAs($participant)->get('/home')
+            ->assertOk()
+            ->assertSee('Aula Retirada');
     }
 }
