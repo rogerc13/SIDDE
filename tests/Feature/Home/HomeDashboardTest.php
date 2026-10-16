@@ -279,7 +279,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Programas por estado');
+        $response->assertSee('AF Programadas por estado');
         $response->assertSee('Por Dictar');
         $response->assertSee('aria-label="Ver todas las acciones de formación (1)"', false);
     }

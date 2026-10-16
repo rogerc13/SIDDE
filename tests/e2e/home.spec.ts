@@ -12,7 +12,7 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-kpi-unit').first()).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Participantes activos' })).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Programas por estado' })).toBeVisible();
+        await expect(page.locator('.sidde-panel-title', { hasText: 'AF Programadas por estado' })).toBeVisible();
         await expect(page.locator('.sidde-rail-list .badge').first()).toBeVisible();
         await expect(
             page.locator('.sidde-panel-title', { hasText: 'Próximas Acciones de Formación' }),
