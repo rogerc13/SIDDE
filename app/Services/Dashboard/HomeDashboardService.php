@@ -3,6 +3,7 @@
 namespace App\Services\Dashboard;
 
 use App\Models\Course;
+use App\Models\CourseSession;
 use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Participant;
@@ -25,7 +26,9 @@ use Illuminate\Support\Collection;
 final class HomeDashboardService
 {
     public const ACTIVITY_WINDOW_DAYS = 30;
+    public const SESSION_FOCUS_DAYS = 7;
     public const UPCOMING_LIMIT = 6;
+    public const UPCOMING_SESSIONS_LIMIT = 6;
     public const ACTIVE_LIMIT = 6;
 
     /**
@@ -46,17 +49,25 @@ final class HomeDashboardService
             ->groupBy('course_status_id')
             ->pluck('amount', 'course_status_id');
 
+        $scheduledTotal = (int) $byStatus->sum();
+        $activeScheduledCount = (int) ($byStatus[CourseStatus::POR_DICTAR] ?? 0)
+            + (int) ($byStatus[CourseStatus::EN_CURSO] ?? 0);
+
         return [
             'mode' => 'overview',
             'windowDays' => self::ACTIVITY_WINDOW_DAYS,
+            'focusWindowDays' => self::SESSION_FOCUS_DAYS,
             'kpis' => [
                 'courses' => Course::query()->count(),
-                'scheduled' => (int) $byStatus->sum(),
+                'scheduled' => $scheduledTotal,
+                'activeScheduled' => $activeScheduledCount,
                 'activeFacilitators' => $this->activeFacilitatorsCount(),
                 'activeParticipants' => $this->activeParticipantsCount(),
-                'byStatus' => $this->statusBreakdown($byStatus),
+                'byStatus' => $this->statusBreakdown($byStatus, $scheduledTotal),
             ],
             'upcomingScheduled' => $this->upcomingScheduled(),
+            'upcomingSessions' => $this->upcomingSessions(),
+            'todaySessionsCount' => $this->todaySessionsCount(),
             'activeFacilitators' => $this->activeFacilitators(),
             'activeParticipants' => $this->activeParticipants(),
         ];
@@ -78,7 +89,15 @@ final class HomeDashboardService
             ? collect()
             : Scheduled::query()
                 ->where('facilitator_id', $facilitator->id)
-                ->with(['course.capacity', 'courseStatus'])
+                ->with([
+                    'course.capacity',
+                    'course.modality',
+                    'courseStatus',
+                    'sessions' => fn (Builder $query) => $this->withinWindow($query)
+                        ->with('location')
+                        ->orderBy('session_date')
+                        ->orderBy('start_time'),
+                ])
                 ->withCount('participants')
                 ->whereHas('sessions', fn (Builder $query) => $this->withinWindow($query))
                 ->where('course_status_id', '!=', CourseStatus::CANCELADO)
@@ -87,6 +106,7 @@ final class HomeDashboardService
 
         $seats = (int) $scheduled->sum(fn (Scheduled $item) => (int) ($item->course->capacity->first()->max ?? 0));
         $registered = (int) $scheduled->sum('participants_count');
+        $upcomingSessionsCount = (int) $scheduled->sum(fn (Scheduled $item) => $item->sessions->count());
 
         return [
             'mode' => 'facilitator',
@@ -96,6 +116,7 @@ final class HomeDashboardService
             'scheduledTotal' => $scheduled->count(),
             'participantsTotal' => $registered,
             'seatsAvailable' => max(0, $seats - $registered),
+            'upcomingSessionsCount' => $upcomingSessionsCount,
         ];
     }
 
@@ -111,18 +132,41 @@ final class HomeDashboardService
             ->where('participant_status_id', '!=', Participant::CANCELADO)
             ->with([
                 'participantStatus',
-                'scheduled.course',
+                'scheduled.course.modality',
                 'scheduled.courseStatus',
                 'scheduled.facilitator.person',
+                'scheduled.sessions' => fn (Builder $query) => $this->withinWindow($query)
+                    ->with('location')
+                    ->orderBy('session_date')
+                    ->orderBy('start_time'),
             ])
             ->orderByDesc('id')
             ->get();
+
+        $activeEnrolmentsCount = $participants
+            ->filter(fn (Participant $item) => $item->isEnCurso() || $item->isPorIniciar())
+            ->count();
+
+        $approvedCount = $participants
+            ->filter(fn (Participant $item) => $item->isAprobado())
+            ->count();
+
+        $upcomingSessionsCount = (int) $participants->sum(function (Participant $item): int {
+            if ($item->scheduled === null || $item->scheduled->isCancelado()) {
+                return 0;
+            }
+
+            return $item->scheduled->sessions->count();
+        });
 
         return [
             'mode' => 'participant',
             'windowDays' => self::ACTIVITY_WINDOW_DAYS,
             'participants' => $participants->take(self::LIST_LIMIT)->values(),
             'participantsTotal' => $participants->count(),
+            'activeEnrolmentsCount' => $activeEnrolmentsCount,
+            'approvedCount' => $approvedCount,
+            'upcomingSessionsCount' => $upcomingSessionsCount,
         ];
     }
 
@@ -154,13 +198,52 @@ final class HomeDashboardService
     private function upcomingScheduled(): Collection
     {
         return Scheduled::query()
-            ->with(['course.capacity', 'facilitator.person', 'courseStatus'])
+            ->with([
+                'course.capacity',
+                'course.modality',
+                'facilitator.person',
+                'courseStatus',
+                'sessions' => fn (Builder $query) => $query
+                    ->whereDate('session_date', '>=', $this->windowStart())
+                    ->where('status', '!=', 'cancelled')
+                    ->with('location')
+                    ->orderBy('session_date')
+                    ->orderBy('start_time'),
+            ])
             ->withCount('participants')
             ->whereDate('end_date', '>=', $this->windowStart())
             ->where('course_status_id', '!=', CourseStatus::CANCELADO)
             ->orderBy('start_date')
             ->limit(self::UPCOMING_LIMIT)
             ->get();
+    }
+
+    /**
+     * Concrete class sessions happening today or within the immediate focus
+     * window (next 7 days), ordered chronologically.
+     *
+     * @return Collection<int, CourseSession>
+     */
+    private function upcomingSessions(): Collection
+    {
+        return CourseSession::query()
+            ->with(['scheduled.course', 'scheduled.facilitator.person', 'location'])
+            ->whereBetween('session_date', [$this->windowStart(), $this->focusWindowEnd()])
+            ->where('status', '!=', 'cancelled')
+            ->whereHas('scheduled', fn (Builder $query) => $this->activeProgram($query))
+            ->orderBy('session_date')
+            ->orderBy('start_time')
+            ->limit(self::UPCOMING_SESSIONS_LIMIT)
+            ->get();
+    }
+
+    private function todaySessionsCount(): int
+    {
+        return CourseSession::query()
+            ->whereDate('session_date', $this->windowStart())
+            ->where('status', '!=', 'cancelled')
+            ->whereHas('scheduled', fn (Builder $query) => $this->activeProgram($query))
+            ->count();
     }
 
     /**
@@ -215,18 +298,20 @@ final class HomeDashboardService
 
     /**
      * @param  Collection<int|string, int|string>  $byStatus
-     * @return array<int, array{id: int, label: string, amount: int, badge: string}>
+     * @return array<int, array{id: int, label: string, amount: int, badge: string, percent: int}>
      */
-    private function statusBreakdown(Collection $byStatus): array
+    private function statusBreakdown(Collection $byStatus, int $total): array
     {
         $breakdown = [];
 
         foreach (CourseStatus::$cpstatus as $id => $label) {
+            $amount = (int) ($byStatus[$id] ?? 0);
             $breakdown[] = [
                 'id' => $id,
                 'label' => $label,
-                'amount' => (int) ($byStatus[$id] ?? 0),
+                'amount' => $amount,
                 'badge' => $this->statusBadge($id),
+                'percent' => $total > 0 ? (int) round(($amount / $total) * 100) : 0,
             ];
         }
 
@@ -274,5 +359,10 @@ final class HomeDashboardService
     private function windowEnd(): string
     {
         return CarbonImmutable::today()->addDays(self::ACTIVITY_WINDOW_DAYS)->toDateString();
+    }
+
+    private function focusWindowEnd(): string
+    {
+        return CarbonImmutable::today()->addDays(self::SESSION_FOCUS_DAYS)->toDateString();
     }
 }

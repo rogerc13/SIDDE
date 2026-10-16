@@ -1,13 +1,14 @@
 @php
 	$window = 'próximos '.$dashboard['windowDays'].' días';
 	$kpis = $dashboard['kpis'];
+	$activeScheduled = (int) ($kpis['activeScheduled'] ?? 0);
 	$cards = [
 		[
 			'value' => $kpis['courses'],
 			'label' => 'Acciones de formación',
 			'unit' => 'en el catálogo',
 			'icon' => 'entypo-book-open',
-			'color' => '#5d9cec',
+			'tone' => 'kpi-icon--blue',
 			'ability' => 'getAll',
 			'model' => \App\Models\Course::class,
 			'url' => url('u/acciones_formacion'),
@@ -15,9 +16,9 @@
 		[
 			'value' => $kpis['scheduled'],
 			'label' => 'Programadas',
-			'unit' => 'en total',
+			'unit' => $activeScheduled > 0 ? number_format($activeScheduled, 0, ',', '.').' activas · en total' : 'en total',
 			'icon' => 'entypo-calendar',
-			'color' => '#f0ad4e',
+			'tone' => 'kpi-icon--amber',
 			'ability' => 'getAll',
 			'model' => \App\Models\Scheduled::class,
 			'url' => url('u/af_programadas'),
@@ -27,7 +28,7 @@
 			'label' => 'Facilitadores',
 			'unit' => 'activos · '.$window,
 			'icon' => 'entypo-users',
-			'color' => '#8dc63f',
+			'tone' => 'kpi-icon--emerald',
 			'ability' => 'getAllFacilitador',
 			'model' => \App\Models\User::class,
 			'url' => url('u/facilitadores'),
@@ -37,7 +38,7 @@
 			'label' => 'Participantes',
 			'unit' => 'activos · '.$window,
 			'icon' => 'entypo-graduation-cap',
-			'color' => '#a97fe0',
+			'tone' => 'kpi-icon--purple',
 			'ability' => 'getAllParticipante',
 			'model' => \App\Models\User::class,
 			'url' => url('u/participantes'),
@@ -53,7 +54,7 @@
 		@else
 			<div class="sidde-kpi">
 		@endif
-			<span class="kpi-icon" style="background-color: {{ $card['color'] }};" aria-hidden="true">
+			<span class="kpi-icon {{ $card['tone'] }}" aria-hidden="true">
 				<i class="{{ $card['icon'] }}"></i>
 			</span>
 			<span class="kpi-text">

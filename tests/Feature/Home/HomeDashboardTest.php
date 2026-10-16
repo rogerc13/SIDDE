@@ -364,4 +364,70 @@ class HomeDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('u/af_programadas/'.$scheduled->id.'/ver', false);
     }
+
+    public function test_overview_renders_quick_actions_and_status_filter_links(): void
+    {
+        $this->makeScheduled();
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Programar A.F.');
+        $response->assertSee('Catálogo A.F.');
+        $response->assertSee('Reportes');
+        $response->assertSee('u/af_programadas?id_estado='.CourseStatus::POR_DICTAR, false);
+    }
+
+    public function test_overview_lists_sessions_in_the_seven_day_focus_window(): void
+    {
+        [$soonScheduled, , $soonCourse] = $this->makeScheduled(
+            CarbonImmutable::today()->toDateString(),
+        );
+        [, , $farCourse] = $this->makeScheduled(
+            CarbonImmutable::today()->addDays(HomeDashboardService::SESSION_FOCUS_DAYS + 5)->toDateString(),
+        );
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertSame(1, $overview['todaySessionsCount']);
+        $this->assertCount(1, $overview['upcomingSessions']);
+        $this->assertSame($soonScheduled->id, $overview['upcomingSessions']->first()->scheduled_course_id);
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+        $response->assertOk();
+        $response->assertSee('Agenda de Sesiones');
+        $response->assertSee('1 sesión hoy');
+        $response->assertSee($soonCourse->title);
+    }
+
+    public function test_participant_dashboard_computes_kpi_summary_counts(): void
+    {
+        [$activeScheduled] = $this->makeScheduled();
+        [$approvedScheduled] = $this->makeScheduled();
+
+        $user = User::factory()->participante()->create();
+
+        Participant::create([
+            'person_id' => $user->person_id,
+            'scheduled_id' => $activeScheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+        Participant::create([
+            'person_id' => $user->person_id,
+            'scheduled_id' => $approvedScheduled->id,
+            'participant_status_id' => Participant::APROBADO,
+        ]);
+
+        $payload = app(HomeDashboardService::class)->forParticipant($user);
+
+        $this->assertSame(1, $payload['activeEnrolmentsCount']);
+        $this->assertSame(1, $payload['approvedCount']);
+        $this->assertSame(2, $payload['upcomingSessionsCount']);
+
+        $response = $this->actingAs($user)->get('/home');
+        $response->assertOk();
+        $response->assertSee('Activas');
+        $response->assertSee('Sesiones próximas');
+        $response->assertSee('Aprobadas');
+    }
 }

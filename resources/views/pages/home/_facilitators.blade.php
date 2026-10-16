@@ -9,20 +9,25 @@
 	<ul class="sidde-rail-list">
 		@forelse ($dashboard['activeFacilitators'] as $facilitator)
 			<li class="sidde-rail-list-item">
-				<span class="sidde-rail-person">
+				<span class="sidde-rail-person-group">
 					@if ($facilitator->person->avatar_path)
 						<img src="{{ url('avatars/'.$facilitator->person->avatar_path) }}" class="sui-avatar" alt="">
 					@else
 						<img src="{{ url('assets/images/photo.jpg') }}" class="sui-avatar" alt="">
 					@endif
-					{{ $facilitator->person->name }} {{ $facilitator->person->last_name }}
+					<span class="sidde-rail-person-stack">
+						<span class="sidde-rail-person">{{ $facilitator->person->name }} {{ $facilitator->person->last_name }}</span>
+					</span>
 				</span>
 				<span class="count-pill">
 					{{ (int) $facilitator->upcoming_sessions_count }} {{ (int) $facilitator->upcoming_sessions_count === 1 ? 'sesión' : 'sesiones' }}
 				</span>
 			</li>
 		@empty
-			<li class="empty-state">Sin actividad en los próximos {{ $dashboard['windowDays'] }} días.</li>
+			<li class="empty-state">
+				<i class="entypo-users" aria-hidden="true"></i>
+				<span>Sin actividad en los próximos {{ $dashboard['windowDays'] }} días.</span>
+			</li>
 		@endforelse
 	</ul>
 </section>
