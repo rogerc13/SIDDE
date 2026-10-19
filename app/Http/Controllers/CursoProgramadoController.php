@@ -16,6 +16,7 @@ use App\Models\Person;
 use App\Models\Prerequisite;
 use App\Models\CourseSession;
 use App\Models\Location;
+use App\Support\MonthFilter;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -56,9 +57,8 @@ class CursoProgramadoController extends Controller
         $titulos = $request->input('titulos');
         $id_facilitador = $request->integer('id_facilitador');
         $id_estado = $request->integer('id_estado');
-        $date = $request->integer('fechas');
-
-        $fecha = $date;
+        $month = MonthFilter::fromRequest($request, 'fechas');
+        $fechas = MonthFilter::display($month);
 
         $facilitadores = User::where('role_id',Role::FACILITADOR)->with('person')->get();
         
@@ -84,11 +84,8 @@ class CursoProgramadoController extends Controller
         if($id_estado){
             $cursos= $cursos->where('course_status_id',$id_estado);
         }
-        if($date){
-            $fecha= new Carbon('01-'.$date);
-           $cursos = $cursos->whereMonth('start_date',$fecha->month)
-                            ->whereYear('end_date',$fecha->year);
-            $fecha=$fecha->format('m-Y');
+        if ($month !== null) {
+            $cursos = MonthFilter::applyTo($cursos, $month);
         }
 
         
@@ -99,7 +96,7 @@ class CursoProgramadoController extends Controller
                 ->with('participantes',$participantes)
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
-                ->with('fechas',$fecha)->with('estados',$estados)->with('id_estado',$id_estado)
+                ->with('fechas',$fechas)->with('estados',$estados)->with('id_estado',$id_estado)
                 ->with('locations',$locations);
     }
 
@@ -391,8 +388,8 @@ class CursoProgramadoController extends Controller
         //filters
         $titulos = $request->input('titulos');
         $id_facilitador = $request->integer('id_facilitador');
-        $date = $request->integer('fechas');
-        $fecha = $date;
+        $month = MonthFilter::fromRequest($request, 'fechas');
+        $fechas = MonthFilter::display($month);
         $lista = $categorias = Category::orderBy("name","asc");
         $categorias = $lista->pluck('name','id');
         $facilitadores = User::where('role_id',Role::FACILITADOR)->get();
@@ -426,11 +423,8 @@ class CursoProgramadoController extends Controller
         }
         if($id_facilitador)
            $cursos=$cursos->where('scheduled_course.facilitator_id','=',$id_facilitador);
-        if($date){
-            $fecha= new Carbon('01-'.$date);
-            $cursos = $cursos->whereMonth('scheduled_course.start_date',$fecha->month)
-                            ->whereYear('scheduled_course.end_date',$fecha->year);
-            $fecha=$fecha->format('m-Y');
+        if ($month !== null) {
+            $cursos = MonthFilter::applyTo($cursos, $month, 'scheduled_course.start_date');
         }
 
         $cursos = $cursos->orderBy("start_date","desc");
@@ -441,7 +435,7 @@ class CursoProgramadoController extends Controller
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
-                ->with('fechas',$fecha);
+                ->with('fechas',$fechas);
     }//misCursos .miscursos.blade "u/mis_acciones"
 
     public function userCursos(Request $request, $id)
@@ -468,10 +462,8 @@ class CursoProgramadoController extends Controller
 
         $titulos = $request->input('titulos');
         $id_facilitador = $request->integer('id_facilitador');
-        $date = $request->integer('fechas');
-
-
-        $fecha = $date;
+        $month = MonthFilter::fromRequest($request, 'fechas');
+        $fechas = MonthFilter::display($month);
 
         $lista = $categorias = Category::orderBy("name","asc");
         $categorias = $lista->pluck('name','id');
@@ -510,12 +502,8 @@ class CursoProgramadoController extends Controller
             
             $cursos = $cursos->where('scheduled_course.facilitator_id', '=', $id_facilitador); 
         }
-        if($date){
-            $fecha= new Carbon('01-'.$date);
-
-           $cursos = $cursos->whereMonth('scheduled_course.start_date',$fecha->month)
-                            ->whereYear('scheduled_course.start_date',$fecha->year);
-            $fecha=$fecha->format('m-Y');
+        if ($month !== null) {
+            $cursos = MonthFilter::applyTo($cursos, $month, 'scheduled_course.start_date');
         } 
         $cursos = $cursos->orderBy("start_date","desc");
     
@@ -525,7 +513,7 @@ class CursoProgramadoController extends Controller
                 ->with('facilitadores',$facilitadores)
                 ->with('titulos',$titulos)
                 ->with('id_facilitador',$id_facilitador)
-                ->with('fechas',$fecha)
+                ->with('fechas',$fechas)
                 ->with('usuario',$usuario);
     }
 

@@ -250,6 +250,33 @@ class PdfAccessTest extends TestCase
             ->assertRedirect('/');
     }
 
+    public function test_scheduled_pdf_accepts_month_filter(): void
+    {
+        $admin = User::factory()->administrador()->create();
+
+        $this->actingAs($admin)
+            ->get('/u/pdf/scheduled?hidden_date=10-2026')
+            ->assertOk();
+    }
+
+    public function test_my_courses_pdf_accepts_month_filter(): void
+    {
+        $participant = User::factory()->participante()->create();
+
+        $this->actingAs($participant)
+            ->get('/u/pdf/mycourses?hidden_date=10-2026')
+            ->assertOk();
+    }
+
+    public function test_person_courses_pdf_accepts_month_filter(): void
+    {
+        $admin = User::factory()->administrador()->create();
+
+        $this->actingAs($admin)
+            ->get('/u/pdf/person_courses/'.$admin->person_id.'?hidden_date=10-2026')
+            ->assertOk();
+    }
+
     public function test_schedule_pdf_view_renders_header_grid_and_merged_dates(): void
     {
         $scheduled = $this->makeScheduleWithSession();

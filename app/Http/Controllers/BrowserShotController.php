@@ -9,12 +9,12 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Location;
 use App\Models\Funciones;
+use App\Support\MonthFilter;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class BrowserShotController extends Controller
@@ -96,6 +96,7 @@ class BrowserShotController extends Controller
         }
 
         $scheduled = Scheduled::orderBy("start_date","desc")->with('course')->with('facilitator')->with('courseStatus');
+        $month = MonthFilter::fromRequest($request, 'hidden_date');
         
         if((empty($request->hidden_title) && empty($request->hidden_facilitator) && empty($request->hidden_status) && empty($request->hidden_date)) == true){
             $scheduled = $scheduled->get();
@@ -112,11 +113,8 @@ class BrowserShotController extends Controller
             if($request->hidden_status){
                 $scheduled= $scheduled->where('course_status_id',$request->hidden_status);
             }
-            if($request->hidden_date){
-                $fecha= new Carbon('01-'.$request->hidden_date);
-                $scheduled = $scheduled->whereMonth('start_date',$fecha->month)
-                                    ->whereYear('end_date',$fecha->year);
-                $fecha=$fecha->format('m-Y');
+            if ($month !== null) {
+                $scheduled = MonthFilter::applyTo($scheduled, $month);
             }
             $scheduled = $scheduled->get();
         } 
@@ -318,6 +316,7 @@ class BrowserShotController extends Controller
         }
 
         //filters
+        $month = MonthFilter::fromRequest($request, 'hidden_date');
 
         if((empty($request->hidden_title) && empty($request->hidden_facilitator) && empty($request->hidden_date)) == true){
             
@@ -338,13 +337,8 @@ class BrowserShotController extends Controller
                 $scheduled=$scheduled->where('facilitator_id','=',$request->hidden_facilitator);
                 
             }
-            if($request->hidden_date){
-                
-                $fecha= new Carbon('01-'.$request->hidden_date);
-                $scheduled = $scheduled->whereMonth('start_date',$fecha->month)
-                                    ->whereYear('end_date',$fecha->year);
-                
-                                    $fecha=$fecha->format('m-Y');
+            if ($month !== null) {
+                $scheduled = MonthFilter::applyTo($scheduled, $month);
             }
 
             $scheduled = $scheduled->get();
@@ -399,6 +393,8 @@ class BrowserShotController extends Controller
         }
 
         // Filters
+        $month = MonthFilter::fromRequest($request, 'hidden_date');
+
         if (
             empty($request->hidden_title) &&
             empty($request->hidden_facilitator) &&
@@ -419,10 +415,8 @@ class BrowserShotController extends Controller
             if ($request->hidden_status) {
                 $scheduled = $scheduled->where('course_status_id', $request->hidden_status);
             }
-            if ($request->hidden_date) {
-                $fecha = new Carbon('01-' . $request->hidden_date);
-                $scheduled = $scheduled->whereMonth('start_date', $fecha->month)
-                    ->whereYear('end_date', $fecha->year);
+            if ($month !== null) {
+                $scheduled = MonthFilter::applyTo($scheduled, $month);
             }
             $scheduled = $scheduled->get();
         }
