@@ -380,7 +380,7 @@ class HomeDashboardTest extends TestCase
 
         $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
         $response->assertOk();
-        $response->assertSee('Agenda de Sesiones');
+        $response->assertSee('Próximas Clases');
         $response->assertSee('1 sesión hoy');
         $response->assertSee($soonCourse->title);
     }
@@ -426,7 +426,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Agenda de Sesiones');
+        $response->assertSee('Próximas Clases');
         $response->assertSee('Aula Retirada');
         $response->assertDontSee('Sin aula');
     }

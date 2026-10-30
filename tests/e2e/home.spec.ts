@@ -17,7 +17,7 @@ test.describe('Home dashboard', () => {
             page.locator('.sidde-panel-title', { hasText: 'Próximas Acciones de Formación' }),
         ).toBeVisible();
         await expect(
-            page.locator('.sidde-panel-title', { hasText: 'Agenda de Sesiones' }),
+            page.locator('.sidde-panel-title', { hasText: 'Próximas Clases' }),
         ).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('.sidde-status-stack')).toBeVisible();

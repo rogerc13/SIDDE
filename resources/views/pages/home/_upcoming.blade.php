@@ -64,7 +64,7 @@
 
 <section class="sidde-panel" aria-labelledby="upcoming-sessions-heading">
 	<div class="sidde-panel-heading">
-		<h2 class="sidde-panel-title" id="upcoming-sessions-heading">Agenda de Sesiones</h2>
+		<h2 class="sidde-panel-title" id="upcoming-sessions-heading">Próximas Clases</h2>
 		<span class="sidde-panel-caption">Hoy y próximos {{ $focusDays }} días</span>
 		@if ($todayCount > 0)
 			<span class="count-pill" style="margin-left: auto;">{{ $todayCount }} {{ $todayCount === 1 ? 'sesión hoy' : 'sesiones hoy' }}</span>
