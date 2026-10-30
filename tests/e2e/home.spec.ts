@@ -11,7 +11,7 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('a.sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-kpi-unit').first()).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'AF Programadas por estado' })).toBeVisible();
+        await expect(page.locator('.sidde-panel-title', { hasText: 'Acciones de Formación Programadas por estado' })).toBeVisible();
         await expect(page.locator('.sidde-rail-list .count-pill').first()).toBeVisible();
         await expect(
             page.locator('.sidde-panel-title', { hasText: 'Próximas Acciones de Formación' }),

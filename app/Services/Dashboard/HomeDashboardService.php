@@ -44,6 +44,7 @@ final class HomeDashboardService
     public function overview(): array
     {
         $byStatus = Scheduled::query()
+            ->whereYear('start_date', CarbonImmutable::today()->year)
             ->selectRaw('course_status_id, COUNT(*) as amount')
             ->groupBy('course_status_id')
             ->pluck('amount', 'course_status_id');

@@ -234,14 +234,39 @@ class HomeDashboardTest extends TestCase
 
     public function test_overview_renders_the_status_breakdown_widget(): void
     {
-        $this->makeScheduled();
+        $this->makeScheduled(null, [
+            'start_date' => CarbonImmutable::today()->startOfYear()->addMonth()->toDateString(),
+            'end_date' => CarbonImmutable::today()->startOfYear()->addMonths(2)->toDateString(),
+        ]);
 
         $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
 
         $response->assertOk();
-        $response->assertSee('AF Programadas por estado');
+        $response->assertSee('Acciones de Formación Programadas por estado');
         $response->assertSee('Por Dictar');
         $response->assertSee('aria-label="Ver todas las acciones de formación (1)"', false);
+    }
+
+    public function test_status_breakdown_only_counts_current_year_scheduled(): void
+    {
+        $this->makeScheduled(null, [
+            'start_date' => CarbonImmutable::today()->startOfYear()->addMonth()->toDateString(),
+            'end_date' => CarbonImmutable::today()->startOfYear()->addMonths(2)->toDateString(),
+            'course_status_id' => CourseStatus::POR_DICTAR,
+        ]);
+        $this->makeScheduled(null, [
+            'start_date' => CarbonImmutable::today()->subYear()->startOfYear()->addMonth()->toDateString(),
+            'end_date' => CarbonImmutable::today()->subYear()->startOfYear()->addMonths(2)->toDateString(),
+            'course_status_id' => CourseStatus::CULMINADO,
+        ]);
+
+        $overview = app(HomeDashboardService::class)->overview();
+        $statuses = collect($overview['kpis']['byStatus'])->keyBy('id');
+
+        $this->assertSame(1, $overview['kpis']['scheduled']);
+        $this->assertSame(1, $overview['kpis']['activeScheduled']);
+        $this->assertSame(1, $statuses[CourseStatus::POR_DICTAR]['amount']);
+        $this->assertSame(0, $statuses[CourseStatus::CULMINADO]['amount']);
     }
 
     public function test_overview_surfaces_the_activity_window_and_kpi_units(): void
