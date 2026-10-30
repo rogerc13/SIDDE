@@ -7,7 +7,6 @@ use App\Models\CourseSession;
 use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Participant;
-use App\Models\Person;
 use App\Models\Scheduled;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -62,14 +61,12 @@ final class HomeDashboardService
                 'scheduled' => $scheduledTotal,
                 'activeScheduled' => $activeScheduledCount,
                 'activeFacilitators' => $this->activeFacilitatorsCount(),
-                'activeParticipants' => $this->activeParticipantsCount(),
                 'byStatus' => $this->statusBreakdown($byStatus, $scheduledTotal),
             ],
             'upcomingScheduled' => $this->upcomingScheduled(),
             'upcomingSessions' => $this->upcomingSessions(),
             'todaySessionsCount' => $this->todaySessionsCount(),
             'activeFacilitators' => $this->activeFacilitators(),
-            'activeParticipants' => $this->activeParticipants(),
         ];
     }
 
@@ -179,16 +176,6 @@ final class HomeDashboardService
             ->count('facilitator_id');
     }
 
-    private function activeParticipantsCount(): int
-    {
-        return Participant::query()
-            ->where('participant_status_id', '!=', Participant::CANCELADO)
-            ->whereHas('scheduled', fn (Builder $query) => $this->activeProgram($query))
-            ->whereHas('scheduled.sessions', fn (Builder $query) => $this->withinWindow($query))
-            ->distinct()
-            ->count('person_id');
-    }
-
     /**
      * Programmes that have not finished yet, nearest start first. Cancelled
      * programmes are excluded so the panel never advertises a dead course.
@@ -259,40 +246,6 @@ final class HomeDashboardService
             ])
             ->orderByDesc('upcoming_sessions_count')
             ->limit(self::ACTIVE_LIMIT)
-            ->get();
-    }
-
-    /**
-     * @return Collection<int, Person>
-     */
-    private function activeParticipants(): Collection
-    {
-        $personIds = Participant::query()
-            ->where('participant_status_id', '!=', Participant::CANCELADO)
-            ->whereHas('scheduled', fn (Builder $query) => $this->activeProgram($query))
-            ->whereHas('scheduled.sessions', fn (Builder $query) => $this->withinWindow($query))
-            ->select('person_id')
-            ->distinct()
-            ->orderBy('person_id')
-            ->limit(self::ACTIVE_LIMIT)
-            ->pluck('person_id');
-
-        if ($personIds->isEmpty()) {
-            return collect();
-        }
-
-        return Person::query()
-            ->whereIn('id', $personIds)
-            ->with([
-                'participant' => function ($query) {
-                    $query->where('participant_status_id', '!=', Participant::CANCELADO)
-                        ->whereHas('scheduled', fn (Builder $outer) => $this->activeProgram($outer))
-                        ->whereHas('scheduled.sessions', fn (Builder $inner) => $this->withinWindow($inner))
-                        ->with('scheduled.course', 'participantStatus')
-                        ->orderByDesc('id');
-                },
-            ])
-            ->orderBy('name')
             ->get();
     }
 

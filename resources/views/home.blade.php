@@ -49,7 +49,6 @@
 					@include('pages.home._upcoming')
 				</div>
 				<div class="sidde-dashboard-rail">
-					@include('pages.home._participants')
 					@include('pages.home._facilitators')
 					@include('pages.home._status')
 				</div>

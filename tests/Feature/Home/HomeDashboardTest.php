@@ -82,7 +82,6 @@ class HomeDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Facilitadores activos');
-        $response->assertSee('Participantes activos');
         $response->assertSee('Próximas Acciones de Formación');
     }
 
@@ -95,7 +94,6 @@ class HomeDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('Mis acciones de formación');
         $response->assertDontSee('Facilitadores activos');
-        $response->assertDontSee('Participantes activos');
     }
 
     public function test_active_facilitators_only_counts_sessions_within_the_window(): void
@@ -106,42 +104,6 @@ class HomeDashboardTest extends TestCase
         $overview = app(HomeDashboardService::class)->overview();
 
         $this->assertSame(1, $overview['kpis']['activeFacilitators']);
-    }
-
-    public function test_active_participants_counts_distinct_people(): void
-    {
-        [$scheduled] = $this->makeScheduled();
-
-        $person = Person::factory()->create();
-        Participant::create([
-            'person_id' => $person->id,
-            'scheduled_id' => $scheduled->id,
-            'participant_status_id' => Participant::ENCURSO,
-        ]);
-        Participant::create([
-            'person_id' => $person->id,
-            'scheduled_id' => $scheduled->id,
-            'participant_status_id' => Participant::ENCURSO,
-        ]);
-
-        $overview = app(HomeDashboardService::class)->overview();
-
-        $this->assertSame(1, $overview['kpis']['activeParticipants']);
-    }
-
-    public function test_cancelled_participants_are_not_counted_as_active(): void
-    {
-        [$scheduled] = $this->makeScheduled();
-
-        Participant::create([
-            'person_id' => Person::factory()->create()->id,
-            'scheduled_id' => $scheduled->id,
-            'participant_status_id' => Participant::CANCELADO,
-        ]);
-
-        $overview = app(HomeDashboardService::class)->overview();
-
-        $this->assertSame(0, $overview['kpis']['activeParticipants']);
     }
 
     public function test_upcoming_scheduled_is_ordered_by_start_date(): void
@@ -201,9 +163,7 @@ class HomeDashboardTest extends TestCase
         $overview = app(HomeDashboardService::class)->overview();
 
         $this->assertSame(0, $overview['kpis']['activeFacilitators']);
-        $this->assertSame(0, $overview['kpis']['activeParticipants']);
         $this->assertTrue($overview['activeFacilitators']->isEmpty());
-        $this->assertTrue($overview['activeParticipants']->isEmpty());
     }
 
     public function test_in_progress_scheduled_appears_in_upcoming(): void

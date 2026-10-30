@@ -33,16 +33,6 @@
 			'model' => \App\Models\User::class,
 			'url' => url('u/facilitadores'),
 		],
-		[
-			'value' => $kpis['activeParticipants'],
-			'label' => 'Participantes',
-			'unit' => 'activos · '.$window,
-			'icon' => 'entypo-graduation-cap',
-			'tone' => 'kpi-icon--purple',
-			'ability' => 'getAllParticipante',
-			'model' => \App\Models\User::class,
-			'url' => url('u/participantes'),
-		],
 	];
 @endphp
 

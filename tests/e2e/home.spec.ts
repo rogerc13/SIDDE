@@ -7,13 +7,12 @@ test.describe('Home dashboard', () => {
         await loginAs(page, 'admin');
         await page.goto('/home');
 
-        await expect(page.locator('.sidde-kpi')).toHaveCount(4);
-        await expect(page.locator('a.sidde-kpi')).toHaveCount(4);
+        await expect(page.locator('.sidde-kpi')).toHaveCount(3);
+        await expect(page.locator('a.sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-kpi-unit').first()).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Participantes activos' })).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'AF Programadas por estado' })).toBeVisible();
-        await expect(page.locator('.sidde-rail-list .badge').first()).toBeVisible();
+        await expect(page.locator('.sidde-rail-list .count-pill').first()).toBeVisible();
         await expect(
             page.locator('.sidde-panel-title', { hasText: 'Próximas Acciones de Formación' }),
         ).toBeVisible();
@@ -57,7 +56,6 @@ test.describe('Home dashboard', () => {
         await page.goto('/home');
 
         await expect(page.locator('.sidde-panel-title', { hasText: 'Mis acciones de formación' }).first()).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Participantes activos' })).toHaveCount(0);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
