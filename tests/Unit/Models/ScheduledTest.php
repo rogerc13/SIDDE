@@ -340,4 +340,147 @@ class ScheduledTest extends TestCase
 
         $this->assertCount(1, $scheduled->sessions);
     }
+
+    public function test_weekly_session_groups_merges_exact_times_across_locations(): void
+    {
+        $scheduled = $this->createScheduled();
+        $locationA = Location::factory()->create(['name' => 'Aula A']);
+        $locationB = Location::factory()->create(['name' => 'Aula B']);
+
+        foreach ([$locationA, $locationB] as $location) {
+            CourseSession::create([
+                'scheduled_course_id' => $scheduled->id,
+                'location_id' => $location->id,
+                'session_date' => '2026-09-17',
+                'start_time' => '07:00:00',
+                'end_time' => '09:00:00',
+            ]);
+        }
+
+        $groups = $scheduled->fresh()->weeklySessionGroups();
+
+        $this->assertCount(1, $groups);
+        $this->assertStringContainsString('Aula A', $groups[0]['location_name']);
+        $this->assertStringContainsString('Aula B', $groups[0]['location_name']);
+        $this->assertSame(['17-09-2026'], $groups[0]['dates']);
+    }
+
+    public function test_weekly_session_layout_splits_overlapping_groups(): void
+    {
+        $scheduled = $this->createScheduled();
+        $locationA = Location::factory()->create();
+        $locationB = Location::factory()->create();
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $locationA->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '07:00:00',
+            'end_time' => '08:00:00',
+        ]);
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $locationB->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '07:00:00',
+            'end_time' => '09:00:00',
+        ]);
+
+        $layout = $scheduled->fresh()->weeklySessionLayout();
+
+        $this->assertCount(2, $layout);
+        $this->assertEqualsCanonicalizing([0, 1], array_column($layout, 'column'));
+        $this->assertSame([2, 2], array_column($layout, 'columns'));
+    }
+
+    public function test_weekly_session_layout_keeps_non_overlapping_groups_full_width(): void
+    {
+        $scheduled = $this->createScheduled();
+        $location = Location::factory()->create();
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $location->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '07:00:00',
+            'end_time' => '08:00:00',
+        ]);
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $location->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+        ]);
+
+        $layout = $scheduled->fresh()->weeklySessionLayout();
+
+        $this->assertCount(2, $layout);
+        $this->assertSame([0, 0], array_column($layout, 'column'));
+        $this->assertSame([1, 1], array_column($layout, 'columns'));
+    }
+
+    public function test_weekly_session_layout_assigns_three_columns_to_staggered_overlaps(): void
+    {
+        $scheduled = $this->createScheduled();
+        $locations = Location::factory()->count(3)->create();
+
+        $sessions = [
+            ['07:00:00', '09:00:00'],
+            ['07:30:00', '09:30:00'],
+            ['08:00:00', '10:00:00'],
+        ];
+
+        foreach ($locations as $index => $location) {
+            CourseSession::create([
+                'scheduled_course_id' => $scheduled->id,
+                'location_id' => $location->id,
+                'session_date' => '2026-09-21',
+                'start_time' => $sessions[$index][0],
+                'end_time' => $sessions[$index][1],
+            ]);
+        }
+
+        $layout = $scheduled->fresh()->weeklySessionLayout();
+
+        $this->assertCount(3, $layout);
+        $this->assertEqualsCanonicalizing([0, 1, 2], array_column($layout, 'column'));
+        $this->assertSame([3, 3, 3], array_column($layout, 'columns'));
+    }
+
+    public function test_weekly_schedule_grid_exposes_lanes_for_overlapping_groups(): void
+    {
+        $scheduled = $this->createScheduled();
+        $locationA = Location::factory()->create();
+        $locationB = Location::factory()->create();
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $locationA->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '07:00:00',
+            'end_time' => '08:00:00',
+        ]);
+
+        CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $locationB->id,
+            'session_date' => '2026-09-21',
+            'start_time' => '07:00:00',
+            'end_time' => '09:00:00',
+        ]);
+
+        $grid = $scheduled->fresh()->weeklyScheduleGrid();
+        $day = \Carbon\Carbon::parse('2026-09-21')->dayOfWeekIso;
+        $blocks = array_values(array_filter(
+            $grid['rows'][2]['cells'][$day],
+            fn (array $cell): bool => $cell['block'] !== null
+        ));
+
+        $this->assertSame(2, $grid['columns'][$day]);
+        $this->assertCount(2, $blocks);
+        $this->assertSame([1, 1], array_column($blocks, 'colspan'));
+    }
 }

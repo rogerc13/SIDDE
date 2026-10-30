@@ -23,8 +23,12 @@
                                 $endMin = min(max($end->hour * 60 + $end->minute, 360), 1320);
                                 $top = round(($startMin - 360) / 960 * 100, 3);
                                 $height = round(max(2, $endMin - $startMin) / 960 * 100, 3);
+                                $columns = max(1, (int) ($g['columns'] ?? 1));
+                                $column = (int) ($g['column'] ?? 0);
+                                $left = round($column / $columns * 100, 3);
+                                $width = round(100 / $columns, 3);
                             @endphp
-                            <div class="semana-block" style="top: {{ $top }}%; height: {{ $height }}%;">
+                            <div class="semana-block{{ $columns > 1 ? ' semana-block--split' : '' }}" style="top: {{ $top }}%; height: {{ $height }}%; left: calc({{ $left }}% + 2px); width: calc({{ $width }}% - 4px);">
                                 <span class="sb-time">{{ $start->format('g:i A') }} – {{ $end->format('g:i A') }}</span>
                                 <span class="sb-aula">{{ $g['location_name'] }}</span>
                                 <span class="sb-course">{{ $gridCourse }}</span>

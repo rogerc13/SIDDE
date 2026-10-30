@@ -70,10 +70,10 @@ class Scheduled extends Model
   }
 
   /**
-   * Merge sessions that share weekday, time and aula into a single weekly
-   * block, collecting the concrete dates it takes place on.
+   * Merge sessions that share weekday and exact start/end time into a single
+   * weekly block, collecting every aula and concrete date it takes place on.
    *
-   * @return array<int, array{weekday: int, start_time: string, end_time: string, location_name: string, dates: array<int, string>}>
+   * @return array<int, array{weekday: int, start_time: string, end_time: string, location_name: string, location_names: array<int, string>, dates: array<int, string>}>
    */
   public function weeklySessionGroups(): array
   {
@@ -85,16 +85,22 @@ class Scheduled extends Model
 
       foreach ($this->sessions as $session) {
           $weekday = Carbon::parse($session->session_date)->dayOfWeekIso;
-          $key = $weekday . '|' . $session->start_time . '|' . $session->end_time . '|' . $session->location_id;
+          $key = $weekday . '|' . $session->start_time . '|' . $session->end_time;
 
           if (!isset($groups[$key])) {
               $groups[$key] = [
                   'weekday' => $weekday,
                   'start_time' => $session->start_time,
                   'end_time' => $session->end_time,
-                  'location_name' => $session->location ? $session->location->name : '',
+                  'location_names' => [],
+                  'location_name' => '',
                   'dates' => [],
               ];
+          }
+
+          $locationName = $session->location ? $session->location->name : '';
+          if ($locationName !== '' && !in_array($locationName, $groups[$key]['location_names'], true)) {
+              $groups[$key]['location_names'][] = $locationName;
           }
 
           $dateLabel = Carbon::parse($session->session_date)->format('d-m-Y');
@@ -102,6 +108,11 @@ class Scheduled extends Model
               $groups[$key]['dates'][] = $dateLabel;
           }
       }
+
+      foreach ($groups as &$group) {
+          $group['location_name'] = implode(', ', $group['location_names']);
+      }
+      unset($group);
 
       usort($groups, function ($a, $b) {
           return [$a['weekday'], $a['start_time']] <=> [$b['weekday'], $b['start_time']];
@@ -111,71 +122,179 @@ class Scheduled extends Model
   }
 
   /**
-   * Lay the weekly session groups out on a fixed time-slot grid (one row per
-   * slot, one column per weekday) so it can be rendered as an HTML table.
+   * Arrange the weekly session groups in non-overlapping columns per weekday.
    *
-   * @return array<int, array{hour: ?string, cells: array<int, ?array{rowspan: int, time: string, location_name: string, dates: array<int, string>}>}>
+   * @return array<int, array{weekday: int, start_time: string, end_time: string, location_name: string, location_names: array<int, string>, dates: array<int, string>, column: int, columns: int}>
+   */
+  public function weeklySessionLayout(): array
+  {
+      $groups = $this->weeklySessionGroups();
+      $byDay = [];
+
+      foreach ($groups as $index => $group) {
+          $byDay[(int) $group['weekday']][] = $index;
+      }
+
+      foreach ($byDay as $indices) {
+          usort($indices, function (int $a, int $b) use ($groups): int {
+              $byStart = $this->timeToMinutes($groups[$a]['start_time']) <=> $this->timeToMinutes($groups[$b]['start_time']);
+
+              if ($byStart !== 0) {
+                  return $byStart;
+              }
+
+              return $this->timeToMinutes($groups[$b]['end_time']) <=> $this->timeToMinutes($groups[$a]['end_time']);
+          });
+
+          $cluster = [];
+          $clusterEnd = -1;
+
+          foreach ($indices as $index) {
+              $start = $this->timeToMinutes($groups[$index]['start_time']);
+
+              if ($cluster !== [] && $start >= $clusterEnd) {
+                  $this->assignSessionColumns($groups, $cluster);
+                  $cluster = [];
+                  $clusterEnd = -1;
+              }
+
+              $cluster[] = $index;
+              $clusterEnd = max($clusterEnd, $this->timeToMinutes($groups[$index]['end_time']));
+          }
+
+          if ($cluster !== []) {
+              $this->assignSessionColumns($groups, $cluster);
+          }
+      }
+
+      return $groups;
+  }
+
+  /**
+   * @param array<int, array<string, mixed>> $groups
+   * @param array<int, int> $indices
+   */
+  private function assignSessionColumns(array &$groups, array $indices): void
+  {
+      $columnEnds = [];
+      $assigned = [];
+
+      foreach ($indices as $index) {
+          $start = $this->timeToMinutes($groups[$index]['start_time']);
+          $end = $this->timeToMinutes($groups[$index]['end_time']);
+          $column = null;
+
+          foreach ($columnEnds as $candidate => $columnEnd) {
+              if ($start >= $columnEnd) {
+                  $column = $candidate;
+                  $columnEnds[$candidate] = $end;
+                  break;
+              }
+          }
+
+          if ($column === null) {
+              $column = count($columnEnds);
+              $columnEnds[] = $end;
+          }
+
+          $assigned[$index] = $column;
+      }
+
+      $columns = count($columnEnds);
+
+      foreach ($assigned as $index => $column) {
+          $groups[$index]['column'] = $column;
+          $groups[$index]['columns'] = $columns;
+      }
+  }
+
+  private function timeToMinutes(string $time): int
+  {
+      $parts = explode(':', $time);
+
+      return ((int) $parts[0]) * 60 + (int) ($parts[1] ?? 0);
+  }
+
+  /**
+   * Lay the weekly session groups on a slot grid split into per-day lanes so
+   * overlapping blocks share their horizontal space instead of stacking.
+   *
+   * @return array{columns: array<int, int>, rows: array<int, array{hour: ?string, cells: array<int, array<int, array{colspan: int, rowspan: int, block: ?array{time: string, location_name: string, dates: array<int, string>}}>>}>}
    */
   public function weeklyScheduleGrid(int $startHour = 6, int $endHour = 22, int $stepMinutes = 30): array
   {
       $dayStart = $startHour * 60;
       $slotCount = (int) ((($endHour - $startHour) * 60) / $stepMinutes);
 
-      $cells = array_fill(1, 7, []);
-      $covered = array_fill(1, 7, array_fill(0, $slotCount, false));
+      $groups = $this->weeklySessionLayout();
+      $columns = array_fill(1, 7, 1);
+      $byDay = array_fill(1, 7, []);
 
-      foreach ($this->weeklySessionGroups() as $group) {
+      foreach ($groups as $group) {
           $day = (int) $group['weekday'];
+
           if ($day < 1 || $day > 7) {
               continue;
           }
 
-          $start = Carbon::parse($group['start_time']);
-          $end = Carbon::parse($group['end_time']);
-          $startMin = max($start->hour * 60 + $start->minute, $dayStart);
-          $endMin = min($end->hour * 60 + $end->minute, $endHour * 60);
+          $byDay[$day][] = $group;
+          $columns[$day] = max($columns[$day], (int) $group['columns']);
+      }
 
-          if ($endMin <= $startMin) {
-              continue;
-          }
+      $starts = [];
+      $covered = [];
 
-          $span = max(1, (int) ceil(($endMin - $startMin) / $stepMinutes));
-          $row = intdiv($startMin - $dayStart, $stepMinutes);
-          $placed = false;
+      foreach ($byDay as $day => $dayGroups) {
+          $lanes = $columns[$day];
+          $starts[$day] = [];
+          $covered[$day] = array_fill(0, $slotCount, array_fill(0, $lanes, false));
 
-          for (; $row <= $slotCount - $span; $row++) {
-              $free = true;
-              for ($offset = 0; $offset < $span; $offset++) {
-                  if ($covered[$day][$row + $offset]) {
-                      $free = false;
-                      break;
+          foreach ($dayGroups as $group) {
+              $startMin = max($this->timeToMinutes($group['start_time']), $dayStart);
+              $endMin = min($this->timeToMinutes($group['end_time']), $endHour * 60);
+
+              if ($endMin <= $startMin) {
+                  continue;
+              }
+
+              $row = intdiv($startMin - $dayStart, $stepMinutes);
+              $span = min(
+                  max(1, (int) ceil(($endMin - $startMin) / $stepMinutes)),
+                  $slotCount - $row
+              );
+
+              if ($span < 1) {
+                  continue;
+              }
+
+              $groupColumns = max(1, (int) $group['columns']);
+              $colStart = intdiv((int) $group['column'] * $lanes, $groupColumns);
+              $colEnd = intdiv(((int) $group['column'] + 1) * $lanes, $groupColumns);
+              $colspan = max(1, $colEnd - $colStart);
+
+              if (! $this->isGridAreaFree($covered[$day], $row, $span, $colStart, $colspan)) {
+                  continue;
+              }
+
+              for ($r = $row; $r < $row + $span; $r++) {
+                  for ($c = $colStart; $c < $colStart + $colspan; $c++) {
+                      $covered[$day][$r][$c] = true;
                   }
               }
 
-              if ($free) {
-                  $placed = true;
-                  break;
-              }
+              $starts[$day][$row][$colStart] = [
+                  'colspan' => $colspan,
+                  'rowspan' => $span,
+                  'block' => [
+                      'time' => Carbon::parse($group['start_time'])->format('g:i A') . ' – ' . Carbon::parse($group['end_time'])->format('g:i A'),
+                      'location_name' => $group['location_name'],
+                      'dates' => $group['dates'],
+                  ],
+              ];
           }
-
-          if (!$placed) {
-              continue;
-          }
-
-          for ($offset = 0; $offset < $span; $offset++) {
-              $covered[$day][$row + $offset] = true;
-          }
-
-          $cells[$day][$row] = [
-              'rowspan' => $span,
-              'time' => $start->format('g:i A') . ' – ' . $end->format('g:i A'),
-              'location_name' => $group['location_name'],
-              'dates' => $group['dates'],
-          ];
       }
 
       $rows = [];
-      $occupiedUntil = array_fill(1, 7, 0);
 
       for ($row = 0; $row < $slotCount; $row++) {
           $totalMinutes = $dayStart + $row * $stepMinutes;
@@ -185,22 +304,50 @@ class Scheduled extends Model
           ];
 
           for ($day = 1; $day <= 7; $day++) {
-              if ($occupiedUntil[$day] > $row) {
-                  continue;
+              $cells = [];
+              $cursor = 0;
+              $lanes = $columns[$day];
+
+              while ($cursor < $lanes) {
+                  if (isset($starts[$day][$row][$cursor])) {
+                      $cell = $starts[$day][$row][$cursor];
+                      $cells[] = $cell;
+                      $cursor += $cell['colspan'];
+                      continue;
+                  }
+
+                  if ($covered[$day][$row][$cursor]) {
+                      $cursor++;
+                      continue;
+                  }
+
+                  $cells[] = ['colspan' => 1, 'rowspan' => 1, 'block' => null];
+                  $cursor++;
               }
 
-              if (isset($cells[$day][$row])) {
-                  $gridRow['cells'][$day] = $cells[$day][$row];
-                  $occupiedUntil[$day] = $row + $cells[$day][$row]['rowspan'];
-              } else {
-                  $gridRow['cells'][$day] = null;
-              }
+              $gridRow['cells'][$day] = $cells;
           }
 
           $rows[] = $gridRow;
       }
 
-      return $rows;
+      return ['columns' => $columns, 'rows' => $rows];
+  }
+
+  /**
+   * @param array<int, array<int, bool>> $covered
+   */
+  private function isGridAreaFree(array $covered, int $row, int $span, int $colStart, int $colspan): bool
+  {
+      for ($r = $row; $r < $row + $span; $r++) {
+          for ($c = $colStart; $c < $colStart + $colspan; $c++) {
+              if ($covered[$r][$c] ?? true) {
+                  return false;
+              }
+          }
+      }
+
+      return true;
   }
   
   public function isPorDictar(){

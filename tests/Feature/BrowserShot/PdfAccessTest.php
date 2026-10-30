@@ -292,11 +292,13 @@ class PdfAccessTest extends TestCase
         ]);
 
         $scheduled->load(['course', 'facilitator.person', 'sessions.location']);
+        $grid = $scheduled->weeklyScheduleGrid();
 
         $html = view('pdf.schedule', [
             'scheduled' => $scheduled,
             'dayNames' => ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
-            'rows' => $scheduled->weeklyScheduleGrid(),
+            'rows' => $grid['rows'],
+            'columns' => $grid['columns'],
         ])->render();
 
         $this->assertStringContainsString($scheduled->course->title, $html);
@@ -304,5 +306,65 @@ class PdfAccessTest extends TestCase
         $this->assertStringContainsString('8:00 AM', $html);
         $this->assertStringContainsString('08:00', $html);
         $this->assertSame(1, substr_count($html, 'class="schedule-block"'));
+    }
+
+    public function test_schedule_pdf_splits_overlapping_blocks(): void
+    {
+        $scheduled = $this->makeScheduleWithSession();
+        $session = $scheduled->sessions()->first();
+
+        \App\Models\CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => \App\Models\Location::factory()->create()->id,
+            'session_date' => $session->session_date,
+            'start_time' => '07:00',
+            'end_time' => '09:00',
+        ]);
+
+        $scheduled->load(['course', 'facilitator.person', 'sessions.location']);
+        $grid = $scheduled->weeklyScheduleGrid();
+
+        $html = view('pdf.schedule', [
+            'scheduled' => $scheduled,
+            'dayNames' => ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+            'rows' => $grid['rows'],
+            'columns' => $grid['columns'],
+        ])->render();
+
+        $this->assertSame(2, substr_count($html, 'class="schedule-block"'));
+        $this->assertStringContainsString('colspan="2"', $html);
+        $this->assertStringContainsString('7:00 AM', $html);
+        $this->assertStringContainsString('9:00 AM', $html);
+    }
+
+    public function test_schedule_pdf_merges_exact_times_across_locations(): void
+    {
+        $scheduled = $this->makeScheduleWithSession();
+        $session = $scheduled->sessions()->first();
+        $secondLocation = \App\Models\Location::factory()->create(['name' => 'Aula Compartida']);
+
+        \App\Models\CourseSession::create([
+            'scheduled_course_id' => $scheduled->id,
+            'location_id' => $secondLocation->id,
+            'session_date' => $session->session_date,
+            'start_time' => $session->start_time,
+            'end_time' => $session->end_time,
+        ]);
+
+        $scheduled->load(['course', 'facilitator.person', 'sessions.location']);
+        $grid = $scheduled->weeklyScheduleGrid();
+
+        $html = view('pdf.schedule', [
+            'scheduled' => $scheduled,
+            'dayNames' => ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+            'rows' => $grid['rows'],
+            'columns' => $grid['columns'],
+        ])->render();
+
+        $day = (int) \Carbon\Carbon::parse($session->session_date)->dayOfWeekIso;
+
+        $this->assertSame(1, substr_count($html, 'class="schedule-block"'));
+        $this->assertSame(1, $grid['columns'][$day]);
+        $this->assertStringContainsString('Aula Compartida', $html);
     }
 }

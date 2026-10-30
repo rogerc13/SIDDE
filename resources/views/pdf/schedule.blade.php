@@ -13,7 +13,6 @@
         table.schedule-grid {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
         }
         table.schedule-grid th,
         table.schedule-grid td {
@@ -31,7 +30,15 @@
             padding: 4px 2px;
         }
         table.schedule-grid th.sg-hour {
-            width: 46px;
+            width: 5%;
+        }
+        table.schedule-grid th.sg-lane {
+            height: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            font-size: 0;
+            line-height: 0;
         }
         table.schedule-grid td.sg-hour {
             background-color: #f6f8f9;
@@ -41,6 +48,8 @@
             padding: 2px 4px;
         }
         table.schedule-grid tbody td { height: 17px; }
+        table.schedule-grid td.sg-no-left { border-left: 0; }
+        table.schedule-grid td.sg-no-right { border-right: 0; }
         .schedule-block {
             background-color: #eef8f1;
             border-left: 2px solid #27ae60;
@@ -48,6 +57,8 @@
             font-size: 7.5px;
             line-height: 1.25;
             color: #1f2733;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         .schedule-block span { display: block; }
         .schedule-block .sb-time { font-weight: bold; }
@@ -58,9 +69,21 @@
     <table class="schedule-grid">
         <thead>
             <tr>
-                <th class="sg-hour"></th>
-                @foreach($dayNames as $dayName)
-                    <th>{{ $dayName }}</th>
+                <th class="sg-hour" rowspan="2"></th>
+                @foreach($dayNames as $dayIndex => $dayName)
+                    @php $dayLanes = (int) ($columns[$dayIndex + 1] ?? 1); @endphp
+                    <th colspan="{{ $dayLanes }}">{{ $dayName }}</th>
+                @endforeach
+            </tr>
+            <tr>
+                @foreach($dayNames as $dayIndex => $dayName)
+                    @php
+                        $dayLanes = (int) ($columns[$dayIndex + 1] ?? 1);
+                        $laneWidth = round((95 / 7) / $dayLanes, 3);
+                    @endphp
+                    @for($lane = 0; $lane < $dayLanes; $lane++)
+                        <th class="sg-lane" style="width: {{ $laneWidth }}%;"></th>
+                    @endfor
                 @endforeach
             </tr>
         </thead>
@@ -69,23 +92,40 @@
                 <tr>
                     <td class="sg-hour">{{ $row['hour'] }}</td>
                     @foreach($dayNames as $dayIndex => $dayName)
-                        @php $day = $dayIndex + 1; @endphp
-                        @if(array_key_exists($day, $row['cells']))
-                            @php $cell = $row['cells'][$day]; @endphp
-                            @if($cell === null)
-                                <td></td>
-                            @else
-                                <td rowspan="{{ $cell['rowspan'] }}">
+                        @php
+                            $day = $dayIndex + 1;
+                            $lanes = (int) ($columns[$day] ?? 1);
+                            $laneCursor = 0;
+                        @endphp
+                        @foreach($row['cells'][$day] as $cell)
+                            @php
+                                $cellStart = $laneCursor;
+                                $laneCursor += $cell['colspan'];
+                                $cellClasses = [];
+
+                                if (! $cell['block']) {
+                                    if ($cellStart > 0) {
+                                        $cellClasses[] = 'sg-no-left';
+                                    }
+                                    if ($laneCursor < $lanes) {
+                                        $cellClasses[] = 'sg-no-right';
+                                    }
+                                }
+                            @endphp
+                            @if($cell['block'])
+                                <td class="{{ implode(' ', $cellClasses) }}" colspan="{{ $cell['colspan'] }}" rowspan="{{ $cell['rowspan'] }}">
                                     <div class="schedule-block">
-                                        <span class="sb-time">{{ $cell['time'] }}</span>
-                                        @if($cell['location_name'])
-                                            <span class="sb-aula">{{ $cell['location_name'] }}</span>
+                                        <span class="sb-time">{{ $cell['block']['time'] }}</span>
+                                        @if($cell['block']['location_name'])
+                                            <span class="sb-aula">{{ $cell['block']['location_name'] }}</span>
                                         @endif
-                                        <span class="sb-dates">{{ implode(', ', $cell['dates']) }}</span>
+                                        <span class="sb-dates">{{ implode(', ', $cell['block']['dates']) }}</span>
                                     </div>
                                 </td>
+                            @else
+                                <td class="{{ implode(' ', $cellClasses) }}" colspan="{{ $cell['colspan'] }}" rowspan="{{ $cell['rowspan'] }}"></td>
                             @endif
-                        @endif
+                        @endforeach
                     @endforeach
                 </tr>
             @endforeach

@@ -72,8 +72,10 @@
     .semana-day:last-child { border-right: 0; }
     .semana-day-head { height: 28px; line-height: 28px; text-align: center; font-size: 11px; font-weight: 600; background: #f5f7f9; border-bottom: 1px solid #d5dbe1; }
     .semana-day-body { position: relative; height: 640px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, #eef1f4 39px, #eef1f4 40px); }
-    .semana-block { position: absolute; left: 2px; right: 2px; box-sizing: border-box; background: #eef8f1; border: 1px solid #27ae60; border-left: 3px solid #27ae60; border-radius: 3px; padding: 3px 5px; font-size: 9px; line-height: 1.25; overflow: hidden; color: #2c3e50; }
+    .semana-block { position: absolute; box-sizing: border-box; min-width: 0; background: #eef8f1; border: 1px solid #27ae60; border-left: 3px solid #27ae60; border-radius: 3px; padding: 3px 5px; font-size: 9px; line-height: 1.25; overflow: hidden; color: #2c3e50; }
     .semana-block span { display: block; }
+    .semana-block--split { padding: 2px 3px; font-size: 8px; }
+    .semana-block--split .sb-course, .semana-block--split .sb-fac { display: none; }
     .semana-block .sb-time { font-weight: 700; }
     .semana-block .sb-aula { color: #1f7a44; }
     .semana-block .sb-dates { color: #444; margin-top: 2px; }
@@ -123,7 +125,7 @@
     }
 
     $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    $printGroups = $scheduled->weeklySessionGroups();
+    $printGroups = $scheduled->weeklySessionLayout();
     $printHorarioCourse = $scheduled->course->title;
     $printHorarioFacilitator = trim($scheduled->facilitator->person->name . ' ' . $scheduled->facilitator->person->last_name);
 @endphp

@@ -221,6 +221,52 @@ class SchedulePageTest extends TestCase
         $this->assertSame(1, substr_count($response->getContent(), 'class="semana-block"'));
     }
 
+    public function test_details_week_grid_splits_overlapping_sessions(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 4]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+        $locationA = $this->makeLocation();
+        $locationB = $this->makeLocation();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $locationA->id, 'session_date' => '2026-09-17', 'start_time' => '07:00', 'end_time' => '08:00'],
+            ['location_id' => $locationB->id, 'session_date' => '2026-09-17', 'start_time' => '07:00', 'end_time' => '09:00'],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
+
+        $response->assertOk();
+        $this->assertSame(2, substr_count($response->getContent(), 'class="semana-block'));
+        $response->assertSee('left: calc(0% + 2px)', false);
+        $response->assertSee('left: calc(50% + 2px)', false);
+        $response->assertSee('width: calc(50% - 4px)', false);
+    }
+
+    public function test_details_week_grid_merges_sessions_with_exact_times_across_locations(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 4]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+        $locationA = $this->makeLocation();
+        $locationB = $this->makeLocation();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $locationA->id, 'session_date' => '2026-09-17', 'start_time' => '07:00', 'end_time' => '09:00'],
+            ['location_id' => $locationB->id, 'session_date' => '2026-09-17', 'start_time' => '07:00', 'end_time' => '09:00'],
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
+
+        $response->assertOk();
+        $this->assertSame(1, substr_count($response->getContent(), 'class="semana-block"'));
+        $response->assertSee($locationA->name);
+        $response->assertSee($locationB->name);
+        $response->assertSee('width: calc(100% - 4px)', false);
+    }
+
     public function test_create_page_renders_new_ui_elements(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);

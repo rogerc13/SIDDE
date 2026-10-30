@@ -255,12 +255,13 @@ class BrowserShotController extends Controller
         }
 
         $dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-        $rows = $scheduled->weeklyScheduleGrid();
+        $grid = $scheduled->weeklyScheduleGrid();
 
         $pdf = Pdf::loadView('pdf.schedule', [
             'scheduled' => $scheduled,
             'dayNames' => $dayNames,
-            'rows' => $rows,
+            'rows' => $grid['rows'],
+            'columns' => $grid['columns'],
         ])->setPaper('a4', 'landscape');
 
         $title = trim(str_replace(['/', '\\'], '-', $scheduled->course->title));
