@@ -196,6 +196,19 @@ class HomeDashboardTest extends TestCase
         $this->assertCount(HomeDashboardService::UPCOMING_LIMIT, $upcoming);
     }
 
+    public function test_upcoming_sessions_respects_the_limit(): void
+    {
+        for ($i = 0; $i < HomeDashboardService::UPCOMING_SESSIONS_LIMIT + 3; $i++) {
+            $this->makeScheduled(
+                CarbonImmutable::today()->addDays($i % HomeDashboardService::SESSION_FOCUS_DAYS)->toDateString(),
+            );
+        }
+
+        $upcoming = app(HomeDashboardService::class)->overview()['upcomingSessions'];
+
+        $this->assertCount(HomeDashboardService::UPCOMING_SESSIONS_LIMIT, $upcoming);
+    }
+
     public function test_cancelled_scheduled_courses_are_not_listed_as_upcoming(): void
     {
         [$cancelled] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CANCELADO]);

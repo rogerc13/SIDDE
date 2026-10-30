@@ -27,7 +27,7 @@ final class HomeDashboardService
     public const ACTIVITY_WINDOW_DAYS = 30;
     public const SESSION_FOCUS_DAYS = 7;
     public const UPCOMING_LIMIT = 6;
-    public const UPCOMING_SESSIONS_LIMIT = 6;
+    public const UPCOMING_SESSIONS_LIMIT = 7;
     public const ACTIVE_LIMIT = 6;
 
     /**
