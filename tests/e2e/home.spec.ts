@@ -26,6 +26,21 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.hd-card-title')).toHaveCount(0);
     });
 
+    test('sidebar shows an Inicio link above Áreas de Conocimiento', async ({ page }) => {
+        await loginAs(page, 'admin');
+        await page.goto('/home');
+
+        const inicio = page.locator('#main-menu a', { hasText: 'Inicio' });
+        const areas = page.locator('#main-menu a', { hasText: 'Áreas de Conocimiento' });
+
+        await expect(inicio).toBeVisible();
+        await expect(inicio).toHaveAttribute('href', /\/home$/);
+        await expect(areas).toBeVisible();
+        expect(await inicio.boundingBox()).not.toBeNull();
+        expect(await areas.boundingBox()).not.toBeNull();
+        expect((await inicio.boundingBox())!.y).toBeLessThan((await areas.boundingBox())!.y);
+    });
+
     test('facilitator sees a personalized agenda', async ({ page }) => {
         await loginAs(page, 'facilitador');
         await page.goto('/home');

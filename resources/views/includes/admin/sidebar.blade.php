@@ -130,6 +130,12 @@
 					</ul>
 				</li> --}}
 
+			<li class="{{ Request::is('home') ? 'active' : '' }}" title="Inicio">
+				<a href="{{ route('home') }}">
+					<i class="entypo-home"></i>
+					<span class="title">Inicio</span>
+				</a>
+			</li>
 		@can('getAll','App\Models\Category')
 			<li class="{{ Request::is('u/areas') ? 'active' : '' }} " title="Gestión de Áreas de Conocimiento">
 				<a href="{{url("u/areas")}}">
