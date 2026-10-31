@@ -64,6 +64,7 @@
         .schedule-block .sb-time { font-weight: bold; }
         .schedule-block .sb-aula { color: #1f7a44; }
         .schedule-block .sb-dates { color: #444; }
+        .schedule-block .sb-date { display: inline-block; white-space: nowrap; }
     </style>
 
     <table class="schedule-grid">
@@ -119,7 +120,11 @@
                                         @if($cell['block']['location_name'])
                                             <span class="sb-aula">{{ $cell['block']['location_name'] }}</span>
                                         @endif
-                                        <span class="sb-dates">{{ implode(', ', $cell['block']['dates']) }}</span>
+                                        <span class="sb-dates">
+                                            @foreach($cell['block']['dates'] as $date)
+                                                <span class="sb-date">{{ $date }}@if(!$loop->last),@endif</span>
+                                            @endforeach
+                                        </span>
                                     </div>
                                 </td>
                             @else

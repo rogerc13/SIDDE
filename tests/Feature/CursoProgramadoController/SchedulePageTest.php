@@ -218,7 +218,9 @@ class SchedulePageTest extends TestCase
         $response->assertOk();
         $response->assertSee('17-09-2026');
         $response->assertSee('24-09-2026');
+        $response->assertSee('.semana-block .sb-date { display: inline-block; white-space: nowrap; }', false);
         $this->assertSame(1, substr_count($response->getContent(), 'class="semana-block"'));
+        $this->assertSame(2, substr_count($response->getContent(), 'class="sb-date"'));
     }
 
     public function test_details_week_grid_splits_overlapping_sessions(): void

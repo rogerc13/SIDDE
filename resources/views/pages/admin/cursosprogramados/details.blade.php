@@ -79,6 +79,7 @@
     .semana-block .sb-time { font-weight: 700; }
     .semana-block .sb-aula { color: #1f7a44; }
     .semana-block .sb-dates { color: #444; margin-top: 2px; }
+    .semana-block .sb-date { display: inline-block; white-space: nowrap; }
     .calendar-legend { margin-top: 8px; font-size: 12px; color: #777; }
     .calendar-legend .legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
     @media print {

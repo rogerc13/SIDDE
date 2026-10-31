@@ -33,7 +33,11 @@
                                 <span class="sb-aula">{{ $g['location_name'] }}</span>
                                 <span class="sb-course">{{ $gridCourse }}</span>
                                 <span class="sb-fac">{{ $gridFacilitator }}</span>
-                                <span class="sb-dates">{{ implode(', ', $g['dates']) }}</span>
+                                <span class="sb-dates">
+                                    @foreach($g['dates'] as $date)
+                                        <span class="sb-date">{{ $date }}@if(!$loop->last),@endif</span>
+                                    @endforeach
+                                </span>
                             </div>
                         @endif
                     @endforeach

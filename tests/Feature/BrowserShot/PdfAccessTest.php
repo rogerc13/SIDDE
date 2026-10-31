@@ -305,7 +305,9 @@ class PdfAccessTest extends TestCase
         $this->assertStringContainsString('table class="schedule-grid"', $html);
         $this->assertStringContainsString('8:00 AM', $html);
         $this->assertStringContainsString('08:00', $html);
+        $this->assertStringContainsString('.schedule-block .sb-date { display: inline-block; white-space: nowrap; }', $html);
         $this->assertSame(1, substr_count($html, 'class="schedule-block"'));
+        $this->assertSame(2, substr_count($html, 'class="sb-date"'));
     }
 
     public function test_schedule_pdf_splits_overlapping_blocks(): void

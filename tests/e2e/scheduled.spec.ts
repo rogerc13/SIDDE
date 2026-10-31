@@ -352,6 +352,7 @@ test.describe('Scheduled Courses CRUD', () => {
 
         await expect(page.locator('#tab-programacion')).toBeVisible();
         await expect(page.locator('#details-semana')).toBeVisible();
+        await expect(page.locator('#details-semana .sb-date').first()).toHaveCSS('white-space', 'nowrap');
 
         await page.click('a[href="#tab-ficha"]');
         await expect(page.locator('#tab-ficha')).toBeVisible();
