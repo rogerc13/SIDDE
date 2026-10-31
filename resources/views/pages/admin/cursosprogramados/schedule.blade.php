@@ -1711,7 +1711,10 @@ function submitWizardSchedule() {
         success: function(response) {
             dirty = false;
             allowNavigation = true;
-            window.location.href = '{{ url('u/af_programadas') }}';
+            var fallback = scheduleMode === 'edit'
+                ? '{{ url('u/af_programadas') }}/' + scheduleId + '/ver'
+                : '{{ url('u/af_programadas') }}';
+            window.location.href = (response && response.redirect) ? response.redirect : fallback;
         },
         error: function(xhr) {
             allowNavigation = false;

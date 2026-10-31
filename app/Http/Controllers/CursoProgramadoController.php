@@ -333,10 +333,13 @@ class CursoProgramadoController extends Controller
         if ($request->expectsJson()) {
             session()->flash("alert", Funciones::getAlert("success", "Acción de formación actualizada exitosamente", "Operación Exitosa."));
 
-            return response()->json(['success' => true]);
+            return response()->json([
+                'success' => true,
+                'redirect' => url('u/af_programadas/'.$scheduled->id.'/ver'),
+            ]);
         }
 
-        return Redirect::to(url('u/af_programadas'))
+        return Redirect::to(url('u/af_programadas/'.$scheduled->id.'/ver'))
             ->with("alert", Funciones::getAlert("success", "Acción de formación actualizada exitosamente", "Operación Exitosa."));
     }
 

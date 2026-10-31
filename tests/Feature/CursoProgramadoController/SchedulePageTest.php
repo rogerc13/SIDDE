@@ -474,7 +474,10 @@ class SchedulePageTest extends TestCase
             ->withHeader('Accept', 'application/json')
             ->putJson('/u/af_programadas/' . $scheduled->id, $payload);
 
-        $response->assertJson(['success' => true]);
+        $response->assertJson([
+            'success' => true,
+            'redirect' => url('u/af_programadas/'.$scheduled->id.'/ver'),
+        ]);
 
         $this->assertSame('Acción de formación actualizada exitosamente', session('alert.titulo'));
 
@@ -491,6 +494,31 @@ class SchedulePageTest extends TestCase
         $this->assertSoftDeleted('course_sessions', ['id' => $remove->id]);
         $this->assertCount(2, CourseSession::all());
         $this->assertDatabaseCount('course_sessions', 3);
+    }
+
+    public function test_update_schedule_redirects_to_view_for_non_json_requests(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+
+        $response = $this->actingAs($user)->put('/u/af_programadas/'.$scheduled->id, [
+            'titulo' => $course->id,
+            'facilitador' => $facilitator->person->facilitator->id,
+            'scheduled_id' => $scheduled->id,
+            'sessions' => [
+                ['id' => null, 'location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+            ],
+        ]);
+
+        $response->assertRedirect('/u/af_programadas/'.$scheduled->id.'/ver');
+        $this->assertSame('Acción de formación actualizada exitosamente', session('alert.titulo'));
     }
 
     public function test_update_schedule_rejects_undersized_session_total(): void
