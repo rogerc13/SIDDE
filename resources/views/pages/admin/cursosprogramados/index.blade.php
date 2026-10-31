@@ -199,7 +199,7 @@
 								      <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="af-actions-{{$cursop->id}}">
 								      @can('getAllPorCurso','App\Models\Participant')
 								          <li role="presentation">
-								              <a role="menuitem" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}">
+								              <a role="menuitem" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}#tab-participantes">
 								                  <i class="entypo-users"></i> Lista de participantes
 								              </a>
 								          </li>

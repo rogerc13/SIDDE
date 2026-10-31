@@ -640,6 +640,7 @@ class SchedulePageTest extends TestCase
         $response->assertSee('page: page || 1', false);
         $response->assertDontSee('response.list.forEach', false);
         $response->assertSee('Editar programación', false);
+        $response->assertSee(url('u/af_programadas/'.$scheduled->id.'/ver').'#tab-participantes', false);
         $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
     }
 

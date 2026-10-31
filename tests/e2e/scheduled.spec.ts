@@ -307,6 +307,23 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(page).toHaveURL(/\/editar$/);
     });
 
+    test('opens the participants tab from the index participant list link', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Más funciones"]').click();
+
+        const menu = row.locator('.dropdown-menu');
+        await expect(menu).toBeVisible();
+        await menu.locator('a', { hasText: 'Lista de participantes' }).click();
+        await page.waitForLoadState('load');
+
+        await expect(page).toHaveURL(/\/u\/af_programadas\/\d+\/ver#tab-participantes$/);
+        await expect(page.locator('#tab-participantes')).toBeVisible();
+        await expect(page.locator('#tab-programacion')).toBeHidden();
+    });
+
     test('opens the details page with header actions and cancel modal', async ({ page }) => {
         await scheduleFutureCourse(page);
 

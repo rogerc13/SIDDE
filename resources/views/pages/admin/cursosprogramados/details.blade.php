@@ -352,6 +352,28 @@
 @endif
 <script>
 $(function() {
+    function openTabFromHash() {
+        var hash = window.location.hash;
+        if (!hash) return;
+
+        var $tab = $('.details-tabs a[data-toggle="tab"]').filter(function () {
+            return $(this).attr('href') === hash;
+        });
+
+        if ($tab.length) {
+            $tab.tab('show');
+        }
+    }
+
+    openTabFromHash();
+    $(window).on('hashchange', openTabFromHash);
+    $('.details-tabs a[data-toggle="tab"]').on('shown.bs.tab', function () {
+        var target = $(this).attr('href');
+        if (target) {
+            history.replaceState(null, '', target);
+        }
+    });
+
     $('#print-ficha-btn').on('click', function () {
         document.body.classList.add('printing-ficha');
         window.print();
