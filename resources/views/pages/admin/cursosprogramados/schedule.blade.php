@@ -528,9 +528,9 @@
                     <div class="session-section" id="repeat-group">
                         <span class="session-section-title">Repetición</span>
                         <div class="repeat-row">
-                            <span>Repetir semanalmente</span>
-                            <input type="number" id="repeat-count" class="form-control" value="1" min="1" max="20" aria-label="Número de repeticiones">
-                            <span>veces</span>
+                            <span>Repetir por</span>
+                            <input type="number" id="repeat-count" class="form-control" value="1" min="1" max="20" aria-label="Número de semanas">
+                            <span id="repeat-count-label">semana</span>
                         </div>
                         <p class="repeat-help">Crea una sesión por semana durante el número de semanas indicado. Solo al agregar.</p>
                     </div>
@@ -723,6 +723,12 @@ function pushUniqueConflict(list, entry) {
         if ((list[i].date || '') + '|' + list[i].title + '|' + list[i].start_time + '|' + list[i].end_time === key) return;
     }
     list.push(entry);
+}
+
+function updateRepeatLabel() {
+    var count = parseInt($('#repeat-count').val(), 10);
+    if (isNaN(count) || count < 1) count = 1;
+    $('#repeat-count-label').text(count === 1 ? 'semana' : 'semanas');
 }
 
 function buildSessionDates(sessionDate, repeatCount) {
@@ -1276,6 +1282,7 @@ function openAddSessionModal(start, end, editId) {
     $('#add-session-delete-btn').toggleClass('hidden', !editId);
 
     $('#add-session-modal').modal({ backdrop: false, keyboard: true });
+    updateRepeatLabel();
     updateModalRemaining();
     updateConflictHint();
 }
@@ -1386,6 +1393,7 @@ function saveSessionFromModal() {
 
     $('#add-session-modal').modal('hide');
     $('#repeat-count').val(1);
+    updateRepeatLabel();
     dirty = true;
     renderSessionTable();
     refreshCalendarEvents();
@@ -2011,6 +2019,7 @@ $('#add-session-location').on('change', function() {
 });
 
 $('#repeat-count').on('input change', function() {
+    updateRepeatLabel();
     updateConflictHint();
 });
 
