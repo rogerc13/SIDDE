@@ -122,7 +122,7 @@
 									<span class="badge badge-{{$cursop->badgeStatus()}}">{{$cursop->courseStatus->name}}</span>
 								</td>
 								<td>
-								  <a  title="Más Información" href="{{url("acciones_formacion/".$cursop->course->id)}}" class="btn btn-info btn-xs">
+								  <a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								      <i class="entypo-search"></i>
 								  </a>
 								</td>

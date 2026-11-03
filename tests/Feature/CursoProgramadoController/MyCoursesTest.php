@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Modality;
+use App\Models\Participant;
 use App\Models\Scheduled;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,6 +25,7 @@ class MyCoursesTest extends TestCase
         $this->seed(\Database\Seeders\RoleSeeder::class);
         $this->seed(\Database\Seeders\IdTypeSeeder::class);
         $this->seed(\Database\Seeders\TypeSeeder::class);
+        $this->seed(\Database\Seeders\ParticipantStatusSeeder::class);
 
         CourseStatus::create(['name' => 'Por Dictar']);
         CourseStatus::create(['name' => 'En Curso']);
@@ -128,5 +130,38 @@ class MyCoursesTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('placeholder="Buscar por título"', false);
+    }
+
+    public function test_user_acciones_links_to_scheduled_course_view_for_facilitator(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [$user, $facilitator] = $this->makeFacilitatorUser();
+        $scheduled = $this->makeScheduled($facilitator, now()->addDays(5)->toDateString());
+
+        $response = $this->actingAs($admin)->get('/u/facilitadores/acciones/' . $user->id);
+
+        $response->assertOk();
+        $response->assertSee(url('u/af_programadas/'.$scheduled->id.'/ver'), false);
+        $response->assertDontSee(url('acciones_formacion/'.$scheduled->course_id), false);
+    }
+
+    public function test_user_acciones_links_to_scheduled_course_view_for_participant(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        $participantUser = User::factory()->participante()->create();
+        [, $facilitator] = $this->makeFacilitatorUser();
+        $scheduled = $this->makeScheduled($facilitator, now()->addDays(5)->toDateString());
+
+        Participant::create([
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+
+        $response = $this->actingAs($admin)->get('/u/participantes/acciones/' . $participantUser->id);
+
+        $response->assertOk();
+        $response->assertSee(url('u/af_programadas/'.$scheduled->id.'/ver'), false);
+        $response->assertDontSee(url('acciones_formacion/'.$scheduled->course_id), false);
     }
 }
