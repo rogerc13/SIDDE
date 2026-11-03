@@ -526,7 +526,8 @@
 /* Field icons on selects (select2 v3 container ids) */
 .sidde-modal #s2id_categoria_id .select2-choice:before,
 .sidde-modal #s2id_modalidad_id .select2-choice:before,
-.sidde-modal #s2id_prerequisite .select2-choice:before {
+.sidde-modal #s2id_prerequisite .select2-choice:before,
+.sidde-modal #s2id_participante .select2-choice:before {
     position: absolute;
     top: 0;
     left: 14px;

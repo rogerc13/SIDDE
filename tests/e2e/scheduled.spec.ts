@@ -417,6 +417,33 @@ test.describe('Participant Assignment', () => {
         await expect(page.locator('.alert-success').first()).toBeVisible();
     });
 
+    test('renders the participant field icon with the FontAwesome font', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Más funciones"]').click();
+        await row.locator('.dropdown-menu li:not(.disabled) a', { hasText: 'Asignar participante' }).click();
+
+        await page.waitForSelector('#asignar-modal.in');
+        await page.waitForSelector('#s2id_participante .select2-choice');
+
+        const icon = await page.evaluate(() => {
+            const choice = document.querySelector('#s2id_participante .select2-choice')!;
+            const style = getComputedStyle(choice, '::before');
+
+            return {
+                fontFamily: style.fontFamily,
+                position: style.position,
+                left: style.left,
+            };
+        });
+
+        expect(icon.fontFamily).toContain('FontAwesome');
+        expect(icon.position).toBe('absolute');
+        expect(icon.left).toBe('14px');
+    });
+
     test('shows disabled assign item for En Curso course', async ({ page }) => {
         await scheduleActiveCourse(page);
         await page.goto('/u/af_programadas?id_estado=2');
