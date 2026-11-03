@@ -10,6 +10,7 @@ use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Location;
 use App\Models\Modality;
+use App\Models\Participant;
 use App\Models\Person;
 use App\Models\Role;
 use App\Models\Scheduled;
@@ -644,6 +645,81 @@ class SchedulePageTest extends TestCase
         $response->assertSee('Editar programación', false);
         $response->assertSee(url('u/af_programadas/'.$scheduled->id.'/ver').'#tab-participantes', false);
         $response->assertSee("asignarParticipanteLista('" . url('u/af_programadas/' . $scheduled->id . '/asignarParticipante') . "','" . $scheduled->id . "')", false);
+    }
+
+    public function test_details_page_explains_blocked_assignment_for_non_por_dictar_course(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 8]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+        $scheduled->update(['course_status_id' => CourseStatus::EN_CURSO]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
+
+        $response->assertOk();
+        $response->assertSee('data-blocked-reason', false);
+        $response->assertSee('está «En Curso»', false);
+        $response->assertSee('«Por Dictar»', false);
+    }
+
+    public function test_index_explains_blocked_assignment_when_capacity_is_full(): void
+    {
+        $this->seed(\Database\Seeders\ParticipantStatusSeeder::class);
+
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 8]);
+        Capacity::create(['min' => 1, 'max' => 1, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+
+        $scheduled = Scheduled::create([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->person->facilitator->id,
+            'course_status_id' => CourseStatus::POR_DICTAR,
+            'start_date' => now()->addDays(10)->toDateString(),
+            'end_date' => now()->addDays(15)->toDateString(),
+        ]);
+
+        Participant::create([
+            'person_id' => Person::factory()->create()->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas');
+
+        $response->assertOk();
+        $response->assertSee('class="blocked"', false);
+        $response->assertSee('data-blocked-reason', false);
+        $response->assertSee('(1/1)', false);
+    }
+
+    public function test_participants_page_explains_blocked_assignment(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 8]);
+        Capacity::create(['min' => 1, 'max' => 10, 'course_id' => $course->id]);
+        $facilitator = $this->makeFacilitatorUser();
+
+        $scheduled = Scheduled::create([
+            'course_id' => $course->id,
+            'facilitator_id' => $facilitator->person->facilitator->id,
+            'course_status_id' => CourseStatus::CANCELADO,
+            'start_date' => now()->addDays(10)->toDateString(),
+            'end_date' => now()->addDays(15)->toDateString(),
+        ]);
+
+        $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/participantes');
+
+        $response->assertOk();
+        $response->assertSee('data-blocked-reason', false);
+        $response->assertSee('está «Cancelado»', false);
     }
 
     public function test_scheduled_index_filter_input_renders_placeholder(): void

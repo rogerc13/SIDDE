@@ -1092,3 +1092,9 @@
     line-height: 1.15;
     color: #1f2733;
 }
+
+/* Blocked actions stay clickable so they can explain why they are unavailable. */
+.btn.is-blocked {
+    opacity: 0.65;
+    cursor: not-allowed;
+}

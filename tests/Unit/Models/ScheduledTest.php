@@ -165,6 +165,62 @@ class ScheduledTest extends TestCase
         $this->assertFalse($scheduled->atMaxCapacity());
     }
 
+    public function test_participant_assignment_block_reason_returns_null_when_available(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::POR_DICTAR);
+        Capacity::create(['min' => 1, 'max' => 5, 'course_id' => $scheduled->course_id]);
+
+        $this->assertNull($scheduled->participantAssignmentBlockReason());
+    }
+
+    public function test_participant_assignment_block_reason_reports_full_capacity(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::POR_DICTAR);
+        Capacity::create(['min' => 1, 'max' => 2, 'course_id' => $scheduled->course_id]);
+
+        $first = Person::factory()->create();
+        $second = Person::factory()->create();
+
+        Participant::create([
+            'person_id' => $first->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+        Participant::create([
+            'person_id' => $second->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+
+        $reason = $scheduled->participantAssignmentBlockReason();
+
+        $this->assertNotNull($reason);
+        $this->assertStringContainsString('capacidad máxima', $reason);
+        $this->assertStringContainsString('(2/2)', $reason);
+    }
+
+    public function test_participant_assignment_block_reason_reports_missing_capacity(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::POR_DICTAR);
+
+        $reason = $scheduled->participantAssignmentBlockReason();
+
+        $this->assertNotNull($reason);
+        $this->assertStringContainsString('no tiene una capacidad máxima configurada', $reason);
+    }
+
+    public function test_participant_assignment_block_reason_reports_non_por_dictar_status(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::EN_CURSO);
+        Capacity::create(['min' => 1, 'max' => 5, 'course_id' => $scheduled->course_id]);
+
+        $reason = $scheduled->participantAssignmentBlockReason();
+
+        $this->assertNotNull($reason);
+        $this->assertStringContainsString('está «En Curso»', $reason);
+        $this->assertStringContainsString('«Por Dictar»', $reason);
+    }
+
     public function test_total_session_hours(): void
     {
         $course = Course::factory()->create(['duration' => 20]);

@@ -444,21 +444,39 @@ test.describe('Participant Assignment', () => {
         expect(icon.left).toBe('14px');
     });
 
-    test('shows disabled assign item for En Curso course', async ({ page }) => {
+    test('marks the assign item as blocked for En Curso course', async ({ page }) => {
         await scheduleActiveCourse(page);
         await page.goto('/u/af_programadas?id_estado=2');
         const row = page.locator('.af-index table tbody tr').first();
         await expect(row).toBeVisible({ timeout: 5000 });
         await row.locator('a[title="Más funciones"]').click();
-        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/disabled/);
+        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/blocked/);
     });
 
-    test('shows disabled assign item for Culminado course', async ({ page }) => {
+    test('explains why the assign item is blocked', async ({ page }) => {
+        await scheduleActiveCourse(page);
+        await page.goto('/u/af_programadas?id_estado=2');
+        const row = page.locator('.af-index table tbody tr').first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Más funciones"]').click();
+
+        await row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })
+            .locator('a')
+            .click();
+
+        const toast = page.locator('#toast-container .toast-warning');
+        await expect(toast).toBeVisible();
+        await expect(toast).toContainText('No se pueden agregar participantes');
+        await expect(toast).toContainText('En Curso');
+        await expect(page.locator('#asignar-modal')).not.toHaveClass(/in/);
+    });
+
+    test('marks the assign item as blocked for Culminado course', async ({ page }) => {
         await page.goto('/u/af_programadas?id_estado=3');
         const row = page.locator('.af-index table tbody tr').first();
         await expect(row).toBeVisible({ timeout: 5000 });
         await row.locator('a[title="Más funciones"]').click();
-        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/disabled/);
+        await expect(row.locator('.dropdown-menu li', { hasText: 'Asignar participante' })).toHaveClass(/blocked/);
     });
 
     test('assignList returns error for En Curso course', async ({ page }) => {

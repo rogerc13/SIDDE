@@ -48,6 +48,16 @@
     			}
           		
         	})
+
+            $(document).on('click', '[data-blocked-reason]', function (event) {
+                event.preventDefault();
+
+                toastr.warning($(this).data('blocked-reason'), 'Acción no disponible', {
+                    closeButton: true,
+                    timeOut: 8000,
+                    extendedTimeOut: 4000
+                });
+            });
 		});
 
 		$("#siderbar-buscar").on("click", function (ev) { //sidebar-buscar refers to search icon, this on-click event collapses the sidebar

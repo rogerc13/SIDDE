@@ -59,6 +59,29 @@ class Scheduled extends Model
       return $participantCount >= $maxCapacity;
   }
 
+  public function participantAssignmentBlockReason(): ?string
+  {
+      if (!$this->isPorDictar()) {
+          $statusName = $this->courseStatus?->name ?? 'no disponible';
+
+          return "No se pueden agregar participantes: la acción de formación está «{$statusName}». Solo se permite mientras está «Por Dictar».";
+      }
+
+      $maxCapacity = (int) ($this->course->capacity->first()?->max ?? 0);
+
+      if ($maxCapacity === 0) {
+          return 'No se pueden agregar participantes: la acción de formación no tiene una capacidad máxima configurada.';
+      }
+
+      $participantCount = $this->participants()->count();
+
+      if ($participantCount >= $maxCapacity) {
+          return "No se pueden agregar participantes: la acción alcanzó su capacidad máxima ({$participantCount}/{$maxCapacity}).";
+      }
+
+      return null;
+  }
+
   public function totalSessionHours(): float
   {
       return (float) $this->sessions->sum(fn ($s) => $s->durationHours());

@@ -1,7 +1,8 @@
 <br>
 @if (Auth::user()->can('store', 'App\Models\Participant'))
-    <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
-    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{($cursoprogramado->atMaxCapacity() || !$cursoprogramado->isPorDictar()) ? 'disabled' :''}}"><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>
+    @php($participantAssignmentBlockReason = $cursoprogramado->participantAssignmentBlockReason())
+    <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursoprogramado->id.'/asignarParticipante')}}','{{$cursoprogramado->id}}')" value="{{$cursoprogramado->id}}" class="btn btn-blue {{ $participantAssignmentBlockReason ? 'is-blocked' : '' }}" @if($participantAssignmentBlockReason) data-blocked-reason="{{ $participantAssignmentBlockReason }}" @endif><i class="fa fa-plus" aria-hidden="true"></i> Asignar participante</a>
+    <a href="javascript:crearParticipante('{{url('u/af_programadas/'.$cursoprogramado->id.'/participantes')}}')" class="btn btn-success {{ $participantAssignmentBlockReason ? 'is-blocked' : '' }}" @if($participantAssignmentBlockReason) data-blocked-reason="{{ $participantAssignmentBlockReason }}" @endif><i class="fa fa-plus" aria-hidden="true"></i> Registrar nuevo participante</a>
 @endif
 <a href="{{url('u/pdf/participants/'.$cursoprogramado->id)}}" class="btn btn-success"><i class="fa fa-file-pdf-o " aria-hidden="true"></i> Imprimir Lista de Participantes</a>
 <br>

@@ -8,6 +8,9 @@
 		.af-index td .dropdown { display: inline-block; }
 		.af-index .dropdown-menu { min-width: 210px; font-size: 13px; }
 		.af-index .dropdown-menu > li.disabled > a { pointer-events: none; }
+		.af-index .dropdown-menu > li.blocked > a { color: #999999; cursor: not-allowed; }
+		.af-index .dropdown-menu > li.blocked > a:hover,
+		.af-index .dropdown-menu > li.blocked > a:focus { background-color: transparent; color: #999999; }
 		.af-index .dropdown-menu > li > a > i { width: 16px; text-align: center; margin-right: 6px; color: #7a8794; }
 	</style>
 @endpush
@@ -205,8 +208,9 @@
 								          </li>
 								      @endcan
 								      @can('store','App\Models\Participant')
-								          <li role="presentation" class="{{($cursop->atMaxCapacity() || !$cursop->isPorDictar()) ? 'disabled' : ''}}">
-								              <a role="menuitem" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')">
+								          @php($participantAssignmentBlockReason = $cursop->participantAssignmentBlockReason())
+								          <li role="presentation" class="{{ $participantAssignmentBlockReason ? 'blocked' : '' }}">
+								              <a role="menuitem" href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$cursop->id.'/asignarParticipante')}}','{{$cursop->id}}')" @if($participantAssignmentBlockReason) data-blocked-reason="{{ $participantAssignmentBlockReason }}" @endif>
 								                  <i class="entypo-user-add"></i> Asignar participante
 								              </a>
 								          </li>
