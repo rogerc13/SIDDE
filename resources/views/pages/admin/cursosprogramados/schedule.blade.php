@@ -949,6 +949,13 @@ function initWizardCalendar() {
         select: function(start, end) {
             window.wizardCalendar.fullCalendar('unselect');
             if (scheduleMode === 'view') return;
+            var selectedIso = typeof start.format === 'function'
+                ? start.format('YYYY-MM-DD')
+                : start.getFullYear() + '-' + ('0' + (start.getMonth() + 1)).slice(-2) + '-' + ('0' + start.getDate()).slice(-2);
+            if (selectedIso < todayIsoCaracas()) {
+                showInlineAlert('wizard-alert', 'warning', 'No se pueden agregar sesiones en fechas anteriores a hoy.');
+                return;
+            }
             var s = new Date(start.year(), start.month(), start.date(), start.hours(), start.minutes(), 0);
             var e = new Date(end.year(), end.month(), end.date(), end.hours(), end.minutes(), 0);
             // A plain click arrives as a single-slot selection: expand it to a 2h draft
@@ -1252,6 +1259,9 @@ function openAddSessionModal(start, end, editId) {
     var eh = pad(end.getHours()), em = pad(end.getMinutes());
     var sy = start.getFullYear(), smo = pad(start.getMonth()+1), sd = pad(start.getDate());
     var displayDate = sd + '-' + smo + '-' + sy;
+    var sessionIso = sy + '-' + smo + '-' + sd;
+    var todayIso = todayIsoCaracas();
+    $('#add-session-date').data('min-date-iso', sessionIso < todayIso ? sessionIso : todayIso);
     $('#add-session-start').val(to12h(sh + ':' + sm));
     $('#add-session-end').val(to12h(eh + ':' + em));
     $('#add-session-date').val(displayDate);
@@ -1306,6 +1316,11 @@ function saveSessionFromModal() {
     if (!startTime) { setFieldError('#add-session-start', 'Ingrese la hora de inicio.'); invalid = true; }
     if (!endTime) { setFieldError('#add-session-end', 'Ingrese la hora de fin.'); invalid = true; }
     if (invalid) return;
+
+    if (sessionDate < todayIsoCaracas()) {
+        setFieldError('#add-session-date', 'No se pueden agregar sesiones en fechas anteriores a hoy.');
+        return;
+    }
 
     if (timeToMinutes(startTime) >= timeToMinutes(endTime)) {
         setFieldError('#add-session-end', 'La hora de fin debe ser posterior a la hora de inicio.');
@@ -1482,6 +1497,20 @@ function displayDateToIso(display) {
     var parts = String(display).split('-');
     if (parts.length !== 3) return display;
     return parts[2] + '-' + parts[1] + '-' + parts[0];
+}
+
+function todayIsoCaracas() {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Caracas',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+}
+
+function isoToLocalDate(iso) {
+    var parts = String(iso).split('-');
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
 }
 
 function removeWizardSession(id) {
@@ -1955,7 +1984,8 @@ $(function() {
 
 $('#add-session-modal').on('shown.bs.modal', function() {
     $('#add-session-location').select2({ allowClear: true, placeholder: 'Seleccionar ubicación', dropdownParent: $('#add-session-modal') });
-    $('.dat2', $(this)).datepicker({ format: "dd-mm-yyyy", todayHighlight: true });
+    var minDateIso = $('#add-session-date').data('min-date-iso') || todayIsoCaracas();
+    $('.dat2', $(this)).datepicker({ format: "dd-mm-yyyy", todayHighlight: true, minDate: isoToLocalDate(minDateIso) });
     $('.timepicker', $(this)).timepicker({ showMeridian: true, defaultTime: false, minuteStep: 15 });
     var sel = $('#add-session-location').data('select2');
     if (sel && sel.focusser) {

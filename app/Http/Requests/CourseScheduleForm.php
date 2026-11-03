@@ -20,6 +20,8 @@ class CourseScheduleForm extends FormRequest
 
     public function rules()
     {
+        $today = Carbon::today('America/Caracas')->toDateString();
+
         return [
             'titulo' => 'required|integer|exists:courses,id',
             'facilitador' => 'required|integer|exists:facilitators,id',
@@ -27,7 +29,7 @@ class CourseScheduleForm extends FormRequest
             'sessions' => 'required|array|min:1',
             'sessions.*.id' => 'nullable|integer|exists:course_sessions,id',
             'sessions.*.location_id' => 'required|integer|exists:locations,id',
-            'sessions.*.session_date' => 'required|date|date_format:Y-m-d',
+            'sessions.*.session_date' => 'required|date|date_format:Y-m-d|after_or_equal:'.$today,
             'sessions.*.start_time' => 'required|date_format:H:i',
             'sessions.*.end_time' => 'required|date_format:H:i|after:sessions.*.start_time',
         ];
@@ -42,6 +44,7 @@ class CourseScheduleForm extends FormRequest
             'date' => 'El campo :attribute debe ser una fecha válida.',
             'date_format' => 'El campo :attribute debe tener el formato :format.',
             'after' => 'El campo :attribute debe ser posterior a :after.',
+            'after_or_equal' => 'La fecha de la sesión no puede ser anterior a hoy.',
             'array' => 'El campo :attribute debe ser un arreglo.',
             'min' => 'El campo :attribute debe tener al menos :min elementos.',
             'string' => 'El campo :attribute debe ser una cadena de caracteres.',

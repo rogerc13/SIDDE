@@ -102,6 +102,50 @@ class ScheduleTest extends TestCase
         ]);
     }
 
+    public function test_schedule_rejects_session_date_before_today(): void
+    {
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitator();
+        $location = $this->makeLocation();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+
+        $response = $this->actingAs($user)
+            ->from('/u/af_programadas')
+            ->post('/u/af_programadas/schedule', $this->payload($course, $facilitator, $location, [[
+                'location_id' => $location->id,
+                'session_date' => now('America/Caracas')->subDay()->toDateString(),
+                'start_time' => '08:00',
+                'end_time' => '10:00',
+            ]]));
+
+        $response->assertSessionHasErrors('sessions.0.session_date');
+        $this->assertDatabaseCount('scheduled_course', 0);
+        $this->assertDatabaseCount('course_sessions', 0);
+    }
+
+    public function test_schedule_allows_session_date_today(): void
+    {
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitator();
+        $location = $this->makeLocation();
+        $user = \App\Models\User::factory()->create(['role_id' => \App\Models\Role::ADMINISTRADOR]);
+
+        $response = $this->actingAs($user)
+            ->post('/u/af_programadas/schedule', $this->payload($course, $facilitator, $location, [[
+                'location_id' => $location->id,
+                'session_date' => now('America/Caracas')->toDateString(),
+                'start_time' => '08:00',
+                'end_time' => '10:00',
+            ]]));
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('course_sessions', [
+            'session_date' => now('America/Caracas')->toDateString(),
+        ]);
+    }
+
     public function test_schedule_rejects_12_hour_time_format(): void
     {
         $course = $this->makeCourse();

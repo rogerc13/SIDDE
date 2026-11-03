@@ -499,6 +499,46 @@ class SchedulePageTest extends TestCase
         $this->assertDatabaseCount('course_sessions', 3);
     }
 
+    public function test_update_schedule_rejects_session_date_before_today(): void
+    {
+        $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
+        $course = $this->makeCourse(['duration' => 2]);
+        $facilitator = $this->makeFacilitatorUser();
+        $location = $this->makeLocation();
+        $date = now()->addDays(10)->toDateString();
+
+        $scheduled = $this->makeScheduledCourse($course, $facilitator->person->facilitator, [
+            ['location_id' => $location->id, 'session_date' => $date, 'start_time' => '08:00', 'end_time' => '10:00'],
+        ]);
+
+        $payload = [
+            'titulo' => $course->id,
+            'facilitador' => $facilitator->person->facilitator->id,
+            'scheduled_id' => $scheduled->id,
+            'sessions' => [
+                [
+                    'id' => null,
+                    'location_id' => $location->id,
+                    'session_date' => now('America/Caracas')->subDay()->toDateString(),
+                    'start_time' => '08:00',
+                    'end_time' => '10:00',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)
+            ->withHeader('X-Requested-With', 'XMLHttpRequest')
+            ->withHeader('Accept', 'application/json')
+            ->putJson('/u/af_programadas/' . $scheduled->id, $payload);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('sessions.0.session_date');
+        $this->assertDatabaseHas('course_sessions', [
+            'id' => $scheduled->sessions()->first()->id,
+            'session_date' => $date,
+        ]);
+    }
+
     public function test_update_schedule_redirects_to_view_for_non_json_requests(): void
     {
         $user = User::factory()->create(['role_id' => Role::ADMINISTRADOR]);
