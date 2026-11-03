@@ -137,7 +137,7 @@
 							<a  title="Ver detalles" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}" class="btn btn-info btn-xs">
 								<i class="entypo-search"></i>
 							</a>
-							<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/participantes')}}" class="btn btn-info btn-xs">
+							<a  title="Lista de participantes" href="{{url('u/af_programadas/'.$cursop->id.'/ver')}}#tab-participantes" class="btn btn-info btn-xs">
 								<i class="entypo-users"></i>
 							</a>
 							<a  title="{{($cursop->course->file->count() == '0') ? 'No Posee Documentos' : 'Descargar Documentos del Curso'}}" href="javascript:documentModal('{{url('download/'.$cursop->course->id.'/0')}}')" class="btn btn-info btn-xs {{($cursop->course->file->count() == '0') ? 'disabled' : ''}}">

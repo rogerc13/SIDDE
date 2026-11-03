@@ -7,6 +7,7 @@ use App\Models\CourseSession;
 use App\Models\CourseStatus;
 use App\Models\Facilitator;
 use App\Models\Participant;
+use App\Models\Person;
 use App\Models\Scheduled;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -29,12 +30,6 @@ final class HomeDashboardService
     public const UPCOMING_LIMIT = 6;
     public const UPCOMING_SESSIONS_LIMIT = 7;
     public const ACTIVE_LIMIT = 6;
-
-    /**
-     * Rows a personalised panel renders before the "Ver todas" link takes
-     * over; keeps the landing page scannable when a user has many rows.
-     */
-    public const LIST_LIMIT = 10;
 
     /**
      * Full organisation dashboard for Administrador / Tec. Educativa / Programador.
@@ -72,100 +67,166 @@ final class HomeDashboardService
     }
 
     /**
-     * Personalised dashboard for facilitadores: their own upcoming programmes.
-     *
-     * The window-bounded query is cheap enough to aggregate over the whole
-     * set; only the rendered list is capped at {@see self::LIST_LIMIT}.
+     * Personalised dashboard for facilitadores: their own programmes for the
+     * current year, summarised by status and rendered in the home calendar.
      *
      * @return array<string, mixed>
      */
     public function forFacilitator(User $user): array
     {
+        $year = $this->currentYear();
         $facilitator = $user->person?->facilitator;
 
         $scheduled = $facilitator === null
             ? collect()
             : Scheduled::query()
                 ->where('facilitator_id', $facilitator->id)
-                ->with([
-                    'course.capacity',
-                    'course.modality',
-                    'courseStatus',
-                    'sessions' => fn (Builder $query) => $this->withinWindow($query)
-                        ->with(['location' => fn ($location) => $location->withTrashed()])
-                        ->orderBy('session_date')
-                        ->orderBy('start_time'),
-                ])
-                ->withCount('participants')
-                ->whereHas('sessions', fn (Builder $query) => $this->withinWindow($query))
+                ->whereYear('start_date', $year)
                 ->where('course_status_id', '!=', CourseStatus::CANCELADO)
+                ->with($this->calendarRelations($year))
                 ->orderBy('start_date')
                 ->get();
 
-        $seats = (int) $scheduled->sum(fn (Scheduled $item) => (int) ($item->course->capacity->first()->max ?? 0));
-        $registered = (int) $scheduled->sum('participants_count');
-        $upcomingSessionsCount = (int) $scheduled->sum(fn (Scheduled $item) => $item->sessions->count());
-
         return [
             'mode' => 'facilitator',
-            'windowDays' => self::ACTIVITY_WINDOW_DAYS,
+            'year' => $year,
             'facilitator' => $facilitator,
-            'scheduled' => $scheduled->take(self::LIST_LIMIT)->values(),
-            'scheduledTotal' => $scheduled->count(),
-            'participantsTotal' => $registered,
-            'seatsAvailable' => max(0, $seats - $registered),
-            'upcomingSessionsCount' => $upcomingSessionsCount,
+            'kpis' => $this->statusKpis($scheduled),
+            'calendarEvents' => $this->calendarEvents($scheduled),
         ];
     }
 
     /**
-     * Personalised dashboard for participantes: their own enrolments.
+     * Personalised dashboard for participantes: their own enrolments for the
+     * current year, summarised by status and rendered in the home calendar.
      *
      * @return array<string, mixed>
      */
     public function forParticipant(User $user): array
     {
-        $participants = Participant::query()
-            ->where('person_id', $user->person_id)
-            ->where('participant_status_id', '!=', Participant::CANCELADO)
-            ->with([
-                'participantStatus',
-                'scheduled.course.modality',
-                'scheduled.courseStatus',
-                'scheduled.facilitator.person',
-                'scheduled.sessions' => fn (Builder $query) => $this->withinWindow($query)
-                    ->with(['location' => fn ($location) => $location->withTrashed()])
-                    ->orderBy('session_date')
-                    ->orderBy('start_time'),
-            ])
-            ->orderByDesc('id')
+        $year = $this->currentYear();
+
+        $scheduled = Scheduled::query()
+            ->whereYear('start_date', $year)
+            ->where('course_status_id', '!=', CourseStatus::CANCELADO)
+            ->whereHas('participants', function (Builder $query) use ($user) {
+                $query->where('person_id', $user->person_id)
+                    ->where('participant_status_id', '!=', Participant::CANCELADO);
+            })
+            ->with($this->calendarRelations($year))
+            ->orderBy('start_date')
             ->get();
-
-        $activeEnrolmentsCount = $participants
-            ->filter(fn (Participant $item) => $item->isEnCurso() || $item->isPorIniciar())
-            ->count();
-
-        $approvedCount = $participants
-            ->filter(fn (Participant $item) => $item->isAprobado())
-            ->count();
-
-        $upcomingSessionsCount = (int) $participants->sum(function (Participant $item): int {
-            if ($item->scheduled === null || $item->scheduled->isCancelado()) {
-                return 0;
-            }
-
-            return $item->scheduled->sessions->count();
-        });
 
         return [
             'mode' => 'participant',
-            'windowDays' => self::ACTIVITY_WINDOW_DAYS,
-            'participants' => $participants->take(self::LIST_LIMIT)->values(),
-            'participantsTotal' => $participants->count(),
-            'activeEnrolmentsCount' => $activeEnrolmentsCount,
-            'approvedCount' => $approvedCount,
-            'upcomingSessionsCount' => $upcomingSessionsCount,
+            'year' => $year,
+            'kpis' => $this->statusKpis($scheduled),
+            'calendarEvents' => $this->calendarEvents($scheduled),
         ];
+    }
+
+    private function currentYear(): int
+    {
+        return CarbonImmutable::today()->year;
+    }
+
+    /**
+     * Relations needed to count current-year programmes and render their
+     * sessions in the home calendar.
+     *
+     * @return array<string, mixed>
+     */
+    private function calendarRelations(int $year): array
+    {
+        return [
+            'course',
+            'facilitator.person',
+            'courseStatus',
+            'sessions' => fn (Builder $query) => $query
+                ->whereYear('session_date', $year)
+                ->where('status', '!=', 'cancelled')
+                ->with(['location' => fn ($location) => $location->withTrashed()])
+                ->orderBy('session_date')
+                ->orderBy('start_time'),
+        ];
+    }
+
+    /**
+     * @param  Collection<int, Scheduled>  $scheduled
+     * @return array{programadas: int, porDictar: int, culminadas: int}
+     */
+    private function statusKpis(Collection $scheduled): array
+    {
+        return [
+            'programadas' => $scheduled->count(),
+            'porDictar' => $scheduled->where('course_status_id', CourseStatus::POR_DICTAR)->count(),
+            'culminadas' => $scheduled->where('course_status_id', CourseStatus::CULMINADO)->count(),
+        ];
+    }
+
+    /**
+     * FullCalendar events for every session of the given programmes. Each
+     * event links back to the scheduled course detail view.
+     *
+     * @param  Collection<int, Scheduled>  $scheduled
+     * @return array<int, array<string, mixed>>
+     */
+    private function calendarEvents(Collection $scheduled): array
+    {
+        $events = [];
+
+        foreach ($scheduled as $item) {
+            $courseTitle = $item->course?->title ?? '';
+            $facilitatorName = $this->personName($item->facilitator?->person);
+            $url = url('u/af_programadas/'.$item->id.'/ver');
+
+            foreach ($item->sessions as $session) {
+                $locationName = $session->location?->name ?? 'Sin aula';
+                $schedule = substr((string) $session->start_time, 0, 5).'–'.substr((string) $session->end_time, 0, 5);
+                $dateLabel = CarbonImmutable::parse($session->session_date)
+                    ->locale('es')
+                    ->translatedFormat('d \d\e F');
+
+                $events[] = [
+                    'id' => 'session-'.$session->id,
+                    'title' => $courseTitle,
+                    'start' => $session->session_date.'T'.$session->start_time,
+                    'end' => $session->session_date.'T'.$session->end_time,
+                    'url' => $url,
+                    'color' => $this->locationColor($session->location_id),
+                    'locationName' => $locationName,
+                    'facilitatorName' => $facilitatorName,
+                    'tooltip' => implode(' · ', array_filter([
+                        $courseTitle,
+                        $facilitatorName,
+                        $locationName,
+                        $dateLabel.' '.$schedule,
+                    ])),
+                ];
+            }
+        }
+
+        return $events;
+    }
+
+    private function personName(?Person $person): string
+    {
+        if ($person === null) {
+            return '';
+        }
+
+        return trim(($person->name ?? '').' '.($person->last_name ?? ''));
+    }
+
+    /**
+     * Keep the same deterministic per-aula colours the scheduling calendar
+     * uses so a location is recognisable across the application.
+     */
+    private function locationColor(?int $locationId): string
+    {
+        $hue = fmod((int) $locationId * 137.508, 360);
+
+        return 'hsl('.((int) round($hue)).', 65%, 45%)';
     }
 
     private function activeFacilitatorsCount(): int

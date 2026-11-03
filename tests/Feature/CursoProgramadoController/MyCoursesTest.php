@@ -132,6 +132,18 @@ class MyCoursesTest extends TestCase
         $response->assertSee('placeholder="Buscar por título"', false);
     }
 
+    public function test_mis_acciones_links_participants_to_the_course_view_tab(): void
+    {
+        [$user, $facilitator] = $this->makeFacilitatorUser();
+        $scheduled = $this->makeScheduled($facilitator, now()->addDays(5)->toDateString());
+
+        $response = $this->actingAs($user)->get('/u/mis_acciones');
+
+        $response->assertOk();
+        $response->assertSee(url('u/af_programadas/'.$scheduled->id.'/ver').'#tab-participantes', false);
+        $response->assertDontSee(url('u/af_programadas/'.$scheduled->id.'/participantes'), false);
+    }
+
     public function test_user_acciones_links_to_scheduled_course_view_for_facilitator(): void
     {
         $admin = User::factory()->administrador()->create();

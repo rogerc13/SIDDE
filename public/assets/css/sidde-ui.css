@@ -1140,3 +1140,55 @@
         padding: 20px !important;
     }
 }
+
+/* Home calendar (facilitator / participant) */
+.home-dashboard .home-calendar-panel .sidde-panel-body {
+    padding: 18px;
+}
+
+.home-dashboard .home-calendar-help {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #6b7a87;
+}
+
+.home-dashboard .home-calendar {
+    min-height: 520px;
+}
+
+.home-dashboard .home-calendar .fc-event {
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.home-dashboard .home-calendar .fc-event .fc-title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-dashboard .home-calendar .fc-ev-sub {
+    display: block;
+    font-size: 10px;
+    line-height: 1.15;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.home-dashboard .home-calendar .fc-month-view .fc-ev-sub {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .home-dashboard .home-calendar-panel .sidde-panel-body {
+        padding: 12px;
+    }
+
+    .home-dashboard .home-calendar {
+        min-height: 460px;
+        font-size: 11px;
+    }
+}

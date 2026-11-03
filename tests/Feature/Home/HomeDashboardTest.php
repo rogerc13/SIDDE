@@ -92,7 +92,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($this->userWithRole(Role::PARTICIPANTE))->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Mis acciones de formación');
+        $response->assertSee('Calendario de acciones de formación');
         $response->assertDontSee('Facilitadores activos');
     }
 
@@ -129,7 +129,7 @@ class HomeDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($course->title);
-        $response->assertSee('Mis próximas acciones de formación');
+        $response->assertSee('Calendario de acciones de formación');
     }
 
     public function test_participant_sees_own_enrolments(): void
@@ -147,7 +147,7 @@ class HomeDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($course->title);
-        $response->assertSee('Mis acciones de formación');
+        $response->assertSee('Calendario de acciones de formación');
     }
 
     public function test_cancelled_scheduled_courses_are_not_active(): void
@@ -229,7 +229,7 @@ class HomeDashboardTest extends TestCase
         $facilitatorResponse = $this->actingAs($facilitator)->get('/home');
 
         $facilitatorResponse->assertOk();
-        $facilitatorResponse->assertSee('<h2 class="sidde-panel-title">Mis próximas acciones de formación</h2>', false);
+        $facilitatorResponse->assertSee('<h2 class="sidde-panel-title" id="home-calendar-heading">Calendario de acciones de formación</h2>', false);
         $facilitatorResponse->assertDontSee('<h4 class="sidde-panel-title"', false);
 
         $participant = User::factory()->participante()->create();
@@ -241,7 +241,7 @@ class HomeDashboardTest extends TestCase
         $participantResponse = $this->actingAs($participant)->get('/home');
 
         $participantResponse->assertOk();
-        $participantResponse->assertSee('<h2 class="sidde-panel-title">Mis acciones de formación</h2>', false);
+        $participantResponse->assertSee('<h2 class="sidde-panel-title" id="home-calendar-heading">Calendario de acciones de formación</h2>', false);
         $participantResponse->assertDontSee('<h4 class="sidde-panel-title"', false);
     }
 
@@ -294,57 +294,81 @@ class HomeDashboardTest extends TestCase
         $response->assertSee('activos · próximos '.$window.' días');
     }
 
-    public function test_facilitator_dashboard_caps_the_list_and_reports_totals(): void
+    public function test_facilitator_dashboard_reports_current_year_status_kpis_and_renders_the_calendar(): void
     {
-        $total = HomeDashboardService::LIST_LIMIT + 2;
-        $rows = [];
+        [$porDictar, $facilitator] = $this->makeScheduled();
+        [$culminado] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CULMINADO]);
+        [$cancelado] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CANCELADO]);
+        [$previousYear] = $this->makeScheduled(null, [
+            'start_date' => CarbonImmutable::today()->subYear()->toDateString(),
+            'end_date' => CarbonImmutable::today()->subYear()->addDays(10)->toDateString(),
+        ]);
 
-        for ($i = 1; $i <= $total; $i++) {
-            [$scheduled] = $this->makeScheduled(null, [
-                'start_date' => CarbonImmutable::today()->addDays($i)->toDateString(),
-                'end_date' => CarbonImmutable::today()->addDays($i + 5)->toDateString(),
-            ]);
-            $rows[] = $scheduled;
+        foreach ([$culminado, $cancelado, $previousYear] as $row) {
+            $row->update(['facilitator_id' => $facilitator->id]);
         }
 
-        $facilitatorId = $rows[0]->facilitator_id;
-        foreach ($rows as $row) {
-            $row->update(['facilitator_id' => $facilitatorId]);
-        }
+        $user = User::factory()->facilitador()->create(['person_id' => $facilitator->person_id]);
 
-        $user = User::factory()->facilitador()->create(['person_id' => $rows[0]->facilitator->person_id]);
+        $payload = app(HomeDashboardService::class)->forFacilitator($user);
+
+        $this->assertSame(CarbonImmutable::today()->year, $payload['year']);
+        $this->assertSame(2, $payload['kpis']['programadas']);
+        $this->assertSame(1, $payload['kpis']['porDictar']);
+        $this->assertSame(1, $payload['kpis']['culminadas']);
+        $this->assertCount(2, $payload['calendarEvents']);
 
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertOk();
-        $response->assertSee('aria-label="Ver todas mis acciones de formación ('.$total.')"', false);
-        $response->assertSee('Cupos disponibles');
-        $response->assertSee($rows[0]->course->title);
-        $response->assertDontSee($rows[$total - 1]->course->title);
+        $response->assertSee('Programadas');
+        $response->assertSee('Por dictar');
+        $response->assertSee('Culminadas');
+        $response->assertDontSee('Cupos disponibles');
+        $response->assertSee('Calendario de acciones de formación');
+        $response->assertSee($porDictar->course->title);
+        $response->assertSee('u/af_programadas/'.$porDictar->id.'/ver', false);
+        $response->assertDontSee($cancelado->course->title);
     }
 
-    public function test_participant_dashboard_caps_the_list_and_reports_totals(): void
+    public function test_participant_dashboard_reports_current_year_status_kpis_and_renders_the_calendar(): void
     {
-        $total = HomeDashboardService::LIST_LIMIT + 2;
-        $rows = [];
+        [$porDictar] = $this->makeScheduled();
+        [$culminado] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CULMINADO]);
+        [$cancelado] = $this->makeScheduled(null, ['course_status_id' => CourseStatus::CANCELADO]);
+        [$previousYear] = $this->makeScheduled(null, [
+            'start_date' => CarbonImmutable::today()->subYear()->toDateString(),
+            'end_date' => CarbonImmutable::today()->subYear()->addDays(10)->toDateString(),
+        ]);
+
         $user = User::factory()->participante()->create();
 
-        for ($i = 1; $i <= $total; $i++) {
-            [$scheduled] = $this->makeScheduled();
+        foreach ([$porDictar, $culminado, $cancelado, $previousYear] as $row) {
             Participant::create([
                 'person_id' => $user->person_id,
-                'scheduled_id' => $scheduled->id,
+                'scheduled_id' => $row->id,
                 'participant_status_id' => Participant::ENCURSO,
             ]);
-            $rows[] = $scheduled;
         }
+
+        $payload = app(HomeDashboardService::class)->forParticipant($user);
+
+        $this->assertSame(CarbonImmutable::today()->year, $payload['year']);
+        $this->assertSame(2, $payload['kpis']['programadas']);
+        $this->assertSame(1, $payload['kpis']['porDictar']);
+        $this->assertSame(1, $payload['kpis']['culminadas']);
+        $this->assertCount(2, $payload['calendarEvents']);
 
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertOk();
-        $response->assertSee('aria-label="Ver todas mis acciones de formación ('.$total.')"', false);
-        $response->assertSee($rows[$total - 1]->course->title);
-        $response->assertDontSee($rows[0]->course->title);
+        $response->assertSee('Programadas');
+        $response->assertSee('Por dictar');
+        $response->assertSee('Culminadas');
+        $response->assertSee('Calendario de acciones de formación');
+        $response->assertSee($porDictar->course->title);
+        $response->assertSee('u/af_programadas/'.$porDictar->id.'/ver', false);
+        $response->assertDontSee($cancelado->course->title);
     }
 
     public function test_participant_dashboard_links_to_programme_details(): void
@@ -418,15 +442,16 @@ class HomeDashboardTest extends TestCase
 
         $payload = app(HomeDashboardService::class)->forParticipant($user);
 
-        $this->assertSame(1, $payload['activeEnrolmentsCount']);
-        $this->assertSame(1, $payload['approvedCount']);
-        $this->assertSame(2, $payload['upcomingSessionsCount']);
+        $this->assertSame(2, $payload['kpis']['programadas']);
+        $this->assertSame(2, $payload['kpis']['porDictar']);
+        $this->assertSame(0, $payload['kpis']['culminadas']);
 
         $response = $this->actingAs($user)->get('/home');
         $response->assertOk();
-        $response->assertSee('Activas');
-        $response->assertSee('Sesiones próximas');
-        $response->assertSee('Aprobadas');
+        $response->assertSee('Programadas');
+        $response->assertSee('Por dictar');
+        $response->assertSee('Culminadas');
+        $response->assertSee('Año '.CarbonImmutable::today()->year);
     }
 
     public function test_agenda_keeps_the_aula_name_when_its_location_is_soft_deleted(): void

@@ -40,26 +40,29 @@ test.describe('Home dashboard', () => {
         expect((await inicio.boundingBox())!.y).toBeLessThan((await areas.boundingBox())!.y);
     });
 
-    test('facilitator sees a personalized agenda', async ({ page }) => {
+    test('facilitator sees a personalized calendar', async ({ page }) => {
         await loginAs(page, 'facilitador');
         await page.goto('/home');
 
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Mis próximas acciones de formación' })).toBeVisible();
+        await expect(page.locator('.sidde-panel-title', { hasText: 'Calendario de acciones de formación' })).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toHaveCount(0);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
+        await expect(page.locator('.sidde-kpi-strip .sidde-kpi-label')).toHaveText(['Programadas', 'Por dictar', 'Culminadas']);
+        await expect(page.locator('#home-calendar .fc-view')).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
     });
 
-    test('participant sees own enrolments', async ({ page }) => {
+    test('participant sees own enrolments in the calendar', async ({ page }) => {
         await loginAs(page, 'participante');
         await page.goto('/home');
 
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Mis acciones de formación' }).first()).toBeVisible();
+        await expect(page.locator('.sidde-panel-title', { hasText: 'Calendario de acciones de formación' }).first()).toBeVisible();
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
+        await expect(page.locator('.sidde-kpi-strip .sidde-kpi-label')).toHaveText(['Programadas', 'Por dictar', 'Culminadas']);
+        await expect(page.locator('#home-calendar .fc-view')).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
-        await expect(page.locator('.sidde-table tbody .btn').first()).toBeVisible();
     });
 
     test('the navigation menu can be opened at phone widths', async ({ page }) => {
