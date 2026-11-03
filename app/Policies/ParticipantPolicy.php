@@ -36,12 +36,12 @@ class ParticipantPolicy
 
     public function getAllPorCurso(User $user)
     {
-        return $user->isAdministrador() || $user->isFacilitador();
+        return $user->isAdministrador() || $user->isFacilitador() || $user->isProgramador();
     }
     
      public function store(User $user)
     {
-        return $user->isAdministrador();
+        return $user->isAdministrador() || $user->isProgramador();
     }
     
     public function count(User $user)
@@ -56,6 +56,6 @@ class ParticipantPolicy
     
     public function delete(User $user)
     {
-        return $user->isAdministrador() || $user->isFacilitador();
+        return $user->isAdministrador() || $user->isFacilitador() || $user->isProgramador();
     }
 }

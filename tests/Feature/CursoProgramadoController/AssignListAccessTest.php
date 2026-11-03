@@ -271,6 +271,18 @@ class AssignListAccessTest extends TestCase
         $this->assertNotContains($ineligibleParticipant->person_id, $ids);
     }
 
+    public function test_programador_can_fetch_assign_list(): void
+    {
+        $scheduled = $this->makeScheduledPorDictar();
+        $programador = User::factory()->programador()->create();
+
+        $response = $this->actingAs($programador)
+            ->getJson('/u/af_programadas/assignList?scheduled_id=' . $scheduled->id);
+
+        $response->assertOk();
+        $response->assertJsonStructure(['results', 'more']);
+    }
+
     public function test_facilitador_cannot_fetch_assign_list(): void
     {
         $scheduled = $this->makeScheduledPorDictar();

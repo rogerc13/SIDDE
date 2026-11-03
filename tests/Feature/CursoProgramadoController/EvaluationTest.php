@@ -189,7 +189,7 @@ class EvaluationTest extends TestCase
         $this->assertFalse($programador->can('updateStatus', $participant->fresh()));
     }
 
-    public function test_programador_cannot_open_course_roster(): void
+    public function test_programador_can_open_course_roster(): void
     {
         $programador = User::factory()->programador()->create();
         [, $facilitator] = $this->makeOwningFacilitador();
@@ -197,25 +197,92 @@ class EvaluationTest extends TestCase
         $this->makeParticipant($scheduled);
 
         $response = $this->actingAs($programador)
-            ->from('/u/af_programadas')
             ->get("/u/af_programadas/{$scheduled->id}/participantes");
 
-        $response->assertRedirect();
-        $response->assertSessionHas('alert');
-        $this->assertFalse($programador->can('getAllPorCurso', Participant::class));
+        $response->assertOk();
+        $response->assertViewHas('participantes');
+        $response->assertViewHas('statuses');
+        $response->assertViewHas('canEvaluate', false);
+        $this->assertTrue($programador->can('getAllPorCurso', Participant::class));
     }
 
-    public function test_programador_cannot_assign_participant(): void
+    public function test_programador_can_assign_participant(): void
     {
         $programador = User::factory()->programador()->create();
         [, $facilitator] = $this->makeOwningFacilitador();
         $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+        $participantUser = User::factory()->participante()->create();
 
-        $response = $this->actingAs($programador)
-            ->get('/u/af_programadas/assignList?scheduled_id=' . $scheduled->id);
+        $this->assertTrue($programador->can('store', Participant::class));
 
-        $response->assertForbidden();
-        $this->assertFalse($programador->can('store', Participant::class));
+        $this->actingAs($programador)
+            ->getJson('/u/af_programadas/assignList?scheduled_id=' . $scheduled->id)
+            ->assertOk();
+
+        $this->actingAs($programador)
+            ->from('/u/af_programadas/' . $scheduled->id . '/participantes')
+            ->post('/u/af_programadas/' . $scheduled->id . '/asignarParticipante', [
+                'participante' => $participantUser->person_id,
+                'curso_p_id' => $scheduled->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('participants', [
+            'person_id' => $participantUser->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+    }
+
+    public function test_programador_can_register_new_participant(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(maxCapacity: 5), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $payload = [
+            'nombre' => 'Ana',
+            'apellido' => 'Pérez',
+            'ci' => '12345678',
+            'id_type' => 1,
+            'sex' => 'Femenino',
+            'phone' => '04141234567',
+            'email' => 'ana.perez@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ];
+
+        $this->actingAs($programador)
+            ->from('/u/af_programadas/' . $scheduled->id . '/participantes')
+            ->post("/u/af_programadas/{$scheduled->id}/participantes", $payload)
+            ->assertRedirect();
+
+        $person = Person::where('id_number', '12345678')->first();
+        $this->assertNotNull($person);
+
+        $this->assertDatabaseHas('participants', [
+            'person_id' => $person->id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::PORINICIAR,
+        ]);
+        $this->assertDatabaseHas('users', ['email' => 'ana.perez@example.com', 'role_id' => Role::PARTICIPANTE]);
+    }
+
+    public function test_programador_can_remove_participant(): void
+    {
+        $programador = User::factory()->programador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+        $participant = $this->makeParticipant($scheduled, Participant::PORINICIAR);
+
+        $this->assertTrue($programador->can('delete', Participant::class));
+
+        $this->actingAs($programador)
+            ->from('/u/af_programadas/' . $scheduled->id . '/participantes')
+            ->delete("/u/af_programadas/participantes/{$participant->id}")
+            ->assertRedirect();
+
+        $this->assertSoftDeleted('participants', ['id' => $participant->id]);
     }
 
     public function test_programador_does_not_get_evaluation_controls(): void
