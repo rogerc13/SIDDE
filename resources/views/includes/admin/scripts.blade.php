@@ -72,4 +72,12 @@
 
 	</script>
 
+	@if (session('alert'))
+		<script>
+			$(function () {
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
+		</script>
+	@endif
+
 	@stack('JS')

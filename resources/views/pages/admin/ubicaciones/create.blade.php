@@ -3,11 +3,21 @@
     var buildings = @json($buildings);
     var floors = @json($floors);
     var csrfToken = '{{ csrf_token() }}';
+    var hasLocationFormErrors = @json($errors->has('nombre') || $errors->has('floor_id'));
+    var oldLocationId = @json(old('location_id'));
+    var oldNombre = @json(old('nombre'));
+    var oldBuildingId = @json(old('building_id'));
+    var oldFloorId = @json(old('floor_id'));
 
     function crearLocation(url){
         document.getElementById("location-form").reset();
         $(".loader").addClass("hidden");
         $("#location-form").removeClass("hidden");
+        $("#location-form :input").prop('readonly', false);
+        $("#location-form select").prop('disabled', false);
+        $("#location-aceptar").removeClass("hidden");
+        $("#location-form-alert").addClass("hidden").text("");
+        $("#location_id").val("");
         $("[name=_method]").val("POST");
         $("#location-label").html("Crear / Editar Aula");
         $("#location-form").attr("action", url);
@@ -57,17 +67,19 @@
         $('#floor-dropdown-group .btn-delete').prop('disabled', !hasSelection);
     });
 
-    $('#location-modal').on('shown.bs.modal', function() {
-        updateBuildingButtons();
-    });
+    $(function() {
+        $('#location-modal').on('shown.bs.modal', function() {
+            updateBuildingButtons();
+        });
 
-    $('#location-modal').on('hidden.bs.modal', function() {
-        hideInlineCreate('building');
-        hideInlineCreate('floor');
-        hideInlineEdit('building');
-        hideInlineEdit('floor');
-        hideDeleteConfirm('building');
-        hideDeleteConfirm('floor');
+        $('#location-modal').on('hidden.bs.modal', function() {
+            hideInlineCreate('building');
+            hideInlineCreate('floor');
+            hideInlineEdit('building');
+            hideInlineEdit('floor');
+            hideDeleteConfirm('building');
+            hideDeleteConfirm('floor');
+        });
     });
 
     // --- Inline create ---
@@ -361,6 +373,44 @@
         $('#building-dropdown-group .btn-delete').prop('disabled', !hasSelection);
     }
 
+    // Reopen the modal with the submitted values when the aula failed validation.
+    $(function() {
+        if (!hasLocationFormErrors) {
+            return;
+        }
+
+        var editing = oldLocationId !== null && oldLocationId !== '';
+        var url = editing ? '{{ url("u/ubicaciones") }}/' + oldLocationId : '{{ url("u/ubicaciones") }}';
+
+        document.getElementById("location-form").reset();
+        $(".loader").addClass("hidden");
+        $("#location-form").removeClass("hidden");
+        $("#location-form :input").prop('readonly', false);
+        $("#location-form select").prop('disabled', false);
+        $("#location-aceptar").removeClass("hidden");
+        $("#location-form-alert").addClass("hidden").text("").removeClass('alert-warning alert-danger');
+        $("#location_id").val(oldLocationId || "");
+        $("[name=_method]").val(editing ? "PUT" : "POST");
+        $("#location-label").html(editing ? "Editar Aula" : "Crear / Editar Aula");
+        $("#location-form").attr("action", url);
+        populateBuildingDropdown('location_building_id');
+
+        if (oldBuildingId) {
+            $('#location_building_id').val(oldBuildingId);
+            populateFloorDropdown('location_floor_id', oldBuildingId);
+        } else {
+            $('#location_floor_id').html('<option value="">Seleccione un piso</option>');
+        }
+
+        if (oldFloorId) {
+            $('#location_floor_id').val(oldFloorId);
+        }
+
+        $('#nombre').val(oldNombre || '');
+        updateBuildingButtons();
+        $("#location-modal").modal();
+    });
+
 </script>
 @endpush
 
@@ -381,8 +431,10 @@
             <form class="form-horizontal hidden" method="POST" id='location-form' enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <input type="hidden" name="_method" value="POST">
+                <input type="hidden" name="location_id" id="location_id" value="">
 
                 <div class="modal-body">
+                    <div id="location-form-alert" class="alert hidden" role="alert"></div>
                     <h5 class="sidde-section-title"><i class="fa fa-building"></i> Ubicación</h5>
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
@@ -455,6 +507,9 @@
                                 <div id="floor-inline-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                                 <div id="floor-edit-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
                                 <div id="floor-delete-error" class="text-danger hidden" style="margin-top: 5px;"><small></small></div>
+                                @error('floor_id')
+                                    <div class="text-danger" style="margin-top: 5px;"><small>{{ $message }}</small></div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -467,6 +522,9 @@
                                     <span class="input-group-addon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
                                     {{ Form::text('nombre', null, array('class' => 'form-control', 'maxlength'=>100, 'required', 'placeholder' => 'Ej: Aula 101')) }}
                                 </div>
+                                @error('nombre')
+                                    <div class="text-danger" style="margin-top: 5px;"><small>{{ $message }}</small></div>
+                                @enderror
                                 <small class="sidde-hint">Puede crear, editar o eliminar edificios y pisos sin salir de esta ventana.</small>
                             </div>
                         </div>

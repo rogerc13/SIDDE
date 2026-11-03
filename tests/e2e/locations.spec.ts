@@ -162,6 +162,8 @@ test.describe('Locations CRUD', () => {
         await page.click('#location-aceptar');
         await page.waitForLoadState('load');
         await expect(page.locator('.alert-success').first()).toBeVisible();
+
+        await page.goto(`/u/ubicaciones?name=${encodeURIComponent(locationName)}`);
         await expect(page.locator('tr', { hasText: locationName })).toBeVisible();
     });
 
@@ -249,8 +251,8 @@ test.describe('Locations CRUD', () => {
         const originalName = `Aula Editable ${unique()}`;
         const editName = `Edited ${unique()}`;
         await createLocation(page, originalName);
-        await page.reload();
 
+        await page.goto(`/u/ubicaciones?name=${encodeURIComponent(originalName)}`);
         const row = page.locator('tr', { hasText: originalName });
         await expect(row).toBeVisible();
 
@@ -260,14 +262,59 @@ test.describe('Locations CRUD', () => {
         await page.click('#location-aceptar');
         await page.waitForLoadState('load');
         await expect(page.locator('.alert-success').first()).toBeVisible();
+
+        await page.goto(`/u/ubicaciones?name=${encodeURIComponent(editName)}`);
         await expect(page.locator('tr', { hasText: editName })).toBeVisible();
+    });
+
+    test('reopens the modal with validation errors', async ({ page }) => {
+        const locationName = `Aula Duplicada ${unique()}`;
+        await createLocation(page, locationName);
+        await page.reload();
+
+        await openLocationModal(page);
+        await selectFixtureBuilding(page);
+        await page.selectOption('#location_floor_id', { label: fixtures.floorName });
+        await page.fill('#nombre', locationName);
+        await page.click('#location-aceptar');
+        await page.waitForLoadState('load');
+
+        await expect(page.locator('#location-form:not(.hidden)')).toBeVisible();
+        await expect(page.locator('#location-modal')).toContainText('ya existe');
+        await expect(page.locator('#nombre')).toHaveValue(locationName);
+    });
+
+    test('opens the edit modal for a location without floor', async ({ page }) => {
+        await page.route('**/u/ubicaciones/999999', async (route) => {
+            if (route.request().method() !== 'GET') {
+                await route.continue();
+                return;
+            }
+
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    id: 999999,
+                    name: 'Aula heredada sin piso',
+                    floor_id: null,
+                    floor: null,
+                }),
+            });
+        });
+
+        await page.evaluate(() => (window as any).editarLocation('/u/ubicaciones/999999'));
+
+        await expect(page.locator('#location-form:not(.hidden)')).toBeVisible();
+        await expect(page.locator('#location-form-alert')).toContainText('no tiene piso asignado');
+        await expect(page.locator('#nombre')).toHaveValue('Aula heredada sin piso');
     });
 
     test('deletes a location', async ({ page }) => {
         const locationName = `Aula Borrable ${unique()}`;
         await createLocation(page, locationName);
-        await page.reload();
 
+        await page.goto(`/u/ubicaciones?name=${encodeURIComponent(locationName)}`);
         const row = page.locator('tr', { hasText: locationName });
         await expect(row).toBeVisible();
 

@@ -64,11 +64,11 @@ class LocationController extends Controller
 
             if ($location->save()) {
                 return Redirect::back()
-                    ->with("alert", Funciones::getAlert("success", "Ingresado Exitosamente", "Operacion Exitosa."));
+                    ->with("alert", Funciones::getAlert("success", "Aula creada exitosamente", "La operación se realizó correctamente."));
             }
 
             return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error al Intentar Crear Ubicación", "Operacion Erronea."));
+                ->with("alert", Funciones::getAlert("danger", "No se pudo crear el aula", "Intente nuevamente."));
         }
 
         return Redirect::back()
@@ -96,11 +96,11 @@ class LocationController extends Controller
 
         if (!$location->save()) {
             return Redirect::back()
-                ->with("alert", Funciones::getAlert("danger", "Error al intentar editar", "Operación errónea. Error actualizando los datos."));
+                ->with("alert", Funciones::getAlert("danger", "No se pudo actualizar el aula", "Intente nuevamente."));
         }
 
         return Redirect::back()
-            ->with("alert", Funciones::getAlert("success", "Editado exitosamente", "Operación exitosa."));
+            ->with("alert", Funciones::getAlert("success", "Aula actualizada exitosamente", "La operación se realizó correctamente."));
     }
 
     public function delete($id)

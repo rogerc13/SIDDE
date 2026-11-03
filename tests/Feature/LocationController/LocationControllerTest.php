@@ -163,6 +163,24 @@ class LocationControllerTest extends TestCase
         $this->assertDatabaseHas('locations', ['name' => 'Aula 101', 'floor_id' => $floor->id]);
     }
 
+    public function test_store_location_flashes_success_alert(): void
+    {
+        $building = Building::factory()->create();
+        $floor = Floor::factory()->create(['building_id' => $building->id]);
+
+        $response = $this->actingAs($this->adminUser())
+            ->post('/u/ubicaciones', [
+                'nombre' => 'Aula con aviso',
+                'floor_id' => $floor->id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert', function (array $alert): bool {
+            return $alert['tipo'] === 'success'
+                && $alert['titulo'] === 'Aula creada exitosamente';
+        });
+    }
+
     public function test_tec_educativa_can_store_location(): void
     {
         $building = Building::factory()->create();
@@ -220,6 +238,60 @@ class LocationControllerTest extends TestCase
         $this->assertDatabaseHas('locations', ['id' => $location->id, 'name' => 'Aula Actualizada']);
     }
 
+    public function test_update_location_flashes_success_alert(): void
+    {
+        $location = $this->createLocationWithFloor();
+
+        $response = $this->actingAs($this->adminUser())
+            ->put("/u/ubicaciones/{$location->id}", [
+                'nombre' => 'Aula con aviso editada',
+                'floor_id' => $location->floor_id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert', function (array $alert): bool {
+            return $alert['tipo'] === 'success'
+                && $alert['titulo'] === 'Aula actualizada exitosamente';
+        });
+    }
+
+    public function test_update_location_without_floor_can_assign_one(): void
+    {
+        $building = Building::factory()->create();
+        $floor = Floor::factory()->create(['building_id' => $building->id]);
+        $location = Location::factory()->create([
+            'floor_id' => null,
+            'name' => 'Aula heredada sin piso',
+        ]);
+
+        $response = $this->actingAs($this->adminUser())
+            ->put("/u/ubicaciones/{$location->id}", [
+                'nombre' => 'Aula heredada con piso',
+                'floor_id' => $floor->id,
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('alert', function (array $alert): bool {
+            return $alert['tipo'] === 'success';
+        });
+
+        $this->assertDatabaseHas('locations', [
+            'id' => $location->id,
+            'floor_id' => $floor->id,
+        ]);
+    }
+
+    public function test_get_location_without_floor_returns_null_floor(): void
+    {
+        $location = Location::factory()->create(['floor_id' => null]);
+
+        $response = $this->actingAs($this->adminUser())
+            ->get("/u/ubicaciones/{$location->id}");
+
+        $response->assertOk();
+        $response->assertJsonPath('floor', null);
+    }
+
     public function test_tec_educativa_can_update_location(): void
     {
         $location = $this->createLocationWithFloor();
@@ -263,6 +335,9 @@ class LocationControllerTest extends TestCase
             ]);
 
         $response->assertRedirect();
+        $response->assertSessionHas('alert', function (array $alert): bool {
+            return $alert['tipo'] === 'danger';
+        });
     }
 
     // --- delete ---
