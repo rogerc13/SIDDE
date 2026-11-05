@@ -29,7 +29,7 @@ final class HomeDashboardService
     public const SESSION_FOCUS_DAYS = 7;
     public const UPCOMING_LIMIT = 6;
     public const UPCOMING_SESSIONS_LIMIT = 7;
-    public const ACTIVE_LIMIT = 6;
+    public const ACTIVE_PREVIEW_LIMIT = 4;
 
     /**
      * Full organisation dashboard for Administrador / Tec. Educativa / Programador.
@@ -307,7 +307,7 @@ final class HomeDashboardService
                 'sessions as upcoming_sessions_count' => fn (Builder $query) => $this->withinActiveProgram($query),
             ])
             ->orderByDesc('upcoming_sessions_count')
-            ->limit(self::ACTIVE_LIMIT)
+            ->limit(self::ACTIVE_PREVIEW_LIMIT)
             ->get();
     }
 

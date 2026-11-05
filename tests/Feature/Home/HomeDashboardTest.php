@@ -106,6 +106,45 @@ class HomeDashboardTest extends TestCase
         $this->assertSame(1, $overview['kpis']['activeFacilitators']);
     }
 
+    public function test_overview_merged_facilitator_kpi_previews_the_busiest_and_links_to_the_roster(): void
+    {
+        $names = [];
+
+        for ($i = 0; $i < HomeDashboardService::ACTIVE_PREVIEW_LIMIT + 1; $i++) {
+            [$scheduled] = $this->makeScheduled();
+            $names[] = trim($scheduled->facilitator->person->name.' '.$scheduled->facilitator->person->last_name);
+        }
+
+        $overview = app(HomeDashboardService::class)->overview();
+
+        $this->assertCount(HomeDashboardService::ACTIVE_PREVIEW_LIMIT, $overview['activeFacilitators']);
+        $this->assertSame(HomeDashboardService::ACTIVE_PREVIEW_LIMIT + 1, $overview['kpis']['activeFacilitators']);
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Facilitadores activos');
+        $response->assertSee('+1 más');
+        $response->assertSee('class="sidde-kpi sidde-kpi--facilitators"', false);
+        $response->assertSee('href="'.url('u/facilitadores').'"', false);
+
+        $content = (string) $response->getContent();
+        $cardStart = (int) strpos($content, 'sidde-kpi sidde-kpi--facilitators');
+        $cardEnd = (int) strpos($content, '</a>', $cardStart);
+        $card = substr($content, $cardStart, $cardEnd - $cardStart);
+        $shownNames = array_filter($names, fn (string $name): bool => str_contains($card, e($name)));
+
+        $this->assertCount(HomeDashboardService::ACTIVE_PREVIEW_LIMIT, $shownNames);
+    }
+
+    public function test_overview_merged_facilitator_kpi_shows_an_empty_state_without_activity(): void
+    {
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSee('Sin actividad en los próximos '.HomeDashboardService::ACTIVITY_WINDOW_DAYS.' días.');
+    }
+
     public function test_upcoming_scheduled_is_ordered_by_start_date(): void
     {
         $this->makeScheduled(null, ['start_date' => CarbonImmutable::today()->addDays(20)->toDateString()]);

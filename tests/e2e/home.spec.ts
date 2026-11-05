@@ -10,9 +10,27 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-kpi')).toHaveCount(3);
         await expect(page.locator('a.sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-kpi-unit').first()).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toBeVisible();
+        await expect(page.locator('.sidde-kpi-label', { hasText: 'Facilitadores activos' })).toBeVisible();
         await expect(page.locator('.sidde-panel-title', { hasText: 'Acciones de Formación Programadas por estado' })).toBeVisible();
-        await expect(page.locator('.sidde-rail-list .count-pill').first()).toBeVisible();
+        await expect(page.locator('.sidde-kpi--facilitators .sidde-kpi-person-meta').first()).toBeVisible();
+        await expect(page.locator('a.sidde-kpi--facilitators')).toHaveAttribute('href', /\/u\/facilitadores$/);
+
+        const singleKpi = await page.locator('.sidde-kpi:not(.sidde-kpi--facilitators)').first().boundingBox();
+        const facilitatorKpi = await page.locator('.sidde-kpi--facilitators').boundingBox();
+        expect(singleKpi).not.toBeNull();
+        expect(facilitatorKpi).not.toBeNull();
+        expect(facilitatorKpi!.width).toBeGreaterThan(singleKpi!.width);
+
+        const singleIcon = await page.locator('.sidde-kpi:not(.sidde-kpi--facilitators) .kpi-icon').first().boundingBox();
+        const facilitatorIcon = await page.locator('.sidde-kpi--facilitators .kpi-icon').boundingBox();
+        expect(singleIcon).not.toBeNull();
+        expect(facilitatorIcon).not.toBeNull();
+        expect(
+            Math.abs(
+                (facilitatorIcon!.y + facilitatorIcon!.height / 2) -
+                    (singleIcon!.y + singleIcon!.height / 2),
+            ),
+        ).toBeLessThanOrEqual(1);
         await expect(
             page.locator('.sidde-panel-title', { hasText: 'Próximas Acciones de Formación' }),
         ).toBeVisible();
@@ -45,7 +63,7 @@ test.describe('Home dashboard', () => {
         await page.goto('/home');
 
         await expect(page.locator('.sidde-panel-title', { hasText: 'Calendario de acciones de formación' })).toBeVisible();
-        await expect(page.locator('.sidde-panel-title', { hasText: 'Facilitadores activos' })).toHaveCount(0);
+        await expect(page.locator('.sidde-kpi-label', { hasText: 'Facilitadores activos' })).toHaveCount(0);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi')).toHaveCount(3);
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi-label')).toHaveText(['Programadas', 'Por dictar', 'Culminadas']);
         await expect(page.locator('#home-calendar .fc-view')).toBeVisible();

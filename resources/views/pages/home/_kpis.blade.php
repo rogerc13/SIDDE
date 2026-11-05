@@ -1,5 +1,4 @@
 @php
-	$window = 'próximos '.$dashboard['windowDays'].' días';
 	$kpis = $dashboard['kpis'];
 	$activeScheduled = (int) ($kpis['activeScheduled'] ?? 0);
 	$cards = [
@@ -22,16 +21,6 @@
 			'ability' => 'getAll',
 			'model' => \App\Models\Scheduled::class,
 			'url' => url('u/af_programadas'),
-		],
-		[
-			'value' => $kpis['activeFacilitators'],
-			'label' => 'Facilitadores',
-			'unit' => 'activos · '.$window,
-			'icon' => 'entypo-users',
-			'tone' => 'kpi-icon--emerald',
-			'ability' => 'getAllFacilitador',
-			'model' => \App\Models\User::class,
-			'url' => url('u/facilitadores'),
 		],
 	];
 @endphp
@@ -58,4 +47,6 @@
 			</div>
 		@endif
 	@endforeach
+
+	@include('pages.home._facilitators')
 </div>
