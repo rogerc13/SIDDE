@@ -704,7 +704,9 @@ class SchedulePageTest extends TestCase
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/ver');
 
         $response->assertOk();
-        $response->assertSee('data-blocked-reason', false);
+        $response->assertSee('action-block-reasons hidden', false);
+        $response->assertSee('participants-assignment-block-reason', false);
+        $response->assertSee('is-blocked', false);
         $response->assertSee('está «En Curso»', false);
         $response->assertSee('«Por Dictar»', false);
     }
@@ -758,7 +760,8 @@ class SchedulePageTest extends TestCase
         $response = $this->actingAs($user)->get('/u/af_programadas/' . $scheduled->id . '/participantes');
 
         $response->assertOk();
-        $response->assertSee('data-blocked-reason', false);
+        $response->assertSee('action-block-reasons hidden', false);
+        $response->assertSee('participants-assignment-block-reason', false);
         $response->assertSee('está «Cancelado»', false);
     }
 

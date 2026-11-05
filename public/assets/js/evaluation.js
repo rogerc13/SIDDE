@@ -1,5 +1,6 @@
 (function () {
     var feedbackTimer = null;
+    var evaluationActive = false;
 
     function showFeedback(type, message) {
         var $feedback = $('#evaluation-feedback');
@@ -13,6 +14,54 @@
         feedbackTimer = setTimeout(function () {
             $feedback.addClass('hidden');
         }, 4000);
+    }
+
+    function badgeClassForStatus(statusId) {
+        switch (String(statusId)) {
+            case '1':
+                return 'success';
+            case '2':
+                return 'danger';
+            case '3':
+                return 'info';
+            case '4':
+                return 'default';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function setEvaluateButtonLabel(label) {
+        $('.evaluate-button').find('span').text(' ' + label);
+    }
+
+    function setRowReadOnly($select) {
+        $select.prop('disabled', true).hide();
+        $select.siblings('.participant_status_helper').show();
+    }
+
+    function enterEvaluationMode() {
+        evaluationActive = true;
+
+        $('.participant_status').each(function () {
+            var $select = $(this);
+            $select.prop('disabled', false).show();
+            $select.siblings('.participant_status_helper').hide();
+        });
+
+        setEvaluateButtonLabel('Finalizar Evaluación');
+    }
+
+    function exitEvaluationMode() {
+        evaluationActive = false;
+
+        $('.participant_status').each(function () {
+            setRowReadOnly($(this));
+        });
+
+        setEvaluateButtonLabel('Evaluar Participantes');
     }
 
     function evaluate($select) {
@@ -37,6 +86,11 @@
         }).done(function () {
             $select.data('current-status-id', newStatusId);
             $select.prop('disabled', false);
+
+            var $helper = $select.siblings('.participant_status_helper');
+            $helper.text($select.find('option:selected').text());
+            $helper.attr('class', 'participant_status_helper badge badge-' + badgeClassForStatus(newStatusId));
+
             showFeedback('success', 'Evaluación guardada correctamente.');
         }).fail(function (response) {
             $select.val(previousStatusId);
@@ -57,18 +111,32 @@
             }
         });
 
+        var $evaluateButton = $('.evaluate-button');
+        var canStartEvaluation = $evaluateButton.length > 0 && !$evaluateButton.hasClass('is-blocked');
+
         $('.participant_status').each(function () {
-            var $select = $(this);
-            if ($select.prop('disabled')) {
-                $select.hide();
-                $select.siblings('.participant_status_helper').show();
-            } else {
-                $select.show();
-                $select.siblings('.participant_status_helper').hide();
+            if ($(this).prop('disabled')) {
+                setRowReadOnly($(this));
             }
         });
 
-        $(document).on('change', '.participant_status:not(:disabled)', function () {
+        if (canStartEvaluation) {
+            $evaluateButton.on('click', function (event) {
+                event.preventDefault();
+
+                if (evaluationActive) {
+                    exitEvaluationMode();
+                } else {
+                    enterEvaluationMode();
+                }
+            });
+        }
+
+        $(document).on('change', '.participant_status', function () {
+            if (!evaluationActive) {
+                return;
+            }
+
             evaluate($(this));
         });
     });

@@ -1093,8 +1093,35 @@
     color: #1f2733;
 }
 
-/* Blocked actions stay clickable so they can explain why they are unavailable. */
+/* Blocked actions keep the disabled look; inline hints explain why. */
 .btn.is-blocked {
     opacity: 0.65;
     cursor: not-allowed;
+}
+
+.action-block-reasons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.action-block-reason {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid #f0d9a8;
+    border-radius: 4px;
+    background: #fff8e1;
+    color: #6b4e00;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.action-block-reason .fa {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: #a66f00;
 }

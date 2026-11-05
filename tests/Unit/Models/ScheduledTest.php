@@ -221,6 +221,37 @@ class ScheduledTest extends TestCase
         $this->assertStringContainsString('«Por Dictar»', $reason);
     }
 
+    public function test_participant_evaluation_block_reason_returns_null_for_evaluable_statuses(): void
+    {
+        foreach ([CourseStatus::EN_CURSO, CourseStatus::CULMINADO] as $status) {
+            $scheduled = $this->createScheduled($status);
+
+            $this->assertNull($scheduled->participantEvaluationBlockReason());
+        }
+    }
+
+    public function test_participant_evaluation_block_reason_reports_por_dictar_status(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::POR_DICTAR);
+
+        $reason = $scheduled->participantEvaluationBlockReason();
+
+        $this->assertNotNull($reason);
+        $this->assertStringContainsString('está «Por Dictar»', $reason);
+        $this->assertStringContainsString('«En Curso»', $reason);
+        $this->assertStringContainsString('«Culminada»', $reason);
+    }
+
+    public function test_participant_evaluation_block_reason_reports_cancelled_status(): void
+    {
+        $scheduled = $this->createScheduled(CourseStatus::CANCELADO);
+
+        $reason = $scheduled->participantEvaluationBlockReason();
+
+        $this->assertNotNull($reason);
+        $this->assertStringContainsString('está «Cancelado»', $reason);
+    }
+
     public function test_total_session_hours(): void
     {
         $course = Course::factory()->create(['duration' => 20]);

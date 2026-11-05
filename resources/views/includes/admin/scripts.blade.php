@@ -49,6 +49,11 @@
           		
         	})
 
+            $(document).on('click', '.is-blocked', function (event) {
+                event.preventDefault();
+                $(this).siblings('.action-block-reasons').removeClass('hidden');
+            });
+
             $(document).on('click', '[data-blocked-reason]', function (event) {
                 event.preventDefault();
 

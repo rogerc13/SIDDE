@@ -84,11 +84,23 @@ test.describe.serial('Participant evaluation', () => {
         await page.waitForURL('**/home');
     }
 
-    test('owner facilitador evaluates inline and change persists', async ({ page }) => {
+    test('owner facilitador begins evaluation, saves, and change persists', async ({ page }) => {
         await loginAs(page, 'facilitador');
         await page.goto(participantsUrl());
 
-        const firstSelect = page.locator('.participant_status').first();
+        const participantId = fixtures.participantIds[0];
+        const firstSelect = page.locator(`.participant_status[data-participant-id="${participantId}"]`);
+        const firstBadge = page.locator(`tr:has(.participant_status[data-participant-id="${participantId}"]) .participant_status_helper`);
+        const evaluateButton = page.locator('.evaluate-button');
+
+        await expect(evaluateButton).toBeVisible();
+        await expect(evaluateButton).toContainText('Evaluar Participantes');
+        await expect(firstSelect).toBeHidden();
+        await expect(firstSelect).toBeDisabled();
+        await expect(firstBadge).toBeVisible();
+
+        await evaluateButton.click();
+        await expect(evaluateButton).toContainText('Finalizar Evaluación');
         await expect(firstSelect).toBeVisible();
         await expect(firstSelect).toBeEnabled();
 
@@ -96,26 +108,40 @@ test.describe.serial('Participant evaluation', () => {
 
         await expect(page.locator('#evaluation-feedback')).toContainText('guardada');
 
+        await evaluateButton.click();
+        await expect(firstSelect).toBeHidden();
+        await expect(firstBadge).toHaveText('Aprobado');
+
         await page.reload();
         await expect(firstSelect).toHaveValue(String(3));
-        await expect(page.locator('.participant_status_helper').first()).toHaveText('Aprobado');
+        await expect(firstBadge).toHaveText('Aprobado');
     });
 
     test('non-owner facilitador sees read-only badges', async ({ page }) => {
         await manualLogin(page, SECOND_FACILITADOR_EMAIL);
         await page.goto(participantsUrl());
 
-        const firstSelect = page.locator('.participant_status').first();
+        await expect(page.locator('.evaluate-button')).toHaveCount(0);
+
+        const participantId = fixtures.participantIds[0];
+        const firstSelect = page.locator(`.participant_status[data-participant-id="${participantId}"]`);
         await expect(firstSelect).toBeHidden();
         await expect(firstSelect).toBeDisabled();
-        await expect(page.locator('.participant_status_helper').first()).toBeVisible();
+        await expect(page.locator(`tr:has(.participant_status[data-participant-id="${participantId}"]) .participant_status_helper`)).toBeVisible();
     });
 
-    test('admin sees enabled selects', async ({ page }) => {
+    test('admin can begin evaluation', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.goto(participantsUrl());
 
         const firstSelect = page.locator('.participant_status').first();
+        const evaluateButton = page.locator('.evaluate-button');
+
+        await expect(evaluateButton).toBeVisible();
+        await expect(evaluateButton).not.toHaveClass(/is-blocked/);
+        await expect(firstSelect).toBeHidden();
+
+        await evaluateButton.click();
         await expect(firstSelect).toBeVisible();
         await expect(firstSelect).toBeEnabled();
 

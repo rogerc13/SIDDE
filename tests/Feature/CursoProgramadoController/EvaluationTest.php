@@ -823,6 +823,63 @@ class EvaluationTest extends TestCase
         $response->assertViewHas('canEvaluate', true);
     }
 
+    public function test_details_page_shows_available_evaluate_button_for_owning_facilitador(): void
+    {
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+        $this->makeParticipant($scheduled);
+
+        $response = $this->actingAs($facilitadorUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee('Evaluar Participantes');
+        $response->assertDontSee('evaluate-button is-blocked', false);
+    }
+
+    public function test_details_page_shows_blocked_evaluate_button_for_owning_facilitador_when_action_por_dictar(): void
+    {
+        [$facilitadorUser, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $response = $this->actingAs($facilitadorUser)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee('Evaluar Participantes');
+        $response->assertSee('evaluate-button is-blocked', false);
+        $response->assertSee('action-block-reasons hidden', false);
+        $response->assertSee('evaluation-blocked-reason', false);
+        $response->assertSee('No se puede evaluar: la acción de formación está «Por Dictar»', false);
+        $response->assertDontSee('data-blocked-reason=', false);
+    }
+
+    public function test_details_page_shows_blocked_evaluate_button_for_admin_when_action_por_dictar(): void
+    {
+        $admin = User::factory()->administrador()->create();
+        [, $facilitator] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $facilitator, CourseStatus::POR_DICTAR, now()->addWeek()->toDateString());
+
+        $response = $this->actingAs($admin)->get("/u/af_programadas/{$scheduled->id}/ver");
+
+        $response->assertOk();
+        $response->assertSee('Evaluar Participantes');
+        $response->assertSee('action-block-reasons hidden', false);
+        $response->assertSee('evaluation-blocked-reason', false);
+        $response->assertSee('No se puede evaluar: la acción de formación está «Por Dictar»', false);
+        $response->assertDontSee('data-blocked-reason=', false);
+    }
+
+    public function test_participants_page_does_not_show_evaluate_button_for_other_facilitador(): void
+    {
+        [, $ownerFacilitator] = $this->makeOwningFacilitador();
+        [$otherUser] = $this->makeOwningFacilitador();
+        $scheduled = $this->makeScheduled($this->makeCourse(), $ownerFacilitator, CourseStatus::EN_CURSO, now()->subDay()->toDateString());
+
+        $response = $this->actingAs($otherUser)->get("/u/af_programadas/{$scheduled->id}/participantes");
+
+        $response->assertOk();
+        $response->assertDontSee('Evaluar Participantes');
+    }
+
     private function makeEnrolledParticipantUser(Scheduled $scheduled): User
     {
         $user = User::factory()->participante()->create();

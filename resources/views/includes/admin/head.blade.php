@@ -43,7 +43,7 @@
 
 	<link rel="stylesheet" href="{{url('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
 	
-	<link rel="stylesheet" href="{{url('assets/css/custom.css')}}">
+	<link rel="stylesheet" href="{{url('assets/css/custom.css')}}?v={{ filemtime(public_path('assets/css/custom.css')) }}">
 	
 	<!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 

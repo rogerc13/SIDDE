@@ -113,9 +113,6 @@
     $backUrl = (Auth::user()->isFacilitador() || Auth::user()->isParticipante()) ? url('u/mis_acciones') : url('u/af_programadas');
     $canManage = Auth::user()->isAdministrador() || Auth::user()->isTecEducativa() || Auth::user()->isProgramador();
     $isParticipant = Auth::user()->isParticipante();
-    $participantAssignmentBlockReason = Auth::user()->can('store', 'App\Models\Participant')
-        ? $scheduled->participantAssignmentBlockReason()
-        : null;
     $docTypes = [
         1 => ['label' => 'Manual del Facilitador', 'icon' => 'fa-file-pdf-o'],
         2 => ['label' => 'Manual del Participante', 'icon' => 'fa-file-pdf-o'],
@@ -151,11 +148,6 @@
     </div>
     <div class="details-actions no-print">
         <a href="{{ $backUrl }}" class="btn btn-blue"><i class="entypo-back"></i> Volver</a>
-        @can('store','App\Models\Participant')
-            <a href="javascript:asignarParticipanteLista('{{url('u/af_programadas/'.$scheduled->id.'/asignarParticipante')}}','{{$scheduled->id}}')" class="btn btn-primary {{ $participantAssignmentBlockReason ? 'is-blocked' : '' }}" @if($participantAssignmentBlockReason) data-blocked-reason="{{ $participantAssignmentBlockReason }}" @endif>
-                <i class="entypo-user-add"></i> Asignar participante
-            </a>
-        @endcan
         @if($canManage)
         <div class="dropdown">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -82,6 +82,17 @@ class Scheduled extends Model
       return null;
   }
 
+  public function participantEvaluationBlockReason(): ?string
+  {
+      if ($this->isEnCurso() || $this->isCulminado()) {
+          return null;
+      }
+
+      $statusName = $this->courseStatus?->name ?? 'no disponible';
+
+      return "No se puede evaluar: la acción de formación está «{$statusName}». Solo se permite mientras está «En Curso» o «Culminada».";
+  }
+
   public function totalSessionHours(): float
   {
       return (float) $this->sessions->sum(fn ($s) => $s->durationHours());

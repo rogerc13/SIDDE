@@ -335,7 +335,7 @@ test.describe('Scheduled Courses CRUD', () => {
         await expect(page.locator('.details-header')).toBeVisible();
         await expect(page.locator('.details-meta')).toContainText('Creada:');
         await expect(page.locator('.details-actions')).toContainText('Más funciones');
-        await expect(page.locator('.details-actions')).toContainText('Asignar participante');
+        await expect(page.locator('.details-actions')).not.toContainText('Asignar participante');
 
         await page.locator('.details-actions .dropdown-toggle').click();
         await page.locator('.details-actions .dropdown-menu a', { hasText: 'Cancelar' }).click();
@@ -364,6 +364,30 @@ test.describe('Scheduled Courses CRUD', () => {
 
         await page.click('a[href="#tab-participantes"]');
         await expect(page.locator('#tab-participantes')).toBeVisible();
+    });
+
+    test('shows an inline reason for the blocked evaluate button until the course starts', async ({ page }) => {
+        await scheduleFutureCourse(page);
+
+        const row = page.locator('.af-index table tbody tr').filter({ hasText: 'Por Dictar' }).first();
+        await expect(row).toBeVisible();
+        await row.locator('a[title="Ver detalles"]').click();
+        await page.waitForLoadState('load');
+
+        await page.click('a[href="#tab-participantes"]');
+
+        const evaluateButton = page.locator('#tab-participantes .evaluate-button');
+        const reason = page.locator('#tab-participantes #evaluation-blocked-reason');
+
+        await expect(evaluateButton).toBeVisible();
+        await expect(evaluateButton).toHaveClass(/is-blocked/);
+        await expect(reason).toBeHidden();
+
+        await evaluateButton.click({ force: true });
+
+        await expect(reason).toBeVisible();
+        await expect(reason).toContainText('No se puede evaluar');
+        await expect(page.locator('#toast-container .toast-warning')).toHaveCount(0);
     });
 
     test('downloads the weekly horario PDF from the details page', async ({ page }) => {
@@ -442,6 +466,30 @@ test.describe('Participant Assignment', () => {
         expect(icon.fontFamily).toContain('FontAwesome');
         expect(icon.position).toBe('absolute');
         expect(icon.left).toBe('14px');
+    });
+
+    test('shows an inline reason instead of a toast for blocked assignment in the participants tab', async ({ page }) => {
+        await scheduleActiveCourse(page);
+        await page.goto('/u/af_programadas?id_estado=2');
+
+        const row = page.locator('.af-index table tbody tr').first();
+        await expect(row).toBeVisible({ timeout: 5000 });
+        await row.locator('a[title="Ver detalles"]').click();
+        await page.waitForLoadState('load');
+
+        await expect(page.locator('.details-actions')).not.toContainText('Asignar participante');
+
+        await page.click('a[href="#tab-participantes"]');
+
+        const reason = page.locator('#participants-assignment-block-reason');
+        await expect(reason).toBeHidden();
+
+        await page.locator('#tab-participantes a', { hasText: 'Asignar participante' }).click({ force: true });
+
+        await expect(reason).toBeVisible();
+        await expect(reason).toContainText('No se pueden agregar participantes');
+        await expect(page.locator('#toast-container .toast-warning')).toHaveCount(0);
+        await expect(page.locator('#asignar-modal')).not.toHaveClass(/in/);
     });
 
     test('marks the assign item as blocked for En Curso course', async ({ page }) => {
