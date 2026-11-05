@@ -1224,12 +1224,6 @@
     padding: 18px;
 }
 
-.home-dashboard .home-calendar-help {
-    margin: 0 0 12px;
-    font-size: 12px;
-    color: #6b7a87;
-}
-
 .home-dashboard .home-calendar-print {
     display: inline-flex;
     align-items: center;
@@ -1257,6 +1251,7 @@
 .home-dashboard .home-calendar .fc-event {
     cursor: pointer;
     overflow: hidden;
+    border-left-width: 3px;
 }
 
 .home-dashboard .home-calendar .fc-event .fc-title {
@@ -1300,7 +1295,6 @@
     body.printing-home-calendar .sidebar-menu,
     body.printing-home-calendar .sidde-page-header,
     body.printing-home-calendar .sidde-dashboard-kpis,
-    body.printing-home-calendar .home-calendar-help,
     body.printing-home-calendar .home-calendar-print,
     body.printing-home-calendar footer {
         display: none !important;

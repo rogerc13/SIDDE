@@ -17,7 +17,6 @@
 		</button>
 	</div>
 	<div class="sidde-panel-body">
-		<p class="home-calendar-help">Haz clic en una sesión para abrir la acción de formación. Los colores identifican el aula.</p>
 		<div id="home-calendar" class="home-calendar" role="region" aria-label="Calendario de acciones de formación del año {{ $year }}"></div>
 	</div>
 </section>

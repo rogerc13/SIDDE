@@ -179,6 +179,7 @@ final class HomeDashboardService
             $courseTitle = $item->course?->title ?? '';
             $facilitatorName = $this->personName($item->facilitator?->person);
             $url = url('u/af_programadas/'.$item->id.'/ver');
+            $palette = $this->calendarPalette($item->id);
 
             foreach ($item->sessions as $session) {
                 $locationName = $session->location?->name ?? 'Sin aula';
@@ -189,11 +190,14 @@ final class HomeDashboardService
 
                 $events[] = [
                     'id' => 'session-'.$session->id,
+                    'scheduledId' => $item->id,
                     'title' => $courseTitle,
                     'start' => $session->session_date.'T'.$session->start_time,
                     'end' => $session->session_date.'T'.$session->end_time,
                     'url' => $url,
-                    'color' => $this->locationColor($session->location_id),
+                    'backgroundColor' => $palette['backgroundColor'],
+                    'borderColor' => $palette['borderColor'],
+                    'textColor' => $palette['textColor'],
                     'locationName' => $locationName,
                     'facilitatorName' => $facilitatorName,
                     'tooltip' => implode(' · ', array_filter([
@@ -219,14 +223,21 @@ final class HomeDashboardService
     }
 
     /**
-     * Keep the same deterministic per-aula colours the scheduling calendar
-     * uses so a location is recognisable across the application.
+     * Sessions of one scheduled action share a single light card colour, so the
+     * calendar only changes hue when the action itself changes, matching the
+     * weekly schedule blocks on the scheduled course detail view.
+     *
+     * @return array{backgroundColor: string, borderColor: string, textColor: string}
      */
-    private function locationColor(?int $locationId): string
+    private function calendarPalette(int $scheduledId): array
     {
-        $hue = fmod((int) $locationId * 137.508, 360);
+        $hue = (int) round(fmod($scheduledId * 137.508, 360));
 
-        return 'hsl('.((int) round($hue)).', 65%, 45%)';
+        return [
+            'backgroundColor' => "hsl({$hue}, 60%, 95%)",
+            'borderColor' => "hsl({$hue}, 60%, 40%)",
+            'textColor' => '#2c3e50',
+        ];
     }
 
     private function activeFacilitatorsCount(): int

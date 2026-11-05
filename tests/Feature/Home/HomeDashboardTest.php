@@ -452,6 +452,45 @@ class HomeDashboardTest extends TestCase
         $response->assertDontSee($cancelado->course->title);
     }
 
+    public function test_home_calendar_colors_sessions_per_scheduled_action_with_the_weekly_card_palette(): void
+    {
+        [$first, $facilitator] = $this->makeScheduled();
+        [$second] = $this->makeScheduled();
+
+        $second->update(['facilitator_id' => $facilitator->id]);
+
+        CourseSession::create([
+            'scheduled_course_id' => $first->id,
+            'location_id' => Location::factory()->create()->id,
+            'session_date' => CarbonImmutable::today()->addDays(6)->toDateString(),
+            'start_time' => '10:00',
+            'end_time' => '12:00',
+            'status' => 'scheduled',
+        ]);
+
+        $user = User::factory()->facilitador()->create(['person_id' => $facilitator->person_id]);
+
+        $payload = app(HomeDashboardService::class)->forFacilitator($user);
+        $events = collect($payload['calendarEvents'])->keyBy('id');
+
+        $firstSessions = $first->sessions()->orderBy('id')->get();
+        $secondSession = $second->sessions()->orderBy('id')->first();
+
+        $sameActionFirst = $events['session-'.$firstSessions[0]->id];
+        $sameActionSecond = $events['session-'.$firstSessions[1]->id];
+        $otherAction = $events['session-'.$secondSession->id];
+
+        $this->assertSame($first->id, $sameActionFirst['scheduledId']);
+        $this->assertSame('#2c3e50', $sameActionFirst['textColor']);
+        $this->assertStringStartsWith('hsl(', $sameActionFirst['backgroundColor']);
+        $this->assertStringStartsWith('hsl(', $sameActionFirst['borderColor']);
+
+        $this->assertSame($sameActionFirst['backgroundColor'], $sameActionSecond['backgroundColor']);
+        $this->assertSame($sameActionFirst['borderColor'], $sameActionSecond['borderColor']);
+
+        $this->assertNotSame($sameActionFirst['borderColor'], $otherAction['borderColor']);
+    }
+
     public function test_participant_dashboard_links_to_programme_details(): void
     {
         [$scheduled] = $this->makeScheduled();
