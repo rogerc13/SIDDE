@@ -17,14 +17,14 @@
 							<span class="sidde-date-label">{{ \Carbon\Carbon::now()->locale('es')->translatedFormat('d \d\e F, Y') }}</span>
 						</div>
 						<h1 class="sidde-title">Bienvenido a SIDDE{{ $logeado?->person?->name ? ', '.$logeado->person->name : '' }}</h1>
-						<p class="sidde-subtitle">Sistema de Desarrollo y Diseño Educativo</p>
+						<p class="sidde-subtitle">Sistema de Desarrollo y Diseño Educativo, {{ \Carbon\Carbon::now()->year }}</p>
 					</div>
 				</div>
 				<div class="sidde-header-actions">
 					@can('store', \App\Models\Scheduled::class)
 						<a href="{{ url('u/af_programadas/crear') }}" class="sidde-quick-btn sidde-quick-btn--primary">
 							<i class="entypo-plus" aria-hidden="true"></i>
-							<span>Programar A.F.</span>
+							<span>Programar Acciones de Formación</span>
 						</a>
 					@endcan
 					@can('getAll', \App\Models\Course::class)

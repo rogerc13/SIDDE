@@ -449,7 +449,7 @@ class HomeDashboardTest extends TestCase
         $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
 
         $response->assertOk();
-        $response->assertSee('Programar A.F.');
+        $response->assertSee('Programar Acciones de Formación');
         $response->assertSee('Catálogo A.F.');
         $response->assertSee('Reportes');
         $response->assertSee('u/af_programadas?id_estado='.CourseStatus::POR_DICTAR, false);

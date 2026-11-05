@@ -157,7 +157,7 @@ test.describe('Home dashboard', () => {
 
         // Accepted exceptions: status pills use the admin index's solid Neon
         // palette with white labels (matching /u/af_programadas), and the
-        // primary "Programar A.F." CTA and the facilitator session count pill
+        // primary "Programar Acciones de Formación" CTA and the facilitator session count pill
         // reuse the index's brand green (#00a651). All sit below the AA 4.5:1
         // threshold by product decision, so we drop only those contrast nodes
         // and still assert everything else on the dashboard is clean.
