@@ -9,7 +9,7 @@
 		<h2 class="sidde-panel-title" id="upcoming-sessions-heading">Próximas Clases</h2>
 		<span class="sidde-panel-caption">Hoy y próximos {{ $focusDays }} días</span>
 		@if ($todayCount > 0)
-			<span class="count-pill" style="margin-left: auto;">{{ $todayCount }} {{ $todayCount === 1 ? 'sesión hoy' : 'sesiones hoy' }}</span>
+			<span class="count-pill" style="margin-left: auto;">{{ $todayCount }} {{ $todayCount === 1 ? 'clase hoy' : 'clases hoy' }}</span>
 		@endif
 	</div>
 	<ul class="sidde-session-list">
