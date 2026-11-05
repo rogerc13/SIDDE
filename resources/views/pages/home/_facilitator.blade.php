@@ -20,10 +20,6 @@
 				<span>Mis acciones</span>
 			</a>
 		@endcan
-		<a href="{{ url('u/pdf/mycourses') }}" class="sidde-quick-btn sidde-quick-btn--secondary">
-			<i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-			<span>Descargar lista PDF</span>
-		</a>
 		<a href="{{ route('mis_datos') }}" class="sidde-quick-btn sidde-quick-btn--secondary">
 			<i class="entypo-user" aria-hidden="true"></i>
 			<span>Mi perfil</span>

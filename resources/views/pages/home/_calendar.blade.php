@@ -11,9 +11,10 @@
 	<div class="sidde-panel-heading">
 		<h2 class="sidde-panel-title" id="home-calendar-heading">Calendario de acciones de formación</h2>
 		<span class="sidde-panel-caption">Año {{ $year }}</span>
-		@can('misCursos', \App\Models\Scheduled::class)
-			<a class="sidde-panel-link sidde-panel-link--icon" href="{{ route('mis_acciones') }}" title="Ver todas" aria-label="Ver todas mis acciones de formación del año {{ $year }}"><i class="entypo-right-open-big" aria-hidden="true"></i></a>
-		@endcan
+		<button type="button" id="home-calendar-print" class="sidde-panel-link home-calendar-print hide-print" aria-label="Imprimir vista actual del calendario">
+			<i class="entypo-print" aria-hidden="true"></i>
+			<span>Imprimir</span>
+		</button>
 	</div>
 	<div class="sidde-panel-body">
 		<p class="home-calendar-help">Haz clic en una sesión para abrir la acción de formación. Los colores identifican el aula.</p>
@@ -24,6 +25,15 @@
 @push('JS')
 <script>
 $(function () {
+	$('#home-calendar-print').on('click', function () {
+		document.body.classList.add('printing-home-calendar');
+		window.print();
+	});
+
+	window.addEventListener('afterprint', function () {
+		document.body.classList.remove('printing-home-calendar');
+	});
+
 	var events = @json($events, JSON_UNESCAPED_SLASHES);
 	var $calendar = $('#home-calendar');
 

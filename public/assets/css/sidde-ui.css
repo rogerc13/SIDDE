@@ -1230,6 +1230,26 @@
     color: #6b7a87;
 }
 
+.home-dashboard .home-calendar-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.home-dashboard .home-calendar-print i {
+    font-size: 13px;
+}
+
+.home-dashboard .home-calendar-print:hover,
+.home-dashboard .home-calendar-print:focus-visible {
+    color: var(--sidde-green);
+}
+
 .home-dashboard .home-calendar {
     min-height: 520px;
 }
@@ -1268,5 +1288,77 @@
     .home-dashboard .home-calendar {
         min-height: 460px;
         font-size: 11px;
+    }
+}
+
+@page {
+    size: A4 landscape;
+    margin: 10mm;
+}
+
+@media print {
+    body.printing-home-calendar .sidebar-menu,
+    body.printing-home-calendar .sidde-page-header,
+    body.printing-home-calendar .sidde-dashboard-kpis,
+    body.printing-home-calendar .home-calendar-help,
+    body.printing-home-calendar .home-calendar-print,
+    body.printing-home-calendar footer {
+        display: none !important;
+    }
+
+    body.printing-home-calendar .page-container,
+    body.printing-home-calendar .main-content {
+        display: block !important;
+        width: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.printing-home-calendar .home-dashboard {
+        padding: 0 !important;
+    }
+
+    body.printing-home-calendar .home-calendar-panel {
+        margin: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+
+    body.printing-home-calendar .home-calendar-panel .sidde-panel-heading {
+        padding: 0 0 10px !important;
+    }
+
+    body.printing-home-calendar .home-calendar-panel .sidde-panel-body {
+        padding: 0 !important;
+    }
+
+    body.printing-home-calendar .home-calendar {
+        min-height: 0 !important;
+    }
+
+    body.printing-home-calendar .home-calendar .fc-toolbar .fc-left,
+    body.printing-home-calendar .home-calendar .fc-toolbar .fc-right {
+        display: none !important;
+    }
+
+    body.printing-home-calendar .home-calendar .fc-toolbar {
+        margin-bottom: 8px !important;
+    }
+
+    body.printing-home-calendar .home-calendar .fc-toolbar .fc-center {
+        display: block !important;
+        float: none !important;
+        text-align: center !important;
+    }
+
+    body.printing-home-calendar .home-calendar .fc-view-container {
+        overflow: visible !important;
+    }
+
+    body.printing-home-calendar .home-calendar a[href]:after {
+        content: none !important;
     }
 }

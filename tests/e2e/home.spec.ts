@@ -79,7 +79,8 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi-label')).toHaveText(['Programadas', 'Por dictar', 'Culminadas']);
         await expect(page.locator('#home-calendar .fc-view')).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
-        await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
+        await expect(page.locator('#home-calendar-print')).toBeVisible();
+        await expect(page.locator('.sidde-header-actions a[href*="/u/pdf/"]')).toHaveCount(0);
     });
 
     test('participant sees own enrolments in the calendar', async ({ page }) => {
@@ -91,7 +92,32 @@ test.describe('Home dashboard', () => {
         await expect(page.locator('.sidde-kpi-strip .sidde-kpi-label')).toHaveText(['Programadas', 'Por dictar', 'Culminadas']);
         await expect(page.locator('#home-calendar .fc-view')).toBeVisible();
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
-        await expect(page.locator('a.sidde-panel-link--icon[aria-label^="Ver todas mis acciones"]')).toBeVisible();
+        await expect(page.locator('#home-calendar-print')).toBeVisible();
+        await expect(page.locator('.sidde-header-actions a[href*="/u/pdf/"]')).toHaveCount(0);
+    });
+
+    test('calendar print button prints the current view only', async ({ page }) => {
+        await loginAs(page, 'facilitador');
+        await page.goto('/home');
+        await expect(page.locator('#home-calendar .fc-view')).toBeVisible();
+        await expect(page.locator('#home-calendar-print')).toContainText('Imprimir');
+
+        await page.evaluate(() => {
+            (window as any).__printed = false;
+            (window as any).print = () => {
+                (window as any).__printed = true;
+            };
+        });
+
+        await page.click('#home-calendar-print');
+
+        expect(await page.evaluate(() => (window as any).__printed)).toBe(true);
+        await expect(page.locator('body')).toHaveClass(/printing-home-calendar/);
+
+        await page.emulateMedia({ media: 'print' });
+        await expect(page.locator('.sidde-page-header')).toBeHidden();
+        await expect(page.locator('.sidde-dashboard-kpis')).toBeHidden();
+        await expect(page.locator('.home-calendar-panel')).toBeVisible();
     });
 
     test('the navigation menu can be opened at phone widths', async ({ page }) => {

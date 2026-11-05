@@ -300,6 +300,32 @@ class HomeDashboardTest extends TestCase
         $participantResponse->assertDontSee('<h4 class="sidde-panel-title"', false);
     }
 
+    public function test_personalised_homes_offer_calendar_print_instead_of_a_pdf_download(): void
+    {
+        [$scheduled] = $this->makeScheduled();
+
+        $facilitator = User::factory()->facilitador()->create(['person_id' => $scheduled->facilitator->person_id]);
+
+        $participant = User::factory()->participante()->create();
+        Participant::create([
+            'person_id' => $participant->person_id,
+            'scheduled_id' => $scheduled->id,
+            'participant_status_id' => Participant::ENCURSO,
+        ]);
+
+        foreach ([$facilitator, $participant] as $user) {
+            $response = $this->actingAs($user)->get('/home');
+
+            $response->assertOk();
+            $response->assertSee('id="home-calendar-print"', false);
+            $response->assertSee('Imprimir');
+            $response->assertDontSee('u/pdf/mycourses', false);
+            $response->assertDontSee('Descargar lista PDF');
+            $response->assertDontSee('Descargar PDF');
+            $response->assertDontSee('aria-label="Ver todas mis acciones de formación del año', false);
+        }
+    }
+
     public function test_overview_renders_the_status_breakdown_widget(): void
     {
         $this->makeScheduled(null, [
