@@ -37,6 +37,17 @@ test.describe('Home dashboard', () => {
         await expect(
             page.locator('.sidde-panel-title', { hasText: 'Próximas Clases' }),
         ).toBeVisible();
+        await expect(page.locator('.sidde-dashboard-primary #upcoming-sessions-heading')).toBeVisible();
+        await expect(page.locator('.sidde-dashboard-rail #upcoming-heading')).toBeVisible();
+        await expect(page.locator('.sidde-condensed-scroll')).toHaveCSS('overflow-y', 'auto');
+
+        const railPanels = page.locator('.sidde-dashboard-rail .sidde-panel');
+        const scheduledPanelBox = await railPanels.nth(0).boundingBox();
+        const statusPanelBox = await railPanels.nth(1).boundingBox();
+        expect(scheduledPanelBox).not.toBeNull();
+        expect(statusPanelBox).not.toBeNull();
+        expect(scheduledPanelBox!.y).toBeLessThan(statusPanelBox!.y);
+
         await expect(page.locator('.sidde-header-actions .sidde-quick-btn').first()).toBeVisible();
         await expect(page.locator('.sidde-status-stack')).toBeVisible();
         await expect(page.locator('.sidde-panel-link--icon').first()).toBeVisible();
@@ -111,15 +122,15 @@ test.describe('Home dashboard', () => {
         await expect(sidebar).toHaveCSS('display', 'block');
     });
 
-    test('agenda keeps status, dates and actions at phone widths', async ({ page }) => {
+    test('condensed upcoming actions stay readable at phone widths', async ({ page }) => {
         await loginAs(page, 'admin');
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto('/home');
 
-        const firstRow = page.locator('.sidde-agenda-row').first();
+        const firstRow = page.locator('.sidde-condensed-item').first();
+        await expect(firstRow.locator('.sidde-agenda-date')).toBeVisible();
+        await expect(firstRow.locator('.sidde-agenda-course-title')).toBeVisible();
         await expect(firstRow.locator('.sidde-status')).toBeVisible();
-        await expect(firstRow.locator('.sidde-agenda-meta')).toBeVisible();
-        await expect(firstRow.locator('.sidde-action a')).toBeVisible();
 
         const firstKpi = await page.locator('.sidde-dashboard-kpis .sidde-kpi').nth(0).boundingBox();
         const secondKpi = await page.locator('.sidde-dashboard-kpis .sidde-kpi').nth(1).boundingBox();

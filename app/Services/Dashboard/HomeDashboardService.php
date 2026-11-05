@@ -249,15 +249,8 @@ final class HomeDashboardService
         return Scheduled::query()
             ->with([
                 'course.capacity',
-                'course.modality',
                 'facilitator.person',
                 'courseStatus',
-                'sessions' => fn (Builder $query) => $query
-                    ->whereDate('session_date', '>=', $this->windowStart())
-                    ->where('status', '!=', 'cancelled')
-                    ->with(['location' => fn ($location) => $location->withTrashed()])
-                    ->orderBy('session_date')
-                    ->orderBy('start_time'),
             ])
             ->withCount('participants')
             ->whereDate('end_date', '>=', $this->windowStart())

@@ -85,6 +85,22 @@ class HomeDashboardTest extends TestCase
         $response->assertSee('Próximas Acciones de Formación');
     }
 
+    public function test_overview_places_upcoming_actions_in_the_rail_above_the_status_breakdown(): void
+    {
+        $this->makeScheduled();
+
+        $response = $this->actingAs($this->userWithRole(Role::ADMINISTRADOR))->get('/home');
+
+        $response->assertOk();
+        $response->assertSeeInOrder([
+            'id="upcoming-sessions-heading"',
+            'id="upcoming-heading"',
+            'id="status-breakdown-heading"',
+        ], false);
+        $response->assertSee('sidde-condensed-scroll', false);
+        $response->assertSee('registrados');
+    }
+
     public function test_participant_does_not_see_organisation_wide_widgets(): void
     {
         $this->makeScheduled();

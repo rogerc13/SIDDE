@@ -46,9 +46,10 @@
 
 			<div class="sidde-dashboard-main">
 				<div class="sidde-dashboard-primary">
-					@include('pages.home._upcoming')
+					@include('pages.home._upcoming_sessions')
 				</div>
 				<div class="sidde-dashboard-rail">
+					@include('pages.home._upcoming_scheduled')
 					@include('pages.home._status')
 				</div>
 			</div>
